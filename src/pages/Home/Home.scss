@@ -1,0 +1,72 @@
+@mixin center {
+  align-items: center;
+  justify-content: center;
+}
+@mixin row {
+  display: flex;
+  flex-direction: row;
+}
+@mixin column {
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  height: auto;
+}
+.intro {
+  height: 600px;
+  width: 100%;
+  display: flex;
+  @include column();
+  &__video {
+    height: 80%;
+    margin: auto;
+  }
+}
+
+.btn--newacc {
+  margin: auto;
+  width: 200px;
+  margin-top: -180px;
+}
+
+.content {
+  @include column();
+  gap: 100px;
+  &__group {
+    @include column();
+    gap: 20px;
+    padding: 50px 0;
+    @include center();
+    &--title {
+      color: var(--secondary-color);
+      font-weight: 800;
+      font-size: 40px;
+      cursor: default;
+    }
+    &--title::selection {
+      background: none;
+      color: var(--secondary-color);
+    }
+    &--content {
+      font-size: 20px;
+      max-width: 40%;
+      color: var(--gray-dark);
+      text-align: center;
+    }
+  }
+  &__quote {
+    padding: 100px 0 0 0;
+    height: auto;
+    @include column();
+    @include center();
+    &--text {
+      width: 30%;
+    }
+    &--moutains {
+      width: 100%;
+    }
+  }
+}
