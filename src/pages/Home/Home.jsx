@@ -21,8 +21,8 @@ function Home() {
   return (
     <div className="container">
       <Navbar onSelectBtn={handleSelectBtn}></Navbar>
-      Home
-      <Footer></Footer>
+      This is my Home page
+      <Footer />
     </div>
   );
 }

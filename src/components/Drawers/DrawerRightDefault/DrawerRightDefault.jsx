@@ -24,6 +24,7 @@ import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstruct
 import SourceIcon from '@mui/icons-material/Source';
 import ForumIcon from '@mui/icons-material/Forum';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import config from '~/config';
 
 DrawerRightDefault.propTypes = {
   isOpen: PropTypes.bool,
@@ -48,7 +49,7 @@ function DrawerRightDefault(props) {
 
   const handleLogout = () => {
     localStorage.removeItem('data');
-    navigate('/sign-in');
+    navigate(config.routes.login);
   };
 
   return (

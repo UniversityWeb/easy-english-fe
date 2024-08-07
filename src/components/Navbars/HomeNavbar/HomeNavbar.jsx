@@ -12,20 +12,17 @@ function HomeNavbar(props) {
 
   return (
     <div className="navbar">
-      <img className="navbar--logo" src={TransientAppLogo} alt="Logo" />
+      <img className="navbar--logo" src={TransientAppLogo} alt="Logo" style={{ width: '100px', height: '100px' }} />
       <div className="navbar--list">
         <div className="navbar--list__gap20">
-          <Button id="contest" light onClick={props.onSelectBtn}>
-            Contest
-          </Button>
-          <Button id="discuss" light onClick={props.onSelectBtn}>
-            Discuss
+          <Button id="course" light onClick={props.onSelectBtn}>
+            Course
           </Button>
           {user ? (
             <></>
           ) : (
-            <Button id="signin" light onClick={props.onSelectBtn}>
-              Sign In
+            <Button id="login" light onClick={props.onSelectBtn}>
+              Login
             </Button>
           )}
         </div>
