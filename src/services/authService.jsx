@@ -1,22 +1,28 @@
-import axios from 'axios';
+import { isLoggedIn, saveLoginResponse } from '~/utils/authUtils';
+import { post } from '~/utils/httpRequest';
 
-const AUTH_API_URL = `${process.env.REACT_APP_BASE_API_URL}/v1/auth`;
+const SUFFIX_AUTH_API_URL = '/auth';
 
-const getCurUser = () => {};
+const getCurUser = () => {
+  if (isLoggedIn()) {
+  }
+};
 
-const login = async (contest) => {
+const login = async (loginRequest) => {
   try {
-    const restUrl = `${AUTH_API_URL}/add-contest`;
-    const response = await axios.post(restUrl, contest);
+    const path = `${SUFFIX_AUTH_API_URL}/login`;
+    const response = await post(path, loginRequest);
 
-    if (response.status === 201) {
-      console.log('Add successful');
-      return response.data;
+    if (response?.status === 200) {
+      console.log('Login successfully');
+      const loginResponse = await response.data;
+      saveLoginResponse(loginResponse);
+      return loginResponse;
     } else {
       return null;
     }
   } catch (error) {
-    console.error('Add failed', error);
+    console.error('Login unsuccessfully', error);
     return null;
   }
 };

@@ -1,32 +1,32 @@
 import axios from 'axios';
-import { ORIGINAL_API_URL } from '~/utils/Const';
-import { getToken } from './auth';
+import { getToken } from './authUtils';
 
-export const httpRequest = axios.create({
-  baseURL: ORIGINAL_API_URL,
+const httpRequest = axios.create({
+  baseURL: `${process.env.REACT_APP_BASE_API_URL}/`,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-export const privateHttpRequest = axios.create({
-  baseURL: ORIGINAL_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-const get = async (path, options = {}) => {
-  const response = await httpRequest.get(path, options);
-  return response.data;
-};
-
-privateHttpRequest.interceptors.request.use(
+httpRequest.interceptors.request.use(
   (config) => {
     const token = getToken();
-    config.headers.Authorization = token ? `Bearer ${token}` : '';
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error),
 );
-export default { httpRequest, privateHttpRequest };
+
+export const get = async (path, options = {}) => {
+  const response = await httpRequest.get(path, options);
+  return response.data;
+};
+
+export const post = async (path, data, options = {}) => {
+  const response = await httpRequest.post(path, data, options);
+  return response.data;
+};
+
+export default httpRequest;
