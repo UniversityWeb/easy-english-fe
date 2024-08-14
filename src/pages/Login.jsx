@@ -15,7 +15,7 @@ import {
   InputGroup,
   InputRightElement,
   Link,
-  Spacer,
+  Stack,
   Text,
   useToast,
   VStack,
@@ -39,9 +39,6 @@ const Login = () => {
 
   const handleLogin = (event) => {
     event.preventDefault();
-    console.log('Remember me checkbox is checked:', isRememberMe);
-    console.log(`username: ${username}`);
-    console.log(`password: ${password}`);
 
     setUsername(username?.trim());
     setPassword(password?.trim());
@@ -110,7 +107,9 @@ const Login = () => {
                 value={username}
                 onChange={(e) => setUsername(e?.target?.value)}
               />
+            </FormControl>
 
+            <FormControl>
               <FormLabel mt={6}>Password</FormLabel>
               <InputGroup>
                 <Input
@@ -121,54 +120,50 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e?.target?.value)}
                 />
-                <InputRightElement
-                  onClick={togglePasswordVisibility}
-                  cursor="pointer"
-                >
-                  {showPassword ? (
-                    <ViewOffIcon color="cyan.700" />
-                  ) : (
-                    <ViewIcon color="cyan.700" />
-                  )}
+                <InputRightElement h={'full'}>
+                  <Button
+                    variant={'ghost'}
+                    onClick={togglePasswordVisibility}
+                    cursor="pointer">
+                    {showPassword ? <ViewIcon color="cyan.700" /> : <ViewOffIcon color="cyan.700" />}
+                  </Button>
                 </InputRightElement>
               </InputGroup>
-
-              <Flex>
-                <Box p="4">
-                  <Checkbox
-                    id="remember-me"
-                    colorScheme="cyan"
-                    size="md"
-                    isChecked={isRememberMe}
-                    onChange={handleRememberMeChange}
-                  >
-                    Remember me
-                  </Checkbox>
-                </Box>
-                <Spacer />
-                <Box p="4">
-                  <Link color="cyan.400" href="#">
-                    Forgot password?
-                  </Link>
-                </Box>
-              </Flex>
-
-              <Flex m={6} justifyContent="center">
-                <Button
-                  bg="cyan.600"
-                  color="white"
-                  loadingText="Loading"
-                  width="full"
-                  size="lg"
-                  borderRadius="xl"
-                  p={6}
-                  disabled={true}
-                  onClick={handleLogin}
-                >
-                  Login
-                </Button>
-              </Flex>
             </FormControl>
+
+            <Stack spacing={10}>
+              <Stack
+                direction={{ base: 'column', sm: 'row' }}
+                align={'start'}
+                justify={'space-between'}
+              >
+                <Checkbox
+                  id="remember-me"
+                  colorScheme="cyan"
+                  size="md"
+                  isChecked={isRememberMe}
+                  onChange={handleRememberMeChange}
+                >
+                  Remember me
+                </Checkbox>
+                <Link color="cyan.400" href={config.routes.forgot_password}>
+                  Forgot password?
+                </Link>
+              </Stack>
+              <Button
+                bg="cyan.600"
+                color="white"
+                loadingText="Loading"
+                width="full"
+                size="lg"
+                borderRadius="xl"
+                p={6}
+                disabled={true}
+                onClick={handleLogin}
+              >
+                Login
+              </Button>
+            </Stack>
 
             <Flex align="center" mt={8}>
               <Box w="100px">
