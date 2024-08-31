@@ -2,18 +2,34 @@ import React, { useState, useEffect } from 'react';
 import '../Navbar.scss';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
-import { useDisclosure, Avatar, Text } from '@chakra-ui/react';
+import { useDisclosure, Avatar } from '@chakra-ui/react';
 import DrawerRightDefault from '~/components/Drawers/DrawerRightDefault';
 import AuthService from '~/services/AuthService';
 import { isLoggedIn } from '~/utils/authUtils';
+import useCustomToast from '~/hooks/useCustomToast';
 
 function HomeNavbar(props) {
+  const { errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [user, setUser] = useState(null);
+  const [isUserLoading, setIsUserLoading] = useState(true);
 
   useEffect(() => {
-    const user = AuthService.getCurUser();
-    setUser(user);
+    const fetchUser = async () => {
+      setIsUserLoading(true);
+      AuthService.getCurUser()
+        .then(user => {
+          setUser(user);
+        })
+        .catch((e) => {
+          errorToast(e?.message);
+        })
+        .finally(() => {
+          setIsUserLoading(false);
+        });
+    };
+
+    fetchUser();
   }, []);
 
   return (
@@ -29,7 +45,7 @@ function HomeNavbar(props) {
               <div className="navbar__group">
                 <Avatar size="lg" cursor="pointer" name={user?.fullName} onClick={onOpen} src={user?.urlImage} />
               </div>
-              <DrawerRightDefault user={user} isOpen={isOpen} onClose={onClose}></DrawerRightDefault>
+              <DrawerRightDefault user={user} isUserLoading={isUserLoading} isOpen={isOpen} onClose={onClose}></DrawerRightDefault>
             </>
           ) : (
             <Button id="login" light onClick={props.onSelectBtn}>

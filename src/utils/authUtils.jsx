@@ -18,5 +18,6 @@ export const getToken = () => {
   if (!isLoggedIn()) {
     return null;
   }
-  return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).token;
+
+  return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).tokenStr;
 };

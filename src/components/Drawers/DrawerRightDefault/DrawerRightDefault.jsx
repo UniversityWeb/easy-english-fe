@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   VStack,
@@ -10,7 +10,8 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  DrawerContent, Skeleton, Stack,
+  DrawerContent,
+  Skeleton,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
@@ -27,19 +28,20 @@ DrawerRightDefault.propTypes = {
   isOpen: PropTypes.bool,
   onClose: PropTypes.func,
   user: PropTypes.object,
+  isUserLoading: PropTypes.bool,
 };
 
 DrawerRightDefault.defaultProps = {
   user: {
-    username: "john",
-    fullName: "john",
-    email: "john@gmail.com",
-    phoneNumber: "+84972640891",
-    bio: "A student.",
-    gender: "MALE",
-    dob: "2024-08-05T13:47:06.794Z",
-    role: "ADMIN",
-    createdAt: "2024-08-05T13:47:06.794Z",
+    username: 'john',
+    fullName: 'john',
+    email: 'john@gmail.com',
+    phoneNumber: '+84972640891',
+    bio: 'A student.',
+    gender: 'MALE',
+    dob: '2024-08-05T13:47:06.794Z',
+    role: 'ADMIN',
+    createdAt: '2024-08-05T13:47:06.794Z',
     avatarSrc: '',
   },
 };
@@ -54,16 +56,26 @@ function DrawerRightDefault(props) {
   };
 
   return (
-    <Drawer isOpen={props?.isOpen} placement="right" onClose={props.onClose} size={'sm'}>
+    <Drawer
+      isOpen={props?.isOpen}
+      placement="right"
+      onClose={props.onClose}
+      size={'sm'}
+    >
       <DrawerOverlay />
       <DrawerContent backgroundColor={'var(--white)'}>
         <DrawerHeader borderBottomWidth="1px">
-          <Box display="flex" alignItems="center" gap="4%" justifyContent="start">
+          <Box
+            display="flex"
+            alignItems="center"
+            gap="4%"
+            justifyContent="start"
+          >
             <Avatar size="xl" name={user?.fullName} src={user?.urlImage} />
-            {isLoggedIn() ? (
-              <Text className={styles.drawer__heading}>{user?.fullName}</Text>
+            {!isLoggedIn() || props?.isUserLoading ? (
+              <Skeleton height="20px" width="100vh" />
             ) : (
-              <Skeleton height='20px' width='100vh' />
+              <Text className={styles.drawer__heading}>{user?.fullName}</Text>
             )}
           </Box>
         </DrawerHeader>
@@ -72,7 +84,7 @@ function DrawerRightDefault(props) {
           <VStack>
             <div
               onClick={() => {
-                navigate(`/home`);
+                navigate(config.routes.home[0]);
               }}
               className={styles.drawer__item}
               style={{ textDecoration: 'none', border: 'none' }}

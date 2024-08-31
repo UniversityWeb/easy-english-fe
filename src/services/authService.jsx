@@ -8,9 +8,12 @@ const getCurUser = async () => {
     return null;
   }
 
+  const path = `${SUFFIX_AUTH_API_URL}/get-user-by-token`;
   const tokenStr = getToken();
-  const path = `${SUFFIX_AUTH_API_URL}/get-user-by-token?tokenStr=${tokenStr}`;
-  const response = await get(path);
+  debugger
+  const response = await get(path, {
+    params: { tokenStr }
+  });
 
   if (response?.status !== 200) {
     return null;
