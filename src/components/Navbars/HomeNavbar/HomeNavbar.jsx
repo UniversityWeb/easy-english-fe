@@ -14,7 +14,6 @@ function HomeNavbar(props) {
   useEffect(() => {
     const user = AuthService.getCurUser();
     setUser(user);
-    debugger
   }, []);
 
   return (

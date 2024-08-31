@@ -52,5 +52,3 @@ export const post = async (path, data, options = {}) => {
     return { error: e.message };
   }
 };
-
-export default httpRequest;

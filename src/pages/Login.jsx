@@ -17,7 +17,6 @@ import {
   Link,
   Stack,
   Text,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
@@ -27,6 +26,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '~/services/AuthService';
 import config from '~/config';
+import useCustomToast from '~/hooks/useCustomToast';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isRememberMe, setIsRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const toast = useToast();
+  const { successToast, errorToast, warningToast } = useCustomToast();
   const [isLogging, setIsLogging] = useState(false);
 
   const handleLogin = (event) => {
@@ -43,12 +43,7 @@ const Login = () => {
     setUsername(username?.trim());
     setPassword(password?.trim());
     if (username === '' || password === '') {
-      toast({
-        title: `Please fill in both the username and password fields`,
-        position: 'top-right',
-        status: 'warning',
-        isClosable: true,
-      });
+      warningToast(`Please fill in both the username and password fields`);
       return;
     }
 
@@ -60,22 +55,11 @@ const Login = () => {
     AuthService.login(loginRequest)
       .then((loginResponse) => {
         if (!loginResponse) {
-          toast({
-            title: `Login unsuccessfully`,
-            position: 'top-right',
-            status: 'error',
-            isClosable: true,
-          });
+          errorToast(`Login unsuccessfully`);
           return;
         }
 
-        toast({
-          title: `Login successfully`,
-          position: 'top-right',
-          status: 'success',
-          isClosable: true,
-        });
-
+        successToast(`Login successfully`);
         navigate(config.routes.home[0]);
       })
       .catch((e) => {

@@ -1,5 +1,5 @@
 import { getToken, isLoggedIn, removeLoginResponse, saveLoginResponse } from '~/utils/authUtils';
-import { post, get } from '~/utils/httpRequest';
+import { get, post } from '~/utils/httpRequest';
 
 const SUFFIX_AUTH_API_URL = '/auth';
 
@@ -17,7 +17,6 @@ const getCurUser = async () => {
   }
 
   const user = response.data;
-  debugger
   return user;
 };
 
@@ -36,6 +35,23 @@ const login = async (loginRequest) => {
     }
   } catch (error) {
     console.error('Login unsuccessfully', error);
+    return null;
+  }
+};
+
+const register = async (registerRequest) => {
+  try {
+    const path = `${SUFFIX_AUTH_API_URL}/register`;
+    const response = await post(path, registerRequest);
+
+    if (response?.status === 201) {
+      console.log('Register successfully');
+      return await response.data;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Register unsuccessfully', error);
     return null;
   }
 };
@@ -59,6 +75,7 @@ const logout = async () => {
 const AuthService = {
   getCurUser,
   login,
+  register,
   logout
 };
 
