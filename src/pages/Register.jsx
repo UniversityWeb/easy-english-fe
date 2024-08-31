@@ -96,7 +96,6 @@ const Register = () => {
 
   const handleRegister = () => {
     console.log('handleRegister method onClick');
-    debugger
     if (!validateForm()) return;
 
     console.log(`RegisterRequest: ${registerRequest}`);
@@ -107,11 +106,11 @@ const Register = () => {
           return;
         }
 
-        successToast(`Register successfully`);
+        successToast(registerResponse?.message);
         navigate(config.routes.login);
       })
       .catch((e) => {
-        console.error(e);
+        errorToast(e?.message)
       });
   };
 

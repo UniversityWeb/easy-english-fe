@@ -21,55 +21,40 @@ const getCurUser = async () => {
 };
 
 const login = async (loginRequest) => {
-  try {
-    const path = `${SUFFIX_AUTH_API_URL}/login`;
-    const response = await post(path, loginRequest);
+  const path = `${SUFFIX_AUTH_API_URL}/login`;
+  const response = await post(path, loginRequest);
 
-    if (response?.status === 200) {
-      console.log('Login successfully');
-      const loginResponse = await response.data;
-      saveLoginResponse(loginResponse);
-      return loginResponse;
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error('Login unsuccessfully', error);
+  if (response?.status !== 200) {
     return null;
   }
+
+  const loginResponse = await response.data;
+  saveLoginResponse(loginResponse);
+  return loginResponse;
 };
 
 const register = async (registerRequest) => {
-  try {
-    const path = `${SUFFIX_AUTH_API_URL}/register`;
-    const response = await post(path, registerRequest);
+  const path = `${SUFFIX_AUTH_API_URL}/register`;
+  const response = await post(path, registerRequest);
 
-    if (response?.status === 201) {
-      console.log('Register successfully');
-      return await response.data;
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error('Register unsuccessfully', error);
+  if (response?.status !== 201) {
     return null;
   }
+
+  return response.data;
 };
 
 const logout = async () => {
-  try {
-    const path = `${SUFFIX_AUTH_API_URL}/logout`;
-    const response = await post(path);
+  const path = `${SUFFIX_AUTH_API_URL}/logout`;
+  const response = await post(path);
 
-    if (response?.status === 200) {
-      removeLoginResponse();
-      console.log('Logout successfully');
-    } else {
-      console.error('Logout unsuccessfully');
-    }
-  } catch (error) {
-    console.error('Logout unsuccessfully', error);
+  if (response?.status !== 200) {
+    console.error('Logout unsuccessfully');
+    return;
   }
+
+  removeLoginResponse();
+  console.log('Logout successfully');
 };
 
 const AuthService = {

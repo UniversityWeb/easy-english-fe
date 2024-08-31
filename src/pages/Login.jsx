@@ -63,7 +63,7 @@ const Login = () => {
         navigate(config.routes.home[0]);
       })
       .catch((e) => {
-        console.error(e);
+        errorToast(e?.message);
       });
   };
 

@@ -39,8 +39,10 @@ export const get = async (path, options = {}) => {
   try {
     return await httpRequest.get(path, options);
   } catch (e) {
-    console.error(`Error fetching data from ${path}:`, e.message);
-    return { error: e.message };
+    console.error(`Error fetching data from ${path}:`, e?.message);
+    const errorResponse = e?.response?.data;
+    const errorMsg = errorResponse?.message || 'An unknown error occurred';
+    throw new Error(errorMsg);
   }
 };
 
@@ -48,7 +50,9 @@ export const post = async (path, data, options = {}) => {
   try {
     return await httpRequest.post(path, data, options);
   } catch (e) {
-    console.error(`Error posting data to ${path}:`, e.message);
-    return { error: e.message };
+    console.error(`Error posting data to ${path}:`, e?.message);
+    const errorResponse = e?.response?.data;
+    const errorMsg = errorResponse?.message || 'An unknown error occurred';
+    throw new Error(errorMsg);
   }
 };
