@@ -43,6 +43,12 @@ const Login = () => {
     setUsername(username?.trim());
     setPassword(password?.trim());
     if (username === '' || password === '') {
+      toast({
+        title: `Please fill in both the username and password fields`,
+        position: 'top-right',
+        status: 'warning',
+        isClosable: true,
+      });
       return;
     }
 
@@ -92,13 +98,13 @@ const Login = () => {
         <Heading size="md">Login in to your account</Heading>
         <Text>
           Don’t have an account?{' '}
-          <Link color="cyan.400" href="register">
+          <Link color="cyan.400" href={config.routes.register}>
             Register
           </Link>
         </Text>
         <Card mt={6} p="2rem">
           <CardBody>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>Username</FormLabel>
               <Input
                 id="username"
@@ -109,7 +115,7 @@ const Login = () => {
               />
             </FormControl>
 
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel mt={6}>Password</FormLabel>
               <InputGroup>
                 <Input
@@ -124,14 +130,19 @@ const Login = () => {
                   <Button
                     variant={'ghost'}
                     onClick={togglePasswordVisibility}
-                    cursor="pointer">
-                    {showPassword ? <ViewIcon color="cyan.700" /> : <ViewOffIcon color="cyan.700" />}
+                    cursor="pointer"
+                  >
+                    {showPassword ? (
+                      <ViewIcon color="cyan.700" />
+                    ) : (
+                      <ViewOffIcon color="cyan.700" />
+                    )}
                   </Button>
                 </InputRightElement>
               </InputGroup>
             </FormControl>
 
-            <Stack spacing={10}>
+            <Stack spacing={10} mt={4}>
               <Stack
                 direction={{ base: 'column', sm: 'row' }}
                 align={'start'}

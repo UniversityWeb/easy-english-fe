@@ -6,7 +6,6 @@ const httpRequest = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
 httpRequest.interceptors.request.use(
@@ -37,13 +36,21 @@ httpRequest.interceptors.response.use(
 );
 
 export const get = async (path, options = {}) => {
-  const response = await httpRequest.get(path, options);
-  return response.data;
+  try {
+    return await httpRequest.get(path, options);
+  } catch (e) {
+    console.error(`Error fetching data from ${path}:`, e.message);
+    return { error: e.message };
+  }
 };
 
 export const post = async (path, data, options = {}) => {
-  const response = await httpRequest.post(path, data, options);
-  return response.data;
+  try {
+    return await httpRequest.post(path, data, options);
+  } catch (e) {
+    console.error(`Error posting data to ${path}:`, e.message);
+    return { error: e.message };
+  }
 };
 
 export default httpRequest;

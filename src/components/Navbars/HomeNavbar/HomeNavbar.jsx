@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import '../Navbar.scss';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
-import { useDisclosure, Avatar } from '@chakra-ui/react';
+import { useDisclosure, Avatar, Text } from '@chakra-ui/react';
 import DrawerRightDefault from '~/components/Drawers/DrawerRightDefault';
 import AuthService from '~/services/AuthService';
+import { isLoggedIn } from '~/utils/authUtils';
 
 function HomeNavbar(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [user, setUser] = useState(AuthService.getCurUser());
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const user = AuthService.getCurUser();
+    setUser(user);
+    debugger
+  }, []);
 
   return (
     <div className="navbar">
@@ -18,24 +25,19 @@ function HomeNavbar(props) {
           <Button id="course" light onClick={props.onSelectBtn}>
             Course
           </Button>
-          {user ? (
-            <></>
+          {isLoggedIn() ? (
+            <>
+              <div className="navbar__group">
+                <Avatar size="lg" cursor="pointer" name={user?.fullName} onClick={onOpen} src={user?.urlImage} />
+              </div>
+              <DrawerRightDefault user={user} isOpen={isOpen} onClose={onClose}></DrawerRightDefault>
+            </>
           ) : (
             <Button id="login" light onClick={props.onSelectBtn}>
               Login
             </Button>
           )}
         </div>
-        {user ? (
-          <>
-            <div className="navbar__group">
-              <Avatar size="lg" cursor="pointer" name={user?.fullName} onClick={onOpen} src={user?.urlImage} />
-            </div>
-            <DrawerRightDefault user={user} isOpen={isOpen} onClose={onClose}></DrawerRightDefault>
-          </>
-        ) : (
-          <></>
-        )}
       </div>
     </div>
   );

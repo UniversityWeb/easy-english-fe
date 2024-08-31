@@ -2,7 +2,8 @@ const LOGIN_RESPONSE_KEY = 'loginResponseData'
 
 export const isLoggedIn = () => {
   let data = localStorage.getItem(LOGIN_RESPONSE_KEY);
-  return data != null;
+  console.log(`isLoggedIn() method: ${data}`);
+  return data !== null;
 };
 
 export const saveLoginResponse = (loginResponse) => {

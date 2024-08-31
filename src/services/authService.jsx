@@ -17,6 +17,7 @@ const getCurUser = async () => {
   }
 
   const user = response.data;
+  debugger
   return user;
 };
 

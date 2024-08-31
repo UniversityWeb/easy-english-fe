@@ -1,18 +1,18 @@
 import {
+  Avatar,
+  AvatarBadge,
   Button,
+  Center,
   Flex,
   FormControl,
   FormLabel,
   Heading,
+  IconButton,
   Input,
   Stack,
   useColorModeValue,
-  Avatar,
-  AvatarBadge,
-  IconButton,
-  Center,
-} from '@chakra-ui/react'
-import { SmallCloseIcon } from '@chakra-ui/icons'
+} from '@chakra-ui/react';
+import { SmallCloseIcon } from '@chakra-ui/icons';
 
 export default function UserProfileEdit() {
   return (
@@ -20,7 +20,8 @@ export default function UserProfileEdit() {
       minH={'100vh'}
       align={'center'}
       justify={'center'}
-      bg={useColorModeValue('gray.50', 'gray.800')}>
+      bg={useColorModeValue('gray.50', 'gray.800')}
+    >
       <Stack
         spacing={4}
         w={'full'}
@@ -29,7 +30,8 @@ export default function UserProfileEdit() {
         rounded={'xl'}
         boxShadow={'lg'}
         p={6}
-        my={12}>
+        my={12}
+      >
         <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
           User Profile Edit
         </Heading>
@@ -85,7 +87,8 @@ export default function UserProfileEdit() {
             w="full"
             _hover={{
               bg: 'red.500',
-            }}>
+            }}
+          >
             Cancel
           </Button>
           <Button
@@ -94,11 +97,12 @@ export default function UserProfileEdit() {
             w="full"
             _hover={{
               bg: 'blue.500',
-            }}>
+            }}
+          >
             Submit
           </Button>
         </Stack>
       </Stack>
     </Flex>
-  )
+  );
 }

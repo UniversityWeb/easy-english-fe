@@ -1,34 +1,40 @@
 import {
+  Button,
+  Card,
+  CardBody,
+  Center,
   FormControl,
   FormLabel,
+  Heading,
+  Image,
   Input,
   InputGroup,
   InputRightElement,
+  Link,
+  Select,
   Stack,
-  Button,
-  Heading,
   Text,
-  Link, Select, Image, VStack, Card, CardBody, Center,
+  VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
+import { useState } from 'react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import config from '~/config';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 
 export default function SignupCard() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const [registerRequest, setRegisterRequest] = useState({
-    username: "john",
-    password: "P@123456789",
-    fullName: "john",
-    email: "john@gmail.com",
-    phoneNumber: "+84972640891",
-    gender: "MALE",
-    dob: "2024-08-05T13:47:06.794Z"
+    username: 'john',
+    password: 'P@123456789',
+    fullName: 'john',
+    email: 'john@gmail.com',
+    phoneNumber: '+84972640891',
+    gender: 'MALE',
+    dob: '2024-08-05T13:47:06.794Z',
   });
 
   const handleRegister = () => {
-    console.log("handleRegister method onClick");
+    console.log('handleRegister method onClick');
   };
 
   const handleDateTimeChange = (e) => {
@@ -42,7 +48,7 @@ export default function SignupCard() {
     setRegisterRequest({
       ...registerRequest,
       dob: date.toISOString(),
-    })
+    });
   };
 
   return (
@@ -50,16 +56,13 @@ export default function SignupCard() {
       <VStack spacing={4} align="center">
         <Image boxSize="200px" src={TransientAppLogo} alt="Logo" />
         <Heading size="md">Create an account</Heading>
-        <Text>
-          Start making your dreams come true
-        </Text>
-        <Card mt={6} p="2rem" w={"400px"}>
+        <Text>Start making your dreams come true</Text>
+        <Card mt={6} p="2rem" w={'400px'}>
           <CardBody>
             <Stack spacing={6}>
               <FormControl id="fullName" isRequired>
                 <FormLabel>Full name</FormLabel>
-                <Input type="text"
-                       size="lg"/>
+                <Input type="text" size="lg" />
               </FormControl>
 
               <FormControl id="username" isRequired>
@@ -73,8 +76,15 @@ export default function SignupCard() {
                   <InputRightElement h={'full'}>
                     <Button
                       variant={'ghost'}
-                      onClick={() => setShowPassword((showPassword) => !showPassword)}>
-                      {showPassword ? <ViewIcon color="cyan.700" /> : <ViewOffIcon color="cyan.700" />}
+                      onClick={() =>
+                        setShowPassword((showPassword) => !showPassword)
+                      }
+                    >
+                      {showPassword ? (
+                        <ViewIcon color="cyan.700" />
+                      ) : (
+                        <ViewOffIcon color="cyan.700" />
+                      )}
                     </Button>
                   </InputRightElement>
                 </InputGroup>
@@ -98,17 +108,19 @@ export default function SignupCard() {
                   size="lg"
                   type="time"
                   mr={4}
-                  value={new Date(registerRequest.dob).toISOString().substr(11, 8)}
+                  value={new Date(registerRequest.dob)
+                    .toISOString()
+                    .substr(11, 8)}
                   onChange={handleDateTimeChange}
                 />
               </FormControl>
 
               <FormControl id="gender">
                 <FormLabel>Gender</FormLabel>
-                <Select placeholder='Select option' size="lg">
-                  <option value='MALE'>Male</option>
-                  <option value='FEMALE'>Female</option>
-                  <option value='OTHER'>Other</option>
+                <Select placeholder="Select option" size="lg">
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
                 </Select>
               </FormControl>
 
@@ -128,12 +140,15 @@ export default function SignupCard() {
               </Button>
 
               <Text align={'center'} mt={6}>
-                Already a user? <Link color={'blue.400'} href={config.routes.login}>Login</Link>
+                Already a user?{' '}
+                <Link color={'blue.400'} href={config.routes.login}>
+                  Login
+                </Link>
               </Text>
             </Stack>
           </CardBody>
         </Card>
       </VStack>
     </Center>
-  )
+  );
 }
