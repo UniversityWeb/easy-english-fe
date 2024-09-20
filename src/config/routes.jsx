@@ -1,6 +1,9 @@
 const routes = {
   home: ['/', '/home'],
-  login: '/sign-in',
+  login: '/login',
+  register: '/register',
+  forgot_password: '/forgot-password',
+  user_profile_edit: '/profile'
 };
 
 export default routes;
