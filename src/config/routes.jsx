@@ -3,7 +3,7 @@ const routes = {
   login: '/login',
   register: '/register',
   forgot_password: '/forgot-password',
-  user_profile_edit: '/user-profile-edit'
+  user_profile_edit: '/profile'
 };
 
 export default routes;

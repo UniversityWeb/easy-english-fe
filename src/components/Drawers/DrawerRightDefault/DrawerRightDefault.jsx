@@ -39,7 +39,7 @@ DrawerRightDefault.defaultProps = {
     phoneNumber: '+84972640891',
     bio: 'A student.',
     gender: 'MALE',
-    dob: '2024-08-05T13:47:06.794Z',
+    dob: '2024-08-05',
     role: 'ADMIN',
     createdAt: '2024-08-05T13:47:06.794Z',
     avatarSrc: '',
