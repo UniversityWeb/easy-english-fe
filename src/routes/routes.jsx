@@ -4,6 +4,7 @@ import Login from '~/pages/Login';
 import Register from '~/pages/Register';
 import ForgotPassword from '~/pages/ForgotPassword';
 import UserProfileEdit from '~/pages/UserProfileEdit';
+import OtpValidation from '~/pages/OtpValidation';
 
 const publicRoutes = [
   { path: config.routes.home[0], component: Home },
@@ -12,6 +13,7 @@ const publicRoutes = [
   { path: config.routes.register, component: Register },
   { path: config.routes.forgot_password, component: ForgotPassword },
   { path: config.routes.user_profile_edit, component: UserProfileEdit },
+  { path: config.routes.otp_validation, component: OtpValidation },
 ];
 
 const privateRoutes = [];

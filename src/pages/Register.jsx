@@ -107,7 +107,7 @@ const Register = () => {
         }
 
         successToast(registerResponse?.message);
-        navigate(config.routes.login);
+        navigate(config.routes.otp_validation, { state: { username: registerRequest.username } });
       })
       .catch((e) => {
         errorToast(e?.message)
@@ -187,8 +187,8 @@ const Register = () => {
                 </InputGroup>
               </FormControl>
 
-              <FormControl id="email">
-                <FormLabel>Email (Optinal)</FormLabel>
+              <FormControl id="email" isRequired>
+                <FormLabel>Email</FormLabel>
                 <Input
                   type="email"
                   size="lg"

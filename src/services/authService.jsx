@@ -1,5 +1,5 @@
 import { getToken, isLoggedIn, removeLoginResponse, saveLoginResponse } from '~/utils/authUtils';
-import { get, post } from '~/utils/httpRequest';
+import { get, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_AUTH_API_URL = '/auth';
 
@@ -53,18 +53,43 @@ const logout = async () => {
 
   if (response?.status !== 200) {
     console.error('Logout unsuccessfully');
-    return;
+    return true;
   }
 
   removeLoginResponse();
   console.log('Logout successfully');
+  return false;
 };
+
+const activeAccount = async (activeAccountRequest) => {
+  const path = `${SUFFIX_AUTH_API_URL}/active-account`;
+  const response = await put(path, activeAccountRequest);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+}
+
+const resendOTPToActiveAccount = async (username) => {
+  const path = `${SUFFIX_AUTH_API_URL}/resend-otp-to-active-account/${username}`;
+  const response = await post(path);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+}
 
 const AuthService = {
   getCurUser,
   login,
   register,
-  logout
+  logout,
+  activeAccount,
+  resendOTPToActiveAccount
 };
 
 export default AuthService;
