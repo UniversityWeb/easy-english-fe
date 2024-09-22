@@ -4,7 +4,7 @@ import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
 import { useDisclosure, Avatar } from '@chakra-ui/react';
 import DrawerRightDefault from '~/components/Drawers/DrawerRightDefault';
-import AuthService from '~/services/AuthService';
+import AuthService from '~/services/authService';
 import { isLoggedIn } from '~/utils/authUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 

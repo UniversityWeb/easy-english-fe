@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import config from '~/config';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
-import AuthService from '~/services/AuthService';
+import AuthService from '~/services/authService';
 import { useNavigate } from 'react-router-dom';
 import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH } from '~/utils/constants';
 import useCustomToast from '~/hooks/useCustomToast';
