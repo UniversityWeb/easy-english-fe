@@ -24,9 +24,9 @@ import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthService from '~/services/AuthService';
 import config from '~/config';
 import useCustomToast from '~/hooks/useCustomToast';
+import AuthService from '~/services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
