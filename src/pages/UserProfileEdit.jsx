@@ -17,7 +17,8 @@ import { useState } from 'react';
 import config from '~/config';
 
 const UserProfileEdit = () => {
-  const [userProfile, setUserProfile] = useState({
+  const [showPassword, setShowPassword] = useState(false);
+  const [registerRequest, setRegisterRequest] = useState({
     username: "john",
     fullName: "john",
     email: "john@gmail.com",
@@ -26,6 +27,22 @@ const UserProfileEdit = () => {
     gender: "MALE",
     dob: "2024-09-02"
   });
+
+  const handleDateChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterRequest((prevState) => ({
+      ...prevState,
+      [name]: new Date(value).toISOString(),
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterRequest((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   return (
     <Flex
