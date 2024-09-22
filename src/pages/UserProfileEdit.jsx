@@ -1,264 +1,162 @@
+import React, { useState } from 'react';
 import {
-  Avatar,
-  AvatarBadge,
-  Button, Card, CardBody,
-  Center,
-  Flex,
+  Box,
+  Button,
   FormControl,
   FormLabel,
+  Input,
+  Textarea,
+  RadioGroup,
+  Radio,
+  Stack,
+  Avatar,
+  Grid,
+  GridItem,
   Heading,
-  IconButton,
-  Input, InputGroup, InputRightElement, Link, Select,
-  Stack, Text,
-  useColorModeValue,
+  Text,
 } from '@chakra-ui/react';
-import { SmallCloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useState } from 'react';
-import config from '~/config';
+import Navbar from '~/components/Navbars/HomeNavbar/HomeNavbar';
+import Footer from '~/components/Footer';
 
 const UserProfileEdit = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [registerRequest, setRegisterRequest] = useState({
-    username: "john",
-    fullName: "john",
-    email: "john@gmail.com",
-    phoneNumber: "+84972640891",
-    bio: "A student.",
-    gender: "MALE",
-    dob: "2024-09-02"
+    username: 'john',
+    fullName: 'john',
+    email: 'john@gmail.com',
+    phoneNumber: '+84972640891',
+    bio: 'A student.',
+    gender: 'MALE',
+    dob: '2024-09-02',
   });
 
-  const handleDateChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterRequest((prevState) => ({
-      ...prevState,
-      [name]: new Date(value).toISOString(),
-    }));
+  const handleChange = (e) => {
+    const name = e.target ? e.target.name : 'gender';
+    const value = e.target ? e.target.value : e;
+    setRegisterRequest({
+      ...registerRequest,
+      [name]: value,
+    });
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterRequest((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(registerRequest);
   };
 
   return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-    >
-      <Stack
-        spacing={4}
-        w={'full'}
-        maxW={'md'}
-        bg={useColorModeValue('white', 'gray.700')}
-        rounded={'xl'}
-        boxShadow={'lg'}
-        p={6}
-        my={12}
-      >
-        <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
-          User Profile Edit
-        </Heading>
-        <FormControl id="userName">
-          <FormLabel>User Icon</FormLabel>
-          <Stack direction={['column', 'row']} spacing={6}>
-            <Center>
-              <Avatar size="xl" src="https://bit.ly/sage-adebayo">
-                <AvatarBadge
-                  as={IconButton}
-                  size="sm"
-                  rounded="full"
-                  top="-10px"
-                  colorScheme="red"
-                  aria-label="remove Image"
-                  icon={<SmallCloseIcon />}
-                />
-              </Avatar>
-            </Center>
-            <Center w="full">
-              <Button w="full">Change Icon</Button>
-            </Center>
-          </Stack>
-        </FormControl>
-        <FormControl id="userName" isRequired>
-          <FormLabel>User name</FormLabel>
-          <Input
-            placeholder="UserName"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-          />
-        </FormControl>
-        <FormControl id="email" isRequired>
-          <FormLabel>Email address</FormLabel>
-          <Input
-            placeholder="your-email@example.com"
-            _placeholder={{ color: 'gray.500' }}
-            type="email"
-          />
-        </FormControl>
-        <FormControl id="password" isRequired>
-          <FormLabel>Password</FormLabel>
-          <Input
-            placeholder="password"
-            _placeholder={{ color: 'gray.500' }}
-            type="password"
-          />
-        </FormControl>
+    <Box p={8} maxW="1000px" mx="auto" mt={12} bg="white" borderRadius="lg" boxShadow="xl">
+      <Navbar />
 
-        <Stack spacing={6} direction={['column', 'row']}>
-          <Button
-            bg={'red.400'}
-            color={'white'}
-            w="full"
-            _hover={{
-              bg: 'red.500',
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            bg={'blue.400'}
-            color={'white'}
-            w="full"
-            _hover={{
-              bg: 'blue.500',
-            }}
-          >
-            Submit
-          </Button>
-        </Stack>
-      </Stack>
+      <Grid templateColumns="30% 70%" gap={10} mb={10} alignItems="center">
+        {/* Left: Avatar Section */}
+        <GridItem>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <Avatar size="2xl" name={registerRequest.fullName} src="/avatar.png" mb={6} />
+            <Heading fontSize="2xl" fontWeight="bold" textAlign="center">
+              {registerRequest.fullName}
+            </Heading>
+            <Text fontSize="lg" color="gray.500">
+              Student
+            </Text>
+          </Box>
+        </GridItem>
 
-
-      <Card mt={6} p="2rem" w={'400px'}>
-        <CardBody>
-          <Stack spacing={6}>
-            <FormControl id="fullName" isRequired>
-              <FormLabel>Full name</FormLabel>
-              <Input
-                type="text"
-                size="lg"
-                name="fullName"
-                value={registerRequest.fullName}
-                onChange={handleInputChange}
-              />
-            </FormControl>
-
-            <FormControl id="username" isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input
-                type="text"
-                size="lg"
-                name="username"
-                value={registerRequest.username}
-                onChange={handleInputChange}
-              />
-            </FormControl>
-            <FormControl id="password" isRequired>
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
+        <GridItem>
+          <form onSubmit={handleSubmit}>
+            <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
+              <FormControl id="username" isRequired>
+                <FormLabel fontSize="lg" fontWeight="medium">Username</FormLabel>
                 <Input
-                  type={showPassword ? 'text' : 'password'}
+                  type="text"
+                  name="username"
+                  value={registerRequest.username}
+                  onChange={handleChange}
                   size="lg"
-                  name="password"
-                  value={registerRequest.password}
-                  onChange={handleInputChange}
                 />
-                <InputRightElement h={'full'}>
-                  <Button
-                    variant={'ghost'}
-                    onClick={() =>
-                      setShowPassword((showPassword) => !showPassword)
-                    }
-                  >
-                    {showPassword ? (
-                      <ViewIcon color="cyan.700" />
-                    ) : (
-                      <ViewOffIcon color="cyan.700" />
-                    )}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
+              </FormControl>
 
-            <FormControl id="email">
-              <FormLabel>Email (Optinal)</FormLabel>
-              <Input
-                type="email"
+              <FormControl id="fullName" isRequired>
+                <FormLabel fontSize="lg" fontWeight="medium">Full Name</FormLabel>
+                <Input
+                  type="text"
+                  name="fullName"
+                  value={registerRequest.fullName}
+                  onChange={handleChange}
+                  size="lg"
+                />
+              </FormControl>
+            </Box>
+
+            <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
+              <FormControl id="email" isRequired>
+                <FormLabel fontSize="lg" fontWeight="medium">Email</FormLabel>
+                <Input
+                  type="email"
+                  name="email"
+                  value={registerRequest.email}
+                  onChange={handleChange}
+                  size="lg"
+                />
+              </FormControl>
+
+              <FormControl id="phoneNumber" isRequired>
+                <FormLabel fontSize="lg" fontWeight="medium">Phone Number</FormLabel>
+                <Input
+                  type="text"
+                  name="phoneNumber"
+                  value={registerRequest.phoneNumber}
+                  onChange={handleChange}
+                  size="lg"
+                />
+              </FormControl>
+            </Box>
+
+            <FormControl id="bio" mb={6}>
+              <FormLabel fontSize="lg" fontWeight="medium">Bio</FormLabel>
+              <Textarea
+                name="bio"
+                value={registerRequest.bio}
+                onChange={handleChange}
+                placeholder="Tell us about yourself..."
                 size="lg"
-                name="email"
+                resize="vertical"
               />
             </FormControl>
 
-            <FormControl id="phoneNumber">
-              <FormLabel>Phone number (Optional)</FormLabel>
-              <Input
-                type="text"
-                size="lg"
-                name="phoneNumber"
-                value={registerRequest.phoneNumber}
-              />
-            </FormControl>
-
-            <FormControl id="dob">
-              <FormLabel>Date of birth: </FormLabel>
-              <Input
-                name="dob"
-                placeholder="Select Time"
-                size="lg"
-                type="date"
-                mr={4}
-                value={new Date(registerRequest.dob)
-                  .toISOString()
-                  .substr(0, 10)}
-              />
-            </FormControl>
-
-            <FormControl id="gender">
-              <FormLabel>Gender</FormLabel>
-              <Select
-                size="lg"
+            <FormControl id="gender" mb={6}>
+              <FormLabel fontSize="lg" fontWeight="medium">Gender</FormLabel>
+              <RadioGroup
                 name="gender"
                 value={registerRequest.gender}
+                onChange={handleChange}
               >
-                <option value="MALE" defaultChecked={true}>
-                  Male
-                </option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </Select>
+                <Stack direction="row" spacing={8}>
+                  <Radio value="MALE" size="lg">Male</Radio>
+                  <Radio value="FEMALE" size="lg">Female</Radio>
+                  <Radio value="OTHER" size="lg">Other</Radio>
+                </Stack>
+              </RadioGroup>
             </FormControl>
 
-            <Button
-              bg="cyan.600"
-              color="white"
-              loadingText="Loading"
-              width="full"
-              size="lg"
-              borderRadius="xl"
-              mt={6}
-              p={6}
-              disabled={true}
-            >
-              Register
-            </Button>
+            <FormControl id="dob" mb={6}>
+              <FormLabel fontSize="lg" fontWeight="medium">Date of Birth</FormLabel>
+              <Input
+                type="date"
+                name="dob"
+                value={registerRequest.dob}
+                onChange={handleChange}
+                size="lg"
+              />
+            </FormControl>
 
-            <Text align={'center'} mt={6}>
-              Already a user?{' '}
-              <Link color={'blue.400'} href={config.routes.login}>
-                Login
-              </Link>
-            </Text>
-          </Stack>
-        </CardBody>
-      </Card>
-    </Flex>
+            <Button type="submit" colorScheme="blue" size="lg" width="full" mt={4}>
+              Save Changes
+            </Button>
+          </form>
+        </GridItem>
+      </Grid>
+    </Box>
   );
-}
+};
 
 export default UserProfileEdit;
