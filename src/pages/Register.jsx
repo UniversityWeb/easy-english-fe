@@ -106,7 +106,7 @@ const Register = () => {
           return;
         }
 
-        successToast(registerResponse?.message);
+        successToast(registerResponse);
         navigate(config.routes.otp_validation, { state: { username: registerRequest.username } });
       })
       .catch((e) => {

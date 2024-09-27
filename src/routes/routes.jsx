@@ -5,6 +5,7 @@ import Register from '~/pages/Register';
 import ForgotPassword from '~/pages/ForgotPassword';
 import UserProfileEdit from '~/pages/UserProfileEdit';
 import OtpValidation from '~/pages/OtpValidation';
+import CourseManagementForStudent from "~/pages/CourseManagementForStudent";
 
 const publicRoutes = [
   { path: config.routes.home[0], component: Home },
@@ -14,6 +15,7 @@ const publicRoutes = [
   { path: config.routes.forgot_password, component: ForgotPassword },
   { path: config.routes.user_profile_edit, component: UserProfileEdit },
   { path: config.routes.otp_validation, component: OtpValidation },
+  { path: config.routes.course_management_for_student, component: CourseManagementForStudent },
 ];
 
 const privateRoutes = [];
