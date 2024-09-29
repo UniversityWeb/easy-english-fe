@@ -10,7 +10,6 @@ const getCurUser = async () => {
 
   const path = `${SUFFIX_AUTH_API_URL}/get-user-by-token`;
   const tokenStr = getToken();
-  debugger
   const response = await get(path, {
     params: { tokenStr }
   });

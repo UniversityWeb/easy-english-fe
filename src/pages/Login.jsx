@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import useCustomToast from '~/hooks/useCustomToast';
 import AuthService from '~/services/authService';
+import { USER_ROLES } from '~/utils/constants';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,7 +61,12 @@ const Login = () => {
         }
 
         successToast(`Login successfully`);
-        navigate(config.routes.home[0]);
+        const user = loginResponse?.user;
+        if (user?.role === USER_ROLES.STUDENT) {
+          navigate(config.routes.course_management_for_student);
+        } else {
+          navigate(config.routes.home[0]);
+        }
       })
       .catch((e) => {
         errorToast(e?.message);

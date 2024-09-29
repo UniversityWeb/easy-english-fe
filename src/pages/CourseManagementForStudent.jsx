@@ -20,7 +20,7 @@ import {
   FaTrophy,
 } from 'react-icons/fa';
 import Footer from '~/components/Footer';
-import HomeNavbar from '~/components/Navbars/HomeNavbar';
+import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 
 const CourseManagementForStudent = () => {
   const [visibleCourses, setVisibleCourses] = useState(4);
@@ -171,9 +171,9 @@ const CourseManagementForStudent = () => {
 
   return (
     <Box>
-      <HomeNavbar />
+      <NavbarForStudent />
 
-      <Container>
+      <Container maxW="80%" mt="50px">
         <Text fontSize="2xl" fontWeight="bold" mb={2}>
           Enrolled Courses
         </Text>
