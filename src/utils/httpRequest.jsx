@@ -56,3 +56,14 @@ export const post = async (path, data, options = {}) => {
     throw new Error(errorMsg);
   }
 };
+
+export const put = async (path, data, options = {}) => {
+  try {
+    return await httpRequest.put(path, data, options);
+  } catch (e) {
+    console.error(`Error updating data on ${path}:`, e?.message);
+    const errorResponse = e?.response?.data;
+    const errorMsg = errorResponse?.message || 'An unknown error occurred';
+    throw new Error(errorMsg);
+  }
+};

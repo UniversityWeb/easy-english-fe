@@ -7,8 +7,11 @@ import DrawerRightDefault from '~/components/Drawers/DrawerRightDefault';
 import AuthService from '~/services/authService';
 import { isLoggedIn } from '~/utils/authUtils';
 import useCustomToast from '~/hooks/useCustomToast';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 function HomeNavbar(props) {
+  const navigate = useNavigate();
   const { errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [user, setUser] = useState(null);
@@ -37,7 +40,7 @@ function HomeNavbar(props) {
       <img className="navbar--logo" src={TransientAppLogo} alt="Logo" style={{ width: '100px', height: '100px' }} />
       <div className="navbar--list">
         <div className="navbar--list__gap20">
-          <Button id="course" light onClick={props.onSelectBtn}>
+          <Button id="course" light onClick={() => navigate(config.routes.course)}>
             Course
           </Button>
           {isLoggedIn() ? (
@@ -48,7 +51,7 @@ function HomeNavbar(props) {
               <DrawerRightDefault user={user} isUserLoading={isUserLoading} isOpen={isOpen} onClose={onClose}></DrawerRightDefault>
             </>
           ) : (
-            <Button id="login" light onClick={props.onSelectBtn}>
+            <Button id="login" light onClick={() => navigate(config.routes.login)}>
               Login
             </Button>
           )}
