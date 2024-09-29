@@ -21,3 +21,11 @@ export const getToken = () => {
 
   return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).tokenStr;
 };
+
+export const getUsername = () => {
+  if (!isLoggedIn()) {
+    return null;
+  }
+
+  return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).user?.username;
+}
