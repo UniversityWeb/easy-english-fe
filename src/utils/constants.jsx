@@ -6,3 +6,12 @@ export const USER_ROLES = {
   TEACHER: 'TEACHER',
   ADMIN: 'ADMIN',
 };
+export const QUESTION_TYPES = {
+  SINGLE_CHOICE: 'single-choice',
+  MULTI_CHOICE: 'multi-choice',
+  TRUE_FALSE: 'true-false',
+  ITEM_MATCH: 'item-match',
+  IMAGE_MATCH: 'image-match',
+  KEYWORDS: 'keywords',
+  FILL_THE_GAP: 'fill-the-gap',
+};
