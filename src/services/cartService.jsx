@@ -2,8 +2,8 @@ import { get, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_CART_API_URL = '/cart';
 
-const getCartItems = async (username) => {
-  const path = `${SUFFIX_CART_API_URL}/${username}`;
+const getCart = async () => {
+  const path = `${SUFFIX_CART_API_URL}/`;
   const response = await get(path);
 
   if (response?.status !== 200) {
@@ -13,9 +13,9 @@ const getCartItems = async (username) => {
   return response.data;
 }
 
-const addItemToCart = async (username, courseId) => {
-  const path = `${SUFFIX_CART_API_URL}/add/${username}/${courseId}`;
-  const response = await post(path);
+const countCartItems = async () => {
+  const path = `${SUFFIX_CART_API_URL}/count-items`;
+  const response = await get(path);
 
   if (response?.status !== 200) {
     return null;
@@ -24,8 +24,19 @@ const addItemToCart = async (username, courseId) => {
   return response.data;
 }
 
-const removeItemFromCart = async (username, courseId) => {
-  const path = `${SUFFIX_CART_API_URL}/remove/${username}/${courseId}`;
+const addItemToCart = async (courseId) => {
+  const path = `${SUFFIX_CART_API_URL}/add-item/${courseId}`;
+  const response = await post(path);
+
+  if (response?.status !== 201) {
+    return null;
+  }
+
+  return response.data;
+}
+
+const removeItemFromCart = async (courseId) => {
+  const path = `${SUFFIX_CART_API_URL}/remove-item/${courseId}`;
   const response = await put(path);
 
   if (response?.status !== 200) {
@@ -35,8 +46,19 @@ const removeItemFromCart = async (username, courseId) => {
   return response.data;
 }
 
-const clearCart = async (username) => {
-  const path = `${SUFFIX_CART_API_URL}/clear/${username}`;
+const updateItemFromCart = async (cartItemId) => {
+  const path = `${SUFFIX_CART_API_URL}/update-item/${cartItemId}`;
+  const response = await put(path);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+}
+
+const clearCart = async () => {
+  const path = `${SUFFIX_CART_API_URL}/clear`;
   const response = await put(path);
 
   if (response?.status !== 200) {
@@ -47,10 +69,12 @@ const clearCart = async (username) => {
 }
 
 const cartService = {
-  getCartItems,
+  getCart,
   addItemToCart,
+  updateItemFromCart,
   removeItemFromCart,
-  clearCart
+  clearCart,
+  countCartItems
 }
 
 export default cartService;

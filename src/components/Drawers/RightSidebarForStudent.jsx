@@ -85,7 +85,7 @@ function DrawerRightDefault(props) {
               cursor: 'pointer',
             }}
           >
-            <Avatar size="xl" name={user?.fullName} src={user?.urlImage} />
+            <Avatar size="md" name={user?.fullName} src={user?.urlImage} />
             {!isLoggedIn() || props?.isUserLoading ? (
               <Skeleton height="20px" width="100vh" />
             ) : (

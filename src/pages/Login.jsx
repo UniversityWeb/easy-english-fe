@@ -160,7 +160,7 @@ const Login = () => {
                 color="white"
                 loadingText="Loading"
                 width="full"
-                size="lg"
+                size="md"
                 borderRadius="xl"
                 p={6}
                 disabled={true}

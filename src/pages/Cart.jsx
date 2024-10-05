@@ -9,7 +9,7 @@ import {
   Container,
   IconButton,
   useToast,
-  Badge,
+  Badge, Heading,
 } from '@chakra-ui/react';
 import { FaTrashAlt } from 'react-icons/fa';
 import useCustomToast from '~/hooks/useCustomToast';
@@ -21,19 +21,34 @@ import cartService from '~/services/cartService';
 const Cart = () => {
   const username = getUsername();
   const { successToast, errorToast } = useCustomToast();
-  const [cartItems, setCartItems] = useState([]);
+  const [cart, setCart] = useState({
+    id: 1,
+    totalAmount: 150.75,
+    updatedAt: "2024-10-04T02:31:21.787Z",
+    username: "john_doe",
+    items: [
+      {
+        id: 1001,
+        status: "ACTIVE",
+        price: 99.99,
+        discountPercent: 10,
+        updatedAt: "2024-10-04T02:31:21.787Z",
+        courseId: 200,
+        cartId: 1
+      }
+    ]
+  });
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
 
   useEffect(() => {
-    fetchCartItems();
+    fetchCart();
   }, []);
 
-  const fetchCartItems = async () => {
+  const fetchCart = async () => {
     setLoading(true);
     try {
-      const response = await cartService.getCartItems(username);
-      setCartItems(response);
+      const cart = await cartService.getCart(username);
+      setCart(cart);
     } catch (error) {
       console.error(error?.message);
       errorToast('Error fetching courses in the cart');
@@ -46,7 +61,7 @@ const Cart = () => {
     try {
       await cartService.removeItemFromCart(username, courseId);
       successToast('Course removed from cart');
-      await fetchCartItems();
+      await fetchCart();
     } catch (error) {
       console.error(error?.message);
       errorToast('Error removing course from cart');
@@ -55,9 +70,9 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     try {
-      await cartService.checkout(username);
+      // await cartService.checkout(username);
       successToast('Checkout successful!');
-      await fetchCartItems();
+      await fetchCart();
     } catch (error) {
       console.error(error?.message);
       errorToast('Error during checkout');
@@ -68,7 +83,7 @@ const Cart = () => {
     <Box>
       <NavbarForStudent />
 
-      <Container maxW="80%">
+      <Container maxW="80%" mb="50px">
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={10}>
           Your Course Cart
         </Text>
@@ -79,12 +94,12 @@ const Cart = () => {
           </Flex>
         ) : (
           <Stack spacing={4} mt={6} px={6}>
-            {cartItems.length === 0 ? (
+            {cart.items.length === 0 ? (
               <Text fontSize="xl" color="gray.500" textAlign="center">
                 Your cart is empty.
               </Text>
             ) : (
-              cartItems.map((course) => (
+              cart.items.map((course) => (
                 <Box
                   key={course.id}
                   p={4}
@@ -121,7 +136,7 @@ const Cart = () => {
                 </Box>
               ))
             )}
-            {cartItems.length > 0 && (
+            {cart.items.length > 0 && (
               <Flex justify="center" align="center" mt={6} mb={50}>
                 <Button onClick={handleCheckout} colorScheme="green" size="lg">
                   Checkout
@@ -130,6 +145,21 @@ const Cart = () => {
             )}
           </Stack>
         )}
+
+        <Heading>Total: ${cart?.totalAmount}</Heading>
+        <Button
+          bg="cyan.600"
+          color="white"
+          loadingText="Loading"
+          width="full"
+          size="lg"
+          borderRadius="xl"
+          p={6}
+          disabled={true}
+          onClick={handleCheckout()}
+        >
+          Checkout
+        </Button>
       </Container>
 
       <Footer />
