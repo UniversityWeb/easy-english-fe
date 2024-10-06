@@ -26,6 +26,5 @@ export const getUsername = () => {
   if (!isLoggedIn()) {
     return null;
   }
-
   return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).user?.username;
 }

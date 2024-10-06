@@ -64,7 +64,11 @@ const Login = () => {
         const user = loginResponse?.user;
         if (user?.role === USER_ROLES.STUDENT) {
           navigate(config.routes.course_management_for_student);
-        } else {
+        }
+        else if (user?.role === USER_ROLES.TEACHER) {
+          navigate(config.routes.course_management_for_teacher);
+        }
+        else {
           navigate(config.routes.home[0]);
         }
       })

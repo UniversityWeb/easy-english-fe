@@ -3,9 +3,8 @@ import { FaEye } from 'react-icons/fa';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';
 import StarRating from './StarRating';
-import { useNavigate } from 'react-router-dom';
 
-const CourseCard = ({ course, onMakeFeatured }) => {
+const CourseCard = ({ course,price, onMakeFeatured }) => {
     const averageRating = useMemo(() => {
         return course.rating ? course.rating.toFixed(1) : "N/A";
     }, [course.rating]);
