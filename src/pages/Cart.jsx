@@ -17,10 +17,15 @@ import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import Footer from '~/components/Footer';
 import { getUsername } from '~/utils/authUtils';
 import cartService from '~/services/cartService';
+import CartItem from '~/components/CartItem';
+import paymentService from '~/services/paymentService';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 const Cart = () => {
   const username = getUsername();
   const { successToast, errorToast } = useCustomToast();
+  const navigate = useNavigate();
   const [cart, setCart] = useState({
     id: 1,
     totalAmount: 150.75,
@@ -59,7 +64,7 @@ const Cart = () => {
 
   const handleRemoveFromCart = async (courseId) => {
     try {
-      await cartService.removeItemFromCart(username, courseId);
+      await cartService.removeItemFromCart(courseId);
       successToast('Course removed from cart');
       await fetchCart();
     } catch (error) {
@@ -70,12 +75,19 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     try {
-      // await cartService.checkout(username);
-      successToast('Checkout successful!');
-      await fetchCart();
+      const urlReturn = `${window.location.protocol}//${window.location.host}${config.routes.payment_result}`;
+      const paymentRequest = {
+        username: username,
+        method: "VN_PAY",
+        urlReturn: urlReturn
+      };
+
+      const paymentUrl = await paymentService.createPaymentOrder(paymentRequest);
+      successToast('Checkout successful! Redirecting to payment...');
+      window.location.href = paymentUrl;
     } catch (error) {
       console.error(error?.message);
-      errorToast('Error during checkout');
+      errorToast('Error during checkout. Please try again.');
     }
   };
 
@@ -84,9 +96,9 @@ const Cart = () => {
       <NavbarForStudent />
 
       <Container maxW="80%" mb="50px">
-        <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={10}>
-          Your Course Cart
-        </Text>
+        <Heading fontSize="3xl" fontWeight="bold" textAlign="start" mt={10}>
+          Course Cart
+        </Heading>
 
         {loading ? (
           <Flex justify="center" align="center" height="200px">
@@ -94,59 +106,25 @@ const Cart = () => {
           </Flex>
         ) : (
           <Stack spacing={4} mt={6} px={6}>
-            {cart.items.length === 0 ? (
+            {cart.items === null || cart.items.length === 0 ? (
               <Text fontSize="xl" color="gray.500" textAlign="center">
                 Your cart is empty.
               </Text>
             ) : (
-              cart.items.map((course) => (
-                <Box
-                  key={course.id}
-                  p={4}
-                  borderWidth="1px"
-                  borderRadius="lg"
-                  shadow="md"
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  backgroundColor="white"
-                >
-                  <Box flex="1">
-                    <Text fontSize="lg" fontWeight="bold">
-                      {course.title}
-                    </Text>
-                    <Text fontSize="sm" color="gray.500">
-                      {course.description}
-                    </Text>
-                    <Text mt={2} fontSize="sm">
-                      Instructor: {course.instructor.name}
-                    </Text>
-                  </Box>
-                  <Flex alignItems="center">
-                    <Badge colorScheme="blue" fontSize="lg" mr={4}>
-                      ${course.price}
-                    </Badge>
-                    <IconButton
-                      aria-label="Remove course"
-                      icon={<FaTrashAlt />}
-                      colorScheme="red"
-                      onClick={() => handleRemoveFromCart(course.id)}
-                    />
-                  </Flex>
-                </Box>
+              cart.items.map((cartItem) => (
+                <CartItem
+                  key={cartItem.id}
+                  cartItem={cartItem}
+                  handleRemoveFromCart={handleRemoveFromCart}
+                />
               ))
-            )}
-            {cart.items.length > 0 && (
-              <Flex justify="center" align="center" mt={6} mb={50}>
-                <Button onClick={handleCheckout} colorScheme="green" size="lg">
-                  Checkout
-                </Button>
-              </Flex>
             )}
           </Stack>
         )}
 
-        <Heading>Total: ${cart?.totalAmount}</Heading>
+        <Heading fontSize="2xl" mt="50px">
+          Total: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cart?.totalAmount)}
+        </Heading>
         <Button
           bg="cyan.600"
           color="white"
@@ -156,7 +134,7 @@ const Cart = () => {
           borderRadius="xl"
           p={6}
           disabled={true}
-          onClick={handleCheckout()}
+          onClick={handleCheckout}
         >
           Checkout
         </Button>

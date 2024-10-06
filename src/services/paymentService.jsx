@@ -2,9 +2,22 @@ import { get, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_PAYMENT_API_URL = '/payment';
 
-const getCartItems = async (username) => {
-  const path = `${SUFFIX_PAYMENT_API_URL}/${username}`;
-  const response = await get(path);
+const createPaymentOrder = async (paymentRequest) => {
+  const path = `${SUFFIX_PAYMENT_API_URL}/create-payment`;
+  const response = await post(path, paymentRequest);
+
+  if (response?.status !== 201) {
+    return null;
+  }
+
+  return response.data;
+}
+
+const getResult = async (params) => {
+  const path = `${SUFFIX_PAYMENT_API_URL}/result`;
+  const response = await get(path, {
+    params
+  });
 
   if (response?.status !== 200) {
     return null;
@@ -13,8 +26,10 @@ const getCartItems = async (username) => {
   return response.data;
 }
 
-const cartService = {
-  getCartItems,
+const payService = {
+  createPaymentOrder,
+  getResult,
+
 }
 
-export default cartService;
+export default payService;

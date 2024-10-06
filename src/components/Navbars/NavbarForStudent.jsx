@@ -85,8 +85,8 @@ function HomeNavbar(props) {
             {countedCartItems > 0 && (
               <Badge
                 position="absolute"
-                top="-6"
-                right="-6"
+                top="-4"
+                right="-4"
                 colorScheme="red"
                 borderRadius="full"
                 px={2}

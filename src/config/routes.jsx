@@ -9,7 +9,8 @@ const routes = {
   notifications_for_student: '/notifications-for-student',
   preview_test: '/preview-test',
   take_test: '/take-test',
-  cart: '/cart'
+  cart: '/cart',
+  payment_result: '/payment/result',
   curriculum: '/curriculum/:courseId',
   maincourse: '/maincourse',
   course_detail: '/course-detail/:courseId',
