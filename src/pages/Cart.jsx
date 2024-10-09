@@ -7,11 +7,8 @@ import {
   Spinner,
   Flex,
   Container,
-  IconButton,
-  useToast,
-  Badge, Heading,
+  Heading,
 } from '@chakra-ui/react';
-import { FaTrashAlt } from 'react-icons/fa';
 import useCustomToast from '~/hooks/useCustomToast';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import Footer from '~/components/Footer';
@@ -19,29 +16,27 @@ import { getUsername } from '~/utils/authUtils';
 import cartService from '~/services/cartService';
 import CartItem from '~/components/CartItem';
 import paymentService from '~/services/paymentService';
-import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 
 const Cart = () => {
   const username = getUsername();
   const { successToast, errorToast } = useCustomToast();
-  const navigate = useNavigate();
   const [cart, setCart] = useState({
     id: 1,
     totalAmount: 150.75,
-    updatedAt: "2024-10-04T02:31:21.787Z",
-    username: "john_doe",
+    updatedAt: '2024-10-04T02:31:21.787Z',
+    username: 'john_doe',
     items: [
       {
         id: 1001,
-        status: "ACTIVE",
+        status: 'ACTIVE',
         price: 99.99,
         discountPercent: 10,
-        updatedAt: "2024-10-04T02:31:21.787Z",
+        updatedAt: '2024-10-04T02:31:21.787Z',
         courseId: 200,
-        cartId: 1
-      }
-    ]
+        cartId: 1,
+      },
+    ],
   });
   const [loading, setLoading] = useState(false);
 
@@ -78,11 +73,12 @@ const Cart = () => {
       const urlReturn = `${window.location.protocol}//${window.location.host}${config.routes.payment_result}`;
       const paymentRequest = {
         username: username,
-        method: "VN_PAY",
-        urlReturn: urlReturn
+        method: 'VN_PAY',
+        urlReturn: urlReturn,
       };
 
-      const paymentUrl = await paymentService.createPaymentOrder(paymentRequest);
+      const paymentUrl =
+        await paymentService.createPaymentOrder(paymentRequest);
       successToast('Checkout successful! Redirecting to payment...');
       window.location.href = paymentUrl;
     } catch (error) {
@@ -123,7 +119,11 @@ const Cart = () => {
         )}
 
         <Heading fontSize="2xl" mt="50px">
-          Total: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cart?.totalAmount)}
+          Total:{' '}
+          {new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          }).format(cart?.totalAmount)}
         </Heading>
         <Button
           bg="cyan.600"

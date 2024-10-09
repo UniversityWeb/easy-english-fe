@@ -27,12 +27,12 @@ const PaymentResult = () => {
     console.log(`Payment Result: ${location.search}`);
     const queryParams = new URLSearchParams(location.search);
     const params = Object.fromEntries(queryParams.entries());
-    console.log(`Payment Result - params: ${JSON.stringify(params)}`);
+    params.method = 'VN_PAY';
 
     if (params) {
       processPaymentResult(params);
     }
-  }, [location]);
+  }, []);
 
   const processPaymentResult = async (params) => {
     try {
