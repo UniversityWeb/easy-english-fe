@@ -67,3 +67,14 @@ export const put = async (path, data, options = {}) => {
     throw new Error(errorMsg);
   }
 };
+
+export const del = async (path, options = {}) => {
+  try {
+    return await httpRequest.delete(path, options);
+  } catch (e) {
+    console.error(`Error deleting data from ${path}:`, e?.message);
+    const errorResponse = e?.response?.data;
+    const errorMsg = errorResponse?.message || 'An unknown error occurred';
+    throw new Error(errorMsg);
+  }
+};
