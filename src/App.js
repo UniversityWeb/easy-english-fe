@@ -4,6 +4,7 @@ import { publicRoutes } from '~/routes';
 import DefaultLayout from '~/layouts/DefaultLayout';
 import { ChakraProvider } from '@chakra-ui/react';
 import customTheme from '~/themes/customTheme';
+import NotFound from '~/components/NotFound';
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
                 />
               );
             })}
+
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </ChakraProvider>

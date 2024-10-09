@@ -22,16 +22,11 @@ import {
   MdOutlineAssignment,
   MdOutlineShoppingBag,
   MdNotificationsNone,
-  MdLogout
+  MdLogout,
+  MdOutlineShoppingCart
 } from 'react-icons/md';
 import { PiCertificate } from "react-icons/pi";
 import { IoBookOutline } from "react-icons/io5";
-import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import LogoutIcon from '@mui/icons-material/Logout';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
@@ -90,7 +85,7 @@ function DrawerRightDefault(props) {
               cursor: 'pointer',
             }}
           >
-            <Avatar size="xl" name={user?.fullName} src={user?.urlImage} />
+            <Avatar size="md" name={user?.fullName} src={user?.urlImage} />
             {!isLoggedIn() || props?.isUserLoading ? (
               <Skeleton height="20px" width="100vh" />
             ) : (
@@ -111,6 +106,12 @@ function DrawerRightDefault(props) {
               icon={MdOutlineAssignment}
               text="My Assignments"
               handleClick={() => navigate('')}
+            />
+
+            <SidebarItem
+              icon={MdOutlineShoppingCart}
+              text="My Cart"
+              handleClick={() => navigate(config.routes.cart)}
             />
 
             <SidebarItem
