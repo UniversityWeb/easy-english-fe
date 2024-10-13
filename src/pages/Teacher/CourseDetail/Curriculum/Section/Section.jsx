@@ -14,15 +14,15 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai";
-import Lesson from "../Lesson/Lesson"; 
-import sectionService from "~/services/sectionService"; 
-import lessonService from "~/services/lessonService"; 
-import useCustomToast from "~/hooks/useCustomToast"; 
+import Lesson from "../Lesson/Lesson";
+import sectionService from "~/services/sectionService";
+import lessonService from "~/services/lessonService";
+import useCustomToast from "~/hooks/useCustomToast";
 
 const Section = ({ section, fetchSections, openTypeLessonModal, onLessonClick }) => {
     const [lessons, setLessons] = useState([]);
     const [title, setTitle] = useState(section.title);
-    const { successToast, errorToast } = useCustomToast(); 
+    const { successToast, errorToast } = useCustomToast();
 
     const fetchLessons = async () => {
         const lessonRequest = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Input, FormControl, FormLabel, Textarea, Switch, Grid, GridItem, } from "@chakra-ui/react";
-import textLessonService from "~/services/textLessonService"; 
-import useCustomToast from "~/hooks/useCustomToast"; 
+import textLessonService from "~/services/textLessonService";
+import useCustomToast from "~/hooks/useCustomToast";
 const TextLesson = ({ lessonId, sectionId }) => {
     const [lesson, setLesson] = useState({
         title: '',
@@ -26,7 +26,7 @@ const TextLesson = ({ lessonId, sectionId }) => {
                     const data = await textLessonService.fetchLessonById(lessonRequest);
                     setLesson({
                         ...data,
-                        startTime: data.startDate ? data.startDate.slice(11, 16) : '',
+                        startTime: data.startTime ? data.startTime.slice(0, 5) : '',
                     });
                 } catch (error) {
                     errorToast("Error fetching lesson data.");
@@ -52,7 +52,7 @@ const TextLesson = ({ lessonId, sectionId }) => {
     };
 
     return (
-        <Box p={5} shadow="md" borderWidth="1px">
+        <Box p={5} shadow="md" borderWidth="1px" width="100%" >
             <FormControl mb={4}>
                 <FormLabel>Lesson Title</FormLabel>
                 <Input
