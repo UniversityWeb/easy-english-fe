@@ -88,7 +88,7 @@ const Curriculum = ({ courseId }) => {
 
     const handleLessonClick = (lessonId, sectionId) => {
         setSelectedLesson(lessonId);
-        setSelectedSectionId(sectionId); 
+        setSelectedSectionId(sectionId);
         setIsAddingLesson(false);
     };
 
@@ -149,7 +149,7 @@ const Curriculum = ({ courseId }) => {
         <ChakraProvider>
             <Box bg="#f4f7fc" minH="100vh">
                 <Flex p="8">
-                    <Box flex="1" mr="8">
+                    <Box flex="2" mr="8">
                         <Heading size="lg" mb="4">
                             Curriculum
                         </Heading>
@@ -191,7 +191,7 @@ const Curriculum = ({ courseId }) => {
                         )}
                     </Box>
 
-                    <Box flex="2" display="flex" justifyContent="center" alignItems="center">
+                    <Box flex="5" display="flex" justifyContent="center" alignItems="center">
                         {selectedLesson && !isAddingLesson ? (
                             <TextLesson lessonId={selectedLesson} sectionId={selectedSectionId} />
                         ) : isAddingLesson && selectedLessonType === "Text lesson" ? (
