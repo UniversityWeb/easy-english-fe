@@ -21,3 +21,5 @@ export const ORDERS_TAB_STATUSES = ["All", "PENDING_PAYMENT", "PAID", "FAILED", 
 export const getOrdersTabStatusByIndex = (index) => {
   return ORDERS_TAB_STATUSES[index] || ORDERS_TAB_STATUSES[0];
 };
+
+export const DEFAULT_LIST_SIZE = 10;

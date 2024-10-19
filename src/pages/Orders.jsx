@@ -1,26 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Text,
-  Button,
-  Stack,
-  useToast,
-  Spinner,
-  Flex,
-  Badge,
-  Container,
-  Tabs,
-  TabList,
-  Tab, Skeleton,
-} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Badge, Box, Button, Container, Flex, Skeleton, Stack, Tab, TabList, Tabs, Text } from '@chakra-ui/react';
 import orderService from '~/services/orderService';
 import useCustomToast from '~/hooks/useCustomToast';
 import Footer from '~/components/Footer';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import { getUsername } from '~/utils/authUtils';
 import { delayLoading, formatDate } from '~/utils/methods';
-import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
-import { getOrdersTabStatusByIndex, ORDERS_TAB_STATUSES, SAVED_ORDERS_TAB_INDEX_KEY } from '~/utils/constants';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { DEFAULT_LIST_SIZE, getOrdersTabStatusByIndex, SAVED_ORDERS_TAB_INDEX_KEY } from '~/utils/constants';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 const Orders = () => {
   const username = getUsername();
@@ -31,7 +20,6 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(0);
   const savedIndex = localStorage.getItem(SAVED_ORDERS_TAB_INDEX_KEY) || 0;
   const [selectedIndex, setSelectedIndex] = useState(parseInt(savedIndex));
-  const toast = useToast();
 
   useEffect(() => {
     fetchOrdersByStatus(page, selectedIndex);
@@ -81,31 +69,25 @@ const Orders = () => {
           Your Orders
         </Text>
 
-        {loading ? (
-          <Flex justify="center" align="center" height="200px">
-            <Spinner size="lg" />
-          </Flex>
-        ) : (
-          <Tabs
-            index={selectedIndex}
-            onChange={(index) => {
-              localStorage.setItem(SAVED_ORDERS_TAB_INDEX_KEY, index);
-              setSelectedIndex(index);
-              setPage(0);
-            }}
-          >
-            <TabList>
-              <Tab>All</Tab>
-              <Tab>Pending payment</Tab>
-              <Tab>Paid</Tab>
-              <Tab>Failed</Tab>
-              <Tab>Refund</Tab>
-              <Tab>Expired</Tab>
-            </TabList>
+        <Tabs
+          index={selectedIndex}
+          onChange={(index) => {
+            localStorage.setItem(SAVED_ORDERS_TAB_INDEX_KEY, index);
+            setSelectedIndex(index);
+            setPage(0);
+          }}
+        >
+          <TabList>
+            <Tab>All</Tab>
+            <Tab>Pending payment</Tab>
+            <Tab>Paid</Tab>
+            <Tab>Failed</Tab>
+            <Tab>Refund</Tab>
+            <Tab>Expired</Tab>
+          </TabList>
 
-            <OrderList orders={orders} loading={loading} />
-          </Tabs>
-        )}
+          <OrderList orders={orders} loading={loading} />
+        </Tabs>
 
         <Flex justify="center" align="center" mt={6} mb={50} gap={10}>
           <Button
@@ -150,10 +132,16 @@ const Orders = () => {
 };
 
 const OrderList = ({ orders, loading }) => {
+  const navigate = useNavigate();
+
+  const handleOrderClick = (orderId) => {
+    navigate(config.routes.order_detail.replace(':orderId', orderId));
+  };
+
   return (
     <Stack spacing={4} mt={6} px={6}>
       {loading ? (
-        [...Array(3)].map((_, index) => (
+        [...Array(DEFAULT_LIST_SIZE)].map((_, index) => (
           <Skeleton key={index} height="100px" borderRadius="md" />
         ))
       ) : orders.length === 0 ? (
@@ -172,6 +160,9 @@ const OrderList = ({ orders, loading }) => {
             display="flex"
             justifyContent="space-between"
             alignItems="center"
+            cursor="pointer"
+            _hover={{ backgroundColor: 'gray.100' }}
+            onClick={() => handleOrderClick(order.id)}
           >
             <Box flex="1">
               <Text>Order ID: {order.id}</Text>

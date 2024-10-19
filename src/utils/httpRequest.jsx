@@ -78,3 +78,7 @@ export const del = async (path, options = {}) => {
     throw new Error(errorMsg);
   }
 };
+
+export const handleResponse = (response, successCode) => {
+  return response?.status === successCode ? response.data : null;
+};

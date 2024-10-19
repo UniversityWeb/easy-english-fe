@@ -16,6 +16,7 @@ import MainCourse from '~/pages/Teacher/CourseDetail/Main/Main';
 import CourseDetail from '~/pages/Teacher/CourseDetail/CourseDetail';
 import CourseManagementForTeacher from '~/pages/Teacher/CourseManagementForTeacher';
 import Orders from '~/pages/Orders';
+import OrderDetail from '~/pages/OrderDetail';
 
 const publicRoutes = [
   { path: config.routes.home[0], component: Home },
@@ -36,6 +37,7 @@ const publicRoutes = [
   { path: config.routes.course_detail, component: CourseDetail },
   { path: config.routes.course_management_for_teacher, component: CourseManagementForTeacher },
   { path: config.routes.orders, component: Orders },
+  { path: config.routes.order_detail, component: OrderDetail },
 ];
 
 const privateRoutes = [];
