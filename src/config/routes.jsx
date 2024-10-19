@@ -15,6 +15,7 @@ const routes = {
   maincourse: '/maincourse',
   course_detail: '/course-detail/:courseId',
   course_management_for_teacher: '/course-management-for-teacher',
+  orders: '/orders',
 };
 
 export default routes;
