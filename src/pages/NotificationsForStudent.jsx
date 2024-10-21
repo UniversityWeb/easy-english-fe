@@ -102,19 +102,6 @@ const NotificationsForStudent = () => {
           Your Notifications
         </Text>
 
-        <Button
-          onClick={() => {
-            const notificationRequest = {
-              message: 'This is a demo notification',
-              username: getUsername(),
-              createdDate: new Date().toISOString(),
-            };
-            websocketService.send(websocketConstants.notificationDestination, notificationRequest);
-          }}
-        >
-          Demo Add notification
-        </Button>
-
         {loading ? (
           <Flex justify="center" align="center" height="200px">
             <Spinner size="lg" />
