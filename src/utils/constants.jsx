@@ -15,3 +15,11 @@ export const QUESTION_TYPES = {
   KEYWORDS: 'keywords',
   FILL_THE_GAP: 'fill-the-gap',
 };
+
+export const SAVED_ORDERS_TAB_INDEX_KEY = 'selectedOrdersTabIndex';
+export const ORDERS_TAB_STATUSES = ["All", "PENDING_PAYMENT", "PAID", "FAILED", "REFUNDED", "EXPIRED"];
+export const getOrdersTabStatusByIndex = (index) => {
+  return ORDERS_TAB_STATUSES[index] || ORDERS_TAB_STATUSES[0];
+};
+
+export const DEFAULT_LIST_SIZE = 10;

@@ -117,7 +117,7 @@ function DrawerRightDefault(props) {
             <SidebarItem
               icon={MdOutlineShoppingBag}
               text="My Orders"
-              handleClick={() => navigate('')}
+              handleClick={() => navigate(config.routes.orders)}
             />
 
             <SidebarItem

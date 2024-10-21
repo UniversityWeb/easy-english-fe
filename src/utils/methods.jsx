@@ -22,3 +22,9 @@ export const formatTime = (seconds) => {
   const secs = Math.floor(seconds % 60);
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 };
+
+export const delayLoading = async (startTime) => {
+  const elapsedTime = Date.now() - startTime;
+  const delay = Math.max(0, 500 - elapsedTime);
+  await new Promise(resolve => setTimeout(resolve, delay));
+};
