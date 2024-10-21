@@ -32,7 +32,7 @@ const NotificationsForStudent = () => {
 
   useEffect(() => {
     websocketService.connect(() => {
-      websocketService.subscribe(websocketConstants.notificationTopic, (notification) => {
+      websocketService.subscribe(websocketConstants.notificationTopic(username), (notification) => {
         console.log(`Received message: ${JSON.stringify(notification)}`);
         setNotifications((prev) => [notification, ...prev]);
         infoToast("You have a new message");
@@ -41,7 +41,7 @@ const NotificationsForStudent = () => {
 
     // Cleanup function to unsubscribe and disconnect WebSocket on unmount
     return () => {
-      websocketService.unsubscribe(websocketConstants.notificationTopic);
+      websocketService.unsubscribe(websocketConstants.notificationTopic(username));
       websocketService.disconnect();
     };
   }, []);
@@ -101,6 +101,19 @@ const NotificationsForStudent = () => {
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={10}>
           Your Notifications
         </Text>
+
+        <Button
+          onClick={() => {
+            const notificationRequest = {
+              message: 'This is a demo notification',
+              username: getUsername(),
+              createdDate: new Date().toISOString(),
+            };
+            websocketService.send(websocketConstants.notificationDestination, notificationRequest);
+          }}
+        >
+          Demo Add notification
+        </Button>
 
         {loading ? (
           <Flex justify="center" align="center" height="200px">
