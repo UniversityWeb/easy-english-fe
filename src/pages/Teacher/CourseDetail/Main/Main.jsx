@@ -6,25 +6,28 @@ import {
     Input,
     FormControl,
     FormLabel,
-    Flex,
-    Select,
-    Textarea,
-    IconButton,
-    Text,
-    VStack,
-    Image,
     Switch,
+    Textarea,
+    Image,
+    VStack,
+    Text,
+    Select as ChakraSelect, // Import Chakra's Select as "ChakraSelect"
 } from '@chakra-ui/react';
-import { FaPlus } from 'react-icons/fa';
-import courseService from '~/services/courseService'; 
+import Select from 'react-select';  // Import react-select for category
+import courseService from '~/services/courseService';
+import categoryService from '~/services/categoryService';
+import topicService from '~/services/topicService';
+import levelService from '~/services/levelService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
+
 const CourseForm = ({ courseId }) => {
     const username = getUsername();
     const [course, setCourse] = useState({
         title: '',
-        category: '',
-        level: '',
+        categoryIds: [],  // Updated to handle multiple categories
+        levelId: '',      // Use levelId instead of level
+        topicId: '',      // Use topicId instead of topic
         imageUrl: null,
         description: '',
         duration: '',
@@ -32,21 +35,61 @@ const CourseForm = ({ courseId }) => {
         isActive: true,
         createdBy: username,
     });
+
     const { successToast, errorToast } = useCustomToast();
     const [loading, setLoading] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [levels, setLevels] = useState([]);
 
+    // Fetch categories and topics on mount
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const [fetchedCategories, fetchedTopics] = await Promise.all([
+                    categoryService.fetchAllCategory(),
+                    topicService.fetchAllTopic(),
+                ]);
+
+                setCategories(fetchedCategories || []);
+                setTopics(fetchedTopics || []);
+            } catch (error) {
+                errorToast("Error fetching categories or topics.");
+            }
+        };
+
+        fetchInitialData();
+    }, []);
+
+    // Fetch course data if editing
     useEffect(() => {
         if (courseId) {
-            const courseRequest = {
-                id: courseId
-            };
+            const courseRequest = { id: courseId };
             const fetchCourseData = async () => {
                 setLoading(true);
                 try {
                     const data = await courseService.fetchMainCourse(courseRequest);
+
                     setCourse({
-                        ...data,
+                        title: data.title,
+                        categoryIds: data.categoryIds, // Handle multiple categories
+                        topicId: data.topicId,         // Set topicId
+                        levelId: data.levelId,         // Set levelId
+                        imageUrl: data.imageUrl,
+                        description: data.description,
+                        duration: data.duration,
+                        isPublish: data.isPublish,
+                        createdBy: data.createdBy,
+                        isActive: data.isActive,
                     });
+
+                    // Fetch levels based on the topic that was set
+                    if (data.topicId) {
+                        const levelRequest = { topicId: data.topicId };
+                        const fetchedLevels = await levelService.fetchAllLevelByTopic(levelRequest);
+                        setLevels(fetchedLevels || []);
+                    }
+
                     successToast("Course data loaded successfully.");
                 } catch (error) {
                     errorToast("Error fetching course data.");
@@ -57,6 +100,25 @@ const CourseForm = ({ courseId }) => {
             fetchCourseData();
         }
     }, [courseId]);
+
+    // Fetch levels when a topic is selected
+    const handleTopicChange = async (e) => {
+        const selectedTopicId = e.target.value;
+        setCourse({ ...course, topicId: selectedTopicId, levelId: '' }); // Reset level when topic changes
+
+        try {
+            const levelRequest = { topicId: selectedTopicId };
+            const fetchedLevels = await levelService.fetchAllLevelByTopic(levelRequest);
+            setLevels(fetchedLevels || []);
+        } catch (error) {
+            errorToast("Error fetching levels for the selected topic.");
+        }
+    };
+
+    const handleCategoryChange = (selectedOptions) => {
+        const selectedCategoryIds = selectedOptions.map(option => option.value);
+        setCourse({ ...course, categoryIds: selectedCategoryIds });
+    };
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
@@ -113,38 +175,57 @@ const CourseForm = ({ courseId }) => {
                             </FormLabel>
                         </FormControl>
 
-                        <Flex mb="4">
-                            <FormControl flex="1">
-                                <FormLabel>Category</FormLabel>
-                                <Select
-                                    placeholder="Category"
-                                    value={course.category}
-                                    onChange={(e) => setCourse({ ...course, category: e.target.value })}
-                                >
-                                    <option value="Programming">Programming</option>
-                                    <option value="Business">Business</option>
-                                </Select>
-                            </FormControl>
-                            <IconButton
-                                aria-label="Add category"
-                                icon={<FaPlus />}
-                                colorScheme="blue"
-                                ml="4"
-                                alignSelf="flex-end"
+                        {/* Use react-select for category */}
+                        <FormControl mb="4">
+                            <FormLabel>Category</FormLabel>
+                            <Select
+                                isMulti
+                                options={categories.map(category => ({
+                                    value: category.id,
+                                    label: category.name
+                                }))}
+                                value={categories
+                                    .filter(category => course.categoryIds.includes(category.id))
+                                    .map(category => ({
+                                        value: category.id,
+                                        label: category.name
+                                    }))}
+                                onChange={handleCategoryChange}
+                                placeholder="Select categories"
                             />
-                        </Flex>
+                        </FormControl>
 
+                        {/* Use Chakra's Select for topic */}
+                        <FormControl mb="4">
+                            <FormLabel>Topic</FormLabel>
+                            <ChakraSelect
+                                placeholder="Select topic"
+                                value={course.topicId} // This should be the topic ID
+                                onChange={handleTopicChange}
+                            >
+                                {topics.map((topic) => (
+                                    <option key={topic.id} value={topic.id}>
+                                        {topic.name}
+                                    </option>
+                                ))}
+                            </ChakraSelect>
+                        </FormControl>
+
+                        {/* Use Chakra's Select for level */}
                         <FormControl mb="4">
                             <FormLabel>Level</FormLabel>
-                            <Select
+                            <ChakraSelect
                                 placeholder="Select level"
-                                value={course.level}
-                                onChange={(e) => setCourse({ ...course, level: e.target.value })}
+                                value={course.levelId} // This should be the level ID
+                                onChange={(e) => setCourse({ ...course, levelId: e.target.value })}
+                                isDisabled={!levels.length} // Disable if no levels available
                             >
-                                <option value="beginner">Beginner</option>
-                                <option value="intermediate">Intermediate</option>
-                                <option value="advanced">Advanced</option>
-                            </Select>
+                                {levels.map((level) => (
+                                    <option key={level.id} value={level.id}>
+                                        {level.name}
+                                    </option>
+                                ))}
+                            </ChakraSelect>
                         </FormControl>
 
                         <FormControl mb="4">
