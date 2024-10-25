@@ -19,6 +19,7 @@ import { formatDate } from '~/utils/methods';
 import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
+import StudentPageLayout from '~/components/StudentPageLayout';
 
 const MotionBox = motion(Box);
 
@@ -94,9 +95,7 @@ const NotificationsForStudent = () => {
   };
 
   return (
-    <Box>
-      <NavbarForStudent />
-
+    <StudentPageLayout>
       <Container maxW="80%">
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={10}>
           Your Notifications
@@ -189,9 +188,7 @@ const NotificationsForStudent = () => {
           </Stack>
         )}
       </Container>
-
-      <Footer />
-    </Box>
+    </StudentPageLayout>
   );
 };
 

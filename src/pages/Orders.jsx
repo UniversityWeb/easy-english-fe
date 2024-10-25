@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Badge, Box, Button, Container, Flex, Skeleton, Stack, Tab, TabList, Tabs, Text } from '@chakra-ui/react';
 import orderService from '~/services/orderService';
 import useCustomToast from '~/hooks/useCustomToast';
-import Footer from '~/components/Footer';
-import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import { getUsername } from '~/utils/authUtils';
 import { delayLoading, formatDate } from '~/utils/methods';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { DEFAULT_LIST_SIZE, getOrdersTabStatusByIndex, SAVED_ORDERS_TAB_INDEX_KEY } from '~/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
+import StudentPageLayout from '~/components/StudentPageLayout';
 
 const Orders = () => {
   const username = getUsername();
@@ -61,10 +60,8 @@ const Orders = () => {
   };
 
   return (
-    <Box>
-      <NavbarForStudent />
-
-      <Container maxW="80%">
+    <StudentPageLayout>
+      <Container maxW="80%" mb="50px">
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={10}>
           Your Orders
         </Text>
@@ -125,9 +122,7 @@ const Orders = () => {
           </Button>
         </Flex>
       </Container>
-
-      <Footer />
-    </Box>
+    </StudentPageLayout>
   );
 };
 
