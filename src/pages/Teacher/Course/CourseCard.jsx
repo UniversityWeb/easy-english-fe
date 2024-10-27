@@ -4,14 +4,14 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';
 import StarRating from './StarRating';
 
-const CourseCard = ({ course,price, onMakeFeatured }) => {
+const CourseCard = ({ course, price, onMakeFeatured }) => {
     const averageRating = useMemo(() => {
         return course.rating ? course.rating.toFixed(1) : "N/A";
     }, [course.rating]);
 
     return (
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4} w="100%">
-            <Image src={course.imageUrl} alt={course.title} borderRadius="md" w="100%" h="auto" />
+            <Image src={course.imagePreview} alt={course.title} borderRadius="md" w="100%" h="auto" />
             {course.special && (
                 <Badge borderRadius="full" px="2" colorScheme="orange" position="absolute" top="2" right="2">SPECIAL</Badge>
             )}

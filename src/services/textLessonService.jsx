@@ -11,24 +11,29 @@ const fetchLessonById = async (lessonRequest) => {
   return response.data;
 };
 
-const createLesson = async (lessonRequest) => {
+const createLesson = async (formData) => {
   const path = `${SUFFIX_TEXT_LESSON_API_URL}/create-lesson`;
-  const response = await post(path, lessonRequest);
+  const response = await post(path, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // Ensure multipart/form-data is set
+    },
+  });
   if (response?.status !== 201) {
     return null;
   }
-
   return response.data;
 };
 
-const updateLesson = async (lessonRequest) => {
+const updateLesson = async (formData) => {
   const path = `${SUFFIX_TEXT_LESSON_API_URL}/update-lesson`;
-  const response = await post(path, lessonRequest);
-
+  const response = await post(path, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // Ensure multipart/form-data is set
+    },
+  });
   if (response?.status !== 200) {
     return null;
   }
-
   return response.data;
 };
 

@@ -13,7 +13,11 @@ const fetchAllCourses = async () => {
 };
 
 const createCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/create-course`, courseRequest);
+  const response = await post(`${SUFFIX_COURSE_API_URL}/create-course`, courseRequest, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
 
   if (response?.status !== 200) {
     return null;
@@ -61,13 +65,58 @@ const fetchMainCourse = async (courseRequest) => {
   return response.data;
 };
 
+const getCourseByFilter = async (courseRequest) => {
+  const response = await post(`${SUFFIX_COURSE_API_URL}/get-course-by-filter`, courseRequest);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
+
+const getCourseOfFavourite = async (courseRequest) => {
+  const response = await post(`${SUFFIX_COURSE_API_URL}/get-all-course-favorite-of-student`, courseRequest);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
+
+
+
+const deleteCourseOfFavourite = async (courseRequest) => {
+  const response = await post(`${SUFFIX_COURSE_API_URL}/remove-course-from-favorite`, courseRequest);
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
+
+const getEnrollCourse = async (courseRequest) => {
+  const response = await post(`${SUFFIX_COURSE_API_URL}/get-all-course-of-student`, courseRequest);
+  if (response?.status !== 200) {
+    return null;
+  }
+  return response.data;
+};
+
+
+
 const courseService = {
   fetchAllCourseOfTeacher,
   fetchAllCourses,
   createCourse,
   updateCourse,
   deleteCourse,
-  fetchMainCourse
+  fetchMainCourse,
+  getCourseByFilter,
+  getCourseOfFavourite,
+  deleteCourseOfFavourite,
+  getEnrollCourse
 };
 
 export default courseService;

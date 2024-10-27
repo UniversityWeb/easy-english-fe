@@ -11,9 +11,9 @@ import {
     Image,
     VStack,
     Text,
-    Select as ChakraSelect, // Import Chakra's Select as "ChakraSelect"
+    Select as ChakraSelect,
 } from '@chakra-ui/react';
-import Select from 'react-select';  // Import react-select for category
+import Select from 'react-select';  // For category selection
 import courseService from '~/services/courseService';
 import categoryService from '~/services/categoryService';
 import topicService from '~/services/topicService';
@@ -25,10 +25,9 @@ const CourseForm = ({ courseId }) => {
     const username = getUsername();
     const [course, setCourse] = useState({
         title: '',
-        categoryIds: [],  // Updated to handle multiple categories
-        levelId: '',      // Use levelId instead of level
-        topicId: '',      // Use topicId instead of topic
-        imageUrl: null,
+        categoryIds: [],
+        levelId: '',
+        topicId: '',
         description: '',
         duration: '',
         isPublish: false,
@@ -36,13 +35,15 @@ const CourseForm = ({ courseId }) => {
         createdBy: username,
     });
 
+    const [video, setVideo] = useState(null); // For video upload
+    const [image, setImage] = useState(null); // For image upload
+
     const { successToast, errorToast } = useCustomToast();
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [topics, setTopics] = useState([]);
     const [levels, setLevels] = useState([]);
 
-    // Fetch categories and topics on mount
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
@@ -61,7 +62,6 @@ const CourseForm = ({ courseId }) => {
         fetchInitialData();
     }, []);
 
-    // Fetch course data if editing
     useEffect(() => {
         if (courseId) {
             const courseRequest = { id: courseId };
@@ -72,10 +72,9 @@ const CourseForm = ({ courseId }) => {
 
                     setCourse({
                         title: data.title,
-                        categoryIds: data.categoryIds, // Handle multiple categories
-                        topicId: data.topicId,         // Set topicId
-                        levelId: data.levelId,         // Set levelId
-                        imageUrl: data.imageUrl,
+                        categoryIds: data.categoryIds,
+                        topicId: data.topicId,
+                        levelId: data.levelId,
                         description: data.description,
                         duration: data.duration,
                         isPublish: data.isPublish,
@@ -83,7 +82,6 @@ const CourseForm = ({ courseId }) => {
                         isActive: data.isActive,
                     });
 
-                    // Fetch levels based on the topic that was set
                     if (data.topicId) {
                         const levelRequest = { topicId: data.topicId };
                         const fetchedLevels = await levelService.fetchAllLevelByTopic(levelRequest);
@@ -101,10 +99,9 @@ const CourseForm = ({ courseId }) => {
         }
     }, [courseId]);
 
-    // Fetch levels when a topic is selected
     const handleTopicChange = async (e) => {
         const selectedTopicId = e.target.value;
-        setCourse({ ...course, topicId: selectedTopicId, levelId: '' }); // Reset level when topic changes
+        setCourse({ ...course, topicId: selectedTopicId, levelId: '' });
 
         try {
             const levelRequest = { topicId: selectedTopicId };
@@ -120,26 +117,47 @@ const CourseForm = ({ courseId }) => {
         setCourse({ ...course, categoryIds: selectedCategoryIds });
     };
 
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setCourse({ ...course, imageUrl: URL.createObjectURL(file) });
+    const handleVideoChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setVideo(selectedFile); // Save the video file
+        }
+    };
+
+    const handleImageChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setImage(selectedFile); // Save the image file
         }
     };
 
     const handleCreateOrUpdateCourse = async () => {
-        const courseData = {
-            ...course,
-            duration: parseInt(course.duration),
-            isActive: true,
-        };
+        const formData = new FormData();
+        formData.append('title', course.title);
+        formData.append('description', course.description);
+        formData.append('duration', course.duration);
+        formData.append('isPublish', course.isPublish);
+        formData.append('isActive', course.isActive);
+        formData.append('createdBy', course.createdBy);
+        formData.append('categoryIds', course.categoryIds.join(','));
+        formData.append('topicId', course.topicId);
+        formData.append('levelId', course.levelId);
+
+        // Append video and image files if available
+        if (video) {
+            formData.append('video', video); // Send the video file
+        }
+        if (image) {
+            formData.append('image', image); // Send the image file
+        }
 
         try {
             if (courseId) {
-                await courseService.updateCourse({ id: courseId, ...courseData });
+                formData.append('id', courseId);
+                await courseService.updateCourse(formData);
                 successToast("Course updated successfully.");
             } else {
-                await courseService.createCourse(courseData);
+                await courseService.createCourse(formData);
                 successToast("Course created successfully.");
             }
         } catch (error) {
@@ -163,19 +181,14 @@ const CourseForm = ({ courseId }) => {
                             />
                         </FormControl>
 
-                        <FormControl display="flex" alignItems="center" mb="4">
+                        <FormControl mb="4">
+                            <FormLabel>Course publish</FormLabel>
                             <Switch
-                                id="publish-switch"
-                                mr="2"
                                 isChecked={course.isPublish}
                                 onChange={() => setCourse({ ...course, isPublish: !course.isPublish })}
                             />
-                            <FormLabel htmlFor="publish-switch" mb="0">
-                                Course publish (Everyone can see this course)
-                            </FormLabel>
                         </FormControl>
 
-                        {/* Use react-select for category */}
                         <FormControl mb="4">
                             <FormLabel>Category</FormLabel>
                             <Select
@@ -195,12 +208,11 @@ const CourseForm = ({ courseId }) => {
                             />
                         </FormControl>
 
-                        {/* Use Chakra's Select for topic */}
                         <FormControl mb="4">
                             <FormLabel>Topic</FormLabel>
                             <ChakraSelect
                                 placeholder="Select topic"
-                                value={course.topicId} // This should be the topic ID
+                                value={course.topicId}
                                 onChange={handleTopicChange}
                             >
                                 {topics.map((topic) => (
@@ -211,14 +223,13 @@ const CourseForm = ({ courseId }) => {
                             </ChakraSelect>
                         </FormControl>
 
-                        {/* Use Chakra's Select for level */}
                         <FormControl mb="4">
                             <FormLabel>Level</FormLabel>
                             <ChakraSelect
                                 placeholder="Select level"
-                                value={course.levelId} // This should be the level ID
+                                value={course.levelId}
                                 onChange={(e) => setCourse({ ...course, levelId: e.target.value })}
-                                isDisabled={!levels.length} // Disable if no levels available
+                                isDisabled={!levels.length}
                             >
                                 {levels.map((level) => (
                                     <option key={level.id} value={level.id}>
@@ -238,46 +249,23 @@ const CourseForm = ({ courseId }) => {
                         </FormControl>
 
                         <FormControl mb="4">
-                            <FormLabel>Image</FormLabel>
-                            <Box
-                                border="2px dashed"
-                                borderColor="gray.300"
-                                borderRadius="md"
-                                p="4"
-                                textAlign="center"
-                                position="relative"
-                                _hover={{ bg: 'gray.50', cursor: 'pointer' }}
-                            >
-                                {course.imageUrl ? (
-                                    <Image src={course.imageUrl} alt="Course" boxSize="150px" mx="auto" />
-                                ) : (
-                                    <VStack>
-                                        <Box boxSize="50px">
-                                            <Image
-                                                src="https://via.placeholder.com/50"
-                                                alt="Placeholder"
-                                            />
-                                        </Box>
-                                        <Text>
-                                            Drag and drop an image or upload it from your computer
-                                        </Text>
-                                    </VStack>
-                                )}
-                                <Input
-                                    type="file"
-                                    opacity="0"
-                                    position="absolute"
-                                    top="0"
-                                    left="0"
-                                    width="100%"
-                                    height="100%"
-                                    onChange={handleImageUpload}
-                                />
-                            </Box>
+                            <FormLabel>Video</FormLabel>
+                            <Input
+                                type="file"
+                                onChange={handleVideoChange} // Capture the video file
+                            />
                         </FormControl>
 
                         <FormControl mb="4">
-                            <FormLabel>Short description of the course</FormLabel>
+                            <FormLabel>Image</FormLabel>
+                            <Input
+                                type="file"
+                                onChange={handleImageChange} // Capture the image file
+                            />
+                        </FormControl>
+
+                        <FormControl mb="4">
+                            <FormLabel>Description</FormLabel>
                             <Textarea
                                 placeholder="Enter a short description..."
                                 rows={6}
