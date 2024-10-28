@@ -5,7 +5,7 @@ import Register from '~/pages/Register';
 import ForgotPassword from '~/pages/ForgotPassword';
 import UserProfileEdit from '~/pages/UserProfileEdit';
 import OtpValidation from '~/pages/OtpValidation';
-import CourseManagementForStudent from "~/pages/CourseManagementForStudent";
+import CourseManagementForStudent from '~/pages/CourseManagementForStudent';
 import NotificationsForStudent from '~/pages/NotificationsForStudent';
 import TakeTest from '~/pages/TakeTest';
 import PreviewTest from '~/pages/PreviewTest';
@@ -32,8 +32,14 @@ const publicRoutes = [
   { path: config.routes.forgot_password, component: ForgotPassword },
   { path: config.routes.user_profile_edit, component: UserProfileEdit },
   { path: config.routes.otp_validation, component: OtpValidation },
-  { path: config.routes.course_management_for_student, component: CourseManagementForStudent },
-  { path: config.routes.notifications_for_student, component: NotificationsForStudent },
+  {
+    path: config.routes.course_management_for_student,
+    component: CourseManagementForStudent,
+  },
+  {
+    path: config.routes.notifications_for_student,
+    component: NotificationsForStudent,
+  },
   { path: config.routes.preview_test, component: PreviewTest },
   { path: config.routes.take_test, component: TakeTest },
   { path: config.routes.cart, component: Cart },
@@ -41,7 +47,10 @@ const publicRoutes = [
   { path: config.routes.curriculum, component: Curriculum },
   { path: config.routes.maincourse, component: Setting },
   { path: config.routes.course_detail, component: ManagementCourse },
-  { path: config.routes.course_management_for_teacher, component: CourseManagementForTeacher },
+  {
+    path: config.routes.course_management_for_teacher,
+    component: CourseManagementForTeacher,
+  },
   { path: config.routes.search, component: Search },
   { path: config.routes.favourite, component: Favourite },
   { path: config.routes.enrollcourse, component: EnrollCourse },
