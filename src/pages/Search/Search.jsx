@@ -9,7 +9,7 @@ import {
   Icon,
   VStack,
   Divider,
-  ChakraProvider,
+  Container,
   Grid,
   GridItem,
   Input,
@@ -25,6 +25,7 @@ import courseService from '~/services/courseService';
 import Filter from "./Filter";
 import Pagination from "./Page";
 import { useNavigate } from 'react-router-dom';
+import StudentPageLayout from '~/components/StudentPageLayout';
 
 const Rating = ({ rating }) => {
   return (
@@ -281,8 +282,9 @@ const SearchPage = () => {
   };
 
   return (
-    <ChakraProvider>
-      <Grid templateColumns="300px 1fr" gap={6} p={5}>
+    <StudentPageLayout>   
+      <Container maxW="80%">    
+          <Grid templateColumns="300px 1fr" gap={6} p={5}>
         <GridItem>
           <Filter onFilterChange={handleFilterChange} />
         </GridItem>
@@ -294,8 +296,10 @@ const SearchPage = () => {
             onSearch={setSearchFunction}
           />
         </GridItem>
-      </Grid>
-    </ChakraProvider>
+      </Grid></Container>
+
+  </StudentPageLayout>
+
   );
 };
 
