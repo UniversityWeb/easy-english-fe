@@ -4,7 +4,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';
 import StarRating from './StarRating';
 
-const CourseCard = ({ course, price, onMakeFeatured }) => {
+const CourseCard = ({ course, onMakeFeatured }) => {
     const averageRating = useMemo(() => {
         return course.rating ? course.rating.toFixed(1) : "N/A";
     }, [course.rating]);
@@ -35,10 +35,10 @@ const CourseCard = ({ course, price, onMakeFeatured }) => {
                     <CheckCircleIcon mr={1} />
                     <Text>{course.isPublish ? 'Published' : 'Unpublished'}</Text>
                 </Flex>
-                {course.originalPrice && (
-                    <Text as="s" color="gray.500">${course.originalPrice}</Text>
+                {course.price?.salePrice && (
+                    <Text as="s" color="gray.500">${course.price.salePrice}</Text>
                 )}
-                <Text fontWeight="bold">${course.price}</Text>
+                <Text fontWeight="bold">${course.price?.price}</Text>
             </Stack>
             <Button colorScheme="blue" mt={4} w="100%" height={20} onClick={onMakeFeatured}>
                 MAKE FEATURED
