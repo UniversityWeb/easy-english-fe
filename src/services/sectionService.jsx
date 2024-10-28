@@ -5,7 +5,7 @@ const SUFFIX_SECTION_API_URL = '/section';
 const createSection = async (sectionRequest) => {
   const path = `${SUFFIX_SECTION_API_URL}/create-section`;
   const response = await post(path, sectionRequest);
-  if (response?.status !== 200) {
+  if (response?.status !== 200 && response?.status !== 201) {
     return null;
   }
   return response.data;

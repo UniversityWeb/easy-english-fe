@@ -1,63 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    ChakraProvider,
-    Box,
-    Button,
-    Input,
-    FormControl,
-    FormLabel,
-    Switch,
-    Textarea,
-    VStack,
-    Text,
-    Select as ChakraSelect,
-    Image,
-    IconButton,
-    Flex
+    ChakraProvider, Box, Button, Input, FormControl, FormLabel, Switch,
+    Textarea, VStack, Text, Select as ChakraSelect, Image, Flex
 } from '@chakra-ui/react';
 import Select from 'react-select';
-import { AiOutlineCloudUpload, AiOutlineDelete } from 'react-icons/ai'; // Icons for upload and delete
+import { AiOutlineCloudUpload, AiOutlineDelete } from 'react-icons/ai';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import 'react-quill/dist/quill.snow.css';
+import courseService from '~/services/courseService';
+import categoryService from '~/services/categoryService';
+import topicService from '~/services/topicService';
+import levelService from '~/services/levelService';
+import { getUsername } from '~/utils/authUtils';
+
 
 const Setting = ({ courseId }) => {
+    const username = getUsername();
     const [course, setCourse] = useState({
-        title: 'English Basics',
-        categoryIds: ['1', '2'],
-        levelId: '3',
-        topicId: '1',
-        description: '',  // Quill's content
-        descriptionPreview: 'Learn the basics of English language',
-        duration: '3 hours',
-        isPublish: true,
-        isActive: true,
-        createdBy: 'admin',
-        imagePreview: 'https://res.cloudinary.com/dnhvlncfw/image/upload/v1728881932/cld-sample-3.jpg',  // Initially, no image preview
-        videoPreview: '',  // Initially, no video preview
+        title: '', categoryIds: [], levelId: '', topicId: '',
+        description: '', descriptionPreview: '', duration: '',
+        isPublish: true, createdBy: 'admin', imagePreview: '', videoPreview: ''
     });
 
-    const [categories] = useState([
-        { id: '1', name: 'Language' },
-        { id: '2', name: 'Grammar' },
-    ]);
-    const [topics] = useState([
-        { id: '1', name: 'IELTS' },
-        { id: '2', name: 'TOEIC' },
-    ]);
-    const [levels, setLevels] = useState([
-        { id: '3', name: 'Beginner' },
-        { id: '4', name: 'Intermediate' },
-    ]);
+    const [categories, setCategories] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [levels, setLevels] = useState([]);
+    const [imageFile, setImageFile] = useState(null); // Store the actual image file
+    const [videoFile, setVideoFile] = useState(null); // Store the actual video file
+    // Fetch categories and topics on mount
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const [fetchedCategories, fetchedTopics] = await Promise.all([
+                    categoryService.fetchAllCategory(),
+                    topicService.fetchAllTopic(),
+                ]);
+                setCategories(fetchedCategories || []);
+                setTopics(fetchedTopics || []);
+            } catch (error) {
+                console.error("Error fetching categories or topics.", error);
+            }
+        };
 
-    // Handle topic selection and update levels accordingly
-    const handleTopicChange = (e) => {
+        fetchInitialData();
+    }, []);
+
+    // Fetch course data if courseId is provided
+    useEffect(() => {
+        if (courseId) {
+            const fetchCourseData = async () => {
+                try {
+                    const courseRequest = { id: courseId };
+                    const data = await courseService.fetchMainCourse(courseRequest);
+
+                    setCourse({
+                        title: data.title,
+                        categoryIds: data.categories.map(category => category.id),
+                        topicId: data.topic.id,
+                        levelId: data.level.id,
+                        description: data.description,
+                        descriptionPreview: data.descriptionPreview,
+                        duration: data.duration,
+                        isPublish: data.isPublish,
+                        createdBy: data.createdBy,
+                        imagePreview: data.imagePreview,
+                        videoPreview: data.videoPreview,
+                    });
+
+                    if (data.topic.id) {
+                        const levels = await levelService.fetchAllLevelByTopic({ topicId: data.topic.id });
+                        setLevels(levels || []);
+                    }
+                } catch (error) {
+                    console.error("Error fetching course data.", error);
+                }
+            };
+
+            fetchCourseData();
+        }
+    }, [courseId]);
+
+
+
+    // Handle topic change and fetch levels
+    const handleTopicChange = async (e) => {
         const selectedTopicId = e.target.value;
         setCourse({ ...course, topicId: selectedTopicId, levelId: '' });
 
-        if (selectedTopicId === '1') {
-            setLevels([{ id: '3', name: 'Beginner' }, { id: '4', name: 'Intermediate' }]);
-        } else {
-            setLevels([{ id: '5', name: 'Advanced' }]);
+        try {
+            const fetchedLevels = await levelService.fetchAllLevelByTopic({ topicId: selectedTopicId });
+            setLevels(fetchedLevels || []);
+        } catch (error) {
+            console.error("Error fetching levels for the selected topic.", error);
         }
     };
 
@@ -67,7 +101,6 @@ const Setting = ({ courseId }) => {
         setCourse({ ...course, categoryIds: selectedCategoryIds });
     };
 
-    // Handle ReactQuill description change with a proper state update
     const handleDescriptionChange = (content) => {
         setCourse(prevCourse => ({
             ...prevCourse,
@@ -75,35 +108,72 @@ const Setting = ({ courseId }) => {
         }));
     };
 
-    // Handle image file upload and preview
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const imageUrl = URL.createObjectURL(file);
+            const imagePreview = URL.createObjectURL(file);
             setCourse(prevCourse => ({
                 ...prevCourse,
-                imagePreview: imageUrl
+                imagePreview: imagePreview
             }));
+            setImageFile(file);  // Store the actual image file
         }
     };
 
-    // Handle image removal
     const handleRemoveImage = () => {
         setCourse(prevCourse => ({
             ...prevCourse,
             imagePreview: ''
         }));
+        setImageFile(null); // Reset the image file
     };
 
-    // Handle video file upload and preview
     const handleVideoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const videoUrl = URL.createObjectURL(file);
+            const videoPreview = URL.createObjectURL(file);
             setCourse(prevCourse => ({
                 ...prevCourse,
-                videoPreview: videoUrl
+                videoPreview: videoPreview
             }));
+            setVideoFile(file);  // Store the actual video file
+        }
+    };
+
+
+    // Handle form submission (create or update)
+    const handleSubmit = async () => {
+        const formData = new FormData();
+        formData.append('ownerUsername', username);
+        formData.append('title', course.title);
+        formData.append('description', course.description);
+        formData.append('descriptionPreview', course.descriptionPreview);
+        formData.append('duration', course.duration);
+        formData.append('isPublish', course.isPublish);
+        course.categoryIds.forEach(id => {
+            formData.append('categoryIds', id); // Thêm từng categoryId vào FormData
+        }); formData.append('topicId', course.topicId);
+        formData.append('levelId', course.levelId);
+        formData.append('createdBy', course.createdBy);
+
+        if (videoFile) {
+            formData.append('video', videoFile);
+        }
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        try {
+            if (courseId) {
+                formData.append('id', courseId);
+                await courseService.updateCourse(formData);
+                console.log("Course updated successfully.");
+            } else {
+                await courseService.createCourse(formData);
+                console.log("Course created successfully.");
+            }
+        } catch (error) {
+            console.error("Error saving course.", error);
         }
     };
 
@@ -197,18 +267,15 @@ const Setting = ({ courseId }) => {
                                 cursor="pointer"
                                 overflow="hidden"
                                 _hover={{
-                                    '.overlay': { opacity: 1 }, // Show overlay on hover
-                                    '.remove-btn': { opacity: 1 }, // Show button on hover
+                                    '.overlay': { opacity: 1 },
+                                    '.remove-btn': { opacity: 1 },
                                 }}
                             >
-                                {/* Video */}
                                 <video
                                     src={course.videoPreview}
                                     controls
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
-
-                                {/* Dark overlay when hovering */}
                                 <Box
                                     className="overlay"
                                     position="absolute"
@@ -216,12 +283,10 @@ const Setting = ({ courseId }) => {
                                     left="0"
                                     width="100%"
                                     height="100%"
-                                    backgroundColor="rgba(0, 0, 0, 0.5)" // Dark overlay effect
+                                    backgroundColor="rgba(0, 0, 0, 0.5)"
                                     opacity="0"
-                                    transition="opacity 0.3s ease" // Smooth transition
+                                    transition="opacity 0.3s ease"
                                 />
-
-                                {/* Remove button */}
                                 <Flex
                                     className="remove-btn"
                                     position="absolute"
@@ -229,7 +294,7 @@ const Setting = ({ courseId }) => {
                                     left="50%"
                                     transform="translate(-50%, -50%)"
                                     opacity="0"
-                                    transition="opacity 0.3s ease" // Smooth transition
+                                    transition="opacity 0.3s ease"
                                     justifyContent="center"
                                     alignItems="center"
                                 >
@@ -247,11 +312,11 @@ const Setting = ({ courseId }) => {
                                 p="4"
                                 textAlign="center"
                                 cursor="pointer"
-                                height="100%" // To maintain height
+                                height="100%"
                                 onClick={() => document.getElementById('videoUpload').click()}
-                                justifyContent="center" // Center horizontally
-                                alignItems="center" // Center vertically
-                                flexDirection="column" // Stack elements vertically
+                                justifyContent="center"
+                                alignItems="center"
+                                flexDirection="column"
                             >
                                 <Text>Drag and drop a video or upload it from your computer</Text>
                                 <Button mt="2" colorScheme="blue">Upload a video</Button>
@@ -278,11 +343,10 @@ const Setting = ({ courseId }) => {
                                 cursor="pointer"
                                 overflow="hidden"
                                 _hover={{
-                                    '.overlay': { opacity: 1 }, // Show overlay on hover
-                                    '.remove-btn': { opacity: 1 }, // Show button on hover
+                                    '.overlay': { opacity: 1 },
+                                    '.remove-btn': { opacity: 1 },
                                 }}
                             >
-                                {/* Image */}
                                 <Image
                                     src={course.imagePreview}
                                     alt="Course Image"
@@ -290,8 +354,6 @@ const Setting = ({ courseId }) => {
                                     height="100%"
                                     objectFit="cover"
                                 />
-
-                                {/* Dark overlay when hovering */}
                                 <Box
                                     className="overlay"
                                     position="absolute"
@@ -299,12 +361,10 @@ const Setting = ({ courseId }) => {
                                     left="0"
                                     width="100%"
                                     height="100%"
-                                    backgroundColor="rgba(0, 0, 0, 0.5)" // Dark overlay effect
+                                    backgroundColor="rgba(0, 0, 0, 0.5)"
                                     opacity="0"
-                                    transition="opacity 0.3s ease" // Smooth transition
+                                    transition="opacity 0.3s ease"
                                 />
-
-                                {/* Remove button */}
                                 <Flex
                                     className="remove-btn"
                                     position="absolute"
@@ -312,7 +372,7 @@ const Setting = ({ courseId }) => {
                                     left="50%"
                                     transform="translate(-50%, -50%)"
                                     opacity="0"
-                                    transition="opacity 0.3s ease" // Smooth transition
+                                    transition="opacity 0.3s ease"
                                     justifyContent="center"
                                     alignItems="center"
                                 >
@@ -330,11 +390,11 @@ const Setting = ({ courseId }) => {
                                 p="4"
                                 textAlign="center"
                                 cursor="pointer"
-                                height="100%" // To maintain height
+                                height="100%"
                                 onClick={() => document.getElementById('imageUpload').click()}
-                                justifyContent="center" // Center horizontally
-                                alignItems="center" // Center vertically
-                                flexDirection="column" // Stack elements vertically
+                                justifyContent="center"
+                                alignItems="center"
+                                flexDirection="column"
                             >
                                 <Text>Drag and drop an image or upload it from your computer</Text>
                                 <Button mt="2" colorScheme="blue">Upload an image</Button>
@@ -364,13 +424,13 @@ const Setting = ({ courseId }) => {
                     <FormLabel>Description</FormLabel>
                     <Box sx={{
                         '.quill': {
-                            height: "270px",  // Increase height
+                            height: "270px",
                             display: 'flex',
                             flexDirection: 'column'
                         },
                         '.ql-container': {
-                            height: "220px",  // Editor height
-                            marginBottom: "20px" // Add bottom margin
+                            height: "220px",
+                            marginBottom: "20px"
                         }
                     }}>
                         <ReactQuill
@@ -382,7 +442,7 @@ const Setting = ({ courseId }) => {
                     </Box>
                 </FormControl>
 
-                <Button colorScheme="blue" width="100%" >
+                <Button colorScheme="blue" width="100%" onClick={handleSubmit}>
                     {courseId ? 'Update Course' : 'Create Course'}
                 </Button>
             </Box>

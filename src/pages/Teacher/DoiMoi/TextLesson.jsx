@@ -15,7 +15,7 @@ import "react-quill/dist/quill.snow.css";
 import lessonService from "~/services/lessonService";
 import useCustomToast from '~/hooks/useCustomToast';
 
-const TextLesson = ({ id, sectionId, onLessonSaved }) => {
+const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
     const [loading, setLoading] = useState(false);
     const [lesson, setLesson] = useState({
         title: "",
@@ -31,54 +31,65 @@ const TextLesson = ({ id, sectionId, onLessonSaved }) => {
 
     // Fetch lesson data if ID is provided
     useEffect(() => {
-        let isMounted = true; // Add mounted flag
+        if (!isNew && id) {
+            // Fetch existing lesson data
+            let isMounted = true; // Mounted flag for component cleanup
 
-        const fetchLesson = async () => {
-            if (!id) return; // Return early if no id
-
-            setLoading(true);
-            try {
-                const data = await lessonService.fetchLessonById({ id });
-                if (data && isMounted) { // Check if component is still mounted
-                    setLesson({
-                        title: data.title || "",
-                        content: data.content || "",
-                        description: data.description || "",
-                        duration: data.duration || "",
-                        isPreview: data.isPreview || false,
-                        startDate: data.startDate || "",
-                        startTime: data.startTime || "",
-                    });
-                    successToast('Lesson data fetched successfully');
+            const fetchLesson = async () => {
+                setLoading(true);
+                try {
+                    const data = await lessonService.fetchLessonById({ id });
+                    if (data && isMounted) { // Check if component is still mounted
+                        setLesson({
+                            title: data.title || "",
+                            content: data.content || "",
+                            description: data.description || "",
+                            duration: data.duration || "",
+                            isPreview: data.isPreview || false,
+                            startDate: data.startDate || "",
+                            startTime: data.startTime || "",
+                        });
+                        successToast('Lesson data fetched successfully');
+                    }
+                } catch (error) {
+                    if (isMounted) {
+                        console.error(error?.message);
+                        errorToast('Error fetching lesson data');
+                    }
+                } finally {
+                    if (isMounted) setLoading(false);
                 }
-            } catch (error) {
-                if (isMounted) { // Check if component is still mounted
-                    console.error(error?.message);
-                    errorToast('Error fetching lesson data');
-                }
-            } finally {
-                if (isMounted) { // Check if component is still mounted
-                    setLoading(false);
-                }
-            }
-        };
+            };
 
-        fetchLesson();
+            fetchLesson();
 
-        // Cleanup function
-        return () => {
-            isMounted = false;
-        };
-    }, [id]); // Remove successToast and errorToast from dependencies
+            return () => {
+                isMounted = false; // Cleanup function to prevent memory leaks
+            };
+        } else {
+            // Initialize new lesson state for a new lesson
+            setLesson({
+                title: "",
+                content: "",
+                description: "",
+                duration: "",
+                isPreview: false,
+                startDate: "",
+                startTime: "",
+            });
+        }
+    }, [id, isNew]);
 
     // Handle form submission for create/update
     const handleSubmit = async () => {
         setLoading(true);
-        const formData = { ...lesson, sectionId };
+        const formData = { ...lesson, sectionId, type: "TEXT" };
         try {
             let savedLesson;
             if (id) {
+                console.log("check", "in update");
                 savedLesson = await lessonService.updateLesson({ ...formData, id });
+                console.log("check", "out update");
                 successToast('Lesson updated successfully');
             } else {
                 savedLesson = await lessonService.createLesson(formData);
@@ -97,7 +108,7 @@ const TextLesson = ({ id, sectionId, onLessonSaved }) => {
     };
 
     return (
-        <Box p={5} shadow="md" borderWidth="1px" width="100%">
+        <Box p={5} paddingBottom={0} shadow="md" borderWidth="1px" width="100%">
             {loading ? (
                 <p>Loading...</p>
             ) : (
@@ -167,11 +178,13 @@ const TextLesson = ({ id, sectionId, onLessonSaved }) => {
                     <FormControl mb={4}>
                         <FormLabel>Description</FormLabel>
                         <Textarea
+
                             value={lesson.description}
                             onChange={(e) =>
                                 setLesson({ ...lesson, description: e.target.value })
                             }
                             placeholder="Enter lesson description"
+                            height="170px"
                         />
                     </FormControl>
 
@@ -185,7 +198,7 @@ const TextLesson = ({ id, sectionId, onLessonSaved }) => {
                                     flexDirection: "column",
                                 },
                                 ".ql-container": {
-                                    height: "350px",
+                                    height: "310px",
                                     marginBottom: "20px",
                                 },
                             }}
@@ -195,15 +208,23 @@ const TextLesson = ({ id, sectionId, onLessonSaved }) => {
                                 onChange={(content) => setLesson({ ...lesson, content })}
                                 theme="snow"
                                 placeholder="Enter lesson content"
-                                style={{ height: "420px", marginBottom: "20px" }}
+                                style={{ height: "380px", marginBottom: "20px" }}
                             />
                         </Box>
                     </FormControl>
 
-                    <Box display="flex" justifyContent="flex-end" mt={4}>
-                        <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading}>
-                            {id ? "Update Lesson" : "Create Lesson"}
-                        </Button>
+                    <Box
+                        position="sticky"
+                        bottom={0}
+                        bg="white"
+                        p={4}
+                        zIndex={5}
+                    >
+                        <Box display="flex" justifyContent="flex-end">
+                            <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading}>
+                                {id ? "Update Lesson" : "Create Lesson"}
+                            </Button>
+                        </Box>
                     </Box>
                 </>
             )}

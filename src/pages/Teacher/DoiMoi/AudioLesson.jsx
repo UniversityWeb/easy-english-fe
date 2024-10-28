@@ -18,7 +18,7 @@ import "react-quill/dist/quill.snow.css";
 import lessonService from "~/services/lessonService";
 import useCustomToast from '~/hooks/useCustomToast';
 
-const AudioLesson = ({ id, sectionId }) => {
+const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
     const [loading, setLoading] = useState(false);
     const [lesson, setLesson] = useState({
         title: "",
@@ -69,12 +69,28 @@ const AudioLesson = ({ id, sectionId }) => {
             }
         };
 
-        fetchLesson();
+        if (!isNew && id) {
+            // Fetch existing lesson data
+            fetchLesson();
+        } else {
+            // Initialize new lesson state
+            setLesson({
+                title: "",
+                content: "",
+                contentUrl: "",
+                description: "",
+                duration: "",
+                isPreview: false,
+                startDate: "",
+                startTime: "",
+            });
+        }
 
         return () => {
             isMounted = false;
         };
-    }, [id]);
+    }, [id, isNew]);
+
 
     // Cleanup object URLs when component unmounts
     useEffect(() => {
@@ -110,16 +126,21 @@ const AudioLesson = ({ id, sectionId }) => {
         const formData = {
             ...lesson,
             sectionId,
+            type: "AUDIO",
             ...(sourceType === "MP3" && audio ? { file: audio } : {}),
         };
 
         try {
+            let savedLesson;
             if (id) {
-                await lessonService.updateLesson({ ...formData, id });
+                savedLesson = await lessonService.updateLesson({ ...formData, id });
                 successToast('Lesson updated successfully');
             } else {
-                await lessonService.createLesson(formData);
+                savedLesson = await lessonService.createLesson(formData);
                 successToast('Lesson created successfully');
+            }
+            if (onLessonSaved) {
+                onLessonSaved(savedLesson); // Pass the saved lesson to the parent
             }
         } catch (error) {
             errorToast('Error saving the lesson');
@@ -333,11 +354,18 @@ const AudioLesson = ({ id, sectionId }) => {
                             />
                         </Box>
                     </FormControl>
-
-                    <Box display="flex" justifyContent="flex-end" mt={4}>
-                        <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading}>
-                            {id ? "Update Lesson" : "Create Lesson"}
-                        </Button>
+                    <Box
+                        position="sticky"
+                        bottom={0}
+                        bg="white"
+                        p={4}
+                        zIndex={5}
+                    >
+                        <Box display="flex" justifyContent="flex-end">
+                            <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading}>
+                                {id ? "Update Lesson" : "Create Lesson"}
+                            </Button>
+                        </Box>
                     </Box>
                 </>
             )}

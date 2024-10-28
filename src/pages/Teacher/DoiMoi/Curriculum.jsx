@@ -42,10 +42,10 @@ import { useState, useEffect } from "react";
 import TextLesson from "~/pages/Teacher/DoiMoi/TextLesson";
 import VideoLesson from "~/pages/Teacher/DoiMoi/VideoLesson";
 import AudioLesson from "~/pages/Teacher/DoiMoi/AudioLesson";
-import sectionService from "~/services/sectionService";  // Importing sectionService
-import lessonService from "~/services/lessonService";    // Importing lessonService
+import sectionService from "~/services/sectionService";
+import lessonService from "~/services/lessonService";
+import useCustomToast from '~/hooks/useCustomToast';
 
-// Function to map lesson type to corresponding icons and colors
 const getLessonIcon = (type) => {
     switch (type) {
         case "TEXT":
@@ -74,11 +74,13 @@ const Curriculum = ({ courseId }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
     const [hoveredLessonId, setHoveredLessonId] = useState(null)
+    const { successToast, errorToast, warningToast } = useCustomToast();
+
     // Fetch sections and lessons from the API
     useEffect(() => {
         const fetchSections = async () => {
             try {
-                const sectionRequest = { courseId: 1 };
+                const sectionRequest = { courseId };
                 const fetchedSections = await sectionService.fetchSectionsByCourse(sectionRequest);
                 if (fetchedSections) {
                     const sectionsWithLessons = await Promise.all(
@@ -90,21 +92,11 @@ const Curriculum = ({ courseId }) => {
                     );
                     setSections(sectionsWithLessons);
                 } else {
-                    toast({
-                        title: "Failed to fetch sections",
-                        status: "error",
-                        duration: 3000,
-                        isClosable: true,
-                    });
+                    errorToast('Failed to fetch sections');
                 }
             } catch (error) {
-                toast({
-                    title: "Error fetching sections",
-                    description: error.message,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
-                });
+                errorToast('Error fetching sections');
+
             } finally {
                 setLoading(false);
             }
@@ -119,45 +111,58 @@ const Curriculum = ({ courseId }) => {
                 if (section.id === savedLesson.sectionId) {
                     const updatedLessons = section.lessons.some((lesson) => lesson.id === savedLesson.id)
                         ? section.lessons.map((lesson) => (lesson.id === savedLesson.id ? savedLesson : lesson))
-                        : [...section.lessons, savedLesson]; // Add new lesson to the section
+                        : [...section.lessons, savedLesson];
 
                     return { ...section, lessons: updatedLessons };
                 }
                 return section;
             })
         );
-        // Clear selection after successful save
-        setSelectedLessonId(null);
-        setSelectedLessonType(null);
-        setSelectedSectionId(null);
     };
     const handleLessonTypeClick = (lessonType) => {
         setSelectedLessonType(lessonType);
+        console.log("selectedSectionId : ", selectedSectionId);
         setSelectedLessonId(null);
-        onClose(); // Close the modal once a lesson type is selected
+        console.log("selectedSectionId : ", selectedSectionId);
+        onClose();
     };
 
     const handleDeleteSection = async (id) => {
         try {
-            await sectionService.deleteSection(id);
+            // Call the delete API
+            await sectionService.deleteSection({ id });
             setSections(sections.filter((section) => section.id !== id));
-            toast({
-                title: "Section deleted",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
+            successToast('Section deleted');
         } catch (error) {
-            toast({
-                title: "Error deleting section",
-                description: error.message,
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            });
+            errorToast('Error deleting section');
         }
     };
+    const handleUpdateSection = async (sectionId, newTitle) => {
+        try {
+            const updatedSection = {
+                id: sectionId,
+                title: newTitle,
+                courseId,  // Ensure you send the courseId as well
+            };
 
+            // Call the update API
+            const result = await sectionService.updateSection(updatedSection);
+
+            if (result) {
+                // Update the local state with the new title
+                setSections((prevSections) =>
+                    prevSections.map((section) =>
+                        section.id === sectionId ? { ...section, title: newTitle } : section
+                    )
+                );
+                successToast('Section updated');
+            } else {
+                errorToast('Failed to update section');
+            }
+        } catch (error) {
+            errorToast('Error updating section');
+        }
+    };
 
 
     const handleAddNewSection = async () => {
@@ -165,26 +170,17 @@ const Curriculum = ({ courseId }) => {
             try {
                 const newSection = {
                     title: newSectionTitle,
-                    courseId,
+                    courseId: 1,  // Make sure courseId is passed
                 };
                 const createdSection = await sectionService.createSection(newSection);
+
+                // Add the new section to the state
                 setSections([...sections, { ...createdSection, lessons: [] }]);
                 setNewSectionTitle("");
                 setIsAddingNewSection(false);
-                toast({
-                    title: "Section added",
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
-                });
+                successToast('Section added');
             } catch (error) {
-                toast({
-                    title: "Error adding section",
-                    description: error.message,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
-                });
+                errorToast('Error adding section');
             }
         }
     };
@@ -196,13 +192,15 @@ const Curriculum = ({ courseId }) => {
     };
 
     const renderLessonComponent = () => {
+        const isNewLesson = !selectedLessonId && selectedSectionId;
+
         switch (selectedLessonType) {
             case "TEXT":
-                return <TextLesson id={selectedLessonId} sectionId={selectedSectionId} onLessonSaved={handleLessonSaved} />;
+                return <TextLesson id={selectedLessonId} sectionId={selectedSectionId} isNew={isNewLesson} onLessonSaved={handleLessonSaved} />;
             case "VIDEO":
-                return <VideoLesson id={selectedLessonId} sectionId={selectedSectionId} onLessonSaved={handleLessonSaved} />;
+                return <VideoLesson id={selectedLessonId} sectionId={selectedSectionId} isNew={isNewLesson} onLessonSaved={handleLessonSaved} />;
             case "AUDIO":
-                return <AudioLesson id={selectedLessonId} sectionId={selectedSectionId} onLessonSaved={handleLessonSaved} />;
+                return <AudioLesson id={selectedLessonId} sectionId={selectedSectionId} isNew={isNewLesson} onLessonSaved={handleLessonSaved} />;
             case "QUIZ":
                 return <Text>Quiz Component</Text>;
             default:
@@ -221,42 +219,29 @@ const Curriculum = ({ courseId }) => {
 
     const handleDeleteLesson = async (lessonId) => {
         try {
-            const lessonRequest = { id: lessonId };  // Gửi yêu cầu với ID của lesson
-            await lessonService.deleteLesson(lessonRequest); // Gọi API để xóa lesson
-            // Cập nhật lại danh sách lesson trong state
+            const lessonRequest = { id: lessonId };
+            await lessonService.deleteLesson(lessonRequest);
             setSections((prevSections) =>
                 prevSections.map((section) => ({
                     ...section,
                     lessons: section.lessons.filter((lesson) => lesson.id !== lessonId),
                 }))
             );
-            toast({
-                title: "Lesson deleted",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
+            successToast('Lesson deleted');
+
         } catch (error) {
-            toast({
-                title: "Error deleting lesson",
-                description: error.message,
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            });
+            errorToast('Error deleting lesson');
+
         }
     };
 
-
     return (
         <HStack spacing={5} align="start" h="full">
-            {/* Sidebar Section */}
             <Box w="30%" bg="gray.100" p={5} rounded="md">
                 <Text fontSize="2xl" fontWeight="bold" mb={4}>
                     Curriculum
                 </Text>
 
-                {/* Accordion for Sections */}
                 <Accordion allowMultiple>
                     {sections.map((section) => (
                         <AccordionItem key={section.id}>
@@ -280,16 +265,24 @@ const Curriculum = ({ courseId }) => {
                                                 {editingSectionId === section.id ? (
                                                     <Input
                                                         value={section.title}
+                                                        onClick={(e) => e.stopPropagation()}  // Prevent accordion toggle
                                                         onChange={(e) =>
                                                             setSections((prevState) =>
                                                                 prevState.map((s) =>
-                                                                    s.id === section.id ? { ...s, title: e.target.value } : s
+                                                                    s.id === section.id
+                                                                        ? { ...s, title: e.target.value }
+                                                                        : s
                                                                 )
                                                             )
                                                         }
-                                                        onBlur={() => setEditingSectionId(null)}
+                                                        onBlur={() => {
+                                                            handleUpdateSection(section.id, section.title);
+                                                            setEditingSectionId(null);
+                                                        }}
                                                         onKeyDown={(e) => {
+                                                            e.stopPropagation();  // Prevent accordion toggle on keydown
                                                             if (e.key === "Enter") {
+                                                                handleUpdateSection(section.id, section.title);
                                                                 setEditingSectionId(null);
                                                             }
                                                         }}
@@ -337,8 +330,8 @@ const Curriculum = ({ courseId }) => {
 
                                                         key={lesson.id}
                                                         cursor="pointer"
-                                                        onMouseEnter={() => setHoveredLessonId(lesson.id)}  // Set hovered lesson ID
-                                                        onMouseLeave={() => setHoveredLessonId(null)}       // Reset hovered lesson ID
+                                                        onMouseEnter={() => setHoveredLessonId(lesson.id)}
+                                                        onMouseLeave={() => setHoveredLessonId(null)}
                                                     >
                                                         <HStack justify="space-between">
                                                             <HStack>
@@ -346,14 +339,14 @@ const Curriculum = ({ courseId }) => {
                                                                 <ListIcon as={icon} color={color} />
                                                                 <Text>{lesson.title}</Text>
                                                             </HStack>
-                                                            {hoveredLessonId === lesson.id && (  // Show icon only when hovered
+                                                            {hoveredLessonId === lesson.id && (
                                                                 <Icon
                                                                     as={RiDeleteBinFill}
                                                                     color="gray.500"
                                                                     cursor="pointer"
                                                                     onClick={(e) => {
-                                                                        e.stopPropagation(); // Prevents click event from propagating to ListItem
-                                                                        handleDeleteLesson(lesson.id); // Call delete lesson function
+                                                                        e.stopPropagation();
+                                                                        handleDeleteLesson(lesson.id);
                                                                     }}
                                                                 />
                                                             )}
@@ -369,7 +362,7 @@ const Curriculum = ({ courseId }) => {
                                             mt={4}
                                             onClick={() => {
                                                 onOpen();
-                                                setSelectedSectionId(section.id); // Gán sectionId khi mở modal
+                                                setSelectedSectionId(section.id);
                                             }}
 
                                         >
@@ -382,7 +375,6 @@ const Curriculum = ({ courseId }) => {
                     ))}
                 </Accordion>
 
-                {/* New Section Input */}
                 {isAddingNewSection ? (
                     <VStack mt={4} spacing={3}>
                         <Input
@@ -423,8 +415,7 @@ const Curriculum = ({ courseId }) => {
                 )}
             </Box>
 
-            {/* Main Content Area */}
-            <Box w="70%" textAlign="center">
+            <Box w="70%" textAlign="center" maxHeight="80vh" overflow="auto">
                 {selectedLessonType ? (
                     renderLessonComponent()
                 ) : (

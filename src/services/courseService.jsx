@@ -27,7 +27,11 @@ const createCourse = async (courseRequest) => {
 };
 
 const updateCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/update-course`, courseRequest);
+  const response = await post(`${SUFFIX_COURSE_API_URL}/update-course`, courseRequest, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
 
   if (response?.status !== 200) {
     return null;
@@ -55,15 +59,7 @@ const fetchAllCourseOfTeacher = async (courseRequest) => {
   return response.data.content;
 }
 
-const fetchMainCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/get-main-course`, courseRequest);
 
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
-};
 
 const getCourseByFilter = async (courseRequest) => {
   const response = await post(`${SUFFIX_COURSE_API_URL}/get-course-by-filter`, courseRequest);
@@ -104,7 +100,15 @@ const getEnrollCourse = async (courseRequest) => {
   return response.data;
 };
 
+const fetchMainCourse = async (courseRequest) => {
+  const response = await post(`${SUFFIX_COURSE_API_URL}/get-main-course`, courseRequest);
 
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
 
 const courseService = {
   fetchAllCourseOfTeacher,
