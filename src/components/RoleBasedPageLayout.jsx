@@ -1,12 +1,12 @@
 import React from 'react';
 import { Flex } from '@chakra-ui/react';
-import NavbarForTeacher from '~/components/Navbars/NavbarForTeacher';
 import Footer from '~/components/Footer';
+import RoleBasedNavbar from '~/components/Navbars/RoleBasedNavbar';
 
-const TeacherPageLayout = ({ children }) => {
+const RoleBasedPageLayout = ({ children }) => {
   return (
     <Flex direction="column" minH="100vh">
-      <NavbarForTeacher />
+      <RoleBasedNavbar />
 
       <Flex direction="column" flex="1">
         {children}
@@ -17,4 +17,4 @@ const TeacherPageLayout = ({ children }) => {
   );
 };
 
-export default TeacherPageLayout;
+export default RoleBasedPageLayout;

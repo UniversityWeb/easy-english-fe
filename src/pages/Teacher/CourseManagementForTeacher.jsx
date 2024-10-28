@@ -4,7 +4,7 @@ import CourseCard from '~/pages/Teacher/Course/CourseCard';
 import { useNavigate } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import { getUsername } from '~/utils/authUtils';
-import TeacherPageLayout from '~/components/TeacherPageLayout';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const CoursesManagementForTeacher = () => {
     const [courses, setCourses] = useState([]);
@@ -30,7 +30,7 @@ const CoursesManagementForTeacher = () => {
     }, []);
 
     return (
-      <TeacherPageLayout>
+      <RoleBasedPageLayout>
           <Box p={5} mx="100px">
               <Flex justify="space-between" align="center" mb={5}>
                   <Heading as="h1" size="lg">Courses</Heading>
@@ -84,7 +84,7 @@ const CoursesManagementForTeacher = () => {
                   </TabPanels>
               </Tabs>
           </Box>
-      </TeacherPageLayout>
+      </RoleBasedPageLayout>
     );
 };
 
