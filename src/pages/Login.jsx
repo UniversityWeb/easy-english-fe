@@ -63,7 +63,7 @@ const Login = () => {
         successToast(`Login successfully`);
         const user = loginResponse?.user;
         if (user?.role === USER_ROLES.STUDENT) {
-          navigate(config.routes.course_management_for_student);
+          navigate(config.routes.search);
         }
         else if (user?.role === USER_ROLES.TEACHER) {
           navigate(config.routes.course_management_for_teacher);

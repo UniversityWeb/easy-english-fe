@@ -6,47 +6,88 @@ import {
     Input,
     FormControl,
     FormLabel,
-    Flex,
-    Select,
-    Textarea,
-    IconButton,
-    Text,
-    VStack,
-    Image,
     Switch,
+    Textarea,
+    Image,
+    VStack,
+    Text,
+    Select as ChakraSelect,
 } from '@chakra-ui/react';
-import { FaPlus } from 'react-icons/fa';
-import courseService from '~/services/courseService'; 
+import Select from 'react-select';  // For category selection
+import courseService from '~/services/courseService';
+import categoryService from '~/services/categoryService';
+import topicService from '~/services/topicService';
+import levelService from '~/services/levelService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
+
 const CourseForm = ({ courseId }) => {
     const username = getUsername();
     const [course, setCourse] = useState({
         title: '',
-        category: '',
-        level: '',
-        imageUrl: null,
+        categoryIds: [],
+        levelId: '',
+        topicId: '',
         description: '',
         duration: '',
         isPublish: false,
         isActive: true,
         createdBy: username,
     });
+
+    const [video, setVideo] = useState(null); // For video upload
+    const [image, setImage] = useState(null); // For image upload
+
     const { successToast, errorToast } = useCustomToast();
     const [loading, setLoading] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [levels, setLevels] = useState([]);
+
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const [fetchedCategories, fetchedTopics] = await Promise.all([
+                    categoryService.fetchAllCategory(),
+                    topicService.fetchAllTopic(),
+                ]);
+
+                setCategories(fetchedCategories || []);
+                setTopics(fetchedTopics || []);
+            } catch (error) {
+                errorToast("Error fetching categories or topics.");
+            }
+        };
+
+        fetchInitialData();
+    }, []);
 
     useEffect(() => {
         if (courseId) {
-            const courseRequest = {
-                id: courseId
-            };
+            const courseRequest = { id: courseId };
             const fetchCourseData = async () => {
                 setLoading(true);
                 try {
                     const data = await courseService.fetchMainCourse(courseRequest);
+
                     setCourse({
-                        ...data,
+                        title: data.title,
+                        categoryIds: data.categoryIds,
+                        topicId: data.topicId,
+                        levelId: data.levelId,
+                        description: data.description,
+                        duration: data.duration,
+                        isPublish: data.isPublish,
+                        createdBy: data.createdBy,
+                        isActive: data.isActive,
                     });
+
+                    if (data.topicId) {
+                        const levelRequest = { topicId: data.topicId };
+                        const fetchedLevels = await levelService.fetchAllLevelByTopic(levelRequest);
+                        setLevels(fetchedLevels || []);
+                    }
+
                     successToast("Course data loaded successfully.");
                 } catch (error) {
                     errorToast("Error fetching course data.");
@@ -58,26 +99,65 @@ const CourseForm = ({ courseId }) => {
         }
     }, [courseId]);
 
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setCourse({ ...course, imageUrl: URL.createObjectURL(file) });
+    const handleTopicChange = async (e) => {
+        const selectedTopicId = e.target.value;
+        setCourse({ ...course, topicId: selectedTopicId, levelId: '' });
+
+        try {
+            const levelRequest = { topicId: selectedTopicId };
+            const fetchedLevels = await levelService.fetchAllLevelByTopic(levelRequest);
+            setLevels(fetchedLevels || []);
+        } catch (error) {
+            errorToast("Error fetching levels for the selected topic.");
+        }
+    };
+
+    const handleCategoryChange = (selectedOptions) => {
+        const selectedCategoryIds = selectedOptions.map(option => option.value);
+        setCourse({ ...course, categoryIds: selectedCategoryIds });
+    };
+
+    const handleVideoChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setVideo(selectedFile); // Save the video file
+        }
+    };
+
+    const handleImageChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setImage(selectedFile); // Save the image file
         }
     };
 
     const handleCreateOrUpdateCourse = async () => {
-        const courseData = {
-            ...course,
-            duration: parseInt(course.duration),
-            isActive: true,
-        };
+        const formData = new FormData();
+        formData.append('title', course.title);
+        formData.append('description', course.description);
+        formData.append('duration', course.duration);
+        formData.append('isPublish', course.isPublish);
+        formData.append('isActive', course.isActive);
+        formData.append('createdBy', course.createdBy);
+        formData.append('categoryIds', course.categoryIds.join(','));
+        formData.append('topicId', course.topicId);
+        formData.append('levelId', course.levelId);
+
+        // Append video and image files if available
+        if (video) {
+            formData.append('video', video); // Send the video file
+        }
+        if (image) {
+            formData.append('image', image); // Send the image file
+        }
 
         try {
             if (courseId) {
-                await courseService.updateCourse({ id: courseId, ...courseData });
+                formData.append('id', courseId);
+                await courseService.updateCourse(formData);
                 successToast("Course updated successfully.");
             } else {
-                await courseService.createCourse(courseData);
+                await courseService.createCourse(formData);
                 successToast("Course created successfully.");
             }
         } catch (error) {
@@ -101,50 +181,62 @@ const CourseForm = ({ courseId }) => {
                             />
                         </FormControl>
 
-                        <FormControl display="flex" alignItems="center" mb="4">
+                        <FormControl mb="4">
+                            <FormLabel>Course publish</FormLabel>
                             <Switch
-                                id="publish-switch"
-                                mr="2"
                                 isChecked={course.isPublish}
                                 onChange={() => setCourse({ ...course, isPublish: !course.isPublish })}
                             />
-                            <FormLabel htmlFor="publish-switch" mb="0">
-                                Course publish (Everyone can see this course)
-                            </FormLabel>
                         </FormControl>
 
-                        <Flex mb="4">
-                            <FormControl flex="1">
-                                <FormLabel>Category</FormLabel>
-                                <Select
-                                    placeholder="Category"
-                                    value={course.category}
-                                    onChange={(e) => setCourse({ ...course, category: e.target.value })}
-                                >
-                                    <option value="Programming">Programming</option>
-                                    <option value="Business">Business</option>
-                                </Select>
-                            </FormControl>
-                            <IconButton
-                                aria-label="Add category"
-                                icon={<FaPlus />}
-                                colorScheme="blue"
-                                ml="4"
-                                alignSelf="flex-end"
+                        <FormControl mb="4">
+                            <FormLabel>Category</FormLabel>
+                            <Select
+                                isMulti
+                                options={categories.map(category => ({
+                                    value: category.id,
+                                    label: category.name
+                                }))}
+                                value={categories
+                                    .filter(category => course.categoryIds.includes(category.id))
+                                    .map(category => ({
+                                        value: category.id,
+                                        label: category.name
+                                    }))}
+                                onChange={handleCategoryChange}
+                                placeholder="Select categories"
                             />
-                        </Flex>
+                        </FormControl>
+
+                        <FormControl mb="4">
+                            <FormLabel>Topic</FormLabel>
+                            <ChakraSelect
+                                placeholder="Select topic"
+                                value={course.topicId}
+                                onChange={handleTopicChange}
+                            >
+                                {topics.map((topic) => (
+                                    <option key={topic.id} value={topic.id}>
+                                        {topic.name}
+                                    </option>
+                                ))}
+                            </ChakraSelect>
+                        </FormControl>
 
                         <FormControl mb="4">
                             <FormLabel>Level</FormLabel>
-                            <Select
+                            <ChakraSelect
                                 placeholder="Select level"
-                                value={course.level}
-                                onChange={(e) => setCourse({ ...course, level: e.target.value })}
+                                value={course.levelId}
+                                onChange={(e) => setCourse({ ...course, levelId: e.target.value })}
+                                isDisabled={!levels.length}
                             >
-                                <option value="beginner">Beginner</option>
-                                <option value="intermediate">Intermediate</option>
-                                <option value="advanced">Advanced</option>
-                            </Select>
+                                {levels.map((level) => (
+                                    <option key={level.id} value={level.id}>
+                                        {level.name}
+                                    </option>
+                                ))}
+                            </ChakraSelect>
                         </FormControl>
 
                         <FormControl mb="4">
@@ -157,46 +249,23 @@ const CourseForm = ({ courseId }) => {
                         </FormControl>
 
                         <FormControl mb="4">
-                            <FormLabel>Image</FormLabel>
-                            <Box
-                                border="2px dashed"
-                                borderColor="gray.300"
-                                borderRadius="md"
-                                p="4"
-                                textAlign="center"
-                                position="relative"
-                                _hover={{ bg: 'gray.50', cursor: 'pointer' }}
-                            >
-                                {course.imageUrl ? (
-                                    <Image src={course.imageUrl} alt="Course" boxSize="150px" mx="auto" />
-                                ) : (
-                                    <VStack>
-                                        <Box boxSize="50px">
-                                            <Image
-                                                src="https://via.placeholder.com/50"
-                                                alt="Placeholder"
-                                            />
-                                        </Box>
-                                        <Text>
-                                            Drag and drop an image or upload it from your computer
-                                        </Text>
-                                    </VStack>
-                                )}
-                                <Input
-                                    type="file"
-                                    opacity="0"
-                                    position="absolute"
-                                    top="0"
-                                    left="0"
-                                    width="100%"
-                                    height="100%"
-                                    onChange={handleImageUpload}
-                                />
-                            </Box>
+                            <FormLabel>Video</FormLabel>
+                            <Input
+                                type="file"
+                                onChange={handleVideoChange} // Capture the video file
+                            />
                         </FormControl>
 
                         <FormControl mb="4">
-                            <FormLabel>Short description of the course</FormLabel>
+                            <FormLabel>Image</FormLabel>
+                            <Input
+                                type="file"
+                                onChange={handleImageChange} // Capture the image file
+                            />
+                        </FormControl>
+
+                        <FormControl mb="4">
+                            <FormLabel>Description</FormLabel>
                             <Textarea
                                 placeholder="Enter a short description..."
                                 rows={6}

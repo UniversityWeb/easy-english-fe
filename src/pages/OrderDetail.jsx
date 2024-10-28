@@ -3,8 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Text, Spinner, Badge, Container } from '@chakra-ui/react';
 import orderService from '../services/orderService';
 import { formatDate } from '~/utils/methods';
-import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
-import Footer from '~/components/Footer';
+import StudentPageLayout from '~/components/StudentPageLayout';
 
 const OrderDetail = () => {
   const { orderId } = useParams();
@@ -44,10 +43,8 @@ const OrderDetail = () => {
   }
 
   return (
-    <Box>
-      <NavbarForStudent />
-
-      <Container maxW="80%" mt={10} mb={20}>
+    <StudentPageLayout>
+      <Container maxW="80%" mb="50px">
         <Text fontSize="2xl" fontWeight="bold">
           Order Details
         </Text>
@@ -55,9 +52,7 @@ const OrderDetail = () => {
         <OrderSummary order={order} />
         <OrderItems items={order.items} />
       </Container>
-
-      <Footer />
-    </Box>
+    </StudentPageLayout>
   );
 };
 

@@ -12,7 +12,7 @@ const CoursesManagementForTeacher = () => {
 
     useEffect(() => {
         const courseRequest = {
-            createdBy: username
+            ownerUsername: username
         };
         const fetchCourses = async () => {
             try {
@@ -31,10 +31,10 @@ const CoursesManagementForTeacher = () => {
         <Box p={5} mx="100px">
             <Flex justify="space-between" align="center" mb={5}>
                 <Heading as="h1" size="lg">Courses</Heading>
-                <Button 
-                    onClick={() => navigate('/maincourse')} 
-                    colorScheme="blue" 
-                    borderRadius="full" 
+                <Button
+                    onClick={() => navigate('/maincourse')}
+                    colorScheme="blue"
+                    borderRadius="full"
                     px={6}
                 >
                     + Add New Course
@@ -53,10 +53,10 @@ const CoursesManagementForTeacher = () => {
                         {loading ? <Text>Loading...</Text> : (
                             <SimpleGrid columns={{ sm: 1, md: 2, lg: 4 }} spacing={10}>
                                 {courses.map((course) => (
-                                    <CourseCard 
-                                        key={course.id} 
-                                        course={course} 
-                                        onMakeFeatured={() => navigate(`/course-detail/${course.id}`)} 
+                                    <CourseCard
+                                        key={course.id}
+                                        course={course}
+                                        onMakeFeatured={() => navigate(`/course-detail/${course.id}`)}
                                     />
                                 ))}
                             </SimpleGrid>
@@ -66,10 +66,10 @@ const CoursesManagementForTeacher = () => {
                         {loading ? <Text>Loading...</Text> : (
                             <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={5}>
                                 {courses.filter((course) => course.price !== 0).map((course) => (
-                                    <CourseCard 
-                                        key={course.id} 
-                                        course={course} 
-                                        onMakeFeatured={() => navigate(`/course-detail/${course.id}`)}  
+                                    <CourseCard
+                                        key={course.id}
+                                        course={course}
+                                        onMakeFeatured={() => navigate(`/course-detail/${course.id}`)}
                                     />
                                 ))}
                             </SimpleGrid>

@@ -17,6 +17,7 @@ import cartService from '~/services/cartService';
 import CartItem from '~/components/CartItem';
 import paymentService from '~/services/paymentService';
 import config from '~/config';
+import StudentPageLayout from '~/components/StudentPageLayout';
 
 const Cart = () => {
   const username = getUsername();
@@ -77,10 +78,10 @@ const Cart = () => {
         urlReturn: urlReturn,
       };
 
-      const paymentUrl =
+      const paymentResponse =
         await paymentService.createPaymentOrder(paymentRequest);
       successToast('Checkout successful! Redirecting to payment...');
-      window.location.href = paymentUrl;
+      window.location.href = paymentResponse?.paymentUrl;
     } catch (error) {
       console.error(error?.message);
       errorToast('Error during checkout. Please try again.');
@@ -88,9 +89,7 @@ const Cart = () => {
   };
 
   return (
-    <Box>
-      <NavbarForStudent />
-
+    <StudentPageLayout>
       <Container maxW="80%" mb="50px">
         <Heading fontSize="3xl" fontWeight="bold" textAlign="start" mt={10}>
           Course Cart
@@ -139,9 +138,7 @@ const Cart = () => {
           Checkout
         </Button>
       </Container>
-
-      <Footer />
-    </Box>
+    </StudentPageLayout>
   );
 };
 

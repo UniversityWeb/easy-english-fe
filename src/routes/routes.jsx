@@ -15,6 +15,12 @@ import Curriculum from '~/pages/Teacher/CourseDetail/Curriculum/Curriculum';
 import MainCourse from '~/pages/Teacher/CourseDetail/Main/Main';
 import CourseDetail from '~/pages/Teacher/CourseDetail/CourseDetail';
 import CourseManagementForTeacher from '~/pages/Teacher/CourseManagementForTeacher';
+import Search from '~/pages/Search/Search';
+import Favourite from '~/pages/Search/Favourite';
+import EnrollCourse from '~/pages/Search/EnrollCourse';
+import CourseViewDetail from '~/pages/Search/CourseDetail';
+import ManagementCourse from '~/pages/Teacher/DoiMoi/ManagementCourse';
+import Setting from '~/pages/Teacher/DoiMoi/Setting';
 import Orders from '~/pages/Orders';
 import OrderDetail from '~/pages/OrderDetail';
 
@@ -33,9 +39,15 @@ const publicRoutes = [
   { path: config.routes.cart, component: Cart },
   { path: config.routes.payment_result, component: PaymentResult },
   { path: config.routes.curriculum, component: Curriculum },
-  { path: config.routes.maincourse, component: MainCourse },
-  { path: config.routes.course_detail, component: CourseDetail },
+  { path: config.routes.maincourse, component: Setting },
+  { path: config.routes.course_detail, component: ManagementCourse },
   { path: config.routes.course_management_for_teacher, component: CourseManagementForTeacher },
+  { path: config.routes.search, component: Search },
+  { path: config.routes.favourite, component: Favourite },
+  { path: config.routes.enrollcourse, component: EnrollCourse },
+  { path: config.routes.course_view_detail, component: CourseViewDetail },
+  { path: config.routes.test, component: ManagementCourse },
+
   { path: config.routes.orders, component: Orders },
   { path: config.routes.order_detail, component: OrderDetail },
 ];

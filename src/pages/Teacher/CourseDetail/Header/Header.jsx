@@ -31,11 +31,11 @@ const CourseHeader = ({ courseTitle, onBackClick, isPublished, setActiveTab }) =
                     <Tab _selected={{ color: "blue.300", borderBottom: "2px solid" }}>
                         Curriculum
                     </Tab>
-                    <Tab>Main</Tab>
-                    <Tab>Settings</Tab>
-                    <Tab>Pricing</Tab>
-                    <Tab>FAQ</Tab>
-                    <Tab>Notice</Tab>
+                    <Tab _selected={{ color: "blue.300", borderBottom: "2px solid" }}>Main</Tab>
+                    <Tab _selected={{ color: "blue.300", borderBottom: "2px solid" }}>Settings</Tab>
+                    <Tab _selected={{ color: "blue.300", borderBottom: "2px solid" }}>Pricing</Tab>
+                    <Tab _selected={{ color: "blue.300", borderBottom: "2px solid" }}>FAQ</Tab>
+                    <Tab _selected={{ color: "blue.300", borderBottom: "2px solid" }}>Notice</Tab>
                 </TabList>
             </Tabs>
             <Button colorScheme={isPublished ? "blue" : "gray"} variant="solid" mr="4">
