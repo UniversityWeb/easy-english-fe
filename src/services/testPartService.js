@@ -32,12 +32,19 @@ const remove = async (testId) => {
   return handleResponse(response, 204);
 }
 
+const getTestPartsByTestId = async (testId) => {
+  const path = `${SUFFIX_TEST_PART_API_URL}/get-by-test/${testId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const testPartService = {
   create,
   update,
   getAll,
   getById,
   remove,
+  getTestPartsByTestId,
 };
 
 export default testPartService;

@@ -32,12 +32,19 @@ const remove = async (testId) => {
   return handleResponse(response, 204);
 }
 
+const getByTestPart = async (testPartId) => {
+  const path = `${SUFFIX_QUESTION_GROUP_API_URL}/get-by-test-part/${testPartId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const questionGroupService = {
   create,
   update,
   getAll,
   getById,
   remove,
+  getByTestPart,
 };
 
 export default questionGroupService;

@@ -108,3 +108,17 @@ export const testDemoData = {
   ],
   sectionId: 15
 };
+
+export const testWithEmptyListDataDemo = {
+  id: 202,
+  status: "DISPLAY",
+  title: "English Grammar and Vocabulary Test",
+  description: "A test covering basic grammar and vocabulary for intermediate English learners.",
+  ordinalNumber: 1,
+  durationInMilis: 2700000,
+  startDate: "2024-10-29T10:00:00.000Z",
+  endDate: "2024-10-29T10:45:00.000Z",
+  createdAt: "2024-10-28T10:00:00.000Z",
+  sectionId: 1,
+  parts: [],
+}
