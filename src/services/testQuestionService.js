@@ -32,12 +32,19 @@ const remove = async (testId) => {
   return handleResponse(response, 204);
 }
 
+const getByQuestionGroup = async (questionGroupId) => {
+  const path = `${SUFFIX_TEST_QUESTION_API_URL}/get-by-question-group/${questionGroupId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const testQuestionService = {
   create,
   update,
   getAll,
   getById,
   remove,
+  getByQuestionGroup,
 };
 
 export default testQuestionService;

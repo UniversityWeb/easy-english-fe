@@ -40,7 +40,7 @@ import AudioLesson from '~/pages/Teacher/DoiMoi/AudioLesson';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
-import TestManagement from '~/components/Test/TestManagement';
+import EditableTest from '~/components/Test/EditableTest';
 
 const getLessonIcon = (type) => {
   switch (type) {
@@ -225,7 +225,7 @@ const Curriculum = ({ courseId }) => {
         );
       case 'QUIZ':
         return (
-          <TestManagement
+          <EditableTest
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}

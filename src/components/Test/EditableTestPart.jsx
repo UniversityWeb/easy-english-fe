@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -11,12 +11,31 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import EditableQuestionGroup from '~/components/Test/EditableQuestionGroup';
+import questionGroupService from '~/services/questionGroupService';
 
-const EditableTestPart = ({ part, onUpdatePart, onRemovePart, onAddQuestionGroup }) => {
+const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
+  const [questionGroups, setQuestionGroups] = useState([]);
+
+  useEffect(() => {
+    const fetchQuestionGroups = async () => {
+      try {
+        const groups = await questionGroupService.getByTestPart(part.id);
+        setQuestionGroups(groups); // Store fetched question groups
+      } catch (error) {
+        console.error("Error fetching question groups:", error);
+      }
+    };
+
+    fetchQuestionGroups();
+  }, [part.id]);
+
   return (
     <Box p={4} bg="white" mb={4} borderRadius="lg" borderWidth="1px" width="100%">
       <Flex justify="space-between" align="center">
-        <Editable defaultValue={part.title} onSubmit={(value) => onUpdatePart(part.id, { title: value })}>
+        <Editable
+          defaultValue={part.title}
+          onSubmit={(value) => onUpdatePart(part.id, { title: value })}
+        >
           <EditablePreview />
           <EditableInput />
         </Editable>
@@ -36,44 +55,30 @@ const EditableTestPart = ({ part, onUpdatePart, onRemovePart, onAddQuestionGroup
         mb={4}
       />
 
-      {part.questionGroups.map((group) => (
+      {questionGroups.map((group) => (
         <EditableQuestionGroup
           key={group.id}
           group={group}
           onUpdateGroup={(groupId, updatedGroup) => onUpdatePart(part.id, {
-            questionGroups: part.questionGroups.map(g => (g.id === groupId ? { ...g, ...updatedGroup } : g)),
+            questionGroups: questionGroups.map(g => (g.id === groupId ? { ...g, ...updatedGroup } : g)),
           })}
           onRemoveGroup={(groupId) => onUpdatePart(part.id, {
-            questionGroups: part.questionGroups.filter(g => g.id !== groupId),
+            questionGroups: questionGroups.filter(g => g.id !== groupId),
           })}
-          onAddQuestion={(groupId) => {
-            const newQuestion = {
-              id: Date.now(),
-              type: "SINGLE_CHOICE",
-              title: "New Question",
-              description: "",
-              options: [""],
-              correctAnswers: [""],
-              questionGroupId: groupId,
-            };
-            onUpdatePart(part.id, {
-              questionGroups: part.questionGroups.map(g => (g.id === groupId ? { ...g, questions: [...g.questions, newQuestion] } : g)),
-            });
-          }}
-          onRemoveQuestion={(groupId, questionId) => {
-            onUpdatePart(part.id, {
-              questionGroups: part.questionGroups.map(g => (
-                g.id === groupId
-                  ? { ...g, questions: g.questions.filter(q => q.id !== questionId) }
-                  : g
-              )),
-            });
-          }}
+          // You can implement add/remove question handlers here if needed
         />
       ))}
 
       <Flex justify="flex-end" mb={4}>
-        <Button colorScheme="green" onClick={() => onUpdatePart(part.id, { questionGroups: [...part.questionGroups, { id: Date.now(), title: "New Group", questions: [] }] })} leftIcon={<AddIcon />}>
+        <Button
+          colorScheme="green"
+          onClick={() => {
+            const newGroup = { id: Date.now(), title: "New Group", questions: [] };
+            setQuestionGroups((prev) => [...prev, newGroup]); // Add new group locally
+            onUpdatePart(part.id, { questionGroups: [...questionGroups, newGroup] }); // Update parent state
+          }}
+          leftIcon={<AddIcon />}
+        >
           Add Question Group
         </Button>
       </Flex>
