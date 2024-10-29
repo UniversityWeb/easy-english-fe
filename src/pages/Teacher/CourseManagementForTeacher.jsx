@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import { getUsername } from '~/utils/authUtils';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import config from '~/config';
 
 const CoursesManagementForTeacher = () => {
     const [courses, setCourses] = useState([]);
@@ -35,7 +36,7 @@ const CoursesManagementForTeacher = () => {
               <Flex justify="space-between" align="center" mb={5}>
                   <Heading as="h1" size="lg">Courses</Heading>
                   <Button
-                    onClick={() => navigate('/maincourse')}
+                    onClick={() => navigate(config.routes.maincourse)}
                     colorScheme="blue"
                     borderRadius="full"
                     px={6}
