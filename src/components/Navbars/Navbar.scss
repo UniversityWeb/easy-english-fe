@@ -31,6 +31,8 @@
     height: 100%;
     gap: 100px;
     margin-right: 2%;
+    display: flex;
+    align-items: center;
     &__gap5 {
       @include row();
       @include center();

@@ -6,8 +6,6 @@ import {
   useDisclosure,
   Avatar,
   Spacer,
-  Badge,
-  Box,
   Image,
 } from '@chakra-ui/react';
 import AuthService from '~/services/authService';
@@ -15,18 +13,14 @@ import { isLoggedIn } from '~/utils/authUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent';
-import { FiShoppingCart } from 'react-icons/fi';
-import { Icon } from '@chakra-ui/icons';
-import CartService from '~/services/cartService';
+import RightSidebarForTeacher from '~/components/Drawers/RightSidebarForTeacher';
 
-function HomeNavbar(props) {
+function NavbarForTeacher(props) {
   const navigate = useNavigate();
   const { errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [user, setUser] = useState(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
-  const [countedCartItems, setCountedCartItems] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -44,13 +38,6 @@ function HomeNavbar(props) {
     };
 
     fetchUser();
-
-    const fetchCartItems = async () => {
-      const count = await CartService.countCartItems();
-      setCountedCartItems(count);
-    };
-
-    fetchCartItems();
   }, []);
 
   return (
@@ -63,38 +50,19 @@ function HomeNavbar(props) {
       <div className="navbar--list">
         <div className="navbar--list__gap20" align="center">
           <Button
-            id="courses"
+            id="dashboard"
             light
-            onClick={() =>
-              navigate(config.routes.course_management_for_student)
-            }
+            onClick={() => navigate('')}
           >
-            Courses
+            Dashboard
           </Button>
-          <Button id="assignment" light onClick={() => navigate('')}>
-            Assignments
-          </Button>
-
-          <Box
-            position="relative"
-            cursor="pointer"
-            onClick={() => navigate(config.routes.cart)}
-            _hover={{ transform: 'scale(1.1)', transition: '0.2s ease-in-out' }}
+          <Button
+            id="add-course"
+            light
+            onClick={() => navigate(config.routes.course_management_for_teacher)}
           >
-            <Icon as={FiShoppingCart} boxSize={6} />
-            {countedCartItems > 0 && (
-              <Badge
-                position="absolute"
-                top="-4"
-                right="-4"
-                colorScheme="red"
-                borderRadius="full"
-                px={2}
-              >
-                {countedCartItems}
-              </Badge>
-            )}
-          </Box>
+            Add Course
+          </Button>
 
           <Spacer />
 
@@ -109,12 +77,12 @@ function HomeNavbar(props) {
                   src={user?.urlImage}
                 />
               </div>
-              <RightSidebarForStudent
+              <RightSidebarForTeacher
                 user={user}
                 isUserLoading={isUserLoading}
                 isOpen={isOpen}
                 onClose={onClose}
-              ></RightSidebarForStudent>
+              />
             </>
           ) : (
             <Button
@@ -130,4 +98,5 @@ function HomeNavbar(props) {
     </div>
   );
 }
-export default React.memo(HomeNavbar);
+
+export default React.memo(NavbarForTeacher);

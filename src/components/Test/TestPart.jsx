@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, VStack, Text } from '@chakra-ui/react';
 import QuestionItem from '~/components/Test/Question/QuestionItem';
 
-class TestSection {
+class TestPart {
   constructor(id, title, questions) {
     this.id = id;
     this.title = title;
@@ -10,7 +10,7 @@ class TestSection {
   }
 }
 
-const TestSectionComponent = ({ section, onAnswerChange, answers }) => {
+const TestPartComponent = ({ section, onAnswerChange, answers }) => {
   return (
     <Box>
       <Text fontSize="2xl" fontWeight="bold">
@@ -39,4 +39,4 @@ const TestSectionComponent = ({ section, onAnswerChange, answers }) => {
   );
 };
 
-export default TestSectionComponent;
+export default TestPartComponent;

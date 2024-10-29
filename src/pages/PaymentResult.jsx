@@ -173,7 +173,6 @@ const PaymentResult = () => {
   const processPaymentResult = async (params) => {
     try {
       setLoading(true);
-      debugger
       const response = await paymentService.getResult(params, null, { params });
       setPaymentStatus(response?.status || 'Unknown');
       setPaymentData(response);
