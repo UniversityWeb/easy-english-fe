@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const Mapping = () => {
+const EditableMapping = () => {
   // State để lưu danh sách các câu hỏi và câu trả lời
   const [data, setData] = useState([
     { id: 1, question: "Bill", answer: "Gates" },
@@ -88,4 +88,4 @@ const Mapping = () => {
   );
 };
 
-export default Mapping;
+export default EditableMapping;

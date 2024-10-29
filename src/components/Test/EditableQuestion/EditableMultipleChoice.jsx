@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const MultipleChoice = ({ answers: initialAnswers }) => {
+const EditableMultipleChoice = ({ answers: initialAnswers }) => {
   const [answers, setAnswers] = useState(initialAnswers);
 
   // Add new answer
@@ -77,4 +77,4 @@ const MultipleChoice = ({ answers: initialAnswers }) => {
   );
 };
 
-export default MultipleChoice;
+export default EditableMultipleChoice;

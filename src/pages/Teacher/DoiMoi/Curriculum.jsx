@@ -187,7 +187,7 @@ const Curriculum = ({ courseId }) => {
   };
 
   const handleLessonClick = (lesson) => {
-    setSelectedLessonType(lesson.type);
+    setSelectedLessonType(lesson?.type);
     setSelectedLessonId(lesson.id);
     setSelectedSectionId(lesson.sectionId);
   };
@@ -352,7 +352,7 @@ const Curriculum = ({ courseId }) => {
                   <AccordionPanel pb={4}>
                     <List spacing={3}>
                       {section.lessons.map((lesson) => {
-                        const { icon, color } = getLessonIcon(lesson.type);
+                        const { icon, color } = getLessonIcon(lesson?.type);
                         return (
                           <ListItem
                             onClick={() =>

@@ -7,9 +7,8 @@ import {
   ChakraProvider
 } from "@chakra-ui/react";
 
-const TrueFalse = () => {
+const EditableTrueFalse = () => {
   return (
-    <ChakraProvider>
     <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
       <RadioGroup defaultValue="False">
         <Flex
@@ -35,8 +34,7 @@ const TrueFalse = () => {
         </Flex>
       </RadioGroup>
     </Box>
-    </ChakraProvider>
   );
 };
 
-export default TrueFalse;
+export default EditableTrueFalse;

@@ -15,8 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const SingleChoice = ({ answers: initialAnswers }) => {
-  const [answers, setAnswers] = useState(initialAnswers);
+const EditableSingleChoice = ({ question, setQuestion }) => {
 
   // Add new answer
   const [newAnswer, setNewAnswer] = useState("");
@@ -124,4 +123,4 @@ const SingleChoice = ({ answers: initialAnswers }) => {
   );
 };
 
-export default SingleChoice;
+export default EditableSingleChoice;

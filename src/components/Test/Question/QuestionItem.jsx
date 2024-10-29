@@ -147,13 +147,13 @@ const QuestionItem = ({ question, onAnswerChange, selectedAnswer }) => {
         return renderMultiChoice(question, selectedAnswer, onAnswerChange);
       case QUESTION_TYPES.TRUE_FALSE:
         return renderTrueFalse(question, selectedAnswer, onAnswerChange);
-      case QUESTION_TYPES.ITEM_MATCH:
+      case QUESTION_TYPES.MATCHING:
         return renderItemMatch(question, selectedAnswer, onAnswerChange);
       case QUESTION_TYPES.IMAGE_MATCH:
         return renderImageMatch(question, selectedAnswer, onAnswerChange);
       case QUESTION_TYPES.KEYWORDS:
         return renderKeywords(question, selectedAnswer, onAnswerChange);
-      case QUESTION_TYPES.FILL_THE_GAP:
+      case QUESTION_TYPES.FILL_BLANK:
         return renderFillTheGap(question, selectedAnswer, onAnswerChange);
       default:
         return <Text>Unknown question type</Text>;

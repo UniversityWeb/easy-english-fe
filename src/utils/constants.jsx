@@ -7,13 +7,11 @@ export const USER_ROLES = {
   ADMIN: 'ADMIN',
 };
 export const QUESTION_TYPES = {
-  SINGLE_CHOICE: 'single-choice',
-  MULTI_CHOICE: 'multi-choice',
+  SINGLE_CHOICE: 'single',
+  MULTI_CHOICE: 'multiple',
   TRUE_FALSE: 'true-false',
-  ITEM_MATCH: 'item-match',
-  IMAGE_MATCH: 'image-match',
-  KEYWORDS: 'keywords',
-  FILL_THE_GAP: 'fill-the-gap',
+  MATCHING: 'matching',
+  FILL_BLANK: 'fill-blank',
 };
 
 export const SAVED_ORDERS_TAB_INDEX_KEY = 'selectedOrdersTabIndex';
