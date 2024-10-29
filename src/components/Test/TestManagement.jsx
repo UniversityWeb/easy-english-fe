@@ -8,15 +8,15 @@ import {
   EditablePreview,
   IconButton,
   Button,
-  Collapse,
-} from "@chakra-ui/react";
+  Collapse, Heading,
+} from '@chakra-ui/react';
 import { AddIcon, DeleteIcon, ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import SingleChoice from "~/components/Test/Question/SingleChoice";
 import MultipleChoice from "~/components/Test/Question/MultipleChoice";
 import TrueFalse from "~/components/Test/Question/TrueFalse";
 import Mapping from "~/components/Test/Question/Mapping";
 
-function TestManagement() {
+function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
   const [sections, setSections] = useState([
     {
       id: 1,
@@ -204,6 +204,8 @@ function TestManagement() {
 
   return (
     <Box p={8} bg="gray.100" minH="100vh">
+      <Heading mb={20}>{isNew ? ('Add new test') : ('Update test')}</Heading>
+
       <Flex justify="space-between" mb={4} align="center">
         <Button colorScheme="blue" onClick={addSection} leftIcon={<AddIcon />}>
           Add Section

@@ -21,8 +21,12 @@ import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';
 import { getUsername } from '~/utils/authUtils';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import useCustomToast from '~/hooks/useCustomToast';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 const Setting = ({ courseId }) => {
+  const navigate = useNavigate();
   const username = getUsername();
   const [course, setCourse] = useState({
     title: '',
@@ -43,6 +47,8 @@ const Setting = ({ courseId }) => {
   const [levels, setLevels] = useState([]);
   const [imageFile, setImageFile] = useState(null); // Store the actual image file
   const [videoFile, setVideoFile] = useState(null); // Store the actual video file
+  const { successToast, errorToast } = useCustomToast();
+
   // Fetch categories and topics on mount
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -185,12 +191,17 @@ const Setting = ({ courseId }) => {
       if (courseId) {
         formData.append('id', courseId);
         await courseService.updateCourse(formData);
+        successToast('Course updated successfully.');
         console.log('Course updated successfully.');
       } else {
         await courseService.createCourse(formData);
+        successToast('Course created successfully.');
         console.log('Course created successfully.');
+
+        navigate(config.routes.course_management_for_teacher);
       }
     } catch (error) {
+      errorToast('Error saving course.');
       console.error('Error saving course.', error);
     }
   };

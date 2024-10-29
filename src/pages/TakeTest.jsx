@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, VStack, Tabs, TabList, TabPanels, Tab, TabPanel, Text } from '@chakra-ui/react';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import Footer from '~/components/Footer';
-import TestSection from '~/components/Test/TestSection';
+import TestPart from '~/components/Test/TestPart';
 import { DateTime } from 'luxon';
 import { formatTime } from '~/utils/methods';
 
@@ -134,7 +134,7 @@ const TakeTest = () => {
           <TabPanels>
             {test.sections.map((section) => (
               <TabPanel key={section.id}>
-                <TestSection
+                <TestPart
                   section={section}
                   onAnswerChange={handleAnswerChange}
                   answers={answers}
