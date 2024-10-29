@@ -17,10 +17,10 @@ import TrueFalse from "~/components/Test/Question/TrueFalse";
 import Mapping from "~/components/Test/Question/Mapping";
 
 function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
-  const [sections, setSections] = useState([
+  const [testParts, setTestParts] = useState([
     {
       id: 1,
-      title: "Section 1",
+      title: "Part 1",
       questionGroups: [
         {
           id: 1,
@@ -34,89 +34,89 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
     },
   ]);
 
-  const addSection = () => {
+  const addPart = () => {
     const newSection = {
-      id: sections.length + 1,
-      title: `Section ${sections.length + 1}`,
+      id: testParts.length + 1,
+      title: `testPart ${testParts.length + 1}`,
       questionGroups: [],
       isExpanded: true,
     };
-    setSections([...sections, newSection]);
+    setTestParts([...testParts, newSection]);
   };
 
-  const removeSection = (sectionId) => {
-    setSections(sections.filter((section) => section.id !== sectionId));
+  const removePart = (testPartId) => {
+    setTestParts(testParts.filter((testPart) => testPart.id !== testPartId));
   };
 
-  const toggleSectionExpand = (sectionId) => {
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId
-          ? { ...section, isExpanded: !section.isExpanded }
-          : section
+  const togglePartExpand = (testPartId) => {
+    setTestParts(
+      testParts.map((testPart) =>
+        testPart.id === testPartId
+          ? { ...testPart, isExpanded: !testPart.isExpanded }
+          : testPart
       )
     );
   };
 
-  const addQuestionGroup = (sectionId) => {
+  const addQuestionGroup = (testPartId) => {
     const newGroup = {
       id: Date.now(),
       title: `Group ${Date.now()}`,
       questions: [],
     };
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId
-          ? { ...section, questionGroups: [...section.questionGroups, newGroup] }
-          : section
+    setTestParts(
+      testParts.map((testPart) =>
+        testPart.id === testPartId
+          ? { ...testPart, questionGroups: [...testPart.questionGroups, newGroup] }
+          : testPart
       )
     );
   };
 
-  const removeQuestionGroup = (sectionId, groupId) => {
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId
+  const removeQuestionGroup = (testPartId, groupId) => {
+    setTestParts(
+      testParts.map((testPart) =>
+        testPart.id === testPartId
           ? {
-            ...section,
-            questionGroups: section.questionGroups.filter(
+            ...testPart,
+            questionGroups: testPart.questionGroups.filter(
               (group) => group.id !== groupId
             ),
           }
-          : section
+          : testPart
       )
     );
   };
 
-  const addQuestion = (sectionId, groupId) => {
+  const addQuestion = (testPartId, groupId) => {
     const newQuestion = {
       id: Date.now(),
       type: "single",
       text: "New question",
     };
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId
+    setTestParts(
+      testParts.map((testPart) =>
+        testPart.id === testPartId
           ? {
-            ...section,
-            questionGroups: section.questionGroups.map((group) =>
+            ...testPart,
+            questionGroups: testPart.questionGroups.map((group) =>
               group.id === groupId
                 ? { ...group, questions: [...group.questions, newQuestion] }
                 : group
             ),
           }
-          : section
+          : testPart
       )
     );
   };
 
-  const removeQuestion = (sectionId, groupId, questionId) => {
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId
+  const removeQuestion = (testPartId, groupId, questionId) => {
+    setTestParts(
+      testParts.map((testPart) =>
+        testPart.id === testPartId
           ? {
-            ...section,
-            questionGroups: section.questionGroups.map((group) =>
+            ...testPart,
+            questionGroups: testPart.questionGroups.map((group) =>
               group.id === groupId
                 ? {
                   ...group,
@@ -127,19 +127,19 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
                 : group
             ),
           }
-          : section
+          : testPart
       )
     );
   };
 
   // New function to update the question type
-  const updateQuestionType = (sectionId, groupId, questionId, newType) => {
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId
+  const updateQuestionType = (testPartId, groupId, questionId, newType) => {
+    setTestParts(
+      testParts.map((testPart) =>
+        testPart.id === testPartId
           ? {
-            ...section,
-            questionGroups: section.questionGroups.map((group) =>
+            ...testPart,
+            questionGroups: testPart.questionGroups.map((group) =>
               group.id === groupId
                 ? {
                   ...group,
@@ -152,7 +152,7 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
                 : group
             ),
           }
-          : section
+          : testPart
       )
     );
   };
@@ -206,49 +206,34 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
     <Box p={8} bg="gray.100" minH="100vh">
       <Heading mb={20}>{isNew ? ('Add new test') : ('Update test')}</Heading>
 
-      <Flex justify="space-between" mb={4} align="center">
-        <Button colorScheme="blue" onClick={addSection} leftIcon={<AddIcon />}>
-          Add Section
-        </Button>
-      </Flex>
-
-      {sections.map((section) => (
-        <Box key={section.id} p={4} bg="white" mb={4} borderRadius="lg" borderWidth="1px">
+      {testParts.map((part) => (
+        <Box key={part.id} p={4} bg="white" mb={4} borderRadius="lg" borderWidth="1px">
           <Flex justify="space-between" align="center">
-            <Editable defaultValue={section.title}>
+            <Editable defaultValue={part.title}>
               <EditablePreview />
               <EditableInput />
             </Editable>
 
             <Flex align="center">
               <IconButton
-                icon={section.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                aria-label={section.isExpanded ? "Collapse section" : "Expand section"}
-                onClick={() => toggleSectionExpand(section.id)}
+                icon={part.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                aria-label={part.isExpanded ? "Collapse part" : "Expand part"}
+                onClick={() => togglePartExpand(part.id)}
                 mr={2}
               />
 
               <IconButton
                 icon={<DeleteIcon />}
-                aria-label="Delete section"
+                aria-label="Delete part"
                 colorScheme="red"
-                onClick={() => removeSection(section.id)}
+                onClick={() => removePart(part.id)}
               />
             </Flex>
           </Flex>
 
-          <Collapse in={section.isExpanded} animateOpacity>
-            <Flex justify="flex-end" mb={4}>
-              <Button
-                colorScheme="green"
-                onClick={() => addQuestionGroup(section.id)}
-                leftIcon={<AddIcon />}
-              >
-                Add Question Group
-              </Button>
-            </Flex>
+          <Collapse in={part.isExpanded} animateOpacity>
 
-            {section.questionGroups.map((group) => (
+            {part.questionGroups.map((group) => (
               <Box key={group.id} p={4} bg="gray.50" mb={4} borderRadius="lg" borderWidth="1px">
                 <Flex justify="space-between" mb={4} align="center">
                   <Editable defaultValue={group.title}>
@@ -260,18 +245,8 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
                     icon={<DeleteIcon />}
                     aria-label="Delete question group"
                     colorScheme="red"
-                    onClick={() => removeQuestionGroup(section.id, group.id)}
+                    onClick={() => removeQuestionGroup(part.id, group.id)}
                   />
-                </Flex>
-
-                <Flex justify="flex-end" mb={4}>
-                  <Button
-                    colorScheme="green"
-                    onClick={() => addQuestion(section.id, group.id)}
-                    leftIcon={<AddIcon />}
-                  >
-                    Add Question
-                  </Button>
                 </Flex>
 
                 {group.questions.map((question) => (
@@ -288,7 +263,7 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
                           mr={2}
                           value={question.type}
                           onChange={(e) =>
-                            updateQuestionType(section.id, group.id, question.id, e.target.value)
+                            updateQuestionType(part.id, group.id, question.id, e.target.value)
                           }
                         >
                           <option value="single">Single choice</option>
@@ -301,7 +276,7 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
                           icon={<DeleteIcon />}
                           aria-label="Delete question"
                           colorScheme="red"
-                          onClick={() => removeQuestion(section.id, group.id, question.id)}
+                          onClick={() => removeQuestion(part.id, group.id, question.id)}
                         />
                       </Flex>
                     </Flex>
@@ -309,11 +284,37 @@ function TestManagement({ id, sectionId, isNew, onLessonSaved }) {
                     {renderQuestionComponent(question)}
                   </Box>
                 ))}
+
+                <Flex justify="flex-end" mb={4}>
+                  <Button
+                    colorScheme="green"
+                    onClick={() => addQuestion(part.id, group.id)}
+                    leftIcon={<AddIcon />}
+                  >
+                    Add Question
+                  </Button>
+                </Flex>
               </Box>
             ))}
+
+            <Flex justify="flex-end" mb={4}>
+              <Button
+                colorScheme="green"
+                onClick={() => addQuestionGroup(part.id)}
+                leftIcon={<AddIcon />}
+              >
+                Add Question Group
+              </Button>
+            </Flex>
           </Collapse>
         </Box>
       ))}
+
+      <Flex justify="space-between" mb={4} align="center">
+        <Button colorScheme="blue" onClick={addPart} leftIcon={<AddIcon />}>
+          Add New Part
+        </Button>
+      </Flex>
     </Box>
   );
 }
