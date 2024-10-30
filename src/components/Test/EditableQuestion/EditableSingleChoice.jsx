@@ -11,30 +11,51 @@ import {
   Input,
   IconButton,
   Image,
-  ChakraProvider
+  Text
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
 const EditableSingleChoice = ({ question, onUpdate }) => {
-  const [options, setOptions] = useState(question?.options);
-  const [correctAnswers, setCorrectAnswers] = useState(question?.correctAnswers);
+  const [options, setOptions] = useState(question?.options || []);
+  const [newOption, setNewOption] = useState("");
+  const [error, setError] = useState("");
+  const [image, setImage] = useState(null);
 
-  const addAnswer = () => {
-    if (options.trim()) {
-      setOptions([...options, options]);
-      setOptions("");
+  const addOption = async () => {
+    const trimmedNewOption = newOption?.trim();
+    if (options.includes(trimmedNewOption)) {
+      setError("This option already exists.");
+      return;
+    }
+
+    if (trimmedNewOption) {
+      const updatedOptions = [...options, trimmedNewOption];
+      setOptions(updatedOptions);
+      setNewOption("");
+
+      // Update the question with the new options array
+      await onUpdate(question?.id, { options: updatedOptions });
+      setError("");
     }
   };
 
-  // Remove answer
-  const removeAnswer = (indexToRemove) => {
-    setOptions(options.filter((_, index) => index !== indexToRemove));
+  const removeOption = async (indexToRemove) => {
+    const updatedOptions = options.filter((_, index) => index !== indexToRemove);
+    setOptions(updatedOptions);
+
+    // Update question with the new options array
+    await onUpdate(question?.id, { options: updatedOptions });
   };
 
-  // Image upload state
-  const [image, setImage] = useState(null);
+  const handleOptionEdit = async (index, newValue) => {
+    const updatedOptions = options.map((opt, i) => (i === index ? newValue : opt));
+    setOptions(updatedOptions);
 
-  // Handle image selection
+    // Update question with the new options array
+    await onUpdate(question?.id, { options: updatedOptions });
+  };
+
+  // Handle image upload
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -60,7 +81,7 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
           style={{ display: "none" }}
           onChange={handleImageUpload}
         />
-        <Editable defaultValue="Type your question here">
+        <Editable defaultValue={question.title}>
           <EditablePreview />
           <EditableInput />
         </Editable>
@@ -87,7 +108,7 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
             mb={2}
           >
             <Flex align="center" flexGrow={1}>
-              <Editable defaultValue={answer}>
+              <Editable defaultValue={answer} onSubmit={(value) => handleOptionEdit(index, value)}>
                 <EditablePreview />
                 <EditableInput />
               </Editable>
@@ -99,7 +120,7 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
               icon={<DeleteIcon />}
               aria-label="Delete answer"
               colorScheme="red"
-              onClick={() => removeAnswer(index)}
+              onClick={() => removeOption(index)}
             />
           </Flex>
         ))}
@@ -109,13 +130,16 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
       <Flex mt={4} align="center">
         <Input
           placeholder="Add new answer"
-          value={options}
-          onChange={(e) => setOptions(e.target.value)}
+          value={newOption}
+          onChange={(e) => setNewOption(e.target.value)}
         />
-        <Button ml={2} colorScheme="blue" leftIcon={<AddIcon />} onClick={addAnswer}>
+        <Button ml={2} colorScheme="blue" leftIcon={<AddIcon />} onClick={addOption}>
           Add
         </Button>
       </Flex>
+
+      {/* Error message if duplicate option is added */}
+      {error && <Text color="red.500" mt={2}>{error}</Text>}
     </Box>
   );
 };

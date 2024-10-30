@@ -1,86 +1,87 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { QUESTION_TYPES } from '~/utils/constants';
 import EditableSingleChoice from '~/components/Test/EditableQuestion/EditableSingleChoice';
 import EditableMultipleChoice from '~/components/Test/EditableQuestion/EditableMultipleChoice';
 import EditableMapping from '~/components/Test/EditableQuestion/EditableMapping';
 import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFalse';
-import useCustomToast from '~/hooks/useCustomToast';
-import testQuestionService from '~/services/testQuestionService';
+import { Box, Flex, Select, IconButton, EditablePreview, EditableInput, Editable } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
 
-const EditableQuestionItem = ({ question, ordinalNumber, onUpdateQuestion }) => {
-  const [questionState, setQuestionState] = useState({
-    id: 0,
-    type: "SINGLE_CHOICE",
-    ordinalNumber: ordinalNumber,
-    title: "string",
-    description: "string",
-    audioPath: "string",
-    imagePath: "string",
-    options: ["string"],
-    correctAnswers: ["string"],
-    questionGroupId: 0
-  });
+const EditableQuestionItem = ({ question, onUpdateQuestion, onRemoveQuestion }) => {
 
-  useEffect(() => {
-    setQuestionState(question);
-  }, [question]);
+  // Function to render the question based on its type
+  const renderQuestion = () => {
+    const commonProps = {
+      key: question.id,
+      question: question,
+      onUpdate: onUpdateQuestion,
+    };
 
-  const updateField = (field, value) => {
-    setQuestionState(prevQuestion => ({
-      ...prevQuestion,
-      [field]: value
-    }));
+    switch (question.type) {
+      case QUESTION_TYPES.SINGLE_CHOICE:
+        return <EditableSingleChoice {...commonProps} />;
+      case QUESTION_TYPES.MULTI_CHOICE:
+        return <EditableMultipleChoice {...commonProps} />;
+      case QUESTION_TYPES.TRUE_FALSE:
+        return <EditableTrueFalse {...commonProps} />;
+      case QUESTION_TYPES.MATCHING:
+        return <EditableMapping {...commonProps} />;
+      default:
+        return null;
+    }
   };
 
-  const handleUpdate = (updatedData) => {
-    const updatedQuestion = { ...questionState, ...updatedData };
-    setQuestionState(updatedQuestion);
-    onUpdateQuestion(updatedQuestion);
-  };
+  return (
+    <Box p={4} bg="gray.100" mb={4} borderRadius="lg" borderWidth="1px">
+      <Flex justify="space-between" mb={4} align="center">
+        <Editable
+          defaultValue={question?.title || 'Default'}
+          onSubmit={(value) => onUpdateQuestion(question?.id, { title: value })}
+        >
+          <EditablePreview />
+          <EditableInput />
+        </Editable>
+        <Flex align="center">
+          <Select
+            w="200px"
+            mr={2}
+            value={question?.type}
+            onChange={(e) => {
+              const newType = e.target.value;
+              onUpdateQuestion(question?.id, { type: newType });
 
-  switch (questionState?.type) {
-    case QUESTION_TYPES.SINGLE_CHOICE:
-      return (
-        <EditableSingleChoice
-          key={questionState.id}
-          question={questionState}
-          answers={[
-            "Computer Processing Unit",
-            "Central Peripheral Unit",
-            "Central Processing Unit",
-            "Computer Processing User",
-          ]}
-        />
-      );
-    case QUESTION_TYPES.MULTI_CHOICE:
-      return (
-        <EditableMultipleChoice
-          key={questionState.id}
-          answers={[
-            "Computer Processing Unit",
-            "Central Peripheral Unit",
-            "Central Processing Unit",
-            "Computer Processing User",
-          ]}
-        />
-      );
-    case QUESTION_TYPES.TRUE_FALSE:
-      return <EditableTrueFalse key={questionState.id} />;
-    case QUESTION_TYPES.MATCHING:
-      return (
-        <EditableMapping
-          key={questionState.id}
-          data={[
-            { question: "Bill", answer: "Gates" },
-            { question: "Steve", answer: "Jobs" },
-            { question: "Elon", answer: "Musk" },
-            { question: "Mark", answer: "Zuckerberg" },
-          ]}
-        />
-      );
-    default:
-      return null;
-  }
+              // Reset options or data based on new type if necessary
+              // This could involve resetting options or specific question-related state
+              switch (newType) {
+                case QUESTION_TYPES.SINGLE_CHOICE:
+                  onUpdateQuestion(question.id, { options: [], correctAnswers: [] }); // Reset specific fields
+                  break;
+                case QUESTION_TYPES.MULTI_CHOICE:
+                  onUpdateQuestion(question.id, { options: [], correctAnswers: [] }); // Reset specific fields
+                  break;
+                // Add cases for other question types as necessary
+                default:
+                  break;
+              }
+            }}
+          >
+            {Object.values(QUESTION_TYPES).map((type) => (
+              <option key={type} value={type}>
+                {type.replace('_', ' ').toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}
+              </option>
+            ))}
+          </Select>
+          <IconButton
+            icon={<DeleteIcon />}
+            aria-label="Delete question"
+            colorScheme="red"
+            onClick={() => onRemoveQuestion(question?.id)}
+          />
+        </Flex>
+      </Flex>
+      {renderQuestion()}
+    </Box>
+  );
 };
 
 export default EditableQuestionItem;

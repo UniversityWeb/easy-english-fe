@@ -2,46 +2,73 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
-  Select,
   Editable,
   EditableInput,
   EditablePreview,
   IconButton,
   Button,
   Collapse,
-} from "@chakra-ui/react";
-import { AddIcon, ChevronDownIcon, ChevronUpIcon, DeleteIcon } from '@chakra-ui/icons';
+  FormControl,
+  FormLabel,
+  Input,
+  Switch, Heading,
+} from '@chakra-ui/react';
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import EditableQuestionItem from "~/components/Test/EditableQuestion/EditableQuestionItem";
 import testQuestionService from '~/services/testQuestionService';
 import { QUESTION_TYPES } from '~/utils/constants';
 import useCustomToast from '~/hooks/useCustomToast';
+import ReactQuill from 'react-quill';
 
-const EditableQuestionGroup = ({ group, onRemoveGroup }) => {
+const EditableQuestionGroup = ({ group, onUpdateGroup, onRemoveGroup }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [questions, setQuestions] = useState([]);
   const { successToast, errorToast } = useCustomToast();
+  const [isAudioEnabled, setIsAudioEnabled] = useState(!!group?.audioPath);
+  const [isImageEnabled, setIsImageEnabled] = useState(!!group?.imagePath);
+  const [isContentEnabled, setIsContentEnabled] = useState(!!group?.contentToDisplay);
+
+  // State for managing form inputs
+  const [inputValues, setInputValues] = useState({
+    title: group.title || "",
+    requirement: group.requirement || "",
+    ordinalNumber: group.ordinalNumber || "",
+    from: group.from || "",
+    to: group.to || "",
+    audioPath: group.audioPath || "",
+    imagePath: group.imagePath || "",
+    contentToDisplay: group.contentToDisplay || "",
+  });
 
   useEffect(() => {
     const fetchQuestions = async () => {
+      if (!group) return;
       try {
-        const loadedQuestions = await testQuestionService.getByQuestionGroup(group.id);
+        const loadedQuestions = await testQuestionService.getByQuestionGroup(group?.id);
         setQuestions(loadedQuestions);
       } catch (error) {
-        console.error("Error fetching questions:", error);
         errorToast("Error fetching questions.");
+        console.error("Error fetching questions:", error);
       }
     };
-
-    if (group?.id) {
-      fetchQuestions();
-    }
+    fetchQuestions();
   }, [group]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setInputValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateGroup = () => {
+    onUpdateGroup(group.id, { ...group, ...inputValues });
+  };
 
   const addNewQuestion = async () => {
     const newQuestion = {
       title: "New Question",
-      type: "SINGLE_CHOICE",
-      questionGroupId: group.id
+      ordinalNumber: questions.length + 1,
+      type: QUESTION_TYPES.SINGLE_CHOICE,
+      questionGroupId: group?.id,
     };
 
     try {
@@ -54,7 +81,7 @@ const EditableQuestionGroup = ({ group, onRemoveGroup }) => {
     }
   };
 
-  const onUpdateQuestion = async (id, updatedData) => {
+  const updateQuestion = async (id, updatedData) => {
     try {
       await testQuestionService.update(id, updatedData);
       setQuestions((prevQuestions) =>
@@ -71,7 +98,7 @@ const EditableQuestionGroup = ({ group, onRemoveGroup }) => {
     try {
       await testQuestionService.remove(id);
       setQuestions((prevQuestions) => prevQuestions.filter((q) => q.id !== id));
-      errorToast("Question removed successfully.");
+      successToast("Question removed successfully.");
     } catch (error) {
       console.error("Error removing question:", error);
       errorToast("Error removing question.");
@@ -81,9 +108,9 @@ const EditableQuestionGroup = ({ group, onRemoveGroup }) => {
   return (
     <Box p={4} bg="gray.50" mb={4} borderRadius="lg" borderWidth="1px">
       <Flex justify="space-between" mb={4} align="center">
-        <Editable defaultValue={group.title}>
+        <Editable defaultValue={inputValues.title} fontWeight="bolder">
           <EditablePreview />
-          <EditableInput />
+          <EditableInput name="title" onBlur={handleInputChange} />
         </Editable>
 
         <IconButton
@@ -94,65 +121,89 @@ const EditableQuestionGroup = ({ group, onRemoveGroup }) => {
         />
       </Flex>
 
-      <Flex justify="flex-end" mb={4}>
-        <IconButton
-          aria-label="Toggle Questions"
-          onClick={() => setIsExpanded((prev) => !prev)}
-          icon={isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-        />
-      </Flex>
-
       <Collapse in={isExpanded} animateOpacity>
-        {questions.map((question) => (
-          <Box key={question.id} p={4} bg="gray.100" mb={4} borderRadius="lg" borderWidth="1px">
-            <Flex justify="space-between" mb={4} align="center">
-              <Editable
-                defaultValue={question.title}
-                onSubmit={(value) => onUpdateQuestion(question.id, { title: value })}
-              >
-                <EditablePreview />
-                <EditableInput />
-              </Editable>
+        {/* Editable Group Fields */}
+        <FormControl mb={2}>
+          <FormLabel>Ordinal Number</FormLabel>
+          <Input
+            name="ordinalNumber"
+            value={inputValues.ordinalNumber}
+            onChange={handleInputChange}
+            type="number"
+          />
+        </FormControl>
 
-              <Flex align="center">
-                <Select
-                  w="200px"
-                  mr={2}
-                  value={question.type}
-                  onChange={(e) =>
-                    onUpdateQuestion(question.id, { type: e.target.value })
-                  }
-                >
-                  <option value={QUESTION_TYPES.SINGLE_CHOICE}>Single Choice</option>
-                  <option value={QUESTION_TYPES.MULTI_CHOICE}>Multiple Choice</option>
-                  <option value={QUESTION_TYPES.TRUE_FALSE}>True/False</option>
-                  <option value={QUESTION_TYPES.MATCHING}>Matching</option>
-                </Select>
-
-                <IconButton
-                  icon={<DeleteIcon />}
-                  aria-label="Delete question"
-                  colorScheme="red"
-                  onClick={() => removeQuestion(question.id)}
-                />
-              </Flex>
-            </Flex>
-
-            <EditableQuestionItem
-              question={question}
-              onUpdateQuestion={onUpdateQuestion}
+        {/* Additional fields */}
+        <FormControl mb={4}>
+          <FormLabel>Requirement</FormLabel>
+          <Box sx={{ ".quill": { height: "270px" }, ".ql-container": { height: "310px" } }}>
+            <ReactQuill
+              value={inputValues.requirement}
+              onChange={(requirement) => setInputValues((prev) => ({ ...prev, requirement }))}
+              theme="snow"
+              placeholder="Enter lesson content"
+              style={{ height: "380px", marginBottom: "20px" }}
             />
           </Box>
+        </FormControl>
+
+        <FormControl mb={4}>
+          <Flex justify="space-between" align="center" mb={2}>
+            <FormLabel>Audio Path</FormLabel>
+            <Switch isChecked={isAudioEnabled} onChange={(e) => setIsAudioEnabled(e.target.checked)} colorScheme="blue" />
+          </Flex>
+          {isAudioEnabled && (
+            <Input name="audioPath" value={inputValues.audioPath} onChange={handleInputChange} />
+          )}
+        </FormControl>
+
+        <FormControl mb={4}>
+          <Flex justify="space-between" align="center" mb={2}>
+            <FormLabel>Image Path</FormLabel>
+            <Switch isChecked={isImageEnabled} onChange={(e) => setIsImageEnabled(e.target.checked)} colorScheme="blue" />
+          </Flex>
+          {isImageEnabled && (
+            <Input name="imagePath" value={inputValues.imagePath} onChange={handleInputChange} />
+          )}
+        </FormControl>
+
+        {/* Content to display */}
+        <FormControl mb={4}>
+          <Flex justify="space-between" align="center" mb={2}>
+            <FormLabel>Content to Display</FormLabel>
+            <Switch isChecked={isContentEnabled} onChange={(e) => setIsContentEnabled(e.target.checked)} colorScheme="blue" />
+          </Flex>
+          {isContentEnabled && (
+            <Box sx={{ ".quill": { height: "270px" }, ".ql-container": { height: "310px" } }}>
+              <ReactQuill
+                value={group?.contentToDisplay}
+                onChange={(contentToDisplay) => setInputValues((prev) => ({ ...prev, contentToDisplay }))}
+                theme="snow"
+                placeholder="Enter lesson content"
+                style={{ height: "380px", marginBottom: "20px" }}
+              />
+            </Box>
+          )}
+        </FormControl>
+
+        <Flex justify="space-between" mb={4}>
+          <Button colorScheme="blue" onClick={handleUpdateGroup}>Update Group</Button>
+        </Flex>
+
+        <Heading size="md">Questions</Heading>
+
+        {/* Question Items */}
+        {questions.map((question) => (
+          <EditableQuestionItem
+            key={question.id}
+            question={question}
+            onUpdateQuestion={updateQuestion}
+            onRemoveQuestion={removeQuestion}
+          />
         ))}
 
-        <Flex justify="flex-end" mb={4}>
-          <Button
-            colorScheme="green"
-            onClick={addNewQuestion}
-            leftIcon={<AddIcon />}
-          >
-            Add Question
-          </Button>
+        <Flex justify="space-between" mb={4}>
+          <Button colorScheme="green" onClick={addNewQuestion} leftIcon={<AddIcon />}>Add Question</Button>
         </Flex>
       </Collapse>
     </Box>

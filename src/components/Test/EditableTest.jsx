@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, VStack } from '@chakra-ui/react';
+import { Box, Button, Heading, VStack } from '@chakra-ui/react';
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
 import testPartService from '~/services/testPartService';
@@ -27,6 +27,8 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
   }, [testId, isNew]);
 
   const updateTestPart = async (id, updatedPart) => {
+    if (!id || !updatedPart) return;
+
     try {
       await testPartService.update(id, updatedPart);
       setTestParts((prevParts) =>
@@ -56,9 +58,8 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
     const newPart = {
       title: 'New Test Part',
       readingPassage: '',
-      ordinalNumber: testParts.length + 1,
+      ordinalNumber: testParts.length + 1 || 1,
       testId: testId,
-      questionGroups: [],
     };
 
     try {
@@ -80,6 +81,8 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
         isNew={isNew}
         onTestSaved={onTestSaved}
       />
+
+      <Heading size="lg" mt={10}>Test parts</Heading>
       <VStack spacing={4} mt={4}>
         {testParts.map((part) => (
           <EditableTestPart
@@ -87,23 +90,6 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
             part={part}
             onUpdatePart={updateTestPart}
             onRemovePart={removeTestPart}
-            onAddQuestionGroup={(groupId) => {
-              const newGroup = {
-                id: Date.now(),
-                ordinalNumber: part.questionGroups.length + 1,
-                title: 'New Question Group',
-                requirement: '',
-                audioPath: '',
-                imagePath: '',
-                contentToDisplay: '',
-                originalContent: '',
-                questions: [],
-                testPartId: part.id,
-              };
-              updateTestPart(part.id, {
-                questionGroups: [...part.questionGroups, newGroup],
-              });
-            }}
           />
         ))}
         <Button colorScheme="blue" onClick={addTestPart}>

@@ -43,15 +43,22 @@ import useCustomToast from '~/hooks/useCustomToast';
 import EditableTest from '~/components/Test/EditableTest';
 import testService from '~/services/testService';
 
-const getLessonIcon = (type) => {
+const SEC_ITEM_TYPES = {
+  TEXT: 'TEXT',
+  VIDEO: 'VIDEO',
+  AUDIO: 'AUDIO',
+  QUIZ: 'QUIZ',
+}
+
+const getSectionItemIcon = (type) => {
   switch (type) {
-    case 'TEXT':
+    case SEC_ITEM_TYPES.TEXT:
       return { icon: FiFileText, color: 'green.500' };
-    case 'VIDEO':
+    case SEC_ITEM_TYPES.VIDEO:
       return { icon: FiVideo, color: 'blue.500' };
-    case 'AUDIO':
+    case SEC_ITEM_TYPES.AUDIO:
       return { icon: FiMic, color: 'purple.500' };
-    case 'QUIZ':
+    case SEC_ITEM_TYPES.QUIZ:
       return { icon: FiHelpCircle, color: 'orange.500' };
     default:
       return { icon: FiFileText, color: 'gray.500' };
@@ -65,7 +72,7 @@ const Curriculum = ({ courseId }) => {
   const [showIcons, setShowIcons] = useState(null);
   const [isAddingNewSection, setIsAddingNewSection] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
-  const [selectedLessonType, setSelectedLessonType] = useState(null);
+  const [selectedSectionItemType, setSelectedSectionItemType] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState(null);
   const [selectedSectionId, setSelectedSectionId] = useState(null);
   const [selectedTestId, setSelectedTestId] = useState(null);
@@ -136,13 +143,13 @@ const Curriculum = ({ courseId }) => {
       }),
     );
   };
-  const handleLessonTypeClick = (lessonType) => {
-    setSelectedLessonType(lessonType);
+  const handleSectionItemTypeClick = (sectionItemType) => {
+    setSelectedSectionItemType(sectionItemType);
     console.log('selectedSectionId : ', selectedSectionId);
     setSelectedLessonId(null);
     console.log('selectedSectionId : ', selectedSectionId);
 
-    if (lessonType === 'QUIZ') {
+    if (sectionItemType === 'QUIZ') {
       setSelectedTestId(null);
     }
 
@@ -209,7 +216,7 @@ const Curriculum = ({ courseId }) => {
   };
 
   const handleLessonClick = (lesson) => {
-    setSelectedLessonType(lesson?.type);
+    setSelectedSectionItemType(lesson?.type);
     setSelectedLessonId(lesson.id);
     setSelectedSectionId(lesson.sectionId);
   };
@@ -217,8 +224,8 @@ const Curriculum = ({ courseId }) => {
   const renderLessonComponent = () => {
     const isNewLesson = !selectedLessonId && selectedSectionId;
 
-    switch (selectedLessonType) {
-      case 'TEXT':
+    switch (selectedSectionItemType) {
+      case SEC_ITEM_TYPES.TEXT:
         return (
           <TextLesson
             id={selectedLessonId}
@@ -227,7 +234,7 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case 'VIDEO':
+      case SEC_ITEM_TYPES.VIDEO:
         return (
           <VideoLesson
             id={selectedLessonId}
@@ -236,7 +243,7 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case 'AUDIO':
+      case SEC_ITEM_TYPES.AUDIO:
         return (
           <AudioLesson
             id={selectedLessonId}
@@ -245,7 +252,7 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case 'QUIZ':
+      case SEC_ITEM_TYPES.QUIZ:
         const isNewTest = !selectedTestId && selectedSectionId;
         return (
           <EditableTest
@@ -306,7 +313,7 @@ const Curriculum = ({ courseId }) => {
   };
 
   const handleTestClick = async (test) => {
-    setSelectedLessonType('QUIZ');
+    setSelectedSectionItemType('QUIZ');
     setSelectedTestId(test.id);
     setSelectedSectionId(test.sectionId);
   }
@@ -418,7 +425,7 @@ const Curriculum = ({ courseId }) => {
                     <List spacing={3}>
                       {/* lessons */}
                       {section.lessons.map((lesson) => {
-                        const { icon, color } = getLessonIcon(lesson?.type);
+                        const { icon, color } = getSectionItemIcon(lesson?.type);
                         return (
                           <ListItem
                             onClick={() =>
@@ -459,7 +466,7 @@ const Curriculum = ({ courseId }) => {
 
                       {/* tests */}
                       {section.tests.map((test) => {
-                        const { icon, color } = getLessonIcon('QUIZ');
+                        const { icon, color } = getSectionItemIcon('QUIZ');
                         return (
                           <ListItem
                             onClick={() =>
@@ -558,7 +565,7 @@ const Curriculum = ({ courseId }) => {
       </Box>
 
       <Box w="70%" textAlign="center" maxHeight="80vh" overflow="auto">
-        {selectedLessonType ? (
+        {selectedSectionItemType ? (
           renderLessonComponent()
         ) : (
           <Box>
@@ -589,7 +596,7 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('TEXT')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.TEXT)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -606,7 +613,7 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('VIDEO')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.VIDEO)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -623,7 +630,7 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('AUDIO')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.AUDIO)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -648,7 +655,7 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('QUIZ')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.QUIZ)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -665,7 +672,7 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('Assignment')}
+                  onClick={() => handleSectionItemTypeClick('Assignment')}
                   size="lg"
                   minW="130px"
                   minH="130px"

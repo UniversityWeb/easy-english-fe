@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, FormControl, FormLabel, Input, Textarea, VStack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Heading, Input, Textarea, VStack } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
 
@@ -126,6 +126,8 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
 
   return (
     <Box p={4}>
+      <Heading mb={10}>{isNew ? 'Add new test' : 'Update test'}</Heading>
+
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
           <FormControl isRequired>
