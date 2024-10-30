@@ -32,12 +32,19 @@ const remove = async (testId) => {
   return handleResponse(response, 204);
 }
 
+const getTestsBySection = async (sectionId) => {
+  const path = `${SUFFIX_TEST_API_URL}/get-by-section/${sectionId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const testService = {
   create,
   update,
   getAll,
   getById,
   remove,
+  getTestsBySection,
 };
 
 export default testService;

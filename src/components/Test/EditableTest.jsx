@@ -5,12 +5,15 @@ import TestForm from './TestForm';
 import testPartService from '~/services/testPartService';
 import useCustomToast from '~/hooks/useCustomToast';
 
-const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved }) => {
+const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
   const [testParts, setTestParts] = useState([]);
   const { successToast, errorToast } = useCustomToast();
 
   useEffect(() => {
+    console.log(`EditableTest - useEffect - testId: ${testId}`);
     const fetchTestParts = async () => {
+      if (!testId) return;
+
       try {
         const parts = await testPartService.getTestPartsByTestId(testId);
         setTestParts(parts);
@@ -21,7 +24,7 @@ const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved
     };
 
     fetchTestParts();
-  }, [testId, errorToast]);
+  }, [testId, isNew]);
 
   const updateTestPart = async (id, updatedPart) => {
     try {
@@ -68,27 +71,14 @@ const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved
     }
   };
 
-  const handleTestCreated = () => {
-    // Refresh the test parts list after creating a new test
-    const fetchTestParts = async () => {
-      try {
-        const parts = await testPartService.getTestPartsByTestId(testId);
-        setTestParts(parts);
-      } catch (error) {
-        console.error('Error fetching test parts after creation:', error);
-        errorToast('Failed to fetch test parts.');
-      }
-    };
-    fetchTestParts();
-  };
-
   return (
-    <Box p={4}>
+    <Box p={4} paddingBottom={0} shadow="md" borderWidth="1px" width="100%">
       <TestForm
         sectionId={sectionId}
         ordinalNumber={ordinalNumber}
         testId={testId}
-        onTestCreated={handleTestCreated}
+        isNew={isNew}
+        onTestSaved={onTestSaved}
       />
       <VStack spacing={4} mt={4}>
         {testParts.map((part) => (

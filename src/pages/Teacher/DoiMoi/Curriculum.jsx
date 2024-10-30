@@ -41,6 +41,7 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
 import EditableTest from '~/components/Test/EditableTest';
+import testService from '~/services/testService';
 
 const getLessonIcon = (type) => {
   switch (type) {
@@ -67,9 +68,11 @@ const Curriculum = ({ courseId }) => {
   const [selectedLessonType, setSelectedLessonType] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState(null);
   const [selectedSectionId, setSelectedSectionId] = useState(null);
+  const [selectedTestId, setSelectedTestId] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const [hoveredLessonId, setHoveredLessonId] = useState(null);
+  const [hoveredTestId, setHoveredTestId] = useState(null);
   const { successToast, errorToast } = useCustomToast();
 
   // Fetch sections and lessons from the API
@@ -82,9 +85,23 @@ const Curriculum = ({ courseId }) => {
         if (fetchedSections) {
           const sectionsWithLessons = await Promise.all(
             fetchedSections.map(async (section) => {
-              const lessonRequest = { sectionId: section.id };
-              const lessons = await lessonService.fetchLessons(lessonRequest);
-              return { ...section, lessons: lessons || [] };
+              const sectionId = section?.id;
+
+              // Create requests for lessons and tests
+              const lessonRequest = { sectionId: sectionId };
+
+              // Fetch both lessons and tests concurrently
+              const [lessons, tests] = await Promise.all([
+                lessonService.fetchLessons(lessonRequest),
+                testService.getTestsBySection(sectionId),
+              ]);
+
+              // Return the section object with lessons and tests included
+              return {
+                ...section,
+                lessons: lessons || [],
+                tests: tests || [],
+              };
             }),
           );
           setSections(sectionsWithLessons);
@@ -124,6 +141,11 @@ const Curriculum = ({ courseId }) => {
     console.log('selectedSectionId : ', selectedSectionId);
     setSelectedLessonId(null);
     console.log('selectedSectionId : ', selectedSectionId);
+
+    if (lessonType === 'QUIZ') {
+      setSelectedTestId(null);
+    }
+
     onClose();
   };
 
@@ -224,12 +246,14 @@ const Curriculum = ({ courseId }) => {
           />
         );
       case 'QUIZ':
+        const isNewTest = !selectedTestId && selectedSectionId;
         return (
           <EditableTest
-            id={selectedLessonId}
+            testId={selectedTestId}
             sectionId={selectedSectionId}
-            isNew={isNewLesson}
-            onLessonSaved={handleLessonSaved}
+            ordinalNumber={1}
+            isNew={isNewTest}
+            onTestSaved={handleTestSaved}
           />
         );
       default:
@@ -242,6 +266,26 @@ const Curriculum = ({ courseId }) => {
       <HStack justify="center" align="center" h="full">
         <Spinner size="xl" />
       </HStack>
+    );
+  }
+
+  const handleTestSaved = (savedTest) => {
+    console.log('save : ', savedTest);
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.id === savedTest.sectionId) {
+          const updatedTests = section.tests.some(
+            (test) => test.id === savedTest.id,
+          )
+            ? section.tests.map((test) =>
+              test.id === savedTest.id ? savedTest : test,
+            )
+            : [...section.tests, savedTest];
+
+          return { ...section, tests: updatedTests };
+        }
+        return section;
+      }),
     );
   }
 
@@ -260,6 +304,27 @@ const Curriculum = ({ courseId }) => {
       errorToast('Error deleting lesson');
     }
   };
+
+  const handleTestClick = async (test) => {
+    setSelectedLessonType('QUIZ');
+    setSelectedTestId(test.id);
+    setSelectedSectionId(test.sectionId);
+  }
+
+  const handleDeleteTest = async (testId) => {
+    try {
+      await testService.remove(testId);
+      setSections((prevTests) =>
+        prevTests.map((section) => ({
+          ...section,
+          tests: section.tests.filter((test) => test.id !== testId),
+        })),
+      );
+      successToast('Test deleted');
+    } catch (error) {
+      errorToast('Error deleting test');
+    }
+  }
 
   return (
     <HStack spacing={5} align="start" h="full">
@@ -351,6 +416,7 @@ const Curriculum = ({ courseId }) => {
                   </h2>
                   <AccordionPanel pb={4}>
                     <List spacing={3}>
+                      {/* lessons */}
                       {section.lessons.map((lesson) => {
                         const { icon, color } = getLessonIcon(lesson?.type);
                         return (
@@ -383,6 +449,47 @@ const Curriculum = ({ courseId }) => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteLesson(lesson.id);
+                                  }}
+                                />
+                              )}
+                            </HStack>
+                          </ListItem>
+                        );
+                      })}
+
+                      {/* tests */}
+                      {section.tests.map((test) => {
+                        const { icon, color } = getLessonIcon('QUIZ');
+                        return (
+                          <ListItem
+                            onClick={() =>
+                              handleTestClick({
+                                ...test,
+                                sectionId: section.id,
+                              })
+                            }
+                            key={test.id}
+                            cursor="pointer"
+                            onMouseEnter={() => setHoveredTestId(test.id)}
+                            onMouseLeave={() => setHoveredTestId(null)}
+                          >
+                            <HStack justify="space-between">
+                              <HStack>
+                                <ListIcon
+                                  as={RxDragHandleDots2}
+                                  color="gray.500"
+                                />
+                                <ListIcon as={icon} color={color} />
+                                <Text>{test.title}</Text>
+                              </HStack>
+                              {hoveredTestId === test.id && (
+                                <Icon
+                                  as={RiDeleteBinFill}
+                                  color="gray.500"
+                                  cursor="pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteTest(test.id);
                                   }}
                                 />
                               )}
@@ -466,6 +573,7 @@ const Curriculum = ({ courseId }) => {
         )}
       </Box>
 
+      {/* Add options */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent maxW="700px" height="500px" p={5}>
