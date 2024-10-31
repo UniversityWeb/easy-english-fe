@@ -1,3 +1,5 @@
+import { QUESTION_TYPES } from '~/utils/constants';
+
 export const testDemoData = {
   id: 202,
   status: "DISPLAY",
@@ -122,3 +124,65 @@ export const testWithEmptyListDataDemo = {
   sectionId: 1,
   parts: [],
 }
+
+
+export const QUESTION_TEMPLATES_TO_ADD = {
+  SINGLE_CHOICE: {
+    type: QUESTION_TYPES.SINGLE_CHOICE,
+    ordinalNumber: 0,
+    title: 'What is the past tense of "go"?',
+    description: '',
+    audioPath: '',
+    imagePath: '',
+    options: ['Gone', 'Going', 'Went', 'Go'],
+    correctAnswers: ['Went'],
+  },
+  MULTI_CHOICE: {
+    type: QUESTION_TYPES.MULTI_CHOICE,
+    ordinalNumber: 0,
+    title: 'Select all adjectives in the following sentence: "The quick brown fox jumps over the lazy dog."',
+    description: '',
+    audioPath: '',
+    imagePath: '',
+    options: ['Quick', 'Brown', 'Jumps', 'Lazy'],
+    correctAnswers: ['Quick', 'Brown', 'Lazy'], // Multiple correct answers
+  },
+  TRUE_FALSE: {
+    type: QUESTION_TYPES.TRUE_FALSE,
+    ordinalNumber: 0,
+    title: 'The sentence "She don’t like apples" is grammatically correct.',
+    description: '',
+    audioPath: '',
+    imagePath: '',
+    options: ['True', 'False'],
+    correctAnswers: ['False'], // Only one correct answer
+  },
+  MATCHING: {
+    type: QUESTION_TYPES.MATCHING,
+    ordinalNumber: 0,
+    title: 'Match the words with their definitions.',
+    description: '',
+    audioPath: '', // unused
+    imagePath: '', // unused
+    options: [
+      'Eloquent',
+      'Abridge',
+      'Ambiguous',
+    ],
+    correctAnswers: [
+      'Fluent or persuasive in speaking or writing.',
+      'To shorten without losing the sense.',
+      'Open to more than one interpretation.',
+    ], // Expected matches
+  },
+  FILL_BLANK: {
+    type: QUESTION_TYPES.FILL_BLANK,
+    ordinalNumber: 0,
+    title: 'She is good ___ math.',
+    description: 'She is good |at| math.',
+    audioPath: '', // unused
+    imagePath: '', // unused
+    options: [''], // unused
+    correctAnswers: ['at'], // Correct word to fill the blank
+  },
+};

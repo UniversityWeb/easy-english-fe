@@ -1,40 +1,124 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
   Editable,
   EditableInput,
   EditablePreview,
+  CheckboxGroup,
   Checkbox,
   Button,
   Input,
   IconButton,
-  ChakraProvider
-} from "@chakra-ui/react";
+  Image,
+  Text, Textarea,
+} from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const EditableMultipleChoice = React.memo(({ answers: initialAnswers }) => {
-  const [answers, setAnswers] = useState(initialAnswers);
+const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) => {
+  const [options, setOptions] = useState([]);
+  const [correctAnswers, setCorrectAnswers] = useState([]);
+  const [newOption, setNewOption] = useState("");
+  const [error, setError] = useState("");
+  const [image, setImage] = useState(null);
 
-  // Add new answer
-  const [newAnswer, setNewAnswer] = useState("");
+  useEffect(() => {
+    setOptions(question?.options || []);
+    setCorrectAnswers(question?.correctAnswers || []);
+  }, [question]);
 
-  const addAnswer = () => {
-    if (newAnswer.trim()) {
-      setAnswers([...answers, newAnswer]);
-      setNewAnswer("");
+  const addOption = async () => {
+    const trimmedNewOption = newOption?.trim();
+    if (options.includes(trimmedNewOption)) {
+      setError("This option already exists.");
+      return;
+    }
+
+    if (trimmedNewOption) {
+      const updatedOptions = [...options, trimmedNewOption];
+      setOptions(updatedOptions);
+      setNewOption("");
+
+      onUpdateQuestionField('options', updatedOptions);
+      setError("");
     }
   };
 
-  // Remove answer
-  const removeAnswer = (indexToRemove) => {
-    setAnswers(answers.filter((_, index) => index !== indexToRemove));
+  const removeOption = async (indexToRemove) => {
+    const updatedOptions = options.filter((_, index) => index !== indexToRemove);
+    setOptions(updatedOptions);
+
+    onUpdateQuestionField('options', updatedOptions);
+  };
+
+  const handleOptionEdit = async (index, newValue) => {
+    const updatedOptions = options.map((opt, i) => (i === index ? newValue : opt));
+    setOptions(updatedOptions);
+
+    onUpdateQuestionField('options', updatedOptions);
+  };
+
+  // Handle selecting the correct answers
+  const handleCorrectAnswerChange = (value) => {
+    const updatedCorrectAnswers = correctAnswers.includes(value)
+      ? correctAnswers.filter((answer) => answer !== value)
+      : [...correctAnswers, value];
+
+    setCorrectAnswers(updatedCorrectAnswers);
+    onUpdateQuestionField('correctAnswers', updatedCorrectAnswers);
+  };
+
+  // Handle image upload
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl);
+    }
   };
 
   return (
-    <ChakraProvider>
-      <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
-        {answers?.map((answer, index) => (
+    <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
+      {/* Image icon and upload functionality */}
+      <Flex align="center" mb={4}>
+        <IconButton
+          icon={<Image />}
+          aria-label="Upload question image"
+          mr={2}
+          onClick={() => document.getElementById("image-upload").click()}
+        />
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleImageUpload}
+        />
+        <Editable
+          width="100%"
+          defaultValue={question.title}
+          onSubmit={(value) => onUpdateQuestionField('title', value)}
+        >
+          <EditablePreview />
+          <Textarea
+            as={EditableInput}
+            placeholder="Enter question title"
+            resize="vertical" // Allows vertical resizing
+            size="sm" // Adjust size as needed
+          />
+        </Editable>
+      </Flex>
+
+      {/* Display uploaded image */}
+      {image && (
+        <Box mb={4}>
+          <Image src={image} alt="Uploaded question image" maxW="200px" borderRadius="md" />
+        </Box>
+      )}
+
+      {/* Options section */}
+      <CheckboxGroup value={correctAnswers} onChange={setCorrectAnswers}>
+        {options.map((option, index) => (
           <Flex
             key={index}
             justify="space-between"
@@ -46,34 +130,39 @@ const EditableMultipleChoice = React.memo(({ answers: initialAnswers }) => {
             mb={2}
           >
             <Flex align="center" flexGrow={1}>
-              <Editable defaultValue={answer}>
+              <Editable defaultValue={option} onSubmit={(value) => handleOptionEdit(index, value)}>
                 <EditablePreview />
                 <EditableInput />
               </Editable>
             </Flex>
-            <Box flexShrink={0} mr={2}>
-              <Checkbox defaultIsChecked>Correct</Checkbox>
-            </Box>
+            <Checkbox value={option} onChange={() => handleCorrectAnswerChange(option)}>
+              Correct
+            </Checkbox>
             <IconButton
               icon={<DeleteIcon />}
-              aria-label="Delete answer"
+              aria-label="Delete option"
               colorScheme="red"
-              onClick={() => removeAnswer(index)}
+              onClick={() => removeOption(index)}
             />
           </Flex>
         ))}
-        <Flex mt={4} align="center">
-          <Input
-            placeholder="Add new answer"
-            value={newAnswer}
-            onChange={(e) => setNewAnswer(e.target.value)}
-          />
-          <Button ml={2} colorScheme="blue" leftIcon={<AddIcon />} onClick={addAnswer}>
-            Add
-          </Button>
-        </Flex>
-      </Box>
-    </ChakraProvider>
+      </CheckboxGroup>
+
+      {/* Add new option */}
+      <Flex mt={4} align="center">
+        <Input
+          placeholder="Add new option"
+          value={newOption}
+          onChange={(e) => setNewOption(e.target.value)}
+        />
+        <Button ml={2} colorScheme="blue" leftIcon={<AddIcon />} onClick={addOption}>
+          Add
+        </Button>
+      </Flex>
+
+      {/* Error message if duplicate option is added */}
+      {error && <Text color="red.500" mt={2}>{error}</Text>}
+    </Box>
   );
 });
 
