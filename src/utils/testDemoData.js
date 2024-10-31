@@ -165,14 +165,16 @@ export const QUESTION_TEMPLATES_TO_ADD = {
     audioPath: '', // unused
     imagePath: '', // unused
     options: [
-      'Eloquent',
-      'Abridge',
-      'Ambiguous',
+      'Run',
+      'Beautiful',
+      'Happily',
+      'Cat',
     ],
     correctAnswers: [
-      'Fluent or persuasive in speaking or writing.',
-      'To shorten without losing the sense.',
-      'Open to more than one interpretation.',
+      'Verb',
+      'Adjective',
+      'Adverb',
+      'Noun',
     ], // Expected matches
   },
   FILL_BLANK: {
