@@ -1,9 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { QUESTION_TYPES } from '~/utils/constants';
-import EditableSingleChoice from '~/components/Test/EditableQuestion/EditableSingleChoice';
-import EditableMultipleChoice from '~/components/Test/EditableQuestion/EditableMultipleChoice';
-import EditableMatching from '~/components/Test/EditableQuestion/EditableMatching';
-import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFalse';
 import {
   Box,
   Flex,
@@ -18,14 +13,22 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Editable,
+  EditableInput,
+  EditablePreview, Spacer,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import testQuestionService from '~/services/testQuestionService';
 import useCustomToast from '~/hooks/useCustomToast';
-import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
+import { QUESTION_TYPES } from '~/utils/constants';
+import EditableSingleChoice from '~/components/Test/EditableQuestion/EditableSingleChoice';
+import EditableMultipleChoice from '~/components/Test/EditableQuestion/EditableMultipleChoice';
+import EditableMatching from '~/components/Test/EditableQuestion/EditableMatching';
+import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFalse';
 import EditableFillBlank from '~/components/Test/EditableQuestion/EditableFillBlank';
+import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 
-const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
+const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQuestions }) => {
   const [questionState, setQuestionState] = useState(question);
   const { successToast, errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -35,12 +38,12 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
     if (question) {
       setQuestionState({
         id: question?.id,
-        type: question?.type || "SINGLE_CHOICE", // Default type if not provided
+        type: question?.type || 'SINGLE_CHOICE', // Default type if not provided
         ordinalNumber: question?.ordinalNumber || 0,
-        title: question?.title || "",
-        description: question?.description || "",
-        audioPath: question?.audioPath || "",
-        imagePath: question?.imagePath || "",
+        title: question?.title || '',
+        description: question?.description || '',
+        audioPath: question?.audioPath || '',
+        imagePath: question?.imagePath || '',
         options: question?.options || [],
         correctAnswers: question?.correctAnswers || [],
         questionGroupId: question?.questionGroupId || 0,
@@ -55,22 +58,28 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
         ...prev,
         ...updatedResponse,
       }));
-      successToast("Question updated successfully.");
+      successToast('Question updated successfully.');
     } catch (error) {
-      console.error("Error updating question:", error);
-      errorToast("Error updating question.");
+      console.error('Error updating question:', error);
+      errorToast('Error updating question.');
     }
   };
 
-  const updateQuestionField = useCallback(async (fieldOrFields, value) => {
-    // Determine if updating a single field or multiple fields
-    const updatedFields = typeof fieldOrFields === 'object'
-      ? fieldOrFields // Multiple fields: use the object directly
-      : { [fieldOrFields]: value }; // Single field: create an object with the field and value
+  const updateQuestionField = useCallback(
+    async (fieldOrFields, value) => {
+      const updatedFields =
+        typeof fieldOrFields === 'object'
+          ? fieldOrFields
+          : { [fieldOrFields]: value };
 
-    // Update the question with the modified state
-    await updateQuestion(questionState?.id, { ...questionState, ...updatedFields });
-  }, [questionState]);
+      // Update the question with the modified state
+      await updateQuestion(questionState?.id, {
+        ...questionState,
+        ...updatedFields,
+      });
+    },
+    [questionState]
+  );
 
   const handleTypeChange = async (e) => {
     const selectedType = e.target.value;
@@ -84,7 +93,7 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
     if (newQuestionTemplate) {
       await updateQuestion(questionId, {
         ...newQuestionTemplate,
-        questionGroupId: questionState?.questionGroupId
+        questionGroupId: questionState?.questionGroupId,
       });
 
       onClose(); // Close the dialog
@@ -100,11 +109,9 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
       [QUESTION_TYPES.FILL_BLANK]: QUESTION_TEMPLATES_TO_ADD.FILL_BLANK,
     };
 
-    // Reset options or data based on new type if necessary
     return templates[type] || { ...questionState, type, options: [], correctAnswers: [] };
   };
 
-  // Function to render the question based on its type
   const renderQuestion = () => {
     const commonProps = {
       key: question?.id,
@@ -122,7 +129,7 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
       case QUESTION_TYPES.MATCHING:
         return <EditableMatching {...commonProps} />;
       case QUESTION_TYPES.FILL_BLANK:
-        return <EditableFillBlank {...commonProps} />
+        return <EditableFillBlank {...commonProps} />;
       default:
         return null;
     }
@@ -131,7 +138,28 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
   return (
     <Box p={4} bg="gray.100" mb={4} borderRadius="lg" borderWidth="1px">
       <Flex justify="space-between" mb={4} align="center">
-        <Text>Question {questionState?.ordinalNumber}</Text>
+        <Flex align="center" justify="space-between">
+          <Text mr={1}>Question</Text>
+          <Editable
+            defaultValue={questionState?.ordinalNumber?.toString()}
+            onSubmit={async (value) => {
+              let newOrdinalNumber = parseInt(value, 10);
+              if (newOrdinalNumber < 1) {
+                newOrdinalNumber = 1;
+              }
+
+              if (newOrdinalNumber !== question?.ordinalNumber) {
+                // Update the ordinal number in the backend and state
+                await updateQuestionField('ordinalNumber', newOrdinalNumber);
+                await onReloadQuestions();
+              }
+            }}
+          >
+            <EditablePreview />
+            <EditableInput type="number" />
+          </Editable>
+        </Flex>
+
         <Flex align="center">
           <Select
             w="200px"
@@ -141,7 +169,10 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
           >
             {Object.values(QUESTION_TYPES).map((type) => (
               <option key={type} value={type}>
-                {type.replace('_', ' ').toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}
+                {type
+                  .replace('_', ' ')
+                  .toLowerCase()
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
               </option>
             ))}
           </Select>
@@ -161,7 +192,10 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
         <ModalContent>
           <ModalHeader>Confirm Change</ModalHeader>
           <ModalBody>
-            <Text>This action will permanently delete the old content. Are you sure you want to proceed?</Text>
+            <Text>
+              This action will permanently delete the old content. Are you sure
+              you want to proceed?
+            </Text>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="red" mr={3} onClick={onClose}>

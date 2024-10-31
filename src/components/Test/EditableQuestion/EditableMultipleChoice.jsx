@@ -140,6 +140,8 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
             </Checkbox>
             <IconButton
               icon={<DeleteIcon />}
+              ms={2}
+              size="sm"
               aria-label="Delete option"
               colorScheme="red"
               onClick={() => removeOption(index)}

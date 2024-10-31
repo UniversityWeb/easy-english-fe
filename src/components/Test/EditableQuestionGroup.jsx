@@ -35,6 +35,24 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
   const [isImageEnabled, setIsImageEnabled] = useState(!!group?.imagePath);
   const [isContentEnabled, setIsContentEnabled] = useState(!!group?.contentToDisplay);
 
+  // Fetch questions from the server
+  const fetchQuestions = async () => {
+    if (!group) return;
+
+    try {
+      const loadedQuestions = await testQuestionService.getByQuestionGroup(group?.id);
+      setQuestions(loadedQuestions);
+    } catch (error) {
+      errorToast('Error fetching questions.');
+      console.error('Error fetching questions:', error);
+    }
+  };
+
+  // Reload questions (to be passed to EditableQuestionItem)
+  const reloadQuestions = useCallback(() => {
+    fetchQuestions();
+  }, [group]);
+
   useEffect(() => {
     setGroupState({
       title: group?.title || '',
@@ -49,22 +67,7 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
       testPartId: group?.testPartId || '',
     });
 
-    const fetchQuestions = async () => {
-      if (!group) return;
-
-      try {
-        const loadedQuestions = await testQuestionService.getByQuestionGroup(group?.id);
-        setQuestions(loadedQuestions);
-      } catch (error) {
-        errorToast('Error fetching questions.');
-        console.error('Error fetching questions:', error);
-      }
-    };
     fetchQuestions();
-
-    return () => {
-      setQuestions([]);
-    };
   }, [group]);
 
   const handleUpdateGroup = async (e) => {
@@ -89,6 +92,7 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
   const addNewQuestion = async () => {
     const newQuestion = {
       ...QUESTION_TEMPLATES_TO_ADD.SINGLE_CHOICE,
+      ordinalNumber: questions.length + 1,
       questionGroupId: group?.id,
     };
 
@@ -275,6 +279,7 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
                 key={question.id}
                 question={question}
                 onRemoveQuestion={removeQuestion}
+                onReloadQuestions={reloadQuestions}
               />
             ))}
 
