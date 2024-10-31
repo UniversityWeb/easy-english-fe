@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const EditableMultipleChoice = ({ answers: initialAnswers }) => {
+const EditableMultipleChoice = React.memo(({ answers: initialAnswers }) => {
   const [answers, setAnswers] = useState(initialAnswers);
 
   // Add new answer
@@ -34,7 +34,7 @@ const EditableMultipleChoice = ({ answers: initialAnswers }) => {
   return (
     <ChakraProvider>
       <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
-        {answers.map((answer, index) => (
+        {answers?.map((answer, index) => (
           <Flex
             key={index}
             justify="space-between"
@@ -75,6 +75,6 @@ const EditableMultipleChoice = ({ answers: initialAnswers }) => {
       </Box>
     </ChakraProvider>
   );
-};
+});
 
 export default EditableMultipleChoice;

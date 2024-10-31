@@ -7,7 +7,7 @@ import {
   ChakraProvider
 } from "@chakra-ui/react";
 
-const EditableTrueFalse = () => {
+const EditableTrueFalse = React.memo(() => {
   return (
     <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
       <RadioGroup defaultValue="False">
@@ -35,6 +35,6 @@ const EditableTrueFalse = () => {
       </RadioGroup>
     </Box>
   );
-};
+});
 
 export default EditableTrueFalse;

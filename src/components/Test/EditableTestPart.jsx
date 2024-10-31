@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Flex,
@@ -14,10 +14,12 @@ import EditableQuestionGroup from '~/components/Test/EditableQuestionGroup';
 import questionGroupService from '~/services/questionGroupService';
 import ReactQuill from 'react-quill';
 import useCustomToast from '~/hooks/useCustomToast';
+import testPartService from '~/services/testPartService';
 
-const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
+const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [questionGroups, setQuestionGroups] = useState([]);
   const [showReadingPassage, setShowReadingPassage] = useState(part.readingPassage);
+  const [readingPassage, setReadingPassage] = useState('');
   const { successToast, errorToast } = useCustomToast();
 
   useEffect(() => {
@@ -35,31 +37,28 @@ const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
     fetchQuestionGroups();
   }, [part]);
 
-  const handleUpdateGroup = async (groupId, updatedGroup) => {
-    try {
-      await questionGroupService.update(groupId, updatedGroup);
-      onUpdatePart(part.id, {
-        questionGroups: questionGroups.map(g => (g.id === groupId ? { ...g, ...updatedGroup } : g)),
-      })
-      successToast('Question group updated successfully!');
-    } catch (error) {
-      console.error('Error updating question group:', error);
-      errorToast('Failed to update question group.');
-    }
-  }
+  const updateTestPart = async (id, updatedPart) => {
+    if (!id || !updatedPart) return;
 
-  const handleRemoveGroup = async (groupId) => {
+    try {
+      updatedPart = { ...updatedPart, readingPassage: readingPassage };
+      await testPartService.update(id, updatedPart);
+      successToast('Test part updated successfully!');
+    } catch (error) {
+      console.error('Error updating test part:', error);
+      errorToast('Failed to update test part.');
+    }
+  };
+
+  const handleRemoveGroup = useCallback(async (groupId) => {
     try {
       await questionGroupService.remove(groupId);
-      onUpdatePart(part.id, {
-        questionGroups: questionGroups.filter(g => g.id !== groupId),
-      })
       successToast('Question group removed successfully!');
     } catch (error) {
       console.error('Error removing question group:', error);
       errorToast('Failed to remove question group.');
     }
-  }
+  }, [questionGroups.length]);
 
   const handleAddGroup = async () => {
     const newGroup = {
@@ -83,15 +82,15 @@ const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
       console.error('Error adding question group:', error);
       errorToast('Failed to add question group.');
     }
-  }
+  };
 
   return (
     <Box p={4} bg="white" mb={4} borderRadius="lg" borderWidth="1px" width="100%">
       <Flex justify="space-between" align="center">
         <Editable
           fontWeight="bolder"
-          defaultValue={part.title || "Default"}
-          onSubmit={(value) => onUpdatePart(part.id, { title: value })}
+          defaultValue={part?.title || "Default"}
+          onSubmit={(value) => updateTestPart(part.id, { ...part, title: value })}
         >
           <EditablePreview />
           <EditableInput />
@@ -135,7 +134,7 @@ const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
           >
             <ReactQuill
               value={part.readingPassage}
-              onChange={(readingPassage) => onUpdatePart(part.id, { readingPassage: readingPassage })}
+              onChange={(readingPassage) => setReadingPassage(readingPassage)}
               theme="snow"
               placeholder="Enter lesson content"
               style={{ height: "380px", marginBottom: "20px" }}
@@ -148,7 +147,6 @@ const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
         <EditableQuestionGroup
           key={group?.id}
           group={group}
-          onUpdateGroup={handleUpdateGroup}
           onRemoveGroup={handleRemoveGroup}
         />
       ))}
@@ -164,6 +162,6 @@ const EditableTestPart = ({ part, onUpdatePart, onRemovePart }) => {
       </Flex>
     </Box>
   );
-};
+});
 
 export default EditableTestPart;

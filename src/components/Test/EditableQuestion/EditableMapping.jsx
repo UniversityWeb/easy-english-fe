@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const EditableMapping = () => {
+const EditableMapping = React.memo(() => {
   // State để lưu danh sách các câu hỏi và câu trả lời
   const [data, setData] = useState([
     { id: 1, question: "Bill", answer: "Gates" },
@@ -37,7 +37,7 @@ const EditableMapping = () => {
   return (
     <ChakraProvider>
       <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
-        {data.map((item, index) => (
+        {data?.map((item, index) => (
           <Flex
             key={item.id}
             justify="space-between"
@@ -86,6 +86,6 @@ const EditableMapping = () => {
       </Box>
     </ChakraProvider>
   );
-};
+});
 
 export default EditableMapping;

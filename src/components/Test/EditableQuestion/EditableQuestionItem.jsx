@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { QUESTION_TYPES } from '~/utils/constants';
 import EditableSingleChoice from '~/components/Test/EditableQuestion/EditableSingleChoice';
 import EditableMultipleChoice from '~/components/Test/EditableQuestion/EditableMultipleChoice';
@@ -6,18 +6,64 @@ import EditableMapping from '~/components/Test/EditableQuestion/EditableMapping'
 import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFalse';
 import { Box, Flex, Select, IconButton, EditablePreview, EditableInput, Editable } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
+import testQuestionService from '~/services/testQuestionService';
+import useCustomToast from '~/hooks/useCustomToast';
 
-const EditableQuestionItem = ({ question, onUpdateQuestion, onRemoveQuestion }) => {
+const EditableQuestionItem = React.memo(({ question, onRemoveQuestion }) => {
+  const [questionState, setQuestionState] = useState(question);
+  const { successToast, errorToast } = useCustomToast();
+
+  useEffect(() => {
+    if (question) {
+      setQuestionState({
+        id: question?.id,
+        type: question?.type || "SINGLE_CHOICE", // Default type if not provided
+        ordinalNumber: question?.ordinalNumber || 0,
+        title: question?.title || "",
+        description: question?.description || "",
+        audioPath: question?.audioPath || "",
+        imagePath: question?.imagePath || "",
+        options: question?.options || [],
+        correctAnswers: question?.correctAnswers || [],
+        questionGroupId: question?.questionGroupId || 0,
+      });
+    }
+  }, [question]);
+
+  useEffect(() => {
+    if (!questionState) return;
+
+    updateQuestion(question?.id, questionState);
+  }, [questionState]);
+
+  const updateQuestion = async (id, updatedData) => {
+    try {
+      await testQuestionService.update(id, updatedData);
+      successToast("Question updated successfully.");
+    } catch (error) {
+      console.error("Error updating question:", error);
+      errorToast("Error updating question.");
+    }
+  };
+
+  const updateQuestionField = useCallback(async (field, value) => {
+    setQuestionState((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+
+    await updateQuestion(question.id, { ...question, [field]: value });
+  }, [question.id]);
 
   // Function to render the question based on its type
   const renderQuestion = () => {
     const commonProps = {
-      key: question.id,
-      question: question,
-      onUpdate: onUpdateQuestion,
+      key: question?.id,
+      question: questionState,
+      onUpdateQuestionField: updateQuestionField,
     };
 
-    switch (question.type) {
+    switch (questionState?.type) {
       case QUESTION_TYPES.SINGLE_CHOICE:
         return <EditableSingleChoice {...commonProps} />;
       case QUESTION_TYPES.MULTI_CHOICE:
@@ -36,7 +82,7 @@ const EditableQuestionItem = ({ question, onUpdateQuestion, onRemoveQuestion }) 
       <Flex justify="space-between" mb={4} align="center">
         <Editable
           defaultValue={question?.title || 'Default'}
-          onSubmit={(value) => onUpdateQuestion(question?.id, { title: value })}
+          onSubmit={(value) => updateQuestion(question?.id, { ...question, title: value })}
         >
           <EditablePreview />
           <EditableInput />
@@ -45,21 +91,19 @@ const EditableQuestionItem = ({ question, onUpdateQuestion, onRemoveQuestion }) 
           <Select
             w="200px"
             mr={2}
-            value={question?.type}
-            onChange={(e) => {
+            value={questionState?.type}
+            onChange={async (e) => {
               const newType = e.target.value;
-              onUpdateQuestion(question?.id, { type: newType });
 
               // Reset options or data based on new type if necessary
               // This could involve resetting options or specific question-related state
               switch (newType) {
                 case QUESTION_TYPES.SINGLE_CHOICE:
-                  onUpdateQuestion(question.id, { options: [], correctAnswers: [] }); // Reset specific fields
+                  await updateQuestion(question.id, { ...question, type: newType, options: [], correctAnswers: [] });
                   break;
                 case QUESTION_TYPES.MULTI_CHOICE:
-                  onUpdateQuestion(question.id, { options: [], correctAnswers: [] }); // Reset specific fields
+                  await updateQuestion(question.id, { ...question, type: newType, options: [], correctAnswers: [] });
                   break;
-                // Add cases for other question types as necessary
                 default:
                   break;
               }
@@ -82,6 +126,6 @@ const EditableQuestionItem = ({ question, onUpdateQuestion, onRemoveQuestion }) 
       {renderQuestion()}
     </Box>
   );
-};
+});
 
 export default EditableQuestionItem;

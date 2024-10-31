@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
@@ -15,11 +15,19 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
-const EditableSingleChoice = ({ question, onUpdate }) => {
-  const [options, setOptions] = useState(question?.options || []);
+const EditableSingleChoice = React.memo(({ question, onUpdateQuestionField }) => {
+  const [options, setOptions] = useState([]);
+  const [correctAnswer, setCorrectAnswer] = useState("");
   const [newOption, setNewOption] = useState("");
   const [error, setError] = useState("");
   const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    setOptions(question?.options || []);
+    setCorrectAnswer(Array.isArray(question?.correctAnswers) && question.correctAnswers.length > 0
+      ? question.correctAnswers[0]
+      : "");
+  }, [question]);
 
   const addOption = async () => {
     const trimmedNewOption = newOption?.trim();
@@ -33,8 +41,7 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
       setOptions(updatedOptions);
       setNewOption("");
 
-      // Update the question with the new options array
-      await onUpdate(question?.id, { options: updatedOptions });
+      onUpdateQuestionField('options', updatedOptions);
       setError("");
     }
   };
@@ -43,16 +50,21 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
     const updatedOptions = options.filter((_, index) => index !== indexToRemove);
     setOptions(updatedOptions);
 
-    // Update question with the new options array
-    await onUpdate(question?.id, { options: updatedOptions });
+    onUpdateQuestionField('options', updatedOptions);
   };
 
   const handleOptionEdit = async (index, newValue) => {
     const updatedOptions = options.map((opt, i) => (i === index ? newValue : opt));
     setOptions(updatedOptions);
 
-    // Update question with the new options array
-    await onUpdate(question?.id, { options: updatedOptions });
+    onUpdateQuestionField('options', updatedOptions);
+  };
+
+  // Handle selecting the correct answer
+  const handleCorrectAnswerChange = (value) => {
+    setCorrectAnswer(value);
+
+    onUpdateQuestionField('correctAnswers', [value]);
   };
 
   // Handle image upload
@@ -94,9 +106,9 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
         </Box>
       )}
 
-      {/* Answer options */}
-      <RadioGroup>
-        {options.map((answer, index) => (
+      {/* Option options */}
+      <RadioGroup value={correctAnswer} onChange={handleCorrectAnswerChange}>
+        {options.map((option, index) => (
           <Flex
             key={index}
             justify="space-between"
@@ -108,17 +120,17 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
             mb={2}
           >
             <Flex align="center" flexGrow={1}>
-              <Editable defaultValue={answer} onSubmit={(value) => handleOptionEdit(index, value)}>
+              <Editable defaultValue={option} onSubmit={(value) => handleOptionEdit(index, value)}>
                 <EditablePreview />
                 <EditableInput />
               </Editable>
             </Flex>
             <Box flexShrink={0} mr={2}>
-              <Radio value={answer}>Correct</Radio>
+              <Radio value={option}>Correct</Radio>
             </Box>
             <IconButton
               icon={<DeleteIcon />}
-              aria-label="Delete answer"
+              aria-label="Delete option"
               colorScheme="red"
               onClick={() => removeOption(index)}
             />
@@ -126,10 +138,10 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
         ))}
       </RadioGroup>
 
-      {/* Add new answer */}
+      {/* Add new option */}
       <Flex mt={4} align="center">
         <Input
-          placeholder="Add new answer"
+          placeholder="Add new option"
           value={newOption}
           onChange={(e) => setNewOption(e.target.value)}
         />
@@ -142,6 +154,6 @@ const EditableSingleChoice = ({ question, onUpdate }) => {
       {error && <Text color="red.500" mt={2}>{error}</Text>}
     </Box>
   );
-};
+});
 
 export default EditableSingleChoice;

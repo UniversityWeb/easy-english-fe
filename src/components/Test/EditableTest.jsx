@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Heading, VStack } from '@chakra-ui/react';
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
@@ -26,24 +26,7 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
     fetchTestParts();
   }, [testId, isNew]);
 
-  const updateTestPart = async (id, updatedPart) => {
-    if (!id || !updatedPart) return;
-
-    try {
-      await testPartService.update(id, updatedPart);
-      setTestParts((prevParts) =>
-        prevParts.map((part) =>
-          part.id === id ? { ...part, ...updatedPart } : part,
-        ),
-      );
-      successToast('Test part updated successfully!');
-    } catch (error) {
-      console.error('Error updating test part:', error);
-      errorToast('Failed to update test part.');
-    }
-  };
-
-  const removeTestPart = async (id) => {
+  const removeTestPart = useCallback(async (id) => {
     try {
       await testPartService.remove(id);
       setTestParts((prevParts) => prevParts.filter((part) => part.id !== id));
@@ -52,7 +35,7 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
       console.error('Error removing test part:', error);
       errorToast('Failed to remove test part.');
     }
-  };
+  }, []);
 
   const addTestPart = async () => {
     const newPart = {
@@ -88,7 +71,6 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
           <EditableTestPart
             key={part.id}
             part={part}
-            onUpdatePart={updateTestPart}
             onRemovePart={removeTestPart}
           />
         ))}
