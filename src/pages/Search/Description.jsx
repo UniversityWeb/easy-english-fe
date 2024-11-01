@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, Image } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import courseService from '~/services/courseService';
+import './CourseStyles.css';
 
 const Description = ({ courseId }) => {
     const [course, setCourse] = useState(null);
 
     const fetchCourseDetails = async () => {
-        const response = await courseService.fetchMainCourse({ id: courseId }); // Sử dụng courseId từ props
+        const response = await courseService.fetchMainCourse({ id: courseId });
         if (response) {
             setCourse(response);
         }
@@ -22,26 +23,20 @@ const Description = ({ courseId }) => {
 
     return (
         <Box mt={4}>
-            {/* Course Image and Description Section */}
             <Box position="relative" mb={6}>
-                <Image
-                    src={course.imagePreview} // Sử dụng imagePreview từ API
-                    alt="Course banner"
-                    borderRadius="md"
-                    w="100%"
-                    h="auto"
+                <video
+                    src={course.videoPreview}
+                    controls
+                    style={{ borderRadius: '8px', width: '100%',height: '400px' }}
                 />
             </Box>
 
-            {/* Course Description with dangerouslySetInnerHTML */}
             <Box
+                className="course-content" 
                 w="100%"
                 maxW="800px"
                 p={4}
-                borderWidth="1px"
-                borderRadius="lg"
-                boxShadow="md"
-                dangerouslySetInnerHTML={{ __html: course.description }} // Hiển thị nội dung đã lưu
+                dangerouslySetInnerHTML={{ __html: course.description }} 
             />
         </Box>
     );

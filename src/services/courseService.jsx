@@ -13,11 +13,15 @@ const fetchAllCourses = async () => {
 };
 
 const createCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/create-course`, courseRequest, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/create-course`,
+    courseRequest,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
 
   if (response?.status !== 200) {
     return null;
@@ -27,11 +31,15 @@ const createCourse = async (courseRequest) => {
 };
 
 const updateCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/update-course`, courseRequest, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/update-course`,
+    courseRequest,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
 
   if (response?.status !== 200) {
     return null;
@@ -41,7 +49,10 @@ const updateCourse = async (courseRequest) => {
 };
 
 const deleteCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/delete-course`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/delete-course`,
+    courseRequest,
+  );
 
   if (response?.status !== 200) {
     return null;
@@ -51,18 +62,22 @@ const deleteCourse = async (courseRequest) => {
 };
 
 const fetchAllCourseOfTeacher = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/get-all-course-of-teacher`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/get-all-course-of-teacher`,
+    courseRequest,
+  );
 
   if (response?.status !== 200) {
     return null;
   }
   return response.data.content;
-}
-
-
+};
 
 const getCourseByFilter = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/get-course-by-filter`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/get-course-by-filter`,
+    courseRequest,
+  );
 
   if (response?.status !== 200) {
     return null;
@@ -72,7 +87,10 @@ const getCourseByFilter = async (courseRequest) => {
 };
 
 const getCourseOfFavourite = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/get-all-course-favorite-of-student`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/get-all-course-favorite-of-student`,
+    courseRequest,
+  );
 
   if (response?.status !== 200) {
     return null;
@@ -81,10 +99,11 @@ const getCourseOfFavourite = async (courseRequest) => {
   return response.data;
 };
 
-
-
 const deleteCourseOfFavourite = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/remove-course-from-favorite`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/remove-course-from-favorite`,
+    courseRequest,
+  );
   if (response?.status !== 200) {
     return null;
   }
@@ -93,7 +112,10 @@ const deleteCourseOfFavourite = async (courseRequest) => {
 };
 
 const getEnrollCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/get-all-course-of-student`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/get-all-course-of-student`,
+    courseRequest,
+  );
   if (response?.status !== 200) {
     return null;
   }
@@ -101,7 +123,10 @@ const getEnrollCourse = async (courseRequest) => {
 };
 
 const fetchMainCourse = async (courseRequest) => {
-  const response = await post(`${SUFFIX_COURSE_API_URL}/get-main-course`, courseRequest);
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/get-main-course`,
+    courseRequest,
+  );
 
   if (response?.status !== 200) {
     return null;
@@ -110,7 +135,21 @@ const fetchMainCourse = async (courseRequest) => {
   return response.data;
 };
 
+const addCourseToFavourite = async (courseRequest) => {
+  const response = await post(
+    `${SUFFIX_COURSE_API_URL}/add-course-to-favorite`,
+    courseRequest,
+  );
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
+
+
 const courseService = {
+  addCourseToFavourite,
   fetchAllCourseOfTeacher,
   fetchAllCourses,
   createCourse,
@@ -120,7 +159,7 @@ const courseService = {
   getCourseByFilter,
   getCourseOfFavourite,
   deleteCourseOfFavourite,
-  getEnrollCourse
+  getEnrollCourse,
 };
 
 export default courseService;

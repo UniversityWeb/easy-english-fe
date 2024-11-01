@@ -22,6 +22,7 @@ const routes = {
   test: '/test',
   orders: '/orders',
   order_detail: '/order-detail/:orderId',
+  learn: '/learn/:courseId',
 };
 
 export default routes;
