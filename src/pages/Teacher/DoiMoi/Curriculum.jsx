@@ -41,16 +41,24 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
 import EditableTest from '~/components/Test/EditableTest';
+import testService from '~/services/testService';
 
-const getLessonIcon = (type) => {
+const SEC_ITEM_TYPES = {
+  TEXT: 'TEXT',
+  VIDEO: 'VIDEO',
+  AUDIO: 'AUDIO',
+  QUIZ: 'QUIZ',
+}
+
+const getSectionItemIcon = (type) => {
   switch (type) {
-    case 'TEXT':
+    case SEC_ITEM_TYPES.TEXT:
       return { icon: FiFileText, color: 'green.500' };
-    case 'VIDEO':
+    case SEC_ITEM_TYPES.VIDEO:
       return { icon: FiVideo, color: 'blue.500' };
-    case 'AUDIO':
+    case SEC_ITEM_TYPES.AUDIO:
       return { icon: FiMic, color: 'purple.500' };
-    case 'QUIZ':
+    case SEC_ITEM_TYPES.QUIZ:
       return { icon: FiHelpCircle, color: 'orange.500' };
     default:
       return { icon: FiFileText, color: 'gray.500' };
@@ -64,12 +72,14 @@ const Curriculum = ({ courseId }) => {
   const [showIcons, setShowIcons] = useState(null);
   const [isAddingNewSection, setIsAddingNewSection] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
-  const [selectedLessonType, setSelectedLessonType] = useState(null);
+  const [selectedSectionItemType, setSelectedSectionItemType] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState(null);
   const [selectedSectionId, setSelectedSectionId] = useState(null);
+  const [selectedTestId, setSelectedTestId] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const [hoveredLessonId, setHoveredLessonId] = useState(null);
+  const [hoveredTestId, setHoveredTestId] = useState(null);
   const { successToast, errorToast } = useCustomToast();
 
   // Fetch sections and lessons from the API
@@ -82,9 +92,23 @@ const Curriculum = ({ courseId }) => {
         if (fetchedSections) {
           const sectionsWithLessons = await Promise.all(
             fetchedSections.map(async (section) => {
-              const lessonRequest = { sectionId: section.id };
-              const lessons = await lessonService.fetchLessons(lessonRequest);
-              return { ...section, lessons: lessons || [] };
+              const sectionId = section?.id;
+
+              // Create requests for lessons and tests
+              const lessonRequest = { sectionId: sectionId };
+
+              // Fetch both lessons and tests concurrently
+              const [lessons, tests] = await Promise.all([
+                lessonService.fetchLessons(lessonRequest),
+                testService.getTestsBySection(sectionId),
+              ]);
+
+              // Return the section object with lessons and tests included
+              return {
+                ...section,
+                lessons: lessons || [],
+                tests: tests || [],
+              };
             }),
           );
           setSections(sectionsWithLessons);
@@ -119,11 +143,16 @@ const Curriculum = ({ courseId }) => {
       }),
     );
   };
-  const handleLessonTypeClick = (lessonType) => {
-    setSelectedLessonType(lessonType);
+  const handleSectionItemTypeClick = (sectionItemType) => {
+    setSelectedSectionItemType(sectionItemType);
     console.log('selectedSectionId : ', selectedSectionId);
     setSelectedLessonId(null);
     console.log('selectedSectionId : ', selectedSectionId);
+
+    if (sectionItemType === 'QUIZ') {
+      setSelectedTestId(null);
+    }
+
     onClose();
   };
 
@@ -187,7 +216,7 @@ const Curriculum = ({ courseId }) => {
   };
 
   const handleLessonClick = (lesson) => {
-    setSelectedLessonType(lesson?.type);
+    setSelectedSectionItemType(lesson?.type);
     setSelectedLessonId(lesson.id);
     setSelectedSectionId(lesson.sectionId);
   };
@@ -195,8 +224,8 @@ const Curriculum = ({ courseId }) => {
   const renderLessonComponent = () => {
     const isNewLesson = !selectedLessonId && selectedSectionId;
 
-    switch (selectedLessonType) {
-      case 'TEXT':
+    switch (selectedSectionItemType) {
+      case SEC_ITEM_TYPES.TEXT:
         return (
           <TextLesson
             id={selectedLessonId}
@@ -205,7 +234,7 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case 'VIDEO':
+      case SEC_ITEM_TYPES.VIDEO:
         return (
           <VideoLesson
             id={selectedLessonId}
@@ -214,7 +243,7 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case 'AUDIO':
+      case SEC_ITEM_TYPES.AUDIO:
         return (
           <AudioLesson
             id={selectedLessonId}
@@ -223,13 +252,15 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case 'QUIZ':
+      case SEC_ITEM_TYPES.QUIZ:
+        const isNewTest = !selectedTestId && selectedSectionId;
         return (
           <EditableTest
-            id={selectedLessonId}
+            testId={selectedTestId}
             sectionId={selectedSectionId}
-            isNew={isNewLesson}
-            onLessonSaved={handleLessonSaved}
+            ordinalNumber={1}
+            isNew={isNewTest}
+            onTestSaved={handleTestSaved}
           />
         );
       default:
@@ -242,6 +273,26 @@ const Curriculum = ({ courseId }) => {
       <HStack justify="center" align="center" h="full">
         <Spinner size="xl" />
       </HStack>
+    );
+  }
+
+  const handleTestSaved = (savedTest) => {
+    console.log('save : ', savedTest);
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.id === savedTest.sectionId) {
+          const updatedTests = section.tests.some(
+            (test) => test.id === savedTest.id,
+          )
+            ? section.tests.map((test) =>
+              test.id === savedTest.id ? savedTest : test,
+            )
+            : [...section.tests, savedTest];
+
+          return { ...section, tests: updatedTests };
+        }
+        return section;
+      }),
     );
   }
 
@@ -260,6 +311,27 @@ const Curriculum = ({ courseId }) => {
       errorToast('Error deleting lesson');
     }
   };
+
+  const handleTestClick = async (test) => {
+    setSelectedSectionItemType('QUIZ');
+    setSelectedTestId(test.id);
+    setSelectedSectionId(test.sectionId);
+  }
+
+  const handleDeleteTest = async (testId) => {
+    try {
+      await testService.remove(testId);
+      setSections((prevTests) =>
+        prevTests.map((section) => ({
+          ...section,
+          tests: section.tests.filter((test) => test.id !== testId),
+        })),
+      );
+      successToast('Test deleted');
+    } catch (error) {
+      errorToast('Error deleting test');
+    }
+  }
 
   return (
     <HStack spacing={5} align="start" h="full">
@@ -351,8 +423,9 @@ const Curriculum = ({ courseId }) => {
                   </h2>
                   <AccordionPanel pb={4}>
                     <List spacing={3}>
+                      {/* lessons */}
                       {section.lessons.map((lesson) => {
-                        const { icon, color } = getLessonIcon(lesson?.type);
+                        const { icon, color } = getSectionItemIcon(lesson?.type);
                         return (
                           <ListItem
                             onClick={() =>
@@ -383,6 +456,47 @@ const Curriculum = ({ courseId }) => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteLesson(lesson.id);
+                                  }}
+                                />
+                              )}
+                            </HStack>
+                          </ListItem>
+                        );
+                      })}
+
+                      {/* tests */}
+                      {section.tests.map((test) => {
+                        const { icon, color } = getSectionItemIcon('QUIZ');
+                        return (
+                          <ListItem
+                            onClick={() =>
+                              handleTestClick({
+                                ...test,
+                                sectionId: section.id,
+                              })
+                            }
+                            key={test.id}
+                            cursor="pointer"
+                            onMouseEnter={() => setHoveredTestId(test.id)}
+                            onMouseLeave={() => setHoveredTestId(null)}
+                          >
+                            <HStack justify="space-between">
+                              <HStack>
+                                <ListIcon
+                                  as={RxDragHandleDots2}
+                                  color="gray.500"
+                                />
+                                <ListIcon as={icon} color={color} />
+                                <Text>{test.title}</Text>
+                              </HStack>
+                              {hoveredTestId === test.id && (
+                                <Icon
+                                  as={RiDeleteBinFill}
+                                  color="gray.500"
+                                  cursor="pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteTest(test.id);
                                   }}
                                 />
                               )}
@@ -451,7 +565,7 @@ const Curriculum = ({ courseId }) => {
       </Box>
 
       <Box w="70%" textAlign="center" maxHeight="80vh" overflow="auto">
-        {selectedLessonType ? (
+        {selectedSectionItemType ? (
           renderLessonComponent()
         ) : (
           <Box>
@@ -466,6 +580,7 @@ const Curriculum = ({ courseId }) => {
         )}
       </Box>
 
+      {/* Add options */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent maxW="700px" height="500px" p={5}>
@@ -481,7 +596,7 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('TEXT')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.TEXT)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -498,7 +613,7 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('VIDEO')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.VIDEO)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -515,7 +630,7 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('AUDIO')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.AUDIO)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -540,7 +655,7 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('QUIZ')}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.QUIZ)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -557,7 +672,7 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleLessonTypeClick('Assignment')}
+                  onClick={() => handleSectionItemTypeClick('Assignment')}
                   size="lg"
                   minW="130px"
                   minH="130px"

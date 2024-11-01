@@ -1,86 +1,214 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Box,
+  Flex,
+  Select,
+  IconButton,
+  Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Editable,
+  EditableInput,
+  EditablePreview, Spacer,
+} from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
+import testQuestionService from '~/services/testQuestionService';
+import useCustomToast from '~/hooks/useCustomToast';
 import { QUESTION_TYPES } from '~/utils/constants';
 import EditableSingleChoice from '~/components/Test/EditableQuestion/EditableSingleChoice';
 import EditableMultipleChoice from '~/components/Test/EditableQuestion/EditableMultipleChoice';
-import EditableMapping from '~/components/Test/EditableQuestion/EditableMapping';
+import EditableMatching from '~/components/Test/EditableQuestion/EditableMatching';
 import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFalse';
-import useCustomToast from '~/hooks/useCustomToast';
-import testQuestionService from '~/services/testQuestionService';
+import EditableFillBlank from '~/components/Test/EditableQuestion/EditableFillBlank';
+import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 
-const EditableQuestionItem = ({ question, ordinalNumber, onUpdateQuestion }) => {
-  const [questionState, setQuestionState] = useState({
-    id: 0,
-    type: "SINGLE_CHOICE",
-    ordinalNumber: ordinalNumber,
-    title: "string",
-    description: "string",
-    audioPath: "string",
-    imagePath: "string",
-    options: ["string"],
-    correctAnswers: ["string"],
-    questionGroupId: 0
-  });
+const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQuestions }) => {
+  const [questionState, setQuestionState] = useState(question);
+  const { successToast, errorToast } = useCustomToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [newType, setNewType] = useState('');
 
   useEffect(() => {
-    setQuestionState(question);
+    if (question) {
+      setQuestionState({
+        id: question?.id,
+        type: question?.type || 'SINGLE_CHOICE', // Default type if not provided
+        ordinalNumber: question?.ordinalNumber || 0,
+        title: question?.title || '',
+        description: question?.description || '',
+        audioPath: question?.audioPath || '',
+        imagePath: question?.imagePath || '',
+        options: question?.options || [],
+        correctAnswers: question?.correctAnswers || [],
+        questionGroupId: question?.questionGroupId || 0,
+      });
+    }
   }, [question]);
 
-  const updateField = (field, value) => {
-    setQuestionState(prevQuestion => ({
-      ...prevQuestion,
-      [field]: value
-    }));
+  const updateQuestion = async (id, updatedData) => {
+    try {
+      const updatedResponse = await testQuestionService.update(id, updatedData);
+      setQuestionState((prev) => ({
+        ...prev,
+        ...updatedResponse,
+      }));
+      successToast('Question updated successfully.');
+    } catch (error) {
+      console.error('Error updating question:', error);
+      errorToast('Error updating question.');
+    }
   };
 
-  const handleUpdate = (updatedData) => {
-    const updatedQuestion = { ...questionState, ...updatedData };
-    setQuestionState(updatedQuestion);
-    onUpdateQuestion(updatedQuestion);
+  const updateQuestionField = useCallback(
+    async (fieldOrFields, value) => {
+      const updatedFields =
+        typeof fieldOrFields === 'object'
+          ? fieldOrFields
+          : { [fieldOrFields]: value };
+
+      // Update the question with the modified state
+      await updateQuestion(questionState?.id, {
+        ...questionState,
+        ...updatedFields,
+      });
+    },
+    [questionState]
+  );
+
+  const handleTypeChange = async (e) => {
+    const selectedType = e.target.value;
+    setNewType(selectedType);
+    onOpen(); // Open confirmation dialog
   };
 
-  switch (questionState?.type) {
-    case QUESTION_TYPES.SINGLE_CHOICE:
-      return (
-        <EditableSingleChoice
-          key={questionState.id}
-          question={questionState}
-          answers={[
-            "Computer Processing Unit",
-            "Central Peripheral Unit",
-            "Central Processing Unit",
-            "Computer Processing User",
-          ]}
-        />
-      );
-    case QUESTION_TYPES.MULTI_CHOICE:
-      return (
-        <EditableMultipleChoice
-          key={questionState.id}
-          answers={[
-            "Computer Processing Unit",
-            "Central Peripheral Unit",
-            "Central Processing Unit",
-            "Computer Processing User",
-          ]}
-        />
-      );
-    case QUESTION_TYPES.TRUE_FALSE:
-      return <EditableTrueFalse key={questionState.id} />;
-    case QUESTION_TYPES.MATCHING:
-      return (
-        <EditableMapping
-          key={questionState.id}
-          data={[
-            { question: "Bill", answer: "Gates" },
-            { question: "Steve", answer: "Jobs" },
-            { question: "Elon", answer: "Musk" },
-            { question: "Mark", answer: "Zuckerberg" },
-          ]}
-        />
-      );
-    default:
-      return null;
-  }
-};
+  const confirmChangeType = async () => {
+    const questionId = questionState?.id;
+    const newQuestionTemplate = createNewQuestionTemplate(newType);
+    if (newQuestionTemplate) {
+      await updateQuestion(questionId, {
+        ...newQuestionTemplate,
+        questionGroupId: questionState?.questionGroupId,
+      });
+
+      onClose(); // Close the dialog
+    }
+  };
+
+  const createNewQuestionTemplate = (type) => {
+    const templates = {
+      [QUESTION_TYPES.SINGLE_CHOICE]: QUESTION_TEMPLATES_TO_ADD.SINGLE_CHOICE,
+      [QUESTION_TYPES.MULTI_CHOICE]: QUESTION_TEMPLATES_TO_ADD.MULTI_CHOICE,
+      [QUESTION_TYPES.TRUE_FALSE]: QUESTION_TEMPLATES_TO_ADD.TRUE_FALSE,
+      [QUESTION_TYPES.MATCHING]: QUESTION_TEMPLATES_TO_ADD.MATCHING,
+      [QUESTION_TYPES.FILL_BLANK]: QUESTION_TEMPLATES_TO_ADD.FILL_BLANK,
+    };
+
+    return templates[type] || { ...questionState, type, options: [], correctAnswers: [] };
+  };
+
+  const renderQuestion = () => {
+    const commonProps = {
+      key: question?.id,
+      question: questionState,
+      onUpdateQuestionField: updateQuestionField,
+    };
+
+    switch (questionState?.type) {
+      case QUESTION_TYPES.SINGLE_CHOICE:
+        return <EditableSingleChoice {...commonProps} />;
+      case QUESTION_TYPES.MULTI_CHOICE:
+        return <EditableMultipleChoice {...commonProps} />;
+      case QUESTION_TYPES.TRUE_FALSE:
+        return <EditableTrueFalse {...commonProps} />;
+      case QUESTION_TYPES.MATCHING:
+        return <EditableMatching {...commonProps} />;
+      case QUESTION_TYPES.FILL_BLANK:
+        return <EditableFillBlank {...commonProps} />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Box p={4} bg="gray.100" mb={4} borderRadius="lg" borderWidth="1px">
+      <Flex justify="space-between" mb={4} align="center">
+        <Flex align="center" justify="space-between">
+          <Text mr={1}>Question</Text>
+          <Editable
+            defaultValue={questionState?.ordinalNumber?.toString()}
+            onSubmit={async (value) => {
+              let newOrdinalNumber = parseInt(value, 10);
+              if (newOrdinalNumber < 1) {
+                newOrdinalNumber = 1;
+              }
+
+              if (newOrdinalNumber !== question?.ordinalNumber) {
+                // Update the ordinal number in the backend and state
+                await updateQuestionField('ordinalNumber', newOrdinalNumber);
+                await onReloadQuestions();
+              }
+            }}
+          >
+            <EditablePreview />
+            <EditableInput type="number" />
+          </Editable>
+        </Flex>
+
+        <Flex align="center">
+          <Select
+            w="200px"
+            mr={2}
+            value={questionState?.type}
+            onChange={handleTypeChange}
+          >
+            {Object.values(QUESTION_TYPES).map((type) => (
+              <option key={type} value={type}>
+                {type
+                  .replace('_', ' ')
+                  .toLowerCase()
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
+              </option>
+            ))}
+          </Select>
+          <IconButton
+            icon={<DeleteIcon />}
+            aria-label="Delete question"
+            colorScheme="red"
+            onClick={() => onRemoveQuestion(questionState?.id)}
+          />
+        </Flex>
+      </Flex>
+      {renderQuestion()}
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Change</ModalHeader>
+          <ModalBody>
+            <Text>
+              This action will permanently delete the old content. Are you sure
+              you want to proceed?
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={onClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="blue" onClick={confirmChangeType}>
+              Confirm
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Box>
+  );
+});
 
 export default EditableQuestionItem;

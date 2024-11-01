@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, VStack } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Box, Button, Heading, VStack } from '@chakra-ui/react';
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
 import testPartService from '~/services/testPartService';
 import useCustomToast from '~/hooks/useCustomToast';
 
-const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved }) => {
+const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
   const [testParts, setTestParts] = useState([]);
   const { successToast, errorToast } = useCustomToast();
 
   useEffect(() => {
+    console.log(`EditableTest - useEffect - testId: ${testId}`);
     const fetchTestParts = async () => {
+      if (!testId) return;
+
       try {
         const parts = await testPartService.getTestPartsByTestId(testId);
         setTestParts(parts);
@@ -21,24 +24,9 @@ const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved
     };
 
     fetchTestParts();
-  }, [testId, errorToast]);
+  }, [testId, isNew]);
 
-  const updateTestPart = async (id, updatedPart) => {
-    try {
-      await testPartService.update(id, updatedPart);
-      setTestParts((prevParts) =>
-        prevParts.map((part) =>
-          part.id === id ? { ...part, ...updatedPart } : part,
-        ),
-      );
-      successToast('Test part updated successfully!');
-    } catch (error) {
-      console.error('Error updating test part:', error);
-      errorToast('Failed to update test part.');
-    }
-  };
-
-  const removeTestPart = async (id) => {
+  const removeTestPart = useCallback(async (id) => {
     try {
       await testPartService.remove(id);
       setTestParts((prevParts) => prevParts.filter((part) => part.id !== id));
@@ -47,15 +35,14 @@ const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved
       console.error('Error removing test part:', error);
       errorToast('Failed to remove test part.');
     }
-  };
+  }, []);
 
   const addTestPart = async () => {
     const newPart = {
       title: 'New Test Part',
       readingPassage: '',
-      ordinalNumber: testParts.length + 1,
+      ordinalNumber: testParts.length + 1 || 1,
       testId: testId,
-      questionGroups: [],
     };
 
     try {
@@ -68,52 +55,23 @@ const EditableTest = ({ sectionId, ordinalNumber, id: testId, isNew, onTestSaved
     }
   };
 
-  const handleTestCreated = () => {
-    // Refresh the test parts list after creating a new test
-    const fetchTestParts = async () => {
-      try {
-        const parts = await testPartService.getTestPartsByTestId(testId);
-        setTestParts(parts);
-      } catch (error) {
-        console.error('Error fetching test parts after creation:', error);
-        errorToast('Failed to fetch test parts.');
-      }
-    };
-    fetchTestParts();
-  };
-
   return (
-    <Box p={4}>
+    <Box p={4} paddingBottom={0} shadow="md" borderWidth="1px" width="100%">
       <TestForm
         sectionId={sectionId}
         ordinalNumber={ordinalNumber}
         testId={testId}
-        onTestCreated={handleTestCreated}
+        isNew={isNew}
+        onTestSaved={onTestSaved}
       />
+
+      <Heading size="lg" mt={10}>Test parts</Heading>
       <VStack spacing={4} mt={4}>
         {testParts.map((part) => (
           <EditableTestPart
             key={part.id}
             part={part}
-            onUpdatePart={updateTestPart}
             onRemovePart={removeTestPart}
-            onAddQuestionGroup={(groupId) => {
-              const newGroup = {
-                id: Date.now(),
-                ordinalNumber: part.questionGroups.length + 1,
-                title: 'New Question Group',
-                requirement: '',
-                audioPath: '',
-                imagePath: '',
-                contentToDisplay: '',
-                originalContent: '',
-                questions: [],
-                testPartId: part.id,
-              };
-              updateTestPart(part.id, {
-                questionGroups: [...part.questionGroups, newGroup],
-              });
-            }}
           />
         ))}
         <Button colorScheme="blue" onClick={addTestPart}>
