@@ -24,17 +24,6 @@ const countCartItems = async () => {
   return response.data;
 }
 
-const addItemToCart = async (courseId) => {
-  const path = `${SUFFIX_CART_API_URL}/add-item/${courseId}`;
-  const response = await post(path);
-
-  if (response?.status !== 201) {
-    return null;
-  }
-
-  return response.data;
-}
-
 const removeItemFromCart = async (courseId) => {
   const path = `${SUFFIX_CART_API_URL}/remove-item/${courseId}`;
   const response = await put(path);
@@ -68,7 +57,30 @@ const clearCart = async () => {
   return response.data;
 }
 
+const canAddToCart = async (courseId) => {
+  const path = `${SUFFIX_CART_API_URL}/can-add-to-cart/${courseId}`;
+  const response = await get(path);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+}
+
+const addItemToCart = async (courseId) => {
+  const path = `${SUFFIX_CART_API_URL}/add-item/${courseId}`;
+  const response = await post(path);
+
+  if (response?.status !== 201) {
+    return null;
+  }
+
+  return response.data;
+}
+
 const cartService = {
+  canAddToCart,
   getCart,
   addItemToCart,
   updateItemFromCart,

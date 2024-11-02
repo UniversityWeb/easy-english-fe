@@ -20,15 +20,18 @@ const CartItem = ({ cartItem, handleRemoveFromCart }) => {
           {cartItem?.course?.title}
         </Text>
         <Text fontSize="sm" color="gray.500">
-          {cartItem?.course?.description}
+          {cartItem?.course?.descriptionPreview}
         </Text>
         <Text mt={2} fontSize="sm">
-          Teacher: {cartItem?.course?.createdBy}
+          Teacher: {cartItem?.course?.ownerUsername}
         </Text>
       </Box>
       <Flex alignItems="center">
         <Text fontSize="lg" mr={4} p={1}>
-          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cartItem?.price)}
+          {new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          }).format(cartItem?.price)}
         </Text>
         <IconButton
           aria-label="Remove course"
