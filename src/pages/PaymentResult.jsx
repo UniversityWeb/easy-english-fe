@@ -12,7 +12,9 @@ import {
   Progress,
   VStack,
   AlertTitle,
-  AlertDescription, Image, Container,
+  AlertDescription,
+  Image,
+  Container,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import paymentService from '~/services/paymentService';
@@ -21,17 +23,34 @@ import { CheckCircleIcon, Icon } from '@chakra-ui/icons';
 import StudentPageLayout from '~/components/StudentPageLayout';
 import config from '~/config';
 
-const PaymentDetails = ({ paymentData }) => (
-  paymentData && (
-    <Box mt={4}>
-      <Text><strong>Method:</strong> {paymentData.method}</Text>
-      <Text><strong>Transaction No:</strong> {paymentData.transactionNo}</Text>
-      <Text><strong>Amount Paid:</strong> {paymentData.amountPaid} {paymentData.currency}</Text>
-      <Text><strong>Payment Time:</strong> {new Date(paymentData.paymentTime).toLocaleString()}</Text>
-      <Text><strong>Order ID:</strong> {paymentData.orderId}</Text>
-    </Box>
-  )
-);
+const PaymentDetails = ({ paymentData }) => {
+  // Function to format currency in Vietnamese format
+  const formatCurrency = (amount, currency) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
+
+  return (
+    paymentData && (
+      <Box mt={4} p={4} borderWidth={1} borderRadius="lg" boxShadow="md" textAlign="start">
+        <Text fontSize="lg" fontWeight="bold" mb={2}>
+          Payment Details
+        </Text>
+        <Text><strong>Method:</strong> {paymentData.method}</Text>
+        <Text><strong>Transaction No:</strong> {paymentData.transactionNo}</Text>
+        <Text>
+          <strong>Amount Paid:</strong> {formatCurrency(paymentData.amountPaid, paymentData.currency)}
+        </Text>
+        <Text>
+          <strong>Payment Time:</strong> {new Date(paymentData.paymentTime).toLocaleString('vi-VN')}
+        </Text>
+        <Text><strong>Order ID:</strong> {paymentData.orderId}</Text>
+      </Box>
+    )
+  );
+};
 
 const PaymentButtons = ({ navigate, isSuccess }) => (
   <HStack spacing={4} mt={6}>
@@ -41,7 +60,7 @@ const PaymentButtons = ({ navigate, isSuccess }) => (
     <Button
       variant="outline"
       colorScheme="green"
-      onClick={() => navigate(isSuccess ? config.routes.home : config.routes.course_management_for_student)}
+      onClick={() => navigate(config.routes.home[0])}
     >
       Back Home
     </Button>
@@ -52,15 +71,7 @@ const PaymentSuccess = ({ paymentData }) => {
   const navigate = useNavigate();
 
   return (
-    <Box
-      p={8}
-      bg="white"
-      borderRadius="lg"
-      boxShadow="lg"
-      maxW="900px"
-      mx="auto"
-    >
-      {/* Alert */}
+    <Box p={8} bg="white" borderRadius="lg" boxShadow="lg" maxW="900px" mx="auto">
       <Alert status="success" mb={6} borderRadius="md">
         <AlertIcon />
         <AlertTitle mr={2}>Almost there!</AlertTitle>
@@ -68,14 +79,12 @@ const PaymentSuccess = ({ paymentData }) => {
       </Alert>
 
       <HStack justify="space-between" align="center">
-        {/* Left Side: Text and Progress */}
         <VStack spacing={4} align="flex-start">
           <Text fontSize="2xl" fontWeight="bold">
             Payment successful
           </Text>
           <Text color="gray.500">Thank you for choosing our service.</Text>
 
-          {/* Progress bar */}
           <HStack spacing={4} w="full" align="center">
             <HStack>
               <Icon as={CheckCircleIcon} color="green.500" />
@@ -84,12 +93,11 @@ const PaymentSuccess = ({ paymentData }) => {
           </HStack>
 
           <PaymentDetails paymentData={paymentData} />
-          <PaymentButtons navigate={useNavigate()} isSuccess />
+          <PaymentButtons navigate={navigate} isSuccess={true} />
         </VStack>
 
-        {/* Right Side: Image */}
         <Image
-          src="/payment-success.png" // Đường dẫn gốc từ thư mục public
+          src="/payment-success.png"
           alt="Success illustration"
           boxSize="250px"
           objectFit="cover"
@@ -103,15 +111,7 @@ const PaymentFail = ({ paymentData }) => {
   const navigate = useNavigate();
 
   return (
-    <Box
-      p={8}
-      bg="white"
-      borderRadius="lg"
-      boxShadow="lg"
-      maxW="900px"
-      mx="auto"
-    >
-      {/* Alert */}
+    <Box p={8} bg="white" borderRadius="lg" boxShadow="lg" maxW="900px" mx="auto">
       <Alert status="error" mb={6} borderRadius="md">
         <AlertIcon />
         <AlertTitle mr={2}>Oh no!</AlertTitle>
@@ -121,7 +121,6 @@ const PaymentFail = ({ paymentData }) => {
       </Alert>
 
       <HStack justify="space-between" align="center">
-        {/* Left Side: Text and Progress */}
         <VStack spacing={4} align="flex-start">
           <Text fontSize="2xl" fontWeight="bold">
             You're almost there!
@@ -130,7 +129,6 @@ const PaymentFail = ({ paymentData }) => {
             Sorry, we had an issue confirming your payment. Please try again.
           </Text>
 
-          {/* Progress bar */}
           <HStack spacing={4} w="full" align="center">
             <HStack>
               <Progress value={50} size="sm" colorScheme="green" w="40px" />
@@ -139,12 +137,11 @@ const PaymentFail = ({ paymentData }) => {
           </HStack>
 
           <PaymentDetails paymentData={paymentData} />
-          <PaymentButtons navigate={useNavigate()} />
+          <PaymentButtons navigate={navigate} />
         </VStack>
 
-        {/* Right Side: Image */}
         <Image
-          src="/payment-fail.png" // Replace with the actual image URL of the girl
+          src="/payment-fail.png"
           alt="Failure illustration"
           boxSize="250px"
           objectFit="cover"
@@ -165,15 +162,13 @@ const PaymentResult = () => {
     console.log(`Payment Result: ${location.search}`);
     const queryParams = new URLSearchParams(location.search);
     const params = Object.fromEntries(queryParams.entries());
-    params.method = 'VN_PAY';
+    processPaymentResult('VN_PAY', params);
+  }, [location.search]);
 
-    processPaymentResult(params);
-  }, []);
-
-  const processPaymentResult = async (params) => {
+  const processPaymentResult = async (method, params) => {
     try {
       setLoading(true);
-      const response = await paymentService.getResult(params, null, { params });
+      const response = await paymentService.getResult(method, params);
       setPaymentStatus(response?.status || 'Unknown');
       setPaymentData(response);
     } catch (error) {
@@ -199,9 +194,9 @@ const PaymentResult = () => {
         ) : (
           <Box mt={6} textAlign="center">
             {paymentStatus === 'SUCCESS' ? (
-              <PaymentSuccess paymentData={paymentData}/>
+              <PaymentSuccess paymentData={paymentData} />
             ) : paymentStatus === 'FAILED' ? (
-              <PaymentFail paymentData={paymentData}/>
+              <PaymentFail paymentData={paymentData} />
             ) : (
               <Alert
                 status="warning"

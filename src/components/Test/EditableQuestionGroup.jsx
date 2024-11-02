@@ -2,6 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Flex,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
   Editable,
   EditableInput,
   EditablePreview,
@@ -18,7 +23,7 @@ import {
   Switch,
   Heading,
 } from '@chakra-ui/react';
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, MinusIcon } from '@chakra-ui/icons';
 import EditableQuestionItem from '~/components/Test/EditableQuestion/EditableQuestionItem';
 import testQuestionService from '~/services/testQuestionService';
 import useCustomToast from '~/hooks/useCustomToast';
@@ -26,7 +31,7 @@ import ReactQuill from 'react-quill';
 import questionGroupService from '~/services/questionGroupService';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 
-const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
+const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups }) => {
   const [groupState, setGroupState] = useState(group);
   const [questions, setQuestions] = useState([]);
   const { successToast, errorToast } = useCustomToast();
@@ -124,6 +129,7 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
 
   return (
     <Box p={4} bg="gray.50" mb={4} borderRadius="lg" borderWidth="1px">
+
       <Flex justify="space-between" mb={4} align="center">
         <Editable
           defaultValue={groupState?.title}
@@ -147,153 +153,169 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
 
       <Accordion allowMultiple>
         <AccordionItem>
-          <AccordionButton>
-            <Box flex="1" textAlign="left">
-              Group content
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4}>
-            {/* Group Form */}
-            <Accordion allowMultiple>
-              <AccordionItem>
+          {({ isExpanded }) => (
+            <>
+              <h2>
                 <AccordionButton>
-                  <Box flex="1" textAlign="left">
-                    Group form
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <FormControl mb={2}>
-                    <FormLabel>Ordinal Number</FormLabel>
-                    <Input
-                      name="ordinalNumber"
-                      value={groupState?.ordinalNumber}
-                      onChange={handleInputChange}
-                      type="number"
-                    />
-                  </FormControl>
-
-                  {/* Additional fields */}
-                  <FormControl mb={4}>
-                    <FormLabel>Requirement</FormLabel>
-                    <Box
-                      sx={{
-                        '.quill': { height: '270px' },
-                        '.ql-container': { height: '310px' },
-                      }}
-                    >
-                      <ReactQuill
-                        value={groupState?.requirement}
-                        onChange={(requirement) =>
-                          setGroupState((prev) => ({ ...prev, requirement }))
-                        }
-                        theme="snow"
-                        placeholder="Enter lesson content"
-                        style={{ height: '380px', marginBottom: '20px' }}
-                      />
-                    </Box>
-                  </FormControl>
-
-                  <FormControl mb={4}>
-                    <Flex justify="space-between" align="center" mb={2}>
-                      <FormLabel>Audio Path</FormLabel>
-                      <Switch
-                        isChecked={isAudioEnabled}
-                        onChange={(e) => setIsAudioEnabled(e.target.checked)}
-                        colorScheme="blue"
-                      />
-                    </Flex>
-                    {isAudioEnabled && (
-                      <Input
-                        name="audioPath"
-                        value={groupState.audioPath}
-                        onChange={handleInputChange}
-                      />
-                    )}
-                  </FormControl>
-
-                  <FormControl mb={4}>
-                    <Flex justify="space-between" align="center" mb={2}>
-                      <FormLabel>Image Path</FormLabel>
-                      <Switch
-                        isChecked={isImageEnabled}
-                        onChange={(e) => setIsImageEnabled(e.target.checked)}
-                        colorScheme="blue"
-                      />
-                    </Flex>
-                    {isImageEnabled && (
-                      <Input
-                        name="imagePath"
-                        value={groupState.imagePath}
-                        onChange={handleInputChange}
-                      />
-                    )}
-                  </FormControl>
-
-                  {/* Content to display */}
-                  <FormControl mb={4}>
-                    <Flex justify="space-between" align="center" mb={2}>
-                      <FormLabel>Content to Display</FormLabel>
-                      <Switch
-                        isChecked={isContentEnabled}
-                        onChange={(e) => setIsContentEnabled(e.target.checked)}
-                        colorScheme="blue"
-                      />
-                    </Flex>
-                    {isContentEnabled && (
-                      <Box
-                        sx={{
-                          '.quill': { height: '270px' },
-                          '.ql-container': { height: '310px' },
-                        }}
-                      >
-                        <ReactQuill
-                          value={group?.contentToDisplay}
-                          onChange={(contentToDisplay) =>
-                            setGroupState((prev) => ({ ...prev, contentToDisplay }))
-                          }
-                          theme="snow"
-                          placeholder="Enter lesson content"
-                          style={{ height: '380px', marginBottom: '20px' }}
-                        />
+                  {isExpanded ? (
+                    <>
+                      <Box as='span' flex='1' textAlign='left'>
+                        Hide
                       </Box>
-                    )}
-                  </FormControl>
+                      <MinusIcon fontSize='12px' />
+                    </>
+                  ) : (
+                    <>
+                      <Box as='span' flex='1' textAlign='left'>
+                        Show
+                      </Box>
+                      <AddIcon fontSize='12px' />
+                    </>
+                  )}
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                <Tabs>
+                  <TabList>
+                    <Tab>Group Info</Tab>
+                    <Tab>Questions</Tab>
+                  </TabList>
 
-                  <Flex justify="space-between" mb={4}>
-                    <Button colorScheme="blue" onClick={handleUpdateGroup} isLoading={isUpdating}>
-                      Update Group
-                    </Button>
-                  </Flex>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
+                  <TabPanels>
+                    <TabPanel>
+                      <FormControl mb={2}>
+                        <FormLabel>Ordinal Number</FormLabel>
+                        <Input
+                          name="ordinalNumber"
+                          value={groupState?.ordinalNumber}
+                          onChange={handleInputChange}
+                          type="number"
+                        />
+                      </FormControl>
 
-            {/* Question List */}
-            <Heading size="md" mt={10} mb={5}>Questions</Heading>
+                      {/* Additional fields */}
+                      <FormControl mb={4}>
+                        <FormLabel>Requirement</FormLabel>
+                        <Box
+                          sx={{
+                            '.quill': { height: '270px' },
+                            '.ql-container': { height: '310px' },
+                          }}
+                        >
+                          <ReactQuill
+                            value={groupState?.requirement}
+                            onChange={(requirement) =>
+                              setGroupState((prev) => ({ ...prev, requirement }))
+                            }
+                            theme="snow"
+                            placeholder="Enter lesson content"
+                            style={{ height: '380px', marginBottom: '20px' }}
+                          />
+                        </Box>
+                      </FormControl>
 
-            {/* Question Items */}
-            {questions.map((question) => (
-              <EditableQuestionItem
-                key={question.id}
-                question={question}
-                onRemoveQuestion={removeQuestion}
-                onReloadQuestions={reloadQuestions}
-              />
-            ))}
+                      <FormControl mb={4}>
+                        <Flex justify="space-between" align="center" mb={2}>
+                          <FormLabel>Audio Path</FormLabel>
+                          <Switch
+                            isChecked={isAudioEnabled}
+                            onChange={(e) => setIsAudioEnabled(e.target.checked)}
+                            colorScheme="blue"
+                          />
+                        </Flex>
+                        {isAudioEnabled && (
+                          <Input
+                            name="audioPath"
+                            value={groupState.audioPath}
+                            onChange={handleInputChange}
+                          />
+                        )}
+                      </FormControl>
 
-            <Flex justify="space-between" mb={4}>
-              <Button
-                colorScheme="green"
-                onClick={addNewQuestion}
-                leftIcon={<AddIcon />}
-              >
-                Add Question
-              </Button>
-            </Flex>
+                      <FormControl mb={4}>
+                        <Flex justify="space-between" align="center" mb={2}>
+                          <FormLabel>Image Path</FormLabel>
+                          <Switch
+                            isChecked={isImageEnabled}
+                            onChange={(e) => setIsImageEnabled(e.target.checked)}
+                            colorScheme="blue"
+                          />
+                        </Flex>
+                        {isImageEnabled && (
+                          <Input
+                            name="imagePath"
+                            value={groupState.imagePath}
+                            onChange={handleInputChange}
+                          />
+                        )}
+                      </FormControl>
 
-          </AccordionPanel>
+                      {/* Content to display */}
+                      <FormControl mb={4}>
+                        <Flex justify="space-between" align="center" mb={2}>
+                          <FormLabel>Content to Display</FormLabel>
+                          <Switch
+                            isChecked={isContentEnabled}
+                            onChange={(e) => setIsContentEnabled(e.target.checked)}
+                            colorScheme="blue"
+                          />
+                        </Flex>
+                        {isContentEnabled && (
+                          <Box
+                            sx={{
+                              '.quill': { height: '270px' },
+                              '.ql-container': { height: '310px' },
+                            }}
+                          >
+                            <ReactQuill
+                              value={group?.contentToDisplay}
+                              onChange={(contentToDisplay) =>
+                                setGroupState((prev) => ({ ...prev, contentToDisplay }))
+                              }
+                              theme="snow"
+                              placeholder="Enter lesson content"
+                              style={{ height: '380px', marginBottom: '20px' }}
+                            />
+                          </Box>
+                        )}
+                      </FormControl>
+
+                      <Flex justify="space-between" mb={4}>
+                        <Button colorScheme="blue" onClick={handleUpdateGroup} isLoading={isUpdating}>
+                          Update Group
+                        </Button>
+                      </Flex>
+                    </TabPanel>
+
+                    <TabPanel>
+                      <Heading size="md" mb={5}>Questions</Heading>
+
+                      {/* Question Items */}
+                      {questions.map((question) => (
+                        <EditableQuestionItem
+                          key={question.id}
+                          question={question}
+                          onRemoveQuestion={removeQuestion}
+                          onReloadQuestions={reloadQuestions}
+                        />
+                      ))}
+
+                      <Flex justify="space-between" mb={4}>
+                        <Button
+                          colorScheme="green"
+                          onClick={addNewQuestion}
+                          leftIcon={<AddIcon />}
+                        >
+                          Add Question
+                        </Button>
+                      </Flex>
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </AccordionPanel>
+            </>
+          )}
+
         </AccordionItem>
       </Accordion>
     </Box>

@@ -18,7 +18,7 @@ import testPartService from '~/services/testPartService';
 
 const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [questionGroups, setQuestionGroups] = useState([]);
-  const [showReadingPassage, setShowReadingPassage] = useState(part.readingPassage);
+  const [showReadingPassage, setShowReadingPassage] = useState(false);
   const [readingPassage, setReadingPassage] = useState('');
   const { successToast, errorToast } = useCustomToast();
 
@@ -26,6 +26,8 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
     const fetchQuestionGroups = async () => {
       if (!part) return;
 
+      setReadingPassage(part?.readingPassage);
+      setShowReadingPassage(part?.readingPassage || false);
       try {
         const groups = await questionGroupService.getByTestPart(part.id);
         setQuestionGroups(groups);
@@ -41,7 +43,6 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
     if (!id || !updatedPart) return;
 
     try {
-      updatedPart = { ...updatedPart, readingPassage: readingPassage };
       await testPartService.update(id, updatedPart);
       successToast('Test part updated successfully!');
     } catch (error) {
@@ -53,6 +54,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const handleRemoveGroup = useCallback(async (groupId) => {
     try {
       await questionGroupService.remove(groupId);
+      setQuestionGroups((prevGroups) => prevGroups.filter(group => group.id !== groupId));
       successToast('Question group removed successfully!');
     } catch (error) {
       console.error('Error removing question group:', error);
@@ -117,7 +119,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
       </FormControl>
 
       {showReadingPassage && (
-        <FormControl mb={4}>
+        <FormControl mb={10}>
           <FormLabel>Reading Passage</FormLabel>
           <Box
             sx={{
@@ -133,13 +135,20 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
             }}
           >
             <ReactQuill
-              value={part.readingPassage}
+              value={readingPassage}
               onChange={(readingPassage) => setReadingPassage(readingPassage)}
               theme="snow"
               placeholder="Enter lesson content"
               style={{ height: "380px", marginBottom: "20px" }}
             />
           </Box>
+
+          <Button
+            colorScheme="blue"
+            onClick={(e) => updateTestPart(part.id, { ...part, readingPassage })}
+          >
+            Update Part
+          </Button>
         </FormControl>
       )}
 

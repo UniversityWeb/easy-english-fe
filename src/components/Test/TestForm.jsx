@@ -18,78 +18,13 @@ import ReactQuill from 'react-quill';
 import { TEST_STATUSES, TEST_TYPES } from '~/utils/constants';
 import { InfoIcon } from '@chakra-ui/icons';
 
-const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
+const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSaved, isNew }) => {
   const [loading, setLoading] = useState(false);
   const { successToast, errorToast } = useCustomToast();
 
-  const [formData, setFormData] = useState({
-    title: 'Test Form',
-    description: 'Make your description here',
-    durationInMilis: 2700000, // Default duration (e.g., 45 minutes in milliseconds)
-    passingGrade: 0.0,
-    type: 'CUSTOM',
-    status: 'DISPLAY',
-    createdAt: new Date().toISOString(),
-    sectionId: sectionId,
-  });
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchTestById = async () => {
-      if (!testId) return;
-
-      setLoading(true);
-      try {
-        const data = await testService.getById(testId);
-        if (data && isMounted) {
-          setFormData({
-            title: data.title || '',
-            description: data.description || '',
-            durationInMilis: data.durationInMilis || 0,
-            startDate: data.startDate || new Date().toISOString().slice(0, 16),
-            endDate: data.endDate || new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16),
-            type: data.type || 'CUSTOM',
-            status: data.status || 'DISPLAY',
-            createdAt: data.createdAt || new Date().toISOString().slice(0, 16),
-            sectionId: data.sectionId || 0,
-          });
-          successToast('Test data fetched successfully');
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error(error?.message);
-          errorToast('Error fetching test data');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    if (!isNew && testId) {
-      // Fetch existing test data
-      fetchTestById();
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        durationInMilis: 2700000,
-        passingGrade: 0.0,
-        status: "DISPLAY",
-        createdAt: new Date().toISOString(),
-      }); // Reset form
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [testId, isNew]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setTestState((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -99,8 +34,9 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
     e.preventDefault();
     setLoading(true)
     try {
+      const testId = testState?.id;
       const newTest = {
-        ...formData,
+        ...testState,
         id: testId || 0, // Use existing testId for update or set to 0 for creation
         sectionId,
         ordinalNumber,
@@ -150,7 +86,7 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
             <Input
               type="text"
               name="title"
-              value={formData.title}
+              value={testState.title}
               onChange={handleChange}
             />
           </FormControl>
@@ -170,8 +106,8 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
               }}
             >
               <ReactQuill
-                value={formData.description}
-                onChange={desc => setFormData((prevState) => ({ ...prevState, description: desc }))}
+                value={testState.description}
+                onChange={desc => setTestState((prevState) => ({ ...prevState, description: desc }))}
                 theme="snow"
                 placeholder="Enter your description here..."
               />
@@ -181,10 +117,10 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
             <FormLabel>Duration (hours / minutes)</FormLabel>
             <Input
               type="time"
-              value={formatTime(formData.durationInMilis)}
+              value={formatTime(testState.durationInMilis)}
               onChange={(e) => {
                 const newDurationInMilis = convertToMilliseconds(e.target.value);
-                setFormData({ ...formData, durationInMilis: newDurationInMilis });
+                setTestState({ ...testState, durationInMilis: newDurationInMilis });
               }}
             />
           </FormControl>
@@ -193,7 +129,7 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
             <Input
               type="number"
               name="passingGrade"
-              value={formData.passingGrade}
+              value={testState.passingGrade}
               onChange={handleChange}
               min="0"
               max="100"
@@ -203,8 +139,8 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
             <FormLabel>Test Type</FormLabel>
             <Select
               name="type"
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              value={testState.type}
+              onChange={(e) => setTestState({ ...testState, type: e.target.value })}
               isDisabled={!isNew}
             >
               <option value="">Select Test Type</option>
@@ -239,8 +175,8 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
             <FormLabel>Test Status</FormLabel>
             <Select
               name="status"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              value={testState.status}
+              onChange={(e) => setTestState({ ...testState, status: e.target.value })}
             >
               <option value="">Select Test Status</option>
               <option value={TEST_STATUSES.DISPLAY}>Display</option>

@@ -11,7 +11,7 @@ import {
   Image,
 } from '@chakra-ui/react';
 import AuthService from '~/services/authService';
-import { isLoggedIn } from '~/utils/authUtils';
+import { getUsername, isLoggedIn } from '~/utils/authUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
@@ -19,6 +19,8 @@ import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent'
 import { FiShoppingCart } from 'react-icons/fi';
 import { Icon } from '@chakra-ui/icons';
 import CartService from '~/services/cartService';
+import websocketService from '~/services/websocketService';
+import { websocketConstants } from '~/utils/websocketConstants';
 
 function HomeNavbar(props) {
   const navigate = useNavigate();
@@ -27,6 +29,21 @@ function HomeNavbar(props) {
   const [user, setUser] = useState(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [countedCartItems, setCountedCartItems] = useState(0);
+
+  useEffect(() => {
+    const username = getUsername();
+    websocketService.connect(() => {
+      websocketService.subscribe(websocketConstants.cartItemCountTopic(username), async (notification) => {
+        await fetchCartItems();
+      });
+    });
+
+    // Cleanup function to unsubscribe and disconnect WebSocket on unmount
+    return () => {
+      websocketService.unsubscribe(websocketConstants.cartItemCountTopic(username));
+      websocketService.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -45,13 +62,13 @@ function HomeNavbar(props) {
 
     fetchUser();
 
-    const fetchCartItems = async () => {
-      const count = await CartService.countCartItems();
-      setCountedCartItems(count);
-    };
-
     fetchCartItems();
   }, []);
+
+  const fetchCartItems = async () => {
+    const count = await CartService.countCartItems();
+    setCountedCartItems(count);
+  };
 
   return (
     <div className="navbar">
@@ -66,7 +83,7 @@ function HomeNavbar(props) {
             id="courses"
             light
             onClick={() =>
-              navigate(config.routes.course_management_for_student)
+              navigate(config.routes.search)
             }
           >
             Courses

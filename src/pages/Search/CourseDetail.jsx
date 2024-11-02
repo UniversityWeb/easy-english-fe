@@ -27,6 +27,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
 import enrollmentService from '~/services/enrollmentService';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import websocketService from '~/services/websocketService';
+import { websocketConstants } from '~/utils/websocketConstants';
+import authService from '~/services/authService';
+import { getUsername } from '~/utils/authUtils';
 
 function CourseDetails() {
   const navigate = useNavigate();
@@ -38,6 +43,15 @@ function CourseDetails() {
     const response = await courseService.fetchMainCourse({ id: courseId });
     if (response) setCourseData(response);
   };
+
+  useEffect(() => {
+    websocketService.connect(() => {});
+
+    // Cleanup function to unsubscribe and disconnect WebSocket on unmount
+    return () => {
+      websocketService.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     // Load course data on mount
@@ -76,6 +90,10 @@ function CourseDetails() {
       case 'add-to-cart':
         try {
           await cartService.addItemToCart(courseId);
+          const addRequest = {
+            username: getUsername(),
+          };
+          websocketService.send(websocketConstants.cartItemCountDestination, addRequest);
           setButtonState('in-cart');
         } catch (error) {
           console.error('Error adding to cart:', error);
@@ -96,7 +114,7 @@ function CourseDetails() {
   if (!courseData) return <Text>Loading...</Text>;
 
   return (
-    <ChakraProvider>
+    <RoleBasedPageLayout>
       <Box maxW="1200px" mx="auto" py={10} px={5}>
         <Flex justify="space-between" direction={['column', 'column', 'row']}>
           <Box flex="2">
@@ -289,7 +307,7 @@ function CourseDetails() {
           </Box>
         </Flex>
       </Box>
-    </ChakraProvider>
+    </RoleBasedPageLayout>
   );
 }
 
