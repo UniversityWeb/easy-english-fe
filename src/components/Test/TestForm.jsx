@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Box, Button, FormControl, FormLabel, Heading, Input, Textarea, VStack } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
+import ReactQuill from 'react-quill';
+import description from '~/pages/Search/Description';
 
 const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
   const [loading, setLoading] = useState(false);
@@ -11,8 +13,7 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
     title: 'Test Form',
     description: 'Make your description here',
     durationInMilis: 2700000, // Default duration (e.g., 45 minutes in milliseconds)
-    startDate: new Date().toISOString().slice(0, 16),
-    endDate: new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16), // Default end time
+    passingGrade: 0.0,
     status: "DISPLAY",
     createdAt: new Date().toISOString(),
     sectionId: sectionId,
@@ -60,8 +61,7 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
         title: '',
         description: '',
         durationInMilis: 2700000,
-        startDate: new Date().toISOString().slice(0, 16),
-        endDate: new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16),
+        passingGrade: 0.0,
         status: "DISPLAY",
         createdAt: new Date().toISOString(),
       }); // Reset form
@@ -141,11 +141,26 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
           </FormControl>
           <FormControl>
             <FormLabel>Description</FormLabel>
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-            />
+            <Box
+              sx={{
+                '.quill': {
+                  height: '270px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                },
+                '.ql-container': {
+                  height: '220px',
+                  marginBottom: '20px',
+                },
+              }}
+            >
+              <ReactQuill
+                value={formData.description}
+                onChange={desc => setFormData((prevState) => ({ ...prevState, description: desc }))}
+                theme="snow"
+                placeholder="Enter your description here..."
+              />
+            </Box>
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Duration (hours / minutes)</FormLabel>
@@ -158,22 +173,15 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
               }}
             />
           </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Start Date</FormLabel>
+          <FormControl>
+            <FormLabel>Passing Grade (%)</FormLabel>
             <Input
-              type="datetime-local"
-              name="startDate"
-              value={formData.startDate}
+              type="number"
+              name="passingGrade"
+              value={formData.passingGrade}
               onChange={handleChange}
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>End Date</FormLabel>
-            <Input
-              type="datetime-local"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
+              min="0"
+              max="100"
             />
           </FormControl>
           <Button colorScheme="blue" type="submit" isLoading={loading}>

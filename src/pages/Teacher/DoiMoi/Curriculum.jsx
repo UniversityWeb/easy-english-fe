@@ -209,6 +209,7 @@ const Curriculum = ({ courseId }) => {
       try {
         const newSection = {
           title: newSectionTitle,
+          status: 'DISPLAY',
           courseId, // Make sure courseId is passed
         };
         const createdSection = await sectionService.createSection(newSection);
