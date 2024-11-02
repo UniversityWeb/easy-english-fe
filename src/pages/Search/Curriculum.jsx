@@ -13,6 +13,7 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
+import { SEC_ITEM_TYPES } from '~/utils/constants';
 
 const Curriculum = ({ courseId }) => {
   const [curriculumData, setCurriculumData] = useState([]);
@@ -69,11 +70,11 @@ const Curriculum = ({ courseId }) => {
 
   const getLessonIcon = (type) => {
     switch (type) {
-      case 'VIDEO':
+      case SEC_ITEM_TYPES.VIDEO:
         return FiVideo;
-      case 'AUDIO':
+      case SEC_ITEM_TYPES.AUDIO:
         return HiOutlineSpeakerWave;
-      case 'QUIZ':
+      case SEC_ITEM_TYPES.TEST:
         return FiHelpCircle;
       default:
         return FiFileText;
@@ -82,11 +83,11 @@ const Curriculum = ({ courseId }) => {
 
   const getLessonColor = (type) => {
     switch (type) {
-      case 'VIDEO':
+      case SEC_ITEM_TYPES.VIDEO:
         return 'blue.500';
-      case 'AUDIO':
+      case SEC_ITEM_TYPES.AUDIO:
         return 'purple.500';
-      case 'QUIZ':
+      case SEC_ITEM_TYPES.TEST:
         return 'yellow.500';
       default:
         return 'green.500';

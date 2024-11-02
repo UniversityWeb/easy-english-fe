@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, FormControl, FormLabel, Heading, Input, Textarea, VStack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Heading, Input, Select, Text, VStack } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
 import ReactQuill from 'react-quill';
-import description from '~/pages/Search/Description';
+import { TEST_STATUSES, TEST_TYPES } from '~/utils/constants';
 
 const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
   const [loading, setLoading] = useState(false);
@@ -184,6 +184,45 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
               max="100"
             />
           </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Test Type</FormLabel>
+            <Select
+              name="testType"
+              value={formData.testType}
+              onChange={(e) => setFormData({ ...formData, testType: e.target.value })}
+            >
+              <option value="">Select Test Type</option>
+              <option value={TEST_TYPES.QUIZ}>Quiz</option>
+              <option value={TEST_TYPES.CUSTOM}>Custom</option>
+            </Select>
+          </FormControl>
+
+          {formData.testType === TEST_TYPES.QUIZ && (
+            <Text fontSize="sm" color="gray.500" mt={2}>
+              A simple test with multiple questions.
+            </Text>
+          )}
+
+          {formData.testType === TEST_TYPES.CUSTOM && (
+            <Text fontSize="sm" color="gray.500" mt={2}>
+              A customizable test with multiple sections, question groups, and individual questions.
+            </Text>
+          )}
+
+          <FormControl isRequired>
+            <FormLabel>Test Status</FormLabel>
+            <Select
+              name="testStatus"
+              value={formData.testStatus}
+              onChange={(e) => setFormData({ ...formData, testStatus: e.target.value })}
+            >
+              <option value="">Select Test Status</option>
+              <option value={TEST_STATUSES.DISPLAY}>Display</option>
+              <option value={TEST_STATUSES.HIDE}>Hide</option>
+              <option value={TEST_STATUSES.DRAFT}>Draft</option>
+            </Select>
+          </FormControl>
+
           <Button colorScheme="blue" type="submit" isLoading={loading}>
             {isNew ? 'Create Test' : 'Update Test'}
           </Button>

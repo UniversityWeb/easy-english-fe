@@ -25,16 +25,17 @@ import { RiDeleteBinFill } from 'react-icons/ri';
 import { MdSubdirectoryArrowRight } from 'react-icons/md'; // Import the new icon
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { SEC_ITEM_TYPES } from '~/utils/constants';
 
 const getLessonIcon = (type) => {
   switch (type) {
-    case 'TEXT':
+    case SEC_ITEM_TYPES.TEXT:
       return { icon: FiFileText, color: 'green.500' };
-    case 'VIDEO':
+    case SEC_ITEM_TYPES.VIDEO:
       return { icon: FiVideo, color: 'blue.500' };
-    case 'AUDIO':
+    case SEC_ITEM_TYPES.AUDIO:
       return { icon: HiOutlineSpeakerWave, color: 'purple.500' };
-    case 'QUIZ':
+    case SEC_ITEM_TYPES.TEST:
       return { icon: FiHelpCircle, color: 'orange.500' };
     default:
       return { icon: FiFileText, color: 'gray.500' };
@@ -48,16 +49,16 @@ const Drip = () => {
       id: 'section-1',
       title: 'Section 1',
       lessons: [
-        { id: 'lesson-1', title: 'Lesson 1', type: 'TEXT' },
-        { id: 'lesson-2', title: 'Lesson 2', type: 'VIDEO' },
+        { id: 'lesson-1', title: 'Lesson 1', type: SEC_ITEM_TYPES.TEXT },
+        { id: 'lesson-2', title: 'Lesson 2', type: SEC_ITEM_TYPES.VIDEO },
       ],
     },
     {
       id: 'section-2',
       title: 'Section 2',
       lessons: [
-        { id: 'lesson-3', title: 'Lesson 3', type: 'AUDIO' },
-        { id: 'lesson-4', title: 'Lesson 4', type: 'QUIZ' },
+        { id: 'lesson-3', title: 'Lesson 3', type: SEC_ITEM_TYPES.AUDIO },
+        { id: 'lesson-4', title: 'Lesson 4', type: SEC_ITEM_TYPES.TEST },
       ],
     },
   ]);

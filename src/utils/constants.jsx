@@ -6,6 +6,25 @@ export const USER_ROLES = {
   TEACHER: 'TEACHER',
   ADMIN: 'ADMIN',
 };
+
+export const SEC_ITEM_TYPES = {
+  TEXT: 'TEXT',
+  VIDEO: 'VIDEO',
+  AUDIO: 'AUDIO',
+  TEST: 'TEST',
+}
+
+export const TEST_TYPES = {
+  QUIZ: 'QUIZ',
+  CUSTOM: 'CUSTOM',
+};
+
+export const TEST_STATUSES = {
+  DISPLAY: 'DISPLAY',
+  HIDE: 'HIDE',
+  DRAFT: 'DRAFT',
+};
+
 export const QUESTION_TYPES = {
   SINGLE_CHOICE: 'SINGLE_CHOICE',
   MULTI_CHOICE: 'MULTIPLE_CHOICE',
