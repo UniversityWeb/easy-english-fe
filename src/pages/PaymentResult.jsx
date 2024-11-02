@@ -60,7 +60,7 @@ const PaymentButtons = ({ navigate, isSuccess }) => (
     <Button
       variant="outline"
       colorScheme="green"
-      onClick={() => navigate(isSuccess ? config.routes.home : config.routes.course_management_for_student)}
+      onClick={() => navigate(config.routes.home[0])}
     >
       Back Home
     </Button>

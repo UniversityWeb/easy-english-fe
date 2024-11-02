@@ -70,8 +70,8 @@ const EditableMatching = ({ question, onUpdateQuestionField }) => {
           <Grid templateColumns="1fr 1fr auto" gap={4}>
             {/* Question Column */}
             <Box>
-              <Text fontWeight="bold" mb={1}>Question</Text>
-              <Flex align="center" justify="space-between" w="100%">
+              <Text fontWeight="bold" mb={5}>Question</Text>
+              <Flex align="center" justify="center" w="100%">
                 {isEditing[index] ? (
                   <Input
                     value={options[index]}
@@ -96,8 +96,8 @@ const EditableMatching = ({ question, onUpdateQuestionField }) => {
 
             {/* Answer Column */}
             <Box>
-              <Text fontWeight="bold" mb={1}>Answer</Text>
-              <Flex align="center" justify="space-between" w="100%">
+              <Text fontWeight="bold" mb={5}>Answer</Text>
+              <Flex align="center" justify="center" w="100%">
                 {isEditing[index] ? (
                   <Input
                     value={answers[index]}
@@ -121,7 +121,7 @@ const EditableMatching = ({ question, onUpdateQuestionField }) => {
             </Box>
 
             <Box>
-              <Center>
+              <Flex justify="center">
                 <IconButton
                   icon={isEditing[index] ? <CheckIcon /> : <EditIcon />}
                   size="sm"
@@ -139,7 +139,7 @@ const EditableMatching = ({ question, onUpdateQuestionField }) => {
                   onClick={() => removeRow(index)}
                   colorScheme="red"
                 />
-              </Center>
+              </Flex>
             </Box>
           </Grid>
         </Box>
