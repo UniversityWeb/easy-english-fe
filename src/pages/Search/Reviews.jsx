@@ -15,7 +15,10 @@ import { FaStar } from 'react-icons/fa';
 import reviewService from '~/services/reviewService';
 import { getUsername } from '~/utils/authUtils';
 
-const Reviews = ({ courseId, instructorName, onReviewUpdate }) => {
+const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
+  const canWriteReview =
+    buttonState === 'start-course' || buttonState === 'continue-course';
+
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
@@ -166,14 +169,16 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate }) => {
           </HStack>
           <Text fontSize="sm">{reviews.length} review(s)</Text>
         </VStack>
-        <Button
-          colorScheme="blue"
-          variant="outline"
-          size="sm"
-          onClick={() => setIsWritingReview(true)}
-        >
-          Write Review
-        </Button>
+        {canWriteReview && (
+          <Button
+            colorScheme="blue"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsWritingReview(true)}
+          >
+            Write Review
+          </Button>
+        )}
       </HStack>
 
       {/* Star Rating Distribution */}

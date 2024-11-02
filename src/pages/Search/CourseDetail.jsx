@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import config from '~/config';
 import {
   ChakraProvider,
   Box,
@@ -16,16 +15,7 @@ import {
   TabPanels,
   TabPanel,
 } from '@chakra-ui/react';
-import {
-  FaClock,
-  FaBook,
-  FaVideo,
-  FaClipboardCheck,
-  FaLevelUpAlt,
-  FaHeart,
-  FaShareAlt,
-  FaStar,
-} from 'react-icons/fa';
+import { FaClock, FaBook, FaHeart, FaShareAlt, FaStar } from 'react-icons/fa';
 import FAQ from './FAQ';
 import Reviews from './Reviews';
 import Curriculum from './Curriculum';
@@ -35,10 +25,13 @@ import CourseRandom from './CourseRandom';
 import RelateCourse from './RelateCourse';
 import { useNavigate, useParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
+import cartService from '~/services/cartService';
+import enrollmentService from '~/services/enrollmentService';
 
 function CourseDetails() {
   const navigate = useNavigate();
   const [courseData, setCourseData] = useState(null);
+  const [buttonState, setButtonState] = useState('loading'); // State to control the button text
   const { courseId } = useParams();
 
   const loadCourseData = async () => {
@@ -47,15 +40,58 @@ function CourseDetails() {
   };
 
   useEffect(() => {
+    // Load course data on mount
     loadCourseData();
   }, [courseId]);
 
-  // Add refresh handler to update course data
-  const handleReviewUpdate = async () => {
-    await loadCourseData();
-  };
+  useEffect(() => {
+    // Logic for determining button state
+    const checkEnrollmentStatus = async () => {
+      try {
+        const canAdd = await cartService.canAddToCart(courseId);
+        if (canAdd) {
+          setButtonState('add-to-cart'); // Show "Add to Cart" if applicable
+        } else {
+          // If can't add to cart, check enrollment
+          const enrollment = await enrollmentService.isEnrolled(courseId);
+          if (enrollment && enrollment.progress === 0) {
+            setButtonState('start-course'); // Show "Start Course" if progress is 0
+          } else if (enrollment && enrollment.progress > 0) {
+            setButtonState('continue-course'); // Show "Continue Course" if progress > 0
+          }
+        }
+      } catch (error) {
+        // If there's an error (e.g., 500 error), show "In Cart"
+        setButtonState('in-cart');
+      }
+    };
 
-  if (!courseData) return <Text>Loading...</Text>;
+    if (courseData) {
+      checkEnrollmentStatus();
+    }
+  }, [courseData]);
+
+  const handleButtonClick = async () => {
+    switch (buttonState) {
+      case 'add-to-cart':
+        try {
+          await cartService.addItemToCart(courseId);
+          setButtonState('in-cart');
+        } catch (error) {
+          console.error('Error adding to cart:', error);
+        }
+        break;
+      case 'start-course':
+      case 'continue-course':
+        navigate(`/learn/${courseId}`);
+        break;
+      case 'in-cart':
+        navigate('/cart');
+        break;
+      default:
+        break;
+    }
+  };
 
   if (!courseData) return <Text>Loading...</Text>;
 
@@ -176,7 +212,7 @@ function CourseDetails() {
                     <Reviews
                       courseId={courseId}
                       instructorName={courseData.ownerUsername}
-                      onReviewUpdate={handleReviewUpdate}
+                      buttonState={buttonState}
                     />
                   </TabPanel>
                 </TabPanels>
@@ -205,9 +241,14 @@ function CourseDetails() {
               colorScheme="blue"
               size="lg"
               w="100%"
-              onClick={() => navigate(`/learn/${courseId}`)}
+              onClick={handleButtonClick}
+              isDisabled={buttonState === 'loading'}
             >
-              START COURSE
+              {buttonState === 'loading' && 'Loading...'}
+              {buttonState === 'add-to-cart' && 'Add to Cart'}
+              {buttonState === 'in-cart' && 'In Cart'}
+              {buttonState === 'start-course' && 'Start Course'}
+              {buttonState === 'continue-course' && 'Continue Course'}
             </Button>
 
             <Box mt={6}>
@@ -231,7 +272,7 @@ function CourseDetails() {
                 </HStack>
 
                 <HStack>
-                  <Icon as={FaLevelUpAlt} color="gray.500" />
+                  <Icon as={FaBook} color="gray.500" />
                   <Text>Level</Text>
                   <Text ml="auto" fontWeight="bold">
                     {courseData.level.name}

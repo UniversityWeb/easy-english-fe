@@ -121,27 +121,27 @@ const Curriculum = ({ courseId }) => {
 
   const handleLessonSaved = (savedLesson) => {
     console.log('save : ', savedLesson);
-  
+
     // Cập nhật lại sections với lesson mới hoặc cập nhật lesson đã tồn tại
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.id === savedLesson.sectionId) {
           const updatedLessons = section.lessons.some(
-            (lesson) => lesson.id === savedLesson.id
+            (lesson) => lesson.id === savedLesson.id,
           )
             ? section.lessons.map((lesson) =>
-                lesson.id === savedLesson.id ? savedLesson : lesson
+                lesson.id === savedLesson.id ? savedLesson : lesson,
               )
             : [...section.lessons, savedLesson];
-  
+
           return { ...section, lessons: updatedLessons };
         }
         return section;
-      })
+      }),
     );
-  
+
     // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
-    setSelectedLessonId(savedLesson.id);  // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
+    setSelectedLessonId(savedLesson.id); // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
     setSelectedSectionItemType(savedLesson.type);
     setSelectedSectionId(savedLesson.sectionId);
   };
@@ -200,12 +200,19 @@ const Curriculum = ({ courseId }) => {
         const newSection = {
           title: newSectionTitle,
           status: 'DISPLAY',
-          courseId, // Make sure courseId is passed
+          courseId,
         };
         const createdSection = await sectionService.createSection(newSection);
 
-        // Add the new section to the state
-        setSections([...sections, { ...createdSection, lessons: [] }]);
+        setSections([
+          ...sections,
+          {
+            ...createdSection,
+            lessons: [], 
+            tests: [], 
+          },
+        ]);
+
         setNewSectionTitle('');
         setIsAddingNewSection(false);
         successToast('Section added');
@@ -285,8 +292,8 @@ const Curriculum = ({ courseId }) => {
             (test) => test.id === savedTest.id,
           )
             ? section.tests.map((test) =>
-              test.id === savedTest.id ? savedTest : test,
-            )
+                test.id === savedTest.id ? savedTest : test,
+              )
             : [...section.tests, savedTest];
 
           return { ...section, tests: updatedTests };
@@ -294,26 +301,26 @@ const Curriculum = ({ courseId }) => {
         return section;
       }),
     );
-  }
+  };
 
   const handleDeleteLesson = async (lessonId) => {
     try {
       const lessonRequest = { id: lessonId };
       await lessonService.deleteLesson(lessonRequest);
-      
+
       // Update sections to remove the deleted lesson
       setSections((prevSections) =>
         prevSections.map((section) => ({
           ...section,
           lessons: section.lessons.filter((lesson) => lesson.id !== lessonId),
-        }))
+        })),
       );
-  
+
       // Reset selected lesson state
       setSelectedLessonId(null);
       setSelectedSectionItemType(null);
       setSelectedSectionId(null);
-  
+
       successToast('Lesson deleted');
     } catch (error) {
       errorToast('Error deleting lesson');
@@ -324,7 +331,7 @@ const Curriculum = ({ courseId }) => {
     setSelectedSectionItemType(SEC_ITEM_TYPES.TEST);
     setSelectedTestId(test?.id);
     setSelectedSectionId(test.sectionId);
-  }
+  };
 
   const handleDeleteTest = async (testId) => {
     try {
@@ -339,7 +346,7 @@ const Curriculum = ({ courseId }) => {
     } catch (error) {
       errorToast('Error deleting test');
     }
-  }
+  };
 
   return (
     <HStack spacing={5} align="start" h="full">
@@ -386,13 +393,19 @@ const Curriculum = ({ courseId }) => {
                               )
                             }
                             onBlur={async () => {
-                              await handleUpdateSection(section.id, section.title);
+                              await handleUpdateSection(
+                                section.id,
+                                section.title,
+                              );
                               setEditingSectionId(null);
                             }}
                             onKeyDown={async (e) => {
                               e.stopPropagation(); // Prevent accordion toggle on keydown
                               if (e.key === 'Enter') {
-                                await handleUpdateSection(section.id, section.title);
+                                await handleUpdateSection(
+                                  section.id,
+                                  section.title,
+                                );
                                 setEditingSectionId(null);
                               }
                             }}
@@ -433,7 +446,9 @@ const Curriculum = ({ courseId }) => {
                     <List spacing={3}>
                       {/* lessons */}
                       {section.lessons.map((lesson) => {
-                        const { icon, color } = getSectionItemIcon(lesson?.type);
+                        const { icon, color } = getSectionItemIcon(
+                          lesson?.type,
+                        );
                         return (
                           <ListItem
                             onClick={() =>
@@ -474,7 +489,9 @@ const Curriculum = ({ courseId }) => {
 
                       {/* tests */}
                       {section.tests.map((test) => {
-                        const { icon, color } = getSectionItemIcon(SEC_ITEM_TYPES.TEST);
+                        const { icon, color } = getSectionItemIcon(
+                          SEC_ITEM_TYPES.TEST,
+                        );
                         return (
                           <ListItem
                             onClick={() =>
@@ -604,7 +621,9 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.TEXT)}
+                  onClick={() =>
+                    handleSectionItemTypeClick(SEC_ITEM_TYPES.TEXT)
+                  }
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -621,7 +640,9 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.VIDEO)}
+                  onClick={() =>
+                    handleSectionItemTypeClick(SEC_ITEM_TYPES.VIDEO)
+                  }
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -638,7 +659,9 @@ const Curriculum = ({ courseId }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.AUDIO)}
+                  onClick={() =>
+                    handleSectionItemTypeClick(SEC_ITEM_TYPES.AUDIO)
+                  }
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -648,7 +671,12 @@ const Curriculum = ({ courseId }) => {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Icon as={HiOutlineSpeakerWave} w={8} h={8} color="blue.500" />
+                  <Icon
+                    as={HiOutlineSpeakerWave}
+                    w={8}
+                    h={8}
+                    color="blue.500"
+                  />
                   <Text mt={2} fontSize="sm">
                     Audio lesson
                   </Text>
@@ -663,7 +691,9 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.TEST)}
+                  onClick={() =>
+                    handleSectionItemTypeClick(SEC_ITEM_TYPES.TEST)
+                  }
                   size="lg"
                   minW="130px"
                   minH="130px"
