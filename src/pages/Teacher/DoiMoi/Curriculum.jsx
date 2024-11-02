@@ -27,7 +27,6 @@ import {
 import { AddIcon } from '@chakra-ui/icons';
 import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-
 import {
   RxTriangleDown,
   RxTriangleUp,
@@ -44,13 +43,7 @@ import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
 import EditableTest from '~/components/Test/EditableTest';
 import testService from '~/services/testService';
-
-const SEC_ITEM_TYPES = {
-  TEXT: 'TEXT',
-  VIDEO: 'VIDEO',
-  AUDIO: 'AUDIO',
-  QUIZ: 'QUIZ',
-}
+import { SEC_ITEM_TYPES } from '~/utils/constants';
 
 const getSectionItemIcon = (type) => {
   switch (type) {
@@ -59,8 +52,8 @@ const getSectionItemIcon = (type) => {
     case SEC_ITEM_TYPES.VIDEO:
       return { icon: FiVideo, color: 'blue.500' };
     case SEC_ITEM_TYPES.AUDIO:
-      return { icon: FiMic, color: 'purple.500' };
-    case SEC_ITEM_TYPES.QUIZ:
+      return { icon: HiOutlineSpeakerWave, color: 'purple.500' };
+    case SEC_ITEM_TYPES.TEST:
       return { icon: FiHelpCircle, color: 'orange.500' };
     default:
       return { icon: FiFileText, color: 'gray.500' };
@@ -75,8 +68,8 @@ const Curriculum = ({ courseId }) => {
   const [isAddingNewSection, setIsAddingNewSection] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
   const [selectedSectionItemType, setSelectedSectionItemType] = useState(null);
-  const [selectedLessonId, setSelectedLessonId] = useState(null);
   const [selectedSectionId, setSelectedSectionId] = useState(null);
+  const [selectedLessonId, setSelectedLessonId] = useState(null);
   const [selectedTestId, setSelectedTestId] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -149,25 +142,21 @@ const Curriculum = ({ courseId }) => {
   
     // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
     setSelectedLessonId(savedLesson.id);  // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
-    setSelectedLessonType(savedLesson.type);
+    setSelectedSectionItemType(savedLesson.type);
     setSelectedSectionId(savedLesson.sectionId);
   };
+
   const handleSectionItemTypeClick = (sectionItemType) => {
     setSelectedSectionItemType(sectionItemType);
     console.log('selectedSectionId : ', selectedSectionId);
     setSelectedLessonId(null);
+    setSelectedTestId(null);
     console.log('selectedSectionId : ', selectedSectionId);
-
-    if (sectionItemType === 'QUIZ') {
-      setSelectedTestId(null);
-    }
-
     onClose();
   };
 
   const handleDeleteSection = async (id) => {
     try {
-      // Call the delete API
       await sectionService.deleteSection({ id });
       setSections(sections.filter((section) => section.id !== id));
       successToast('Section deleted');
@@ -175,6 +164,7 @@ const Curriculum = ({ courseId }) => {
       errorToast('Error deleting section');
     }
   };
+
   const handleUpdateSection = async (sectionId, newTitle) => {
     try {
       const updatedSection = {
@@ -262,7 +252,7 @@ const Curriculum = ({ courseId }) => {
             onLessonSaved={handleLessonSaved}
           />
         );
-      case SEC_ITEM_TYPES.QUIZ:
+      case SEC_ITEM_TYPES.TEST:
         const isNewTest = !selectedTestId && selectedSectionId;
         return (
           <EditableTest
@@ -287,7 +277,7 @@ const Curriculum = ({ courseId }) => {
   }
 
   const handleTestSaved = (savedTest) => {
-    console.log('save : ', savedTest);
+    console.log('Saved test : ', savedTest);
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.id === savedTest.sectionId) {
@@ -321,7 +311,7 @@ const Curriculum = ({ courseId }) => {
   
       // Reset selected lesson state
       setSelectedLessonId(null);
-      setSelectedLessonType(null);
+      setSelectedSectionItemType(null);
       setSelectedSectionId(null);
   
       successToast('Lesson deleted');
@@ -331,8 +321,8 @@ const Curriculum = ({ courseId }) => {
   };
 
   const handleTestClick = async (test) => {
-    setSelectedSectionItemType('QUIZ');
-    setSelectedTestId(test.id);
+    setSelectedSectionItemType(SEC_ITEM_TYPES.TEST);
+    setSelectedTestId(test?.id);
     setSelectedSectionId(test.sectionId);
   }
 
@@ -395,14 +385,14 @@ const Curriculum = ({ courseId }) => {
                                 ),
                               )
                             }
-                            onBlur={() => {
-                              handleUpdateSection(section.id, section.title);
+                            onBlur={async () => {
+                              await handleUpdateSection(section.id, section.title);
                               setEditingSectionId(null);
                             }}
-                            onKeyDown={(e) => {
+                            onKeyDown={async (e) => {
                               e.stopPropagation(); // Prevent accordion toggle on keydown
                               if (e.key === 'Enter') {
-                                handleUpdateSection(section.id, section.title);
+                                await handleUpdateSection(section.id, section.title);
                                 setEditingSectionId(null);
                               }
                             }}
@@ -484,7 +474,7 @@ const Curriculum = ({ courseId }) => {
 
                       {/* tests */}
                       {section.tests.map((test) => {
-                        const { icon, color } = getSectionItemIcon('QUIZ');
+                        const { icon, color } = getSectionItemIcon(SEC_ITEM_TYPES.TEST);
                         return (
                           <ListItem
                             onClick={() =>
@@ -673,7 +663,7 @@ const Curriculum = ({ courseId }) => {
               <SimpleGrid columns={4} spacing={4}>
                 <Button
                   variant="outline"
-                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.QUIZ)}
+                  onClick={() => handleSectionItemTypeClick(SEC_ITEM_TYPES.TEST)}
                   size="lg"
                   minW="130px"
                   minH="130px"
@@ -685,24 +675,7 @@ const Curriculum = ({ courseId }) => {
                 >
                   <Icon as={FiHelpCircle} w={8} h={8} color="blue.500" />
                   <Text mt={2} fontSize="sm">
-                    Quiz
-                  </Text>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleSectionItemTypeClick('Assignment')}
-                  size="lg"
-                  minW="130px"
-                  minH="130px"
-                  borderRadius="md"
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Icon as={FiFileText} w={8} h={8} color="blue.500" />
-                  <Text mt={2} fontSize="sm">
-                    Assignment
+                    Test
                   </Text>
                 </Button>
               </SimpleGrid>

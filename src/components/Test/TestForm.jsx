@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, FormControl, FormLabel, Heading, Input, Textarea, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button, Center,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading, HStack,
+  Icon,
+  Input,
+  Select, Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
 import ReactQuill from 'react-quill';
-import description from '~/pages/Search/Description';
+import { TEST_STATUSES, TEST_TYPES } from '~/utils/constants';
+import { InfoIcon } from '@chakra-ui/icons';
 
 const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
   const [loading, setLoading] = useState(false);
@@ -14,7 +27,8 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
     description: 'Make your description here',
     durationInMilis: 2700000, // Default duration (e.g., 45 minutes in milliseconds)
     passingGrade: 0.0,
-    status: "DISPLAY",
+    type: 'CUSTOM',
+    status: 'DISPLAY',
     createdAt: new Date().toISOString(),
     sectionId: sectionId,
   });
@@ -35,6 +49,7 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
             durationInMilis: data.durationInMilis || 0,
             startDate: data.startDate || new Date().toISOString().slice(0, 16),
             endDate: data.endDate || new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16),
+            type: data.type || 'CUSTOM',
             status: data.status || 'DISPLAY',
             createdAt: data.createdAt || new Date().toISOString().slice(0, 16),
             sectionId: data.sectionId || 0,
@@ -184,6 +199,56 @@ const TestForm = ({ sectionId, ordinalNumber, testId, onTestSaved, isNew }) => {
               max="100"
             />
           </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Test Type</FormLabel>
+            <Select
+              name="type"
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              isDisabled={!isNew}
+            >
+              <option value="">Select Test Type</option>
+              <option value={TEST_TYPES.QUIZ}>Quiz</option>
+              <option value={TEST_TYPES.CUSTOM}>Custom</option>
+            </Select>
+          </FormControl>
+
+          <Box mt={4} p={4} bg="blue.50" borderRadius="md" border="1px solid" borderColor="blue.200">
+            <VStack spacing={2} align="start">
+              <Box display="flex" justifyContent="center" width="100%">
+                <Icon as={InfoIcon} color="blue.500" boxSize={5} />
+              </Box>
+              <Box>
+                <Text fontSize="sm" fontWeight="semibold" color="blue.600">
+                  Quiz:
+                  <Text as="span" color="gray.700" fontWeight="normal">
+                    {' '}A simple test with multiple questions.
+                  </Text>
+                </Text>
+                <Text fontSize="sm" fontWeight="semibold" color="blue.600" mt={1}>
+                  Custom:
+                  <Text as="span" color="gray.700" fontWeight="normal">
+                    {' '}A customizable test with multiple sections, question groups, and individual questions.
+                  </Text>
+                </Text>
+              </Box>
+            </VStack>
+          </Box>
+
+          <FormControl isRequired>
+            <FormLabel>Test Status</FormLabel>
+            <Select
+              name="status"
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+            >
+              <option value="">Select Test Status</option>
+              <option value={TEST_STATUSES.DISPLAY}>Display</option>
+              <option value={TEST_STATUSES.HIDE}>Hide</option>
+              <option value={TEST_STATUSES.DRAFT}>Draft</option>
+            </Select>
+          </FormControl>
+
           <Button colorScheme="blue" type="submit" isLoading={loading}>
             {isNew ? 'Create Test' : 'Update Test'}
           </Button>
