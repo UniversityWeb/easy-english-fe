@@ -68,13 +68,13 @@ const Curriculum = ({ courseId }) => {
     const sectionRequest = {
       courseId,
       title: newSectionName,
+      status: 'DISPLAY',
       lessons: [],
-      createdBy: 'your_username',
     };
 
     try {
       await sectionService.createSection(sectionRequest);
-      fetchSections();
+      await fetchSections();
       setNewSectionName('');
       setIsAddingSection(false);
       successToast('Section added successfully!');
