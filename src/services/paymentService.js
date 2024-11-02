@@ -13,9 +13,9 @@ const createPaymentOrder = async (paymentRequest) => {
   return response.data;
 }
 
-const getResult = async (params) => {
-  const path = `${SUFFIX_PAYMENT_API_URL}/result`;
-  const response = await put(path, {
+const getResult = async (method, params) => {
+  const path = `${SUFFIX_PAYMENT_API_URL}/result/${method}`;
+  const response = await put(path, null, {
     params
   });
 
@@ -29,7 +29,6 @@ const getResult = async (params) => {
 const payService = {
   createPaymentOrder,
   getResult,
-
 }
 
 export default payService;
