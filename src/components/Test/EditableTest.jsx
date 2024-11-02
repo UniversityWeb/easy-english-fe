@@ -117,27 +117,31 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
         onTestSaved={onTestSaved}
       />
 
-      {/* QUIZ test */}
-      {testState?.type === TEST_TYPES.QUIZ ? (
-        <EditableQuestionsOfQuiz
-          test={testState}
-        />
-      ) : (
+      {!isNew && (
         <>
-          {/* CUSTOM test */}
-          <Heading size="lg" mt={10}>Test parts</Heading>
-          <VStack spacing={4} mt={4}>
-            {testParts.map((part) => (
-              <EditableTestPart
-                key={part.id}
-                part={part}
-                onRemovePart={removeTestPart}
-              />
-            ))}
-            <Button colorScheme="blue" onClick={addTestPart}>
-              Add Test Part
-            </Button>
-          </VStack>
+          {/* QUIZ test */}
+          {testState?.type === TEST_TYPES.QUIZ ? (
+            <EditableQuestionsOfQuiz
+              test={testState}
+            />
+          ) : (
+            <>
+              {/* CUSTOM test */}
+              <Heading size="lg" mt={10}>Test parts</Heading>
+              <VStack spacing={4} mt={4}>
+                {testParts.map((part) => (
+                  <EditableTestPart
+                    key={part.id}
+                    part={part}
+                    onRemovePart={removeTestPart}
+                  />
+                ))}
+                <Button colorScheme="blue" onClick={addTestPart} mb={10}>
+                  Add Test Part
+                </Button>
+              </VStack>
+            </>
+          )}
         </>
       )}
     </Box>

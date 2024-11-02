@@ -76,6 +76,12 @@ const Curriculum = ({ courseId }) => {
   const [hoveredLessonId, setHoveredLessonId] = useState(null);
   const [hoveredTestId, setHoveredTestId] = useState(null);
   const { successToast, errorToast } = useCustomToast();
+  const [isNewTest, setIsNewTest] = useState(false);
+
+  useEffect(() => {
+    const isNewTest = !selectedTestId && selectedSectionId;
+    setIsNewTest(isNewTest);
+  }, [selectedTestId, selectedSectionId]);
 
   // Fetch sections and lessons from the API
   useEffect(() => {
@@ -260,7 +266,6 @@ const Curriculum = ({ courseId }) => {
           />
         );
       case SEC_ITEM_TYPES.TEST:
-        const isNewTest = !selectedTestId && selectedSectionId;
         return (
           <EditableTest
             testId={selectedTestId}
@@ -283,7 +288,7 @@ const Curriculum = ({ courseId }) => {
     );
   }
 
-  const handleTestSaved = (savedTest) => {
+  const handleTestSaved = async (savedTest) => {
     console.log('Saved test : ', savedTest);
     setSections((prevSections) =>
       prevSections.map((section) => {
@@ -301,6 +306,8 @@ const Curriculum = ({ courseId }) => {
         return section;
       }),
     );
+
+    await handleTestClick(savedTest);
   };
 
   const handleDeleteLesson = async (lessonId) => {

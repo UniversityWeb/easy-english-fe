@@ -31,7 +31,7 @@ import ReactQuill from 'react-quill';
 import questionGroupService from '~/services/questionGroupService';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 
-const EditableQuestionGroup = React.memo(({ group, onRemoveGroup }) => {
+const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups }) => {
   const [groupState, setGroupState] = useState(group);
   const [questions, setQuestions] = useState([]);
   const { successToast, errorToast } = useCustomToast();

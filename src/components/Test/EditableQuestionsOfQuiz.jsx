@@ -80,7 +80,7 @@ const EditableQuestionsOfQuiz = ({ test }) => {
         />
       ))}
 
-      <Flex justify="space-between" mb={4}>
+      <Flex justify="end" mb={10}>
         <Button
           colorScheme="green"
           onClick={addNewQuestionForQuiz}
