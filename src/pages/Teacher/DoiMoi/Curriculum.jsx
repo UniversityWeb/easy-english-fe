@@ -25,7 +25,9 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { FiFileText, FiVideo, FiMic, FiHelpCircle } from 'react-icons/fi';
+import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
+import { HiOutlineSpeakerWave } from 'react-icons/hi2';
+
 import {
   RxTriangleDown,
   RxTriangleUp,
@@ -126,22 +128,29 @@ const Curriculum = ({ courseId }) => {
 
   const handleLessonSaved = (savedLesson) => {
     console.log('save : ', savedLesson);
+  
+    // Cập nhật lại sections với lesson mới hoặc cập nhật lesson đã tồn tại
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.id === savedLesson.sectionId) {
           const updatedLessons = section.lessons.some(
-            (lesson) => lesson.id === savedLesson.id,
+            (lesson) => lesson.id === savedLesson.id
           )
             ? section.lessons.map((lesson) =>
-                lesson.id === savedLesson.id ? savedLesson : lesson,
+                lesson.id === savedLesson.id ? savedLesson : lesson
               )
             : [...section.lessons, savedLesson];
-
+  
           return { ...section, lessons: updatedLessons };
         }
         return section;
-      }),
+      })
     );
+  
+    // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
+    setSelectedLessonId(savedLesson.id);  // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
+    setSelectedLessonType(savedLesson.type);
+    setSelectedSectionId(savedLesson.sectionId);
   };
   const handleSectionItemTypeClick = (sectionItemType) => {
     setSelectedSectionItemType(sectionItemType);
@@ -300,12 +309,20 @@ const Curriculum = ({ courseId }) => {
     try {
       const lessonRequest = { id: lessonId };
       await lessonService.deleteLesson(lessonRequest);
+      
+      // Update sections to remove the deleted lesson
       setSections((prevSections) =>
         prevSections.map((section) => ({
           ...section,
           lessons: section.lessons.filter((lesson) => lesson.id !== lessonId),
-        })),
+        }))
       );
+  
+      // Reset selected lesson state
+      setSelectedLessonId(null);
+      setSelectedLessonType(null);
+      setSelectedSectionId(null);
+  
       successToast('Lesson deleted');
     } catch (error) {
       errorToast('Error deleting lesson');
@@ -640,7 +657,7 @@ const Curriculum = ({ courseId }) => {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Icon as={FiMic} w={8} h={8} color="blue.500" />
+                  <Icon as={HiOutlineSpeakerWave} w={8} h={8} color="blue.500" />
                   <Text mt={2} fontSize="sm">
                     Audio lesson
                   </Text>

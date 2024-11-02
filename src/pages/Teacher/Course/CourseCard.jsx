@@ -35,10 +35,10 @@ const CourseCard = ({ course, onMakeFeatured }) => {
                     <CheckCircleIcon mr={1} />
                     <Text>{course.isPublish ? 'Published' : 'Unpublished'}</Text>
                 </Flex>
-                {course.price?.salePrice && (
-                    <Text as="s" color="gray.500">${course.price.salePrice}</Text>
+                {course.price?.price && (
+                    <Text as="s" color="gray.500">${course.price.price}</Text>
                 )}
-                <Text fontWeight="bold">${course.price?.price}</Text>
+                <Text fontWeight="bold">${course.price?.salePrice}</Text>
             </Stack>
             <Button colorScheme="blue" mt={4} w="100%" height={20} onClick={onMakeFeatured}>
                 MAKE FEATURED

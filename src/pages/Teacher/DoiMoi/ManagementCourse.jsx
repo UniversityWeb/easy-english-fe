@@ -12,7 +12,7 @@ import {
 import { MdArrowBack } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router-dom';
 import Curriculum from '~/pages/Teacher/DoiMoi/Curriculum';
-import Drip from '~/pages/Teacher/DoiMoi/Curriculum';
+import Drip from '~/pages/Teacher/DoiMoi/Drip';
 import Settings from '~/pages/Teacher/DoiMoi/Setting';
 import Pricing from '~/pages/Teacher/DoiMoi/Pricing';
 import FAQ from '~/pages/Teacher/DoiMoi/Faq';
@@ -33,7 +33,7 @@ function ManagementCourse() {
       case 'Curriculum':
         return <Curriculum courseId={courseId} />;
       case 'Drip':
-        return <Drip />;
+        return <Drip courseId={courseId} />;
       case 'Settings':
         return <Settings courseId={courseId} />;
       case 'Pricing':

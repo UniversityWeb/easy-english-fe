@@ -23,7 +23,7 @@ import ManagementCourse from '~/pages/Teacher/DoiMoi/ManagementCourse';
 import Setting from '~/pages/Teacher/DoiMoi/Setting';
 import Orders from '~/pages/Orders';
 import OrderDetail from '~/pages/OrderDetail';
-
+import Learn from '~/pages/Search/Learn';
 const publicRoutes = [
   { path: config.routes.home[0], component: Home },
   { path: config.routes.home[1], component: Home },
@@ -59,6 +59,8 @@ const publicRoutes = [
 
   { path: config.routes.orders, component: Orders },
   { path: config.routes.order_detail, component: OrderDetail },
+  { path: config.routes.learn, component: Learn },
+
 ];
 
 const privateRoutes = [];
