@@ -38,6 +38,18 @@ const getByQuestionGroup = async (questionGroupId) => {
   return handleResponse(response, 200);
 };
 
+const createNewQuestionForQuizType = async (addQuizQuestionRequest) => {
+  const path = `${SUFFIX_TEST_QUESTION_API_URL}/create-new-question-for-quiz`;
+  const response = await post(path, addQuizQuestionRequest);
+  return handleResponse(response, 201);
+};
+
+const getAllQuestionsForQuizType = async (testId) => {
+  const path = `${SUFFIX_TEST_QUESTION_API_URL}/get-questions-for-quiz/${testId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const testQuestionService = {
   create,
   update,
@@ -45,6 +57,8 @@ const testQuestionService = {
   getById,
   remove,
   getByQuestionGroup,
+  createNewQuestionForQuizType,
+  getAllQuestionsForQuizType,
 };
 
 export default testQuestionService;
