@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, VStack } from '@chakra-ui/react';
+import { Box, Button, Heading, VStack } from '@chakra-ui/react';
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
 import testPartService from '~/services/testPartService';
@@ -7,6 +7,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
 import { TEST_TYPES } from '~/utils/constants';
 import EditableQuestionsOfQuiz from '~/components/Test/EditableQuestionsOfQuiz';
+import TestAudioUpload from '~/components/Test/TestAudioUpload';
 
 const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
   const [testState, setTestState] = useState({
@@ -14,6 +15,7 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
     description: 'Make your description here',
     durationInMilis: 2700000, // Default duration (e.g., 45 minutes in milliseconds)
     passingGrade: 0.0,
+    authPath: '',
     type: 'CUSTOM',
     status: 'DISPLAY',
     createdAt: new Date().toISOString(),
@@ -116,6 +118,10 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
         isNew={isNew}
         onTestSaved={onTestSaved}
       />
+
+      {!isNew && testState?.type === TEST_TYPES.CUSTOM && (
+        <TestAudioUpload testState={testState} setTestState={setTestState} />
+      )}
 
       {!isNew && (
         <>

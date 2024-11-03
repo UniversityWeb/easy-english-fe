@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
 import {
   Box,
-  Button, Center,
-  Flex,
+  Button,
   FormControl,
   FormLabel,
-  Heading, HStack,
+  Heading,
   Icon,
   Input,
-  Select, Stack,
+  Select,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -32,22 +31,22 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     try {
       const testId = testState?.id;
       const newTest = {
         ...testState,
-        id: testId || 0, // Use existing testId for update or set to 0 for creation
+        id: testId || 0,
         sectionId,
         ordinalNumber,
       };
 
       let testResponse;
       if (testId) {
-        testResponse = await testService.update(testId, newTest); // Call update method if testId exists
+        testResponse = await testService.update(testId, newTest);
         successToast("Test updated successfully!");
       } else {
-        testResponse = await testService.create(newTest); // Call create method if no testId
+        testResponse = await testService.create(newTest);
         successToast("Test created successfully!");
       }
 
@@ -69,10 +68,9 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
     return `${hours}:${minutes}`;
   };
 
-  // Convert HH:MM format back to milliseconds
   const convertToMilliseconds = (timeString) => {
     const [hours, minutes] = timeString.split(':').map(Number);
-    return (hours * 60 + minutes) * 60000; // Convert to milliseconds
+    return (hours * 60 + minutes) * 60000;
   };
 
   return (
