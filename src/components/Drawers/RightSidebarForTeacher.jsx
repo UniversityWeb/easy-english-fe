@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { MdDashboard, MdLogout, MdAdd, MdAnnouncement, MdGrade, MdAssignment, MdAttachMoney } from 'react-icons/md';
 import { BsLayers } from 'react-icons/bs';
-import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
@@ -30,7 +29,7 @@ const menuItems = [
   { label: 'Bundles', icon: BsLayers, route: '' },
 ];
 
-function DrawerRightDefault({ isOpen, onClose, user, isUserLoading }) {
+function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -99,18 +98,4 @@ function DrawerRightDefault({ isOpen, onClose, user, isUserLoading }) {
   );
 }
 
-DrawerRightDefault.propTypes = {
-  isOpen: PropTypes.bool,
-  onClose: PropTypes.func,
-  user: PropTypes.object,
-  isUserLoading: PropTypes.bool,
-};
-
-DrawerRightDefault.defaultProps = {
-  user: {
-    fullName: 'John Doe',
-    avatarSrc: '',
-  },
-};
-
-export default DrawerRightDefault;
+export default RightSidebarForTeacher;

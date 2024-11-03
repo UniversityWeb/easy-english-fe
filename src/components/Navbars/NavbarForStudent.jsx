@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './Navbar.scss';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react';
 import AuthService from '~/services/authService';
 import { getUsername, isLoggedIn } from '~/utils/authUtils';
-import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent';
@@ -24,10 +23,8 @@ import { websocketConstants } from '~/utils/websocketConstants';
 
 const NavbarForStudent = React.memo((props) => {
   const navigate = useNavigate();
-  const { errorToast } = useCustomToast();
+  const [user, setUser] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [user, setUser] = useState(null);
-  const [isUserLoading, setIsUserLoading] = useState(true);
   const [countedCartItems, setCountedCartItems] = useState(0);
 
   useEffect(() => {
@@ -47,21 +44,15 @@ const NavbarForStudent = React.memo((props) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      setIsUserLoading(true);
-      AuthService.getCurUser()
-        .then((user) => {
-          setUser(user);
-        })
-        .catch((e) => {
-          errorToast(e?.message);
-        })
-        .finally(() => {
-          setIsUserLoading(false);
-        });
+      try {
+        const user = await AuthService.getCurUser();
+        setUser(user);
+      } catch (e) {
+        console.log(e?.message);
+      }
     };
 
     fetchUser();
-
     fetchCartItems();
   }, []);
 
@@ -123,15 +114,15 @@ const NavbarForStudent = React.memo((props) => {
                   cursor="pointer"
                   name={user?.fullName}
                   onClick={onOpen}
-                  src={user?.urlImage}
+                  src={user?.avatarPath}
                 />
               </div>
               <RightSidebarForStudent
                 user={user}
-                isUserLoading={isUserLoading}
+                isUserLoading={user === null || user === undefined}
                 isOpen={isOpen}
                 onClose={onClose}
-              ></RightSidebarForStudent>
+              />
             </>
           ) : (
             <Button

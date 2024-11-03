@@ -13,10 +13,7 @@ import {
   DrawerContent,
   Skeleton,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
-
 import styles from './Drawer.module.scss';
-
 import { useNavigate } from 'react-router-dom';
 import {
   MdOutlineAssignment,
@@ -32,29 +29,7 @@ import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import { FaRegStar } from 'react-icons/fa';
 
-DrawerRightDefault.propTypes = {
-  isOpen: PropTypes.bool,
-  onClose: PropTypes.func,
-  user: PropTypes.object,
-  isUserLoading: PropTypes.bool,
-};
-
-DrawerRightDefault.defaultProps = {
-  user: {
-    username: 'john',
-    fullName: 'john',
-    email: 'john@gmail.com',
-    phoneNumber: '+84972640891',
-    bio: 'A student.',
-    gender: 'MALE',
-    dob: '2024-08-05',
-    role: 'ADMIN',
-    createdAt: '2024-08-05T13:47:06.794Z',
-    avatarSrc: '',
-  },
-};
-
-const DrawerRightDefault = React.memo((props) => {
+const RightSidebarForStudent = (props) => {
   const user = props.user;
   const navigate = useNavigate();
 
@@ -86,7 +61,7 @@ const DrawerRightDefault = React.memo((props) => {
               cursor: 'pointer',
             }}
           >
-            <Avatar size="md" name={user?.fullName} src={user?.urlImage} />
+            <Avatar size="md" name={user?.fullName} src={user?.avatarPath} />
             {!isLoggedIn() || props?.isUserLoading ? (
               <Skeleton height="20px" width="100vh" />
             ) : (
@@ -156,6 +131,6 @@ const DrawerRightDefault = React.memo((props) => {
       </DrawerContent>
     </Drawer>
   );
-})
+}
 
-export default DrawerRightDefault;
+export default RightSidebarForStudent;
