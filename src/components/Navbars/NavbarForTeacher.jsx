@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import RightSidebarForTeacher from '~/components/Drawers/RightSidebarForTeacher';
 
-function NavbarForTeacher(props) {
+const NavbarForTeacher = React.memo((props) => {
   const navigate = useNavigate();
   const { errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -97,6 +97,6 @@ function NavbarForTeacher(props) {
       </div>
     </div>
   );
-}
+})
 
-export default React.memo(NavbarForTeacher);
+export default NavbarForTeacher;

@@ -22,6 +22,7 @@ import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import sectionService from '~/services/sectionService'; // Ensure these services are correctly imported
 import lessonService from '~/services/lessonService';
 import { useNavigate, useParams } from 'react-router-dom';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const LessonItem = ({
   icon,
@@ -224,16 +225,14 @@ const Learn = () => {
 
   if (loading) {
     return (
-      <ChakraProvider>
-        <Flex justify="center" align="center" h="100vh">
-          <Spinner size="xl" />
-        </Flex>
-      </ChakraProvider>
+      <Flex justify="center" align="center" h="100vh">
+        <Spinner size="xl" />
+      </Flex>
     );
   }
 
   return (
-    <ChakraProvider>
+    <RoleBasedPageLayout>
       <Flex h="100vh">
         <Box w="30%" bg="gray.100" p={4}>
           <Text fontSize="xl" fontWeight="bold" mb={4}>
@@ -289,7 +288,7 @@ const Learn = () => {
           </Button>
         </Box>
       </Flex>
-    </ChakraProvider>
+    </RoleBasedPageLayout>
   );
 };
 

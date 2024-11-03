@@ -23,13 +23,14 @@ import {
   MdOutlineShoppingBag,
   MdNotificationsNone,
   MdLogout,
-  MdOutlineShoppingCart
+  MdOutlineShoppingCart,
 } from 'react-icons/md';
 import { PiCertificate } from "react-icons/pi";
 import { IoBookOutline } from "react-icons/io5";
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
+import { FaRegStar } from 'react-icons/fa';
 
 DrawerRightDefault.propTypes = {
   isOpen: PropTypes.bool,
@@ -53,7 +54,7 @@ DrawerRightDefault.defaultProps = {
   },
 };
 
-function DrawerRightDefault(props) {
+const DrawerRightDefault = React.memo((props) => {
   const user = props.user;
   const navigate = useNavigate();
 
@@ -99,7 +100,7 @@ function DrawerRightDefault(props) {
             <SidebarItem
               icon={IoBookOutline}
               text="Enrolled Courses"
-              handleClick={() => navigate(config.routes.course_management_for_student)}
+              handleClick={() => navigate(config.routes.enroll_course)}
             />
 
             <SidebarItem
@@ -127,6 +128,12 @@ function DrawerRightDefault(props) {
             />
 
             <SidebarItem
+              icon={FaRegStar}
+              text="Wishlist"
+              handleClick={() => navigate(config.routes.favourite)}
+            />
+
+            <SidebarItem
               icon={MdNotificationsNone}
               text="Notifications"
               handleClick={() => navigate(config.routes.notifications_for_student)}
@@ -136,7 +143,7 @@ function DrawerRightDefault(props) {
               icon={MdLogout}
               text="Logout"
               handleClick={handleLogout}
-            />>
+            />
           </VStack>
         </DrawerBody>
 
@@ -149,6 +156,6 @@ function DrawerRightDefault(props) {
       </DrawerContent>
     </Drawer>
   );
-}
+})
 
 export default DrawerRightDefault;

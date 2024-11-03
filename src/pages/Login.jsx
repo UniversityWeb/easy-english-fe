@@ -68,9 +68,6 @@ const Login = () => {
         else if (user?.role === USER_ROLES.TEACHER) {
           navigate(config.routes.course_management_for_teacher);
         }
-        else {
-          navigate(config.routes.home[0]);
-        }
       })
       .catch((e) => {
         errorToast(e?.message);

@@ -32,6 +32,7 @@ import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import authService from '~/services/authService';
 import { getUsername } from '~/utils/authUtils';
+import config from '~/config';
 
 function CourseDetails() {
   const navigate = useNavigate();
@@ -101,10 +102,10 @@ function CourseDetails() {
         break;
       case 'start-course':
       case 'continue-course':
-        navigate(`/learn/${courseId}`);
+        navigate(config.routes.learn(courseId));
         break;
       case 'in-cart':
-        navigate('/cart');
+        navigate(config.routes.cart);
         break;
       default:
         break;

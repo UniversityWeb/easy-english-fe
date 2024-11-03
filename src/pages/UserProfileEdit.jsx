@@ -15,8 +15,8 @@ import {
   Heading,
   Text,
 } from '@chakra-ui/react';
-import Navbar from '~/components/Navbars/HomeNavbar/HomeNavbar';
 import Footer from '~/components/Footer';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const UserProfileEdit = () => {
   const [registerRequest, setRegisterRequest] = useState({
@@ -44,9 +44,7 @@ const UserProfileEdit = () => {
   };
 
   return (
-    <Box p={8} maxW="1000px" mx="auto" mt={12} bg="white" borderRadius="lg" boxShadow="xl">
-      <Navbar />
-
+    <RoleBasedPageLayout>
       <Grid templateColumns="30% 70%" gap={10} mb={10} alignItems="center">
         {/* Left: Avatar Section */}
         <GridItem>
@@ -155,7 +153,7 @@ const UserProfileEdit = () => {
           </form>
         </GridItem>
       </Grid>
-    </Box>
+    </RoleBasedPageLayout>
   );
 };
 

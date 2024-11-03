@@ -22,7 +22,7 @@ import CartService from '~/services/cartService';
 import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 
-function HomeNavbar(props) {
+const NavbarForStudent = React.memo((props) => {
   const navigate = useNavigate();
   const { errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -146,5 +146,6 @@ function HomeNavbar(props) {
       </div>
     </div>
   );
-}
-export default React.memo(HomeNavbar);
+});
+
+export default NavbarForStudent;

@@ -1,5 +1,4 @@
 import config from '~/config';
-import Home from '~/pages/Home';
 import Login from '~/pages/Login';
 import Register from '~/pages/Register';
 import ForgotPassword from '~/pages/ForgotPassword';
@@ -12,8 +11,6 @@ import PreviewTest from '~/pages/PreviewTest';
 import Cart from '~/pages/Cart';
 import PaymentResult from '~/pages/PaymentResult';
 import Curriculum from '~/pages/Teacher/CourseDetail/Curriculum/Curriculum';
-import MainCourse from '~/pages/Teacher/CourseDetail/Main/Main';
-import CourseDetail from '~/pages/Teacher/CourseDetail/CourseDetail';
 import CourseManagementForTeacher from '~/pages/Teacher/CourseManagementForTeacher';
 import Search from '~/pages/Search/Search';
 import Favourite from '~/pages/Search/Favourite';
@@ -24,9 +21,8 @@ import Setting from '~/pages/Teacher/DoiMoi/Setting';
 import Orders from '~/pages/Orders';
 import OrderDetail from '~/pages/OrderDetail';
 import Learn from '~/pages/Search/Learn';
+
 const publicRoutes = [
-  { path: config.routes.home[0], component: Home },
-  { path: config.routes.home[1], component: Home },
   { path: config.routes.login, component: Login },
   { path: config.routes.register, component: Register },
   { path: config.routes.forgot_password, component: ForgotPassword },
@@ -53,13 +49,13 @@ const publicRoutes = [
   },
   { path: config.routes.search, component: Search },
   { path: config.routes.favourite, component: Favourite },
-  { path: config.routes.enrollcourse, component: EnrollCourse },
+  { path: config.routes.enroll_course, component: EnrollCourse },
   { path: config.routes.course_view_detail, component: CourseViewDetail },
   { path: config.routes.test, component: ManagementCourse },
 
   { path: config.routes.orders, component: Orders },
   { path: config.routes.order_detail, component: OrderDetail },
-  { path: config.routes.learn, component: Learn },
+  { path: config.routes.learn(':courseId'), component: Learn },
 
 ];
 
