@@ -17,12 +17,12 @@ const routes = {
   course_management_for_teacher: '/course-management-for-teacher',
   search: '/search',
   favourite: '/favourite',
-  enrollcourse: '/enroll-course',
+  enroll_course: '/enroll-course',
   course_view_detail: '/course-view-detail/:courseId',
   test: '/test',
   orders: '/orders',
   order_detail: '/order-detail/:orderId',
-  learn: '/learn/:courseId',
+  learn: (courseId) => `/learn/${courseId}`,
 };
 
 export default routes;

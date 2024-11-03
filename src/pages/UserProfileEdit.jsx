@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -14,12 +14,16 @@ import {
   GridItem,
   Heading,
   Text,
+  Spinner,
 } from '@chakra-ui/react';
-import Navbar from '~/components/Navbars/HomeNavbar/HomeNavbar';
-import Footer from '~/components/Footer';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import userService from '~/services/userService';
+import UploadAvatar from '~/components/User/UploadAvatar';
+import AuthService from '~/services/authService';
+import useCustomToast from '~/hooks/useCustomToast';
 
 const UserProfileEdit = () => {
-  const [registerRequest, setRegisterRequest] = useState({
+  const [user, setUser] = useState({
     username: 'john',
     fullName: 'john',
     email: 'john@gmail.com',
@@ -28,134 +32,222 @@ const UserProfileEdit = () => {
     gender: 'MALE',
     dob: '2024-09-02',
   });
+  const [loading, setLoading] = useState(false);
+  const {successToast} = useCustomToast();
 
   const handleChange = (e) => {
     const name = e.target ? e.target.name : 'gender';
     const value = e.target ? e.target.value : e;
-    setRegisterRequest({
-      ...registerRequest,
+    setUser({
+      ...user,
       [name]: value,
     });
   };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await AuthService.getCurUser();
+        setUser(user);
+      } catch (e) {
+        console.log(e?.message);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(registerRequest);
+    setLoading(true);
+
+    try {
+      await userService.updateOwnProfile(user);
+      successToast('Profile updated successfully');
+    } catch (error) {
+      console.error('Error saving data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box p={8} maxW="1000px" mx="auto" mt={12} bg="white" borderRadius="lg" boxShadow="xl">
-      <Navbar />
-
-      <Grid templateColumns="30% 70%" gap={10} mb={10} alignItems="center">
-        {/* Left: Avatar Section */}
-        <GridItem>
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar size="2xl" name={registerRequest.fullName} src="/avatar.png" mb={6} />
-            <Heading fontSize="2xl" fontWeight="bold" textAlign="center">
-              {registerRequest.fullName}
-            </Heading>
-            <Text fontSize="lg" color="gray.500">
-              Student
-            </Text>
-          </Box>
-        </GridItem>
-
-        <GridItem>
-          <form onSubmit={handleSubmit}>
-            <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
-              <FormControl id="username" isRequired>
-                <FormLabel fontSize="lg" fontWeight="medium">Username</FormLabel>
-                <Input
-                  type="text"
-                  name="username"
-                  value={registerRequest.username}
-                  onChange={handleChange}
-                  size="lg"
-                />
-              </FormControl>
-
-              <FormControl id="fullName" isRequired>
-                <FormLabel fontSize="lg" fontWeight="medium">Full Name</FormLabel>
-                <Input
-                  type="text"
-                  name="fullName"
-                  value={registerRequest.fullName}
-                  onChange={handleChange}
-                  size="lg"
-                />
-              </FormControl>
-            </Box>
-
-            <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
-              <FormControl id="email" isRequired>
-                <FormLabel fontSize="lg" fontWeight="medium">Email</FormLabel>
-                <Input
-                  type="email"
-                  name="email"
-                  value={registerRequest.email}
-                  onChange={handleChange}
-                  size="lg"
-                />
-              </FormControl>
-
-              <FormControl id="phoneNumber" isRequired>
-                <FormLabel fontSize="lg" fontWeight="medium">Phone Number</FormLabel>
-                <Input
-                  type="text"
-                  name="phoneNumber"
-                  value={registerRequest.phoneNumber}
-                  onChange={handleChange}
-                  size="lg"
-                />
-              </FormControl>
-            </Box>
-
-            <FormControl id="bio" mb={6}>
-              <FormLabel fontSize="lg" fontWeight="medium">Bio</FormLabel>
-              <Textarea
-                name="bio"
-                value={registerRequest.bio}
-                onChange={handleChange}
-                placeholder="Tell us about yourself..."
-                size="lg"
-                resize="vertical"
+    <RoleBasedPageLayout>
+      <Box
+        maxW="1500px"
+        mx="auto"
+        p={6}
+        mt={10}
+        borderWidth={1}
+        borderRadius="md"
+        boxShadow="lg"
+      >
+        <Grid
+          templateColumns="30% 70%"
+          gap={10}
+          mb={10}
+          alignItems="center"
+          p={10}
+        >
+          <GridItem>
+            <Box display="flex" flexDirection="column" alignItems="center">
+              <Avatar
+                size="md"
+                name={user?.fullName}
+                src={user?.avatarPath}
               />
-            </FormControl>
-
-            <FormControl id="gender" mb={6}>
-              <FormLabel fontSize="lg" fontWeight="medium">Gender</FormLabel>
-              <RadioGroup
-                name="gender"
-                value={registerRequest.gender}
-                onChange={handleChange}
+              <UploadAvatar
+                registerRequest={user}
+                setRegisterRequest={setUser}
+                mb={4}
+              />
+              <Heading
+                fontSize="2xl"
+                fontWeight="bold"
+                textAlign="center"
+                mb={4}
               >
-                <Stack direction="row" spacing={8}>
-                  <Radio value="MALE" size="lg">Male</Radio>
-                  <Radio value="FEMALE" size="lg">Female</Radio>
-                  <Radio value="OTHER" size="lg">Other</Radio>
-                </Stack>
-              </RadioGroup>
-            </FormControl>
+                {user?.fullName}
+              </Heading>
+              <Text fontSize="lg" color="gray.500">
+                Role: {user?.role}
+              </Text>
+            </Box>
+          </GridItem>
 
-            <FormControl id="dob" mb={6}>
-              <FormLabel fontSize="lg" fontWeight="medium">Date of Birth</FormLabel>
-              <Input
-                type="date"
-                name="dob"
-                value={registerRequest.dob}
-                onChange={handleChange}
-                size="lg"
-              />
-            </FormControl>
+          <GridItem>
+            <form onSubmit={handleSubmit}>
+              <Box
+                display="grid"
+                gridTemplateColumns="repeat(2, 1fr)"
+                gap={6}
+                mb={6}
+              >
+                <FormControl id="username" isDisabled>
+                  <FormLabel fontSize="md" fontWeight="medium">
+                    Username
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    name="username"
+                    value={user.username}
+                    onChange={handleChange}
+                    size="md"
+                  />
+                </FormControl>
 
-            <Button type="submit" colorScheme="blue" size="lg" width="full" mt={4}>
-              Save Changes
-            </Button>
-          </form>
-        </GridItem>
-      </Grid>
-    </Box>
+                <FormControl id="fullName" isRequired>
+                  <FormLabel fontSize="md" fontWeight="medium">
+                    Full Name
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    name="fullName"
+                    value={user.fullName}
+                    onChange={handleChange}
+                    size="md"
+                  />
+                </FormControl>
+              </Box>
+
+              <Box
+                display="grid"
+                gridTemplateColumns="repeat(2, 1fr)"
+                gap={6}
+                mb={6}
+              >
+                <FormControl id="email" isRequired>
+                  <FormLabel fontSize="md" fontWeight="medium">
+                    Email
+                  </FormLabel>
+                  <Input
+                    type="email"
+                    name="email"
+                    value={user.email}
+                    onChange={handleChange}
+                    size="md"
+                  />
+                </FormControl>
+
+                <FormControl id="phoneNumber" isRequired>
+                  <FormLabel fontSize="md" fontWeight="medium">
+                    Phone Number
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    name="phoneNumber"
+                    value={user.phoneNumber}
+                    onChange={handleChange}
+                    size="md"
+                  />
+                </FormControl>
+              </Box>
+
+              <FormControl id="bio" mb={6}>
+                <FormLabel fontSize="md" fontWeight="medium">
+                  Bio
+                </FormLabel>
+                <Textarea
+                  name="bio"
+                  value={user.bio}
+                  onChange={handleChange}
+                  placeholder="Tell us about yourself..."
+                  size="md"
+                  resize="vertical"
+                />
+              </FormControl>
+
+              <FormControl id="gender" mb={6}>
+                <FormLabel fontSize="md" fontWeight="medium">
+                  Gender
+                </FormLabel>
+                <RadioGroup
+                  name="gender"
+                  value={user.gender}
+                  onChange={handleChange}
+                >
+                  <Stack direction="row" spacing={8}>
+                    <Radio value="MALE" size="md">
+                      Male
+                    </Radio>
+                    <Radio value="FEMALE" size="md">
+                      Female
+                    </Radio>
+                    <Radio value="OTHER" size="md">
+                      Other
+                    </Radio>
+                  </Stack>
+                </RadioGroup>
+              </FormControl>
+
+              <FormControl id="dob" mb={6}>
+                <FormLabel fontSize="md" fontWeight="medium">
+                  Date of Birth
+                </FormLabel>
+                <Input
+                  type="date"
+                  name="dob"
+                  value={user.dob}
+                  onChange={handleChange}
+                  size="md"
+                />
+              </FormControl>
+
+              <Button
+                type="submit"
+                colorScheme="blue"
+                size="md"
+                width="full"
+                mt={4}
+                isDisabled={loading}
+              >
+                {loading ? <Spinner size="sm" /> : 'Save Changes'}
+              </Button>
+            </form>
+          </GridItem>
+        </Grid>
+      </Box>
+    </RoleBasedPageLayout>
   );
 };
 

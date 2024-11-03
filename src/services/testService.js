@@ -38,6 +38,20 @@ const getTestsBySection = async (sectionId) => {
   return handleResponse(response, 200);
 };
 
+const uploadAudio = async (testId, audioFile) => {
+  const path = `${SUFFIX_TEST_API_URL}/${testId}/upload-audio`;
+  const formData = new FormData();
+  formData.append('audio', audioFile);
+
+  const response = await put(path, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+  return handleResponse(response, 200);
+};
+
 const testService = {
   create,
   update,
@@ -45,6 +59,7 @@ const testService = {
   getById,
   remove,
   getTestsBySection,
+  uploadAudio,
 };
 
 export default testService;

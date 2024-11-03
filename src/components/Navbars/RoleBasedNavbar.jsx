@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import HomeNavbar from './HomeNavbar';
 import NavbarForTeacher from './NavbarForTeacher';
 import AuthService from '~/services/authService';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +35,7 @@ function RoleBasedNavbar() {
 
   switch (userRole) {
     case USER_ROLES.ADMIN:
-      return <HomeNavbar />;
+      return '';
     case USER_ROLES.STUDENT:
       return <NavbarForStudent />;
     case USER_ROLES.TEACHER:

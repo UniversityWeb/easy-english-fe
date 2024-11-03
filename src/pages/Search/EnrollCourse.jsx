@@ -14,7 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { TbClockHour4 } from "react-icons/tb";
 import { ChakraProvider } from '@chakra-ui/react';
-import courseService from "~/services/courseService"; // Adjust the import path accordingly
+import courseService from "~/services/courseService";
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Adjust the import path accordingly
 
 const EnrollCourse = () => {
   const [courses, setCourses] = useState([]);
@@ -53,7 +54,7 @@ const EnrollCourse = () => {
   }
 
   return (
-    <ChakraProvider>
+    <RoleBasedPageLayout>
       <Box p={5}>
         <HStack spacing={5} wrap="wrap" justify="start">
           {courses.map((course) => (
@@ -114,7 +115,7 @@ const EnrollCourse = () => {
           ))}
         </HStack>
       </Box>
-    </ChakraProvider>
+    </RoleBasedPageLayout>
   );
 };
 
