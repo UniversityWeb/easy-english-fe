@@ -22,7 +22,7 @@ import {
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import useCustomToast from '~/hooks/useCustomToast';
@@ -38,15 +38,36 @@ const Login = () => {
   const { successToast, errorToast, warningToast } = useCustomToast();
   const [isLogging, setIsLogging] = useState(false);
 
+  useEffect(() => {
+    // Check if the user is already logged in
+    AuthService.getCurUser()
+      .then((user) => {
+        if (user) {
+          // Navigate based on user role
+          if (user.role === USER_ROLES.STUDENT) {
+            navigate(config.routes.search);
+          } else if (user.role === USER_ROLES.TEACHER) {
+            navigate(config.routes.course_management_for_teacher);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch user:", err);
+      });
+  }, [navigate]);
+
   const handleLogin = (event) => {
     event.preventDefault();
 
     setUsername(username?.trim());
     setPassword(password?.trim());
+
     if (username === '' || password === '') {
       warningToast(`Please fill in both the username and password fields`);
       return;
     }
+
+    setIsLogging(true); // Start loading
 
     const loginRequest = {
       username: `${username}`,
@@ -55,6 +76,7 @@ const Login = () => {
 
     AuthService.login(loginRequest)
       .then((loginResponse) => {
+        setIsLogging(false); // Stop loading
         if (!loginResponse) {
           errorToast(`Login unsuccessfully`);
           return;
@@ -70,6 +92,7 @@ const Login = () => {
         }
       })
       .catch((e) => {
+        setIsLogging(false); // Stop loading
         errorToast(e?.message);
       });
   };
@@ -99,10 +122,10 @@ const Login = () => {
               <FormLabel>Username</FormLabel>
               <Input
                 id="username"
-                type="username"
+                type="text"
                 size="lg"
                 value={username}
-                onChange={(e) => setUsername(e?.target?.value)}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </FormControl>
 
@@ -115,7 +138,7 @@ const Login = () => {
                   type={showPassword ? 'text' : 'password'}
                   size="lg"
                   value={password}
-                  onChange={(e) => setPassword(e?.target?.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <InputRightElement h={'full'}>
                   <Button
@@ -160,8 +183,9 @@ const Login = () => {
                 size="md"
                 borderRadius="xl"
                 p={6}
-                disabled={true}
+                isLoading={isLogging} // Add loading state
                 onClick={handleLogin}
+                disabled={username === '' || password === ''} // Enable/disable based on input
               >
                 Login
               </Button>
