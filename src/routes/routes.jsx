@@ -21,6 +21,7 @@ import Setting from '~/pages/Teacher/DoiMoi/Setting';
 import Orders from '~/pages/Orders';
 import OrderDetail from '~/pages/OrderDetail';
 import Learn from '~/pages/Search/Learn';
+import Category from '~/pages/Admin/Category';
 
 const publicRoutes = [
   { path: config.routes.login, component: Login },
@@ -56,7 +57,7 @@ const publicRoutes = [
   { path: config.routes.orders, component: Orders },
   { path: config.routes.order_detail, component: OrderDetail },
   { path: config.routes.learn(':courseId'), component: Learn },
-
+  { path: config.routes.category, component: Category },
 ];
 
 const privateRoutes = [];
