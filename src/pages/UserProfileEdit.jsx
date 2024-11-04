@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -14,13 +14,217 @@ import {
   GridItem,
   Heading,
   Text,
-  Spinner,
+  Spinner, Modal, ModalOverlay, ModalContent, ModalFooter, ModalHeader, ModalCloseButton, ModalBody,
 } from '@chakra-ui/react';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import userService from '~/services/userService';
 import UploadAvatar from '~/components/User/UploadAvatar';
 import AuthService from '~/services/authService';
 import useCustomToast from '~/hooks/useCustomToast';
+import authService from '~/services/authService';
+
+const UpdatePasswordWithOtpModal = ({ isOpen, onClose, onOtpSubmitted }) => {
+  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleOtpSubmit = async () => {
+    setLoading(true);
+    onOtpSubmitted(otp);
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Verify OTP</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <FormControl>
+            <FormLabel>Enter OTP</FormLabel>
+            <Input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter the OTP sent to your email"
+            />
+          </FormControl>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            colorScheme="cyan"
+            onClick={handleOtpSubmit}
+            ml={3}
+            isLoading={loading}
+            disabled={!otp}
+          >
+            {loading ? <Spinner size="sm" /> : 'Verify OTP'}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const UpdatePassword = () => {
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [loadingPassword, setLoadingPassword] = useState(false);
+  const [isOpenVerifyOtpModel, setIsOpenVerifyOtpModel] = useState(false);
+  const {successToast, errorToast} = useCustomToast();
+
+  // Validate password based on the criteria
+  const validatePassword = (password, confirmPassword) => {
+    const errors = [];
+    if (password.length < 8) errors.push("Password must be at least 8 characters long.");
+    if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
+    if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
+    if (!/\d/.test(password)) errors.push("Password must contain at least one digit.");
+    if (!/[!@#$%^&*]/.test(password)) errors.push("Password must contain at least one special character.");
+    if (password !== confirmPassword) errors.push("Password and Confirm Password do not match.");
+    return errors;
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData({ ...passwordData, [name]: value });
+
+    if (name === "password" || name === "confirmPassword") {
+      const errors = validatePassword(
+        name === "password" ? value : passwordData.password,
+        name === "confirmPassword" ? value : passwordData.confirmPassword
+      );
+      setValidationErrors(errors);
+    }
+  };
+
+  const generateOtpToUpdatePassword = async (e) => {
+    e.preventDefault();
+    const errors = validatePassword(passwordData.password, passwordData.confirmPassword);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setLoadingPassword(true);
+    try {
+      await authService.generateOtpToUpdatePassword(passwordData);
+      successToast('Otp generated successfully');
+      setIsOpenVerifyOtpModel(true);
+    } catch (error) {
+      errorToast("Error generating otp");
+      console.error('Error saving data:', error);
+    } finally {
+      setLoadingPassword(false);
+    }
+  };
+
+  const handleUpdatePassWithOtp = useCallback(async (otp) => {
+    setLoadingPassword(true);
+    try {
+      const updatePassReq = {
+        otp: otp,
+        password: passwordData?.password,
+      }
+      await authService.updatePasswordWithOtp(updatePassReq);
+      successToast('Password updated successfully');
+      setIsOpenVerifyOtpModel(false);
+    } catch (error) {
+      errorToast('Invalid OTP. Please try again.');
+      console.error('OTP verification failed:', error);
+    } finally {
+      setLoadingPassword(false);
+    }
+  }, []);
+
+  return (
+    <Box>
+      <form onSubmit={generateOtpToUpdatePassword}>
+        <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
+          <FormControl id="oldPassword" isRequired>
+            <FormLabel fontSize="md" fontWeight="medium">Old Password</FormLabel>
+            <Input
+              type="password"
+              name="oldPassword"
+              value={passwordData.oldPassword}
+              onChange={handlePasswordChange}
+              size="md"
+            />
+          </FormControl>
+
+          <FormControl id="password" isRequired>
+            <FormLabel fontSize="md" fontWeight="medium">New Password</FormLabel>
+            <Input
+              type="password"
+              name="password"
+              value={passwordData.password}
+              onChange={handlePasswordChange}
+              size="md"
+            />
+          </FormControl>
+
+          <FormControl id="confirmPassword" isRequired>
+            <FormLabel fontSize="md" fontWeight="medium">Confirm New Password</FormLabel>
+            <Input
+              type="password"
+              name="confirmPassword"
+              value={passwordData.confirmPassword}
+              onChange={handlePasswordChange}
+              size="md"
+            />
+          </FormControl>
+        </Box>
+
+        {validationErrors.length > 0 && (
+          <Box mb={4}>
+            {validationErrors.map((error, index) => (
+              <Text key={index} color="red.500" fontSize="sm">{error}</Text>
+            ))}
+          </Box>
+        )}
+
+        {loadingPassword ? (
+          <Button
+            type="submit"
+            bg="cyan.600"
+            color="white"
+            size="md"
+            width="fit-content"
+            mt={4}
+          >
+            Verify Otp
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            bg="cyan.600"
+            color="white"
+            size="md"
+            width="fit-content"
+            mt={4}
+            isLoading={loadingPassword}
+            isDisabled={loadingPassword}
+          >
+            {loadingPassword ? <Spinner size="sm" /> : 'Update Password'}
+          </Button>
+        )}
+      </form>
+
+      <UpdatePasswordWithOtpModal
+        isOpen={isOpenVerifyOtpModel}
+        onClose={() => setIsOpenVerifyOtpModel(false)}
+        onOtpSubmitted={handleUpdatePassWithOtp}
+      />
+    </Box>
+  );
+};
 
 const UserProfileEdit = () => {
   const [user, setUser] = useState({
@@ -32,10 +236,10 @@ const UserProfileEdit = () => {
     gender: 'MALE',
     dob: '2024-09-02',
   });
-  const [loading, setLoading] = useState(false);
-  const {successToast} = useCustomToast();
+  const [updateProfileLoading, setUpdateProfileLoading] = useState(false);
+  const { successToast } = useCustomToast();
 
-  const handleChange = (e) => {
+  const handleUserChange = (e) => {
     const name = e.target ? e.target.name : 'gender';
     const value = e.target ? e.target.value : e;
     setUser({
@@ -57,9 +261,9 @@ const UserProfileEdit = () => {
     fetchUser();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setUpdateProfileLoading(true);
 
     try {
       await userService.updateOwnProfile(user);
@@ -67,7 +271,7 @@ const UserProfileEdit = () => {
     } catch (error) {
       console.error('Error saving data:', error);
     } finally {
-      setLoading(false);
+      setUpdateProfileLoading(false);
     }
   };
 
@@ -78,9 +282,11 @@ const UserProfileEdit = () => {
         mx="auto"
         p={6}
         mt={10}
+        mb={50}
         borderWidth={1}
         borderRadius="md"
         boxShadow="lg"
+        width="80%"
       >
         <Grid
           templateColumns="30% 70%"
@@ -89,34 +295,25 @@ const UserProfileEdit = () => {
           alignItems="center"
           p={10}
         >
-          <GridItem>
-            <Box display="flex" flexDirection="column" alignItems="center">
-              <Avatar
-                size="md"
-                name={user?.fullName}
-                src={user?.avatarPath}
-              />
+          <GridItem alignSelf="start">
+            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="flex-start">
               <UploadAvatar
-                registerRequest={user}
-                setRegisterRequest={setUser}
+                user={user}
+                setUser={setUser}
                 mb={4}
               />
-              <Heading
-                fontSize="2xl"
-                fontWeight="bold"
-                textAlign="center"
-                mb={4}
-              >
-                {user?.fullName}
-              </Heading>
-              <Text fontSize="lg" color="gray.500">
+              <Text fontSize="sm" color="gray.500">
                 Role: {user?.role}
               </Text>
             </Box>
           </GridItem>
 
           <GridItem>
-            <form onSubmit={handleSubmit}>
+            <Heading as="h5" size="lg" mb={4}>
+              Information
+            </Heading>
+
+            <form onSubmit={handleUpdateProfile}>
               <Box
                 display="grid"
                 gridTemplateColumns="repeat(2, 1fr)"
@@ -131,7 +328,7 @@ const UserProfileEdit = () => {
                     type="text"
                     name="username"
                     value={user.username}
-                    onChange={handleChange}
+                    onChange={handleUserChange}
                     size="md"
                   />
                 </FormControl>
@@ -144,7 +341,7 @@ const UserProfileEdit = () => {
                     type="text"
                     name="fullName"
                     value={user.fullName}
-                    onChange={handleChange}
+                    onChange={handleUserChange}
                     size="md"
                   />
                 </FormControl>
@@ -164,7 +361,7 @@ const UserProfileEdit = () => {
                     type="email"
                     name="email"
                     value={user.email}
-                    onChange={handleChange}
+                    onChange={handleUserChange}
                     size="md"
                   />
                 </FormControl>
@@ -177,7 +374,7 @@ const UserProfileEdit = () => {
                     type="text"
                     name="phoneNumber"
                     value={user.phoneNumber}
-                    onChange={handleChange}
+                    onChange={handleUserChange}
                     size="md"
                   />
                 </FormControl>
@@ -190,7 +387,7 @@ const UserProfileEdit = () => {
                 <Textarea
                   name="bio"
                   value={user.bio}
-                  onChange={handleChange}
+                  onChange={handleUserChange}
                   placeholder="Tell us about yourself..."
                   size="md"
                   resize="vertical"
@@ -204,7 +401,7 @@ const UserProfileEdit = () => {
                 <RadioGroup
                   name="gender"
                   value={user.gender}
-                  onChange={handleChange}
+                  onChange={handleUserChange}
                 >
                   <Stack direction="row" spacing={8}>
                     <Radio value="MALE" size="md">
@@ -228,22 +425,34 @@ const UserProfileEdit = () => {
                   type="date"
                   name="dob"
                   value={user.dob}
-                  onChange={handleChange}
+                  onChange={handleUserChange}
                   size="md"
                 />
               </FormControl>
 
               <Button
                 type="submit"
-                colorScheme="blue"
+                bg="cyan.600"
+                color="white"
+                loadingText="Loading"
                 size="md"
-                width="full"
+                width="fit-content"
                 mt={4}
-                isDisabled={loading}
+                isLoading={updateProfileLoading}
+                isDisabled={updateProfileLoading}
               >
-                {loading ? <Spinner size="sm" /> : 'Save Changes'}
+                {updateProfileLoading ? <Spinner size="sm" /> : 'Save Changes'}
               </Button>
             </form>
+
+            {/* Password Update Section */}
+            <Box mt={20}>
+              <Heading as="h5" size="lg" mb={4}>
+                Update Password
+              </Heading>
+              <UpdatePassword
+              />
+            </Box>
           </GridItem>
         </Grid>
       </Box>
