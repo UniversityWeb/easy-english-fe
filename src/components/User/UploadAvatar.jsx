@@ -1,13 +1,35 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Button, Box, Text, Spinner } from '@chakra-ui/react';
-import userService from '~/services/userService'; // Adjust the import according to your service
+import {
+  Box,
+  Text,
+  Spinner,
+  Avatar,
+  Button,
+  Modal,
+  ModalOverlay,
+  Image,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+} from '@chakra-ui/react';
+import userService from '~/services/userService';
 import useCustomToast from '~/hooks/useCustomToast';
+import { motion } from 'framer-motion';
+import ImagePreview from '~/components/ImagePreview';
+const MotionAvatar = motion(Avatar);
 
-const UploadAvatar = ({ registerRequest, setRegisterRequest }) => {
+const UploadAvatar = ({ user, setUser }) => {
   const [loading, setLoading] = useState(false);
   const [newFile, setNewFile] = useState(null);
+  const [avatarKey, setAvatarKey] = useState(Date.now());
   const { successToast, errorToast } = useCustomToast();
+  const [isPreviewAvatarOpen, setPreviewAvatarOpen] = useState(false);
+
+  // State for modal control
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleConfirmUpload = useCallback(async () => {
     if (newFile) {
@@ -17,11 +39,12 @@ const UploadAvatar = ({ registerRequest, setRegisterRequest }) => {
         const uploadedPath = await userService.uploadAvatar(newFile); // Ensure this method exists in your userService
 
         // Update registerRequest with the new avatar path
-        setRegisterRequest(prevState => ({
+        setUser((prevState) => ({
           ...prevState,
-          avatar: uploadedPath, // Adjust if needed
+          avatarPath: uploadedPath, // Adjust if needed
         }));
 
+        setAvatarKey(Date.now());
         setNewFile(null); // Clear the new file
         successToast('Avatar uploaded successfully.');
       } catch (error) {
@@ -31,17 +54,28 @@ const UploadAvatar = ({ registerRequest, setRegisterRequest }) => {
         setLoading(false); // Stop loading animation
       }
     }
-  }, [newFile, setRegisterRequest]);
+  }, [newFile, setUser]);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
-    if (file && file.type.startsWith('image/')) { // Check for image MIME type
+    if (file && file.type.startsWith('image/')) {
+      // Check for image MIME type
       setNewFile(file);
-      handleConfirmUpload(); // Directly upload the new avatar
+      setIsOpen(true); // Open confirmation dialog
     } else {
       alert('Please upload a valid image file.');
     }
-  }, [handleConfirmUpload]);
+  }, []);
+
+  const handleConfirm = () => {
+    setIsOpen(false); // Close the dialog
+    handleConfirmUpload(); // Proceed with the upload
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false); // Close the dialog
+    setNewFile(null); // Clear the selected file
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -49,7 +83,40 @@ const UploadAvatar = ({ registerRequest, setRegisterRequest }) => {
   });
 
   return (
-    <Box p={8} shadow="md" borderWidth="1px" width="100%" minH="200px" borderRadius="md">
+    <Box
+      p={8}
+      width="100%"
+      minH="100px"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+    >
+      {/* Surrounding border for the avatar */}
+      <Box
+        border="1px solid" // Change border thickness here
+        borderColor="gray.200" // Change border color as needed
+        borderRadius="full" // Make the border circular
+        overflow="hidden" // Ensures that the avatar fits within the rounded border
+        onClick={() => {
+          if (user?.avatarPath) {
+            setPreviewAvatarOpen(true);
+          }
+        }}
+        transition="border-color 0.3s" // Smooth transition for the border color
+        mb={4}
+      >
+        <MotionAvatar
+          size="2xl"
+          name={user?.fullName}
+          src={user?.avatarPath}
+          key={avatarKey} // Use avatarKey to trigger re-mount
+          initial={{ opacity: 0, scale: 0.8 }} // Initial state
+          animate={{ opacity: 1, scale: 1 }} // Final state
+          transition={{ duration: 0.3 }} // Animation duration
+        />
+      </Box>
+
       {/* Avatar upload area */}
       <Box
         {...getRootProps()}
@@ -65,9 +132,13 @@ const UploadAvatar = ({ registerRequest, setRegisterRequest }) => {
       >
         <input {...getInputProps()} />
         {isDragActive ? (
-          <Text color="blue.500">Drop your avatar image here...</Text>
+          <Text color="blue.500" fontSize="sm">
+            Drop your avatar image here...
+          </Text>
         ) : (
-          <Text color="gray.600">Drag 'n' drop an image file here, or click to select one</Text>
+          <Text color="gray.600" fontSize="sm">
+            Pick image
+          </Text>
         )}
       </Box>
 
@@ -77,6 +148,32 @@ const UploadAvatar = ({ registerRequest, setRegisterRequest }) => {
           <Text mt={2}>Uploading...</Text>
         </Box>
       )}
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={isOpen} onClose={handleCancel}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Upload</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to upload this image?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={handleConfirm}>
+              Yes
+            </Button>
+            <Button ml={3} onClick={handleCancel}>
+              No
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <ImagePreview
+        isOpen={isPreviewAvatarOpen}
+        onClose={() => setPreviewAvatarOpen(false)}
+        imageUrl={user?.avatarPath}
+      />
     </Box>
   );
 };
