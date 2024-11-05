@@ -26,6 +26,7 @@ const routes = {
   order_detail: '/order-detail/:orderId',
   learn: (courseId) => `/learn/${courseId}`,
   category: '/category',
+  topic_level: '/topic-level',
 };
 
 export default routes;

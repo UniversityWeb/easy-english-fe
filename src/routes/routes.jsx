@@ -22,6 +22,7 @@ import Orders from '~/pages/Orders';
 import OrderDetail from '~/pages/OrderDetail';
 import Learn from '~/pages/Search/Learn';
 import Category from '~/pages/Admin/Category';
+import TopicAndLevel from '~/pages/Admin/TopicAndLevel';
 
 const publicRoutes = [
   { path: config.routes.login, component: Login },
@@ -58,6 +59,7 @@ const publicRoutes = [
   { path: config.routes.order_detail, component: OrderDetail },
   { path: config.routes.learn(':courseId'), component: Learn },
   { path: config.routes.category, component: Category },
+  { path: config.routes.topic_level, component: TopicAndLevel },
 ];
 
 const privateRoutes = [];
