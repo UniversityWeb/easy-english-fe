@@ -1,3 +1,5 @@
+import { Category } from "@mui/icons-material";
+
 const routes = {
   home: ['/', '/home'],
   login: '/login',
@@ -23,6 +25,8 @@ const routes = {
   orders: '/orders',
   order_detail: '/order-detail/:orderId',
   learn: (courseId) => `/learn/${courseId}`,
+  category: '/category',
+  topic_level: '/topic-level',
 };
 
 export default routes;

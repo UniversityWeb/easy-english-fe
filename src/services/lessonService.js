@@ -2,9 +2,6 @@ import { get, del, post } from '~/utils/httpRequest'; // Removed unused imports
 
 const SUFFIX_LESSON_API_URL = '/lesson';
 
-
-
-
 const fetchLessonById = async (lessonRequest) => {
   const path = `${SUFFIX_LESSON_API_URL}/get-lesson-by-id`;
   const response = await post(path, lessonRequest);
