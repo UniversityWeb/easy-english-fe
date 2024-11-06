@@ -1,64 +1,84 @@
+import React, { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
+  Box,
   Button,
-  Flex,
-  FormControl,
   Heading,
   Input,
-  Stack,
   Text,
-  useColorModeValue,
+  Link,
+  VStack,
+  HStack,
+  IconButton,
 } from '@chakra-ui/react';
+import { ArrowBackIcon } from '@chakra-ui/icons';
 
-const ForgotPasswordFormInputs = {
-  email: '',
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Logic for handling the password reset link
+    console.log('Reset link sent to:', email);
+  };
+
+  return (
+    <Box
+      maxW="400px"
+      mx="auto"
+      mt="100px"
+      p="6"
+      boxShadow="lg"
+      borderRadius="md"
+      textAlign="center"
+      bg="white"
+    >
+      <HStack mb={4}>
+        <IconButton
+          icon={<ArrowBackIcon />}
+          aria-label="Go back"
+          onClick={() => window.history.back()}
+          variant="ghost"
+        />
+        <Heading size="lg">Restore password</Heading>
+      </HStack>
+
+      <VStack as="form" onSubmit={handleSubmit} spacing={4}>
+        <Input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <Button
+          bg="cyan.600"
+          color="white"
+          loadingText="Loading"
+          type="submit"
+          width="full"
+          size="md"
+          borderRadius="xl"
+          p={6}
+          isLoading={isLoading} // Add loading state
+          disabled={username === '' || password === ''} // Enable/disable based on input
+        >
+          Send Reset Link
+        </Button>
+      </VStack>
+
+      <Box mt={6} borderTop="1px solid #eaeaea" pt={4}>
+        <Text>
+          No account?{' '}
+          <Link as={RouterLink} to="/signup" color="blue.500">
+            Sign Up
+          </Link>
+        </Text>
+      </Box>
+    </Box>
+  );
 };
 
-export default function ForgotPasswordForm() {
-  return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-    >
-      <Stack
-        spacing={4}
-        w={'full'}
-        maxW={'md'}
-        bg={useColorModeValue('white', 'gray.700')}
-        rounded={'xl'}
-        boxShadow={'lg'}
-        p={6}
-        my={12}
-      >
-        <Heading lineHeight={1.1} fontSize={{ base: '2xl', md: '3xl' }}>
-          Forgot your password?
-        </Heading>
-        <Text
-          fontSize={{ base: 'sm', sm: 'md' }}
-          color={useColorModeValue('gray.800', 'gray.400')}
-        >
-          You&apos;ll get an email with a reset link
-        </Text>
-        <FormControl id="email">
-          <Input
-            placeholder="your-email@example.com"
-            _placeholder={{ color: 'gray.500' }}
-            type="email"
-          />
-        </FormControl>
-        <Stack spacing={6}>
-          <Button
-            bg={'blue.400'}
-            color={'white'}
-            _hover={{
-              bg: 'blue.500',
-            }}
-          >
-            Request Reset
-          </Button>
-        </Stack>
-      </Stack>
-    </Flex>
-  );
-}
+export default ForgotPassword;

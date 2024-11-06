@@ -9,12 +9,11 @@ import {
   RadioGroup,
   Radio,
   Stack,
-  Avatar,
   Grid,
   GridItem,
   Heading,
   Text,
-  Spinner, Modal, ModalOverlay, ModalContent, ModalFooter, ModalHeader, ModalCloseButton, ModalBody,
+  Spinner,
 } from '@chakra-ui/react';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import userService from '~/services/userService';
@@ -22,56 +21,10 @@ import UploadAvatar from '~/components/User/UploadAvatar';
 import AuthService from '~/services/authService';
 import useCustomToast from '~/hooks/useCustomToast';
 import authService from '~/services/authService';
-
-const UpdatePasswordWithOtpModal = ({ isOpen, onClose, onOtpSubmitted }) => {
-  const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleOtpSubmit = async () => {
-    setLoading(true);
-    onOtpSubmitted(otp);
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Verify OTP</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <FormControl>
-            <FormLabel>Enter OTP</FormLabel>
-            <Input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="Enter the OTP sent to your email"
-            />
-          </FormControl>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            colorScheme="cyan"
-            onClick={handleOtpSubmit}
-            ml={3}
-            isLoading={loading}
-            disabled={!otp}
-          >
-            {loading ? <Spinner size="sm" /> : 'Verify OTP'}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
+import VerifyOtpModal from '~/components/VerifyOtpModal';
 
 const UpdatePassword = () => {
   const [passwordData, setPasswordData] = useState({
-    oldPassword: "",
     password: "",
     confirmPassword: "",
   });
@@ -148,17 +101,6 @@ const UpdatePassword = () => {
     <Box>
       <form onSubmit={generateOtpToUpdatePassword}>
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
-          <FormControl id="oldPassword" isRequired>
-            <FormLabel fontSize="md" fontWeight="medium">Old Password</FormLabel>
-            <Input
-              type="password"
-              name="oldPassword"
-              value={passwordData.oldPassword}
-              onChange={handlePasswordChange}
-              size="md"
-            />
-          </FormControl>
-
           <FormControl id="password" isRequired>
             <FormLabel fontSize="md" fontWeight="medium">New Password</FormLabel>
             <Input
@@ -217,7 +159,7 @@ const UpdatePassword = () => {
         )}
       </form>
 
-      <UpdatePasswordWithOtpModal
+      <VerifyOtpModal
         isOpen={isOpenVerifyOtpModel}
         onClose={() => setIsOpenVerifyOtpModel(false)}
         onOtpSubmitted={handleUpdatePassWithOtp}
