@@ -66,6 +66,18 @@ const updatePasswordWithOtp = async (updatePasswordWithOtp) => {
   return handleResponse(response, 200);
 }
 
+const generateOtpToResetPassword = async (email) => {
+  const path = `${SUFFIX_AUTH_API_URL}/generate-otp-to-reset-password/${email}`;
+  const response = await post(path);
+  return handleResponse(response, 200);
+};
+
+const resetPasswordWithOtp = async (resetPasswordWithOtp) => {
+  const path = `${SUFFIX_AUTH_API_URL}/reset-password-with-otp`;
+  const response = await put(path, resetPasswordWithOtp);
+  return handleResponse(response, 200);
+}
+
 const AuthService = {
   getCurUser,
   login,
@@ -75,6 +87,8 @@ const AuthService = {
   resendOTPToActiveAccount,
   generateOtpToUpdatePassword,
   updatePasswordWithOtp,
+  generateOtpToResetPassword,
+  resetPasswordWithOtp,
 };
 
 export default AuthService;

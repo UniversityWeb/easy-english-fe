@@ -6,6 +6,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { USER_ROLES } from '~/utils/constants';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import config from '~/config';
+import NavbarForAdmin from '~/components/Navbars/NavbarForAdmin';
 
 function RoleBasedNavbar() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ function RoleBasedNavbar() {
 
   switch (userRole) {
     case USER_ROLES.ADMIN:
-      return '';
+      return <NavbarForAdmin />;
     case USER_ROLES.STUDENT:
       return <NavbarForStudent />;
     case USER_ROLES.TEACHER:
