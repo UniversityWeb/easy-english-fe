@@ -13,7 +13,7 @@ import {
   GridItem,
   Heading,
   Text,
-  Spinner,
+  Spinner, InputGroup, InputRightElement, HStack,
 } from '@chakra-ui/react';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import userService from '~/services/userService';
@@ -23,6 +23,8 @@ import useCustomToast from '~/hooks/useCustomToast';
 import authService from '~/services/authService';
 import VerifyOtpModal from '~/components/VerifyOtpModal';
 import { validatePassword } from '~/utils/methods';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import ValidationErrors from '~/components/ValidationErrors';
 
 const UpdatePassword = () => {
   const [passwordData, setPasswordData] = useState({
@@ -33,6 +35,10 @@ const UpdatePassword = () => {
   const [loadingPassword, setLoadingPassword] = useState(false);
   const [isOpenVerifyOtpModel, setIsOpenVerifyOtpModel] = useState(false);
   const {successToast, errorToast} = useCustomToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -73,7 +79,7 @@ const UpdatePassword = () => {
     try {
       const updatePassReq = {
         otp: otp,
-        password: passwordData?.password,
+        newPassword: passwordData?.password,
       }
       await authService.updatePasswordWithOtp(updatePassReq);
       successToast('Password updated successfully');
@@ -90,67 +96,102 @@ const UpdatePassword = () => {
     <Box>
       <form onSubmit={generateOtpToUpdatePassword}>
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
-          <FormControl id="password" isRequired>
-            <FormLabel fontSize="md" fontWeight="medium">New Password</FormLabel>
-            <Input
-              type="password"
-              name="password"
-              value={passwordData.password}
-              onChange={handlePasswordChange}
-              size="md"
-            />
+          <FormControl isRequired mb={6}>
+            <FormLabel>New Password</FormLabel>
+            <InputGroup>
+              <Input
+                id="password"
+                name="password"
+                placeholder="********"
+                type={showPassword ? 'text' : 'password'}
+                size="lg"
+                value={passwordData.password}
+                onChange={handlePasswordChange}
+              />
+              <InputRightElement h={'full'}>
+                <Button
+                  variant={'ghost'}
+                  onClick={togglePasswordVisibility}
+                  cursor="pointer"
+                >
+                  {showPassword ? (
+                    <ViewIcon color="cyan.700" />
+                  ) : (
+                    <ViewOffIcon color="cyan.700" />
+                  )}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
           </FormControl>
 
-          <FormControl id="confirmPassword" isRequired>
-            <FormLabel fontSize="md" fontWeight="medium">Confirm New Password</FormLabel>
-            <Input
-              type="password"
-              name="confirmPassword"
-              value={passwordData.confirmPassword}
-              onChange={handlePasswordChange}
-              size="md"
-            />
+          <FormControl isRequired mb={6}>
+            <FormLabel>Confirm Password</FormLabel>
+            <InputGroup>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="********"
+                type={showPassword ? 'text' : 'password'}
+                size="lg"
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+              />
+              <InputRightElement h={'full'}>
+                <Button
+                  variant={'ghost'}
+                  onClick={toggleConfirmPasswordVisibility}
+                  cursor="pointer"
+                >
+                  {showConfirmPassword ? (
+                    <ViewIcon color="cyan.700" />
+                  ) : (
+                    <ViewOffIcon color="cyan.700" />
+                  )}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
           </FormControl>
         </Box>
 
-        {validationErrors.length > 0 && (
-          <Box mb={4}>
-            {validationErrors.map((error, index) => (
-              <Text key={index} color="red.500" fontSize="sm">{error}</Text>
-            ))}
-          </Box>
-        )}
-
-        {loadingPassword ? (
+        <HStack spacing={10}>
           <Button
             type="submit"
             bg="cyan.600"
             color="white"
             size="md"
             width="fit-content"
-            mt={4}
-          >
-            Verify Otp
-          </Button>
-        ) : (
-          <Button
-            type="submit"
-            bg="cyan.600"
-            color="white"
-            size="md"
-            width="fit-content"
-            mt={4}
             isLoading={loadingPassword}
             isDisabled={loadingPassword}
           >
             {loadingPassword ? <Spinner size="sm" /> : 'Update Password'}
           </Button>
-        )}
+
+          <Button
+            bg="cyan.600"
+            color="white"
+            size="md"
+            width="fit-content"
+            onClick={() => setIsOpenVerifyOtpModel(true)}
+            hidden={!loadingPassword}
+            isLoading={!loadingPassword}
+            isDisabled={!loadingPassword}
+          >
+            Verify Otp
+          </Button>
+        </HStack>
+
       </form>
+
+      <Box mt={5}>
+        <ValidationErrors
+          errors={validationErrors}
+        />
+      </Box>
 
       <VerifyOtpModal
         isOpen={isOpenVerifyOtpModel}
         onClose={() => setIsOpenVerifyOtpModel(false)}
+        isSubmitLoading={loadingPassword}
         onOtpSubmitted={handleUpdatePassWithOtp}
       />
     </Box>
@@ -381,8 +422,7 @@ const UserProfileEdit = () => {
               <Heading as="h5" size="lg" mb={4}>
                 Update Password
               </Heading>
-              <UpdatePassword
-              />
+              <UpdatePassword />
             </Box>
           </GridItem>
         </Grid>

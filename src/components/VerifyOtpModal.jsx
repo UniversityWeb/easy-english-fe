@@ -10,13 +10,12 @@ import {
   ModalOverlay, Spinner,
 } from '@chakra-ui/react';
 
-const VerifyOtpModal = ({ isOpen, onClose, onOtpSubmitted }) => {
+const VerifyOtpModal = ({ isOpen, onClose, isSubmitLoading, onOtpSubmitted }) => {
   const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleOtpSubmit = async () => {
-    setLoading(true);
     onOtpSubmitted(otp);
+    setOtp('');
   };
 
   return (
@@ -42,13 +41,14 @@ const VerifyOtpModal = ({ isOpen, onClose, onOtpSubmitted }) => {
             Cancel
           </Button>
           <Button
+            textColor="white"
             colorScheme="cyan"
             onClick={handleOtpSubmit}
             ml={3}
-            isLoading={loading}
+            isLoading={isSubmitLoading}
             disabled={!otp}
           >
-            {loading ? <Spinner size="sm" /> : 'Verify OTP'}
+            {isSubmitLoading ? <Spinner size="sm" /> : 'Verify OTP'}
           </Button>
         </ModalFooter>
       </ModalContent>
