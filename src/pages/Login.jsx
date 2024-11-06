@@ -31,7 +31,7 @@ import { USER_ROLES } from '~/utils/constants';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRememberMe, setIsRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -59,10 +59,10 @@ const Login = () => {
   const handleLogin = (event) => {
     event.preventDefault();
 
-    setUsername(username?.trim());
+    setUsernameOrEmail(usernameOrEmail?.trim());
     setPassword(password?.trim());
 
-    if (username === '' || password === '') {
+    if (usernameOrEmail === '' || password === '') {
       warningToast(`Please fill in both the username and password fields`);
       return;
     }
@@ -70,7 +70,7 @@ const Login = () => {
     setIsLogging(true); // Start loading
 
     const loginRequest = {
-      username: `${username}`,
+      usernameOrEmail: `${usernameOrEmail}`,
       password: `${password}`,
     };
 
@@ -119,13 +119,13 @@ const Login = () => {
         <Card mt={6} p="2rem">
           <CardBody>
             <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Username Or Email</FormLabel>
               <Input
-                id="username"
+                id="usernameOrEmail"
                 type="text"
                 size="lg"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={usernameOrEmail}
+                onChange={(e) => setUsernameOrEmail(e.target.value)}
               />
             </FormControl>
 
@@ -185,7 +185,7 @@ const Login = () => {
                 p={6}
                 isLoading={isLogging} // Add loading state
                 onClick={handleLogin}
-                disabled={username === '' || password === ''} // Enable/disable based on input
+                disabled={usernameOrEmail === '' || password === ''} // Enable/disable based on input
               >
                 Login
               </Button>
