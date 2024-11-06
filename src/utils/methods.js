@@ -28,3 +28,14 @@ export const delayLoading = async (startTime) => {
   const delay = Math.max(0, 500 - elapsedTime);
   await new Promise(resolve => setTimeout(resolve, delay));
 };
+
+export const validatePassword = (password, confirmPassword) => {
+  const errors = [];
+  if (password.length < 8) errors.push("Password must be at least 8 characters long.");
+  if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
+  if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
+  if (!/\d/.test(password)) errors.push("Password must contain at least one digit.");
+  if (!/[!@#$%^&*]/.test(password)) errors.push("Password must contain at least one special character.");
+  if (password !== confirmPassword) errors.push("Password and Confirm Password do not match.");
+  return errors;
+};

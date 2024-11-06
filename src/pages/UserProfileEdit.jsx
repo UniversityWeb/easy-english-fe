@@ -22,6 +22,7 @@ import AuthService from '~/services/authService';
 import useCustomToast from '~/hooks/useCustomToast';
 import authService from '~/services/authService';
 import VerifyOtpModal from '~/components/VerifyOtpModal';
+import { validatePassword } from '~/utils/methods';
 
 const UpdatePassword = () => {
   const [passwordData, setPasswordData] = useState({
@@ -32,18 +33,6 @@ const UpdatePassword = () => {
   const [loadingPassword, setLoadingPassword] = useState(false);
   const [isOpenVerifyOtpModel, setIsOpenVerifyOtpModel] = useState(false);
   const {successToast, errorToast} = useCustomToast();
-
-  // Validate password based on the criteria
-  const validatePassword = (password, confirmPassword) => {
-    const errors = [];
-    if (password.length < 8) errors.push("Password must be at least 8 characters long.");
-    if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
-    if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
-    if (!/\d/.test(password)) errors.push("Password must contain at least one digit.");
-    if (!/[!@#$%^&*]/.test(password)) errors.push("Password must contain at least one special character.");
-    if (password !== confirmPassword) errors.push("Password and Confirm Password do not match.");
-    return errors;
-  };
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
