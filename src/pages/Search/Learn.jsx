@@ -14,17 +14,18 @@ import {
   AccordionIcon,
   Spinner,
 } from '@chakra-ui/react';
-import { FiFileText, FiVideo } from 'react-icons/fi';
+import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
 import { FaCheckCircle } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import { MdArrowBack } from 'react-icons/md';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
+import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
 import { useNavigate, useParams } from 'react-router-dom';
-import config from '~/config';
 import { getUsername } from '~/utils/authUtils';
+import { SEC_ITEM_TYPES } from '~/utils/constants';
 
 const LessonItem = ({
   icon,
@@ -34,6 +35,7 @@ const LessonItem = ({
   onClick,
   typeLesson,
   complete,
+  isTest = false,
 }) => (
   <HStack
     w="100%"
@@ -52,11 +54,13 @@ const LessonItem = ({
       <HStack spacing={1}>
         <Icon as={icon} boxSize={5} color={iconColor} />
         <Text fontSize="sm" fontWeight="bold">
-          {typeLesson}
+          {isTest ? 'Test' : typeLesson}
         </Text>
-        <Text fontSize="sm" color="gray.500">
-          {duration} min
-        </Text>
+        {!isTest && (
+          <Text fontSize="sm" color="gray.500">
+            {duration} min
+          </Text>
+        )}
       </HStack>
     </VStack>
     <Icon
@@ -70,9 +74,10 @@ const LessonItem = ({
 const Learn = () => {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const { courseId } = useParams();
   const username = getUsername();
+
   const Navbar = () => {
     const navigate = useNavigate();
 
@@ -109,27 +114,42 @@ const Learn = () => {
           courseId,
         });
 
-        const sectionsWithLessons = await Promise.all(
+        const sectionsWithContent = await Promise.all(
           fetchedSections.map(async (section) => {
-            const lessons = await lessonService.fetchLessons({
-              sectionId: section.id,
-            });
+            // Fetch both lessons and tests concurrently
+            const [lessons, tests] = await Promise.all([
+              lessonService.fetchLessons({ sectionId: section.id }),
+              testService.getTestsBySection(section.id),
+            ]);
+
+            const formattedLessons = lessons.map((lesson) => ({
+              ...lesson,
+              icon: getLessonIcon(lesson.type),
+              iconColor: getLessonColor(lesson.type),
+              complete: lesson.completed,
+              isLesson: true,
+            }));
+
+            const formattedTests = tests.map((test) => ({
+              ...test,
+              icon: FiHelpCircle,
+              iconColor: 'orange.500',
+              complete: test.completed,
+              isTest: true,
+            }));
+
             return {
               ...section,
-              lessons: lessons.map((lesson) => ({
-                ...lesson,
-                icon: getLessonIcon(lesson.type),
-                iconColor: getLessonColor(lesson.type),
-                complete: lesson.completed,
-              })),
+              items: [...formattedLessons, ...formattedTests],
             };
           }),
         );
 
-        setSections(sectionsWithLessons);
+        setSections(sectionsWithContent);
 
-        if (sectionsWithLessons[0]?.lessons[0]) {
-          setSelectedLesson(sectionsWithLessons[0].lessons[0]);
+        // Set first item as selected (could be either lesson or test)
+        if (sectionsWithContent[0]?.items[0]) {
+          setSelectedItem(sectionsWithContent[0].items[0]);
         }
       } catch (error) {
         console.error('Error fetching curriculum data:', error);
@@ -142,71 +162,115 @@ const Learn = () => {
   }, [courseId]);
 
   const handleCompleteAndNext = async () => {
-    if (!selectedLesson) return;
+    if (!selectedItem) return;
 
-    if (!selectedLesson.complete) {
+    if (!selectedItem.complete) {
       try {
-        await lessonTrackerService.createCompleteLesson({
-          lessonId: selectedLesson.id,
-          username,
-          isCompleted: true,
-        });
+        if (selectedItem.isLesson) {
+          await lessonTrackerService.createCompleteLesson({
+            lessonId: selectedItem.id,
+            username,
+            isCompleted: true,
+          });
+        }
+        // Add test completion logic here if needed
       } catch (error) {
-        console.error('Error completing the lesson:', error);
+        console.error('Error completing the item:', error);
         return;
       }
     }
 
     const updatedSections = sections.map((section) => ({
       ...section,
-      lessons: section.lessons.map((lesson) =>
-        lesson.id === selectedLesson.id
-          ? { ...lesson, complete: true }
-          : lesson,
+      items: section.items.map((item) =>
+        item.id === selectedItem.id ? { ...item, complete: true } : item,
       ),
     }));
 
     setSections(updatedSections);
 
-    let nextLesson = null;
-    let foundNextLesson = false;
+    // Find next item
+    let nextItem = null;
+    let foundNextItem = false;
 
     for (const section of updatedSections) {
-      for (const lesson of section.lessons) {
-        if (foundNextLesson) {
-          nextLesson = lesson;
+      for (const item of section.items) {
+        if (foundNextItem) {
+          nextItem = item;
           break;
         }
-        if (lesson.id === selectedLesson.id) {
-          foundNextLesson = true;
+        if (item.id === selectedItem.id) {
+          foundNextItem = true;
         }
       }
-      if (nextLesson) break;
+      if (nextItem) break;
     }
 
-    if (nextLesson) {
-      setSelectedLesson(nextLesson);
+    if (nextItem) {
+      setSelectedItem(nextItem);
     } else {
-      alert('You have completed all lessons!');
+      alert('You have completed all items!');
+    }
+  };
+
+  const getLessonIcon = (type) => {
+    switch (type) {
+      case SEC_ITEM_TYPES.VIDEO:
+        return FiVideo;
+      case SEC_ITEM_TYPES.AUDIO:
+        return HiOutlineSpeakerWave;
+      case SEC_ITEM_TYPES.TEST:
+        return FiHelpCircle;
+      default:
+        return FiFileText;
+    }
+  };
+
+  const getLessonColor = (type) => {
+    switch (type) {
+      case SEC_ITEM_TYPES.VIDEO:
+        return 'blue.500';
+      case SEC_ITEM_TYPES.AUDIO:
+        return 'purple.500';
+      case SEC_ITEM_TYPES.TEST:
+        return 'orange.500';
+      default:
+        return 'green.500';
     }
   };
 
   const renderContent = () => {
-    if (!selectedLesson) return null;
+    if (!selectedItem) return null;
 
-    const { content, contentUrl, description, type } = selectedLesson;
+    const { content, contentUrl, description, type, isTest } = selectedItem;
+
+    if (isTest) {
+      return (
+        <>
+          <Text fontSize="sm" fontWeight="bold" color="gray.500">
+            {description || 'Test Description'}
+          </Text>
+          <Text fontSize="lg" color="gray.700" mt={4}>
+            This is a test with {selectedItem.questions?.length || 0} questions.
+          </Text>
+          <Button colorScheme="blue" mt={4}>
+            Start Test
+          </Button>
+        </>
+      );
+    }
 
     return (
       <>
         <Text fontSize="sm" fontWeight="bold" color="gray.500">
           {description}
         </Text>
-        {type === 'TEXT' && (
+        {type === SEC_ITEM_TYPES.TEXT && (
           <Text fontSize="lg" color="gray.700" mt={4}>
             {content}
           </Text>
         )}
-        {type === 'VIDEO' && (
+        {type === SEC_ITEM_TYPES.VIDEO && (
           <>
             <Box mt={4} w="100%">
               <video
@@ -222,7 +286,7 @@ const Learn = () => {
             </Text>
           </>
         )}
-        {type === 'AUDIO' && (
+        {type === SEC_ITEM_TYPES.AUDIO && (
           <>
             <Box mt={4} w="100%">
               <audio
@@ -238,44 +302,8 @@ const Learn = () => {
             </Text>
           </>
         )}
-        {type === 'TEST' && ( // New case for test lessons
-          <>
-            <Text fontSize="lg" color="gray.700" mt={4}>
-              This is a test with {selectedLesson.numberOfQuestions} questions.
-            </Text>
-            <Button colorScheme="blue" mt={4}>
-              Start Test
-            </Button>
-          </>
-        )}
       </>
     );
-  };
-
-  const getLessonIcon = (type) => {
-    switch (type) {
-      case 'VIDEO':
-        return FiVideo;
-      case 'AUDIO':
-        return HiOutlineSpeakerWave;
-      case 'TEST': // New case for test lessons
-        return FaCheckCircle; // You can choose a different icon here
-      default:
-        return FiFileText;
-    }
-  };
-
-  const getLessonColor = (type) => {
-    switch (type) {
-      case 'VIDEO':
-        return 'blue.500';
-      case 'AUDIO':
-        return 'purple.500';
-      case 'TEST': // New case for test lessons
-        return 'yellow.500'; // You can choose a different color here
-      default:
-        return 'green.500';
-    }
   };
 
   if (loading) {
@@ -304,7 +332,7 @@ const Learn = () => {
                     </Box>
                     <HStack spacing={1}>
                       <Text fontSize="sm" color="gray.500">
-                        {section.lessons.length}
+                        {section.items.length}
                       </Text>
                       <AccordionIcon />
                     </HStack>
@@ -312,15 +340,16 @@ const Learn = () => {
                 </h2>
                 <AccordionPanel pb={4}>
                   <VStack spacing={2}>
-                    {section.lessons.map((lesson) => (
+                    {section.items.map((item) => (
                       <LessonItem
-                        key={lesson.id}
-                        icon={lesson.icon}
-                        iconColor={lesson.iconColor}
-                        title={lesson.title}
-                        duration={lesson.duration}
-                        complete={lesson.complete}
-                        onClick={() => setSelectedLesson(lesson)}
+                        key={item.id}
+                        icon={item.icon}
+                        iconColor={item.iconColor}
+                        title={item.title}
+                        duration={item.duration}
+                        complete={item.complete}
+                        isTest={item.isTest}
+                        onClick={() => setSelectedItem(item)}
                       />
                     ))}
                   </VStack>
@@ -340,7 +369,7 @@ const Learn = () => {
             alignSelf="flex-end"
             onClick={handleCompleteAndNext}
           >
-            {selectedLesson?.complete ? 'Next' : 'Complete & Next'}
+            {selectedItem?.complete ? 'Next' : 'Complete & Next'}
           </Button>
         </Box>
       </Flex>
