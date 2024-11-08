@@ -13,6 +13,7 @@ import { isLoggedIn } from '~/utils/authUtils';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent';
+import RightSidebarForAdmin from '~/components/Drawers/RightSidebarForAdmin';
 
 const NavbarForAdmin = React.memo((props) => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const NavbarForAdmin = React.memo((props) => {
               navigate(config.routes.search)
             }
           >
-            Courses
+            Search
           </Button>
 
           <Spacer />
@@ -64,7 +65,7 @@ const NavbarForAdmin = React.memo((props) => {
                   src={user?.avatarPath}
                 />
               </div>
-              <RightSidebarForStudent
+              <RightSidebarForAdmin
                 user={user}
                 isUserLoading={user === null || user === undefined}
                 isOpen={isOpen}

@@ -34,6 +34,7 @@ import {
 import Pagination from '~/components/Student/Search/Page';
 import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const TopicAndLevel = () => {
   const [topics, setTopics] = useState([]);
@@ -179,211 +180,213 @@ const TopicAndLevel = () => {
   );
 
   return (
-    <Box p={5}>
-      <HStack justify="space-between" mb={4}>
-        <Button colorScheme="green" onClick={() => handleOpenModal()}>
-          Add Topic
-        </Button>
-        <HStack>
-          <Input
-            placeholder="Enter topic name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            width="300px"
-          />
+    <RoleBasedPageLayout>
+      <Box p={5} mt={10}>
+        <HStack justify="space-between" mb={4}>
+          <Button colorScheme="green" onClick={() => handleOpenModal()}>
+            Add Topic
+          </Button>
+          <HStack>
+            <Input
+              placeholder="Enter topic name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              width="300px"
+            />
+          </HStack>
         </HStack>
-      </HStack>
 
-      <Table variant="simple" mt={5}>
-        <Thead>
-          <Tr>
-            <Th>
-              <Checkbox />
-            </Th>
-            <Th>TOPICS</Th>
-            <Th isNumeric>TOTAL LEVELS</Th>
-            <Th>ACTIONS</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {currentTopics.length > 0 ? (
-            currentTopics.map((topic) => (
-              <React.Fragment key={topic.id}>
-                <Tr>
-                  <Td>
-                    <Checkbox />
-                  </Td>
-                  <Td>
-                    <HStack
-                      spacing={4}
-                      onClick={() => toggleTopicExpand(topic.id)}
-                      cursor="pointer"
-                    >
-                      <Text fontWeight="bold">{topic.name}</Text>
-                      <IconButton
-                        icon={
-                          expandedTopicId === topic.id ? (
-                            <ChevronUpIcon />
-                          ) : (
-                            <ChevronDownIcon />
-                          )
-                        }
-                        variant="ghost"
-                        size="sm"
-                        aria-label="Expand/Collapse"
-                      />
-                    </HStack>
-                  </Td>
-                  <Td isNumeric>{levelCounts[topic.id] || 0}</Td>{' '}
-                  {/* Correct level count */}
-                  <Td>
-                    <HStack spacing={2}>
-                      <IconButton
-                        aria-label="Edit"
-                        icon={<EditIcon />}
-                        variant="ghost"
-                        onClick={() => handleOpenModal(topic)}
-                      />
-                      <IconButton
-                        aria-label="Delete"
-                        icon={<DeleteIcon />}
-                        variant="ghost"
-                        onClick={() => handleDeleteTopic(topic.id)}
-                      />
-                      <Button
-                        size="sm"
-                        colorScheme="blue"
-                        onClick={() => handleOpenLevelModal(topic.id)}
-                      >
-                        Add Level
-                      </Button>
-                    </HStack>
-                  </Td>
-                </Tr>
-
-                <Tr>
-                  <Td colSpan={4} p={0}>
-                    <Collapse in={expandedTopicId === topic.id} animateOpacity>
-                      <Table variant="simple" size="sm">
-                        <Thead>
-                          <Tr>
-                            <Th>LEVELS</Th>
-                            <Th isNumeric>COURSES</Th>
-                            <Th isNumeric>EARNINGS</Th>
-                            <Th>ACTIONS</Th>
-                          </Tr>
-                        </Thead>
-                        <Tbody>
-                          {levelsByTopic[topic.id]?.map((level) => (
-                            <Tr key={level.id}>
-                              <Td>{level.name}</Td>
-                              <Td isNumeric>100</Td> {/* Hardcoded */}
-                              <Td isNumeric>$500</Td> {/* Hardcoded */}
-                              <Td>
-                                <HStack spacing={2}>
-                                  <IconButton
-                                    aria-label="Edit"
-                                    icon={<EditIcon />}
-                                    variant="ghost"
-                                    onClick={() =>
-                                      handleOpenLevelModal(topic.id, level)
-                                    }
-                                  />
-                                  <IconButton
-                                    aria-label="Delete"
-                                    icon={<DeleteIcon />}
-                                    variant="ghost"
-                                    onClick={() =>
-                                      handleDeleteLevel(topic.id, level.id)
-                                    }
-                                  />
-                                </HStack>
-                              </Td>
-                            </Tr>
-                          ))}
-                        </Tbody>
-                      </Table>
-                    </Collapse>
-                  </Td>
-                </Tr>
-              </React.Fragment>
-            ))
-          ) : (
+        <Table variant="simple" mt={5}>
+          <Thead>
             <Tr>
-              <Td colSpan={4} textAlign="center">
-                No topics found.
-              </Td>
+              <Th>
+                <Checkbox />
+              </Th>
+              <Th>TOPICS</Th>
+              <Th isNumeric>TOTAL LEVELS</Th>
+              <Th>ACTIONS</Th>
             </Tr>
-          )}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {currentTopics.length > 0 ? (
+              currentTopics.map((topic) => (
+                <React.Fragment key={topic.id}>
+                  <Tr>
+                    <Td>
+                      <Checkbox />
+                    </Td>
+                    <Td>
+                      <HStack
+                        spacing={4}
+                        onClick={() => toggleTopicExpand(topic.id)}
+                        cursor="pointer"
+                      >
+                        <Text fontWeight="bold">{topic.name}</Text>
+                        <IconButton
+                          icon={
+                            expandedTopicId === topic.id ? (
+                              <ChevronUpIcon />
+                            ) : (
+                              <ChevronDownIcon />
+                            )
+                          }
+                          variant="ghost"
+                          size="sm"
+                          aria-label="Expand/Collapse"
+                        />
+                      </HStack>
+                    </Td>
+                    <Td isNumeric>{levelCounts[topic.id] || 0}</Td>{' '}
+                    {/* Correct level count */}
+                    <Td>
+                      <HStack spacing={2}>
+                        <IconButton
+                          aria-label="Edit"
+                          icon={<EditIcon />}
+                          variant="ghost"
+                          onClick={() => handleOpenModal(topic)}
+                        />
+                        <IconButton
+                          aria-label="Delete"
+                          icon={<DeleteIcon />}
+                          variant="ghost"
+                          onClick={() => handleDeleteTopic(topic.id)}
+                        />
+                        <Button
+                          size="sm"
+                          colorScheme="blue"
+                          onClick={() => handleOpenLevelModal(topic.id)}
+                        >
+                          Add Level
+                        </Button>
+                      </HStack>
+                    </Td>
+                  </Tr>
 
-      <Pagination
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        itemsPerPage={itemsPerPage}
-        setItemsPerPage={setItemsPerPage}
-        totalPages={totalPages}
-      />
+                  <Tr>
+                    <Td colSpan={4} p={0}>
+                      <Collapse in={expandedTopicId === topic.id} animateOpacity>
+                        <Table variant="simple" size="sm">
+                          <Thead>
+                            <Tr>
+                              <Th>LEVELS</Th>
+                              <Th isNumeric>COURSES</Th>
+                              <Th isNumeric>EARNINGS</Th>
+                              <Th>ACTIONS</Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody>
+                            {levelsByTopic[topic.id]?.map((level) => (
+                              <Tr key={level.id}>
+                                <Td>{level.name}</Td>
+                                <Td isNumeric>100</Td> {/* Hardcoded */}
+                                <Td isNumeric>$500</Td> {/* Hardcoded */}
+                                <Td>
+                                  <HStack spacing={2}>
+                                    <IconButton
+                                      aria-label="Edit"
+                                      icon={<EditIcon />}
+                                      variant="ghost"
+                                      onClick={() =>
+                                        handleOpenLevelModal(topic.id, level)
+                                      }
+                                    />
+                                    <IconButton
+                                      aria-label="Delete"
+                                      icon={<DeleteIcon />}
+                                      variant="ghost"
+                                      onClick={() =>
+                                        handleDeleteLevel(topic.id, level.id)
+                                      }
+                                    />
+                                  </HStack>
+                                </Td>
+                              </Tr>
+                            ))}
+                          </Tbody>
+                        </Table>
+                      </Collapse>
+                    </Td>
+                  </Tr>
+                </React.Fragment>
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan={4} textAlign="center">
+                  No topics found.
+                </Td>
+              </Tr>
+            )}
+          </Tbody>
+        </Table>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{isEditing ? 'Edit Topic' : 'Add Topic'}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl id="name" isRequired>
-              <FormLabel>Name</FormLabel>
-              <Input
-                placeholder="Name"
-                value={newTopic.name}
-                onChange={(e) =>
-                  setNewTopic((prev) => ({ ...prev, name: e.target.value }))
-                }
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSaveTopic}>
-              {isEditing ? 'Save Changes' : 'Add Topic'}
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalPages={totalPages}
+        />
 
-      <Modal isOpen={isLevelModalOpen} onClose={onCloseLevelModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {isEditingLevel ? 'Edit Level' : 'Add Level'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl id="levelName" isRequired>
-              <FormLabel>Level Name</FormLabel>
-              <Input
-                placeholder="Level Name"
-                value={currentLevel.name}
-                onChange={(e) =>
-                  setCurrentLevel((prev) => ({ ...prev, name: e.target.value }))
-                }
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSaveLevel}>
-              {isEditingLevel ? 'Save Changes' : 'Add Level'}
-            </Button>
-            <Button variant="ghost" onClick={onCloseLevelModal}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </Box>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>{isEditing ? 'Edit Topic' : 'Add Topic'}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormControl id="name" isRequired>
+                <FormLabel>Name</FormLabel>
+                <Input
+                  placeholder="Name"
+                  value={newTopic.name}
+                  onChange={(e) =>
+                    setNewTopic((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                />
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={handleSaveTopic}>
+                {isEditing ? 'Save Changes' : 'Add Topic'}
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        <Modal isOpen={isLevelModalOpen} onClose={onCloseLevelModal}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              {isEditingLevel ? 'Edit Level' : 'Add Level'}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormControl id="levelName" isRequired>
+                <FormLabel>Level Name</FormLabel>
+                <Input
+                  placeholder="Level Name"
+                  value={currentLevel.name}
+                  onChange={(e) =>
+                    setCurrentLevel((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                />
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={handleSaveLevel}>
+                {isEditingLevel ? 'Save Changes' : 'Add Level'}
+              </Button>
+              <Button variant="ghost" onClick={onCloseLevelModal}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </Box>
+    </RoleBasedPageLayout>
   );
 };
 
