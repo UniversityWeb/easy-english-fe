@@ -28,7 +28,8 @@ import {
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import Pagination from '~/pages/Search/Page'; // Import the Pagination component
-import categoryService from '~/services/categoryService'; // Import the category service
+import categoryService from '~/services/categoryService';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Import the category service
 
 // Hardcoded details for categories (to be used in API response)
 const defaultCategoryDetails = {
@@ -157,151 +158,153 @@ const Category = () => {
   );
 
   return (
-    <Box p={5}>
-      {/* Header: Add Category Button (left) and Search Bar (right) */}
-      <HStack justify="space-between" mb={4}>
-        <Button
-          colorScheme="blue"
-          onClick={() => {
-            resetCategoryData();
-            onOpen();
-          }}
-        >
-          Add Category
-        </Button>
-        <HStack>
-          <Input
-            placeholder="Enter category name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            width="300px"
-          />
-          <Button colorScheme="blue" onClick={handleSearch}>
-            Search
+    <RoleBasedPageLayout>
+      <Box p={5} mt={10}>
+        {/* Header: Add Category Button (left) and Search Bar (right) */}
+        <HStack justify="space-between" mb={4}>
+          <Button
+            colorScheme="blue"
+            onClick={() => {
+              resetCategoryData();
+              onOpen();
+            }}
+          >
+            Add Category
           </Button>
+          <HStack>
+            <Input
+              placeholder="Enter category name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              width="300px"
+            />
+            <Button colorScheme="blue" onClick={handleSearch}>
+              Search
+            </Button>
+          </HStack>
         </HStack>
-      </HStack>
 
-      {/* Category table */}
-      <Table variant="simple" mt={5}>
-        <Thead>
-          <Tr>
-            <Th>
-              <Checkbox />
-            </Th>
-            <Th>CATEGORIES</Th>
-            <Th isNumeric>TOTAL COURSES</Th>
-            <Th isNumeric>TOTAL EARNINGS</Th>
-            <Th>ACTIONS</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {currentCategories && currentCategories.length > 0 ? (
-            currentCategories.map((category) => (
-              <Tr key={category.id}>
-                <Td>
-                  <Checkbox />
-                </Td>
-                <Td>
-                  <HStack spacing={4}>
-                    <Image
-                      boxSize="40px"
-                      borderRadius="md"
-                      src={category.image}
-                      alt={category.name}
-                    />
-                    <Box>
-                      <Text fontWeight="bold">{category.name}</Text>
-                      <Text fontSize="sm" color="gray.500">
-                        {category.description}
-                      </Text>
-                    </Box>
-                  </HStack>
-                </Td>
-                <Td isNumeric>{category.courses}</Td>
-                <Td isNumeric>{category.earnings}</Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<EditIcon />}
-                      onClick={() => handleEditCategory(category)}
-                      variant="ghost"
-                    />
-                    <IconButton
-                      aria-label="Delete"
-                      icon={<DeleteIcon />}
-                      onClick={() => handleDeleteCategory(category.id)}
-                      variant="ghost"
-                    />
-                  </HStack>
+        {/* Category table */}
+        <Table variant="simple" mt={5}>
+          <Thead>
+            <Tr>
+              <Th>
+                <Checkbox />
+              </Th>
+              <Th>CATEGORIES</Th>
+              <Th isNumeric>TOTAL COURSES</Th>
+              <Th isNumeric>TOTAL EARNINGS</Th>
+              <Th>ACTIONS</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {currentCategories && currentCategories.length > 0 ? (
+              currentCategories.map((category) => (
+                <Tr key={category.id}>
+                  <Td>
+                    <Checkbox />
+                  </Td>
+                  <Td>
+                    <HStack spacing={4}>
+                      <Image
+                        boxSize="40px"
+                        borderRadius="md"
+                        src={category.image}
+                        alt={category.name}
+                      />
+                      <Box>
+                        <Text fontWeight="bold">{category.name}</Text>
+                        <Text fontSize="sm" color="gray.500">
+                          {category.description}
+                        </Text>
+                      </Box>
+                    </HStack>
+                  </Td>
+                  <Td isNumeric>{category.courses}</Td>
+                  <Td isNumeric>{category.earnings}</Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      <IconButton
+                        aria-label="Edit"
+                        icon={<EditIcon />}
+                        onClick={() => handleEditCategory(category)}
+                        variant="ghost"
+                      />
+                      <IconButton
+                        aria-label="Delete"
+                        icon={<DeleteIcon />}
+                        onClick={() => handleDeleteCategory(category.id)}
+                        variant="ghost"
+                      />
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan={5} textAlign="center">
+                  No categories found.
                 </Td>
               </Tr>
-            ))
-          ) : (
-            <Tr>
-              <Td colSpan={5} textAlign="center">
-                No categories found.
-              </Td>
-            </Tr>
-          )}
-        </Tbody>
-      </Table>
+            )}
+          </Tbody>
+        </Table>
 
-      {/* Pagination controls */}
-      <Pagination
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        itemsPerPage={itemsPerPage}
-        setItemsPerPage={setItemsPerPage}
-        totalPages={totalPages}
-      />
+        {/* Pagination controls */}
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalPages={totalPages}
+        />
 
-      {/* Modal for Adding/Editing Category */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {isEditMode ? 'Edit Category' : 'Add Category'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl id="categoryName" isRequired>
-              <FormLabel>Category Name</FormLabel>
-              <Input
-                placeholder="Category Name"
-                value={categoryData.name}
-                onChange={(e) =>
-                  setCategoryData({ ...categoryData, name: e.target.value })
-                }
-              />
-            </FormControl>
-            <FormControl id="categoryDescription" mt={4}>
-              <FormLabel>Category Description</FormLabel>
-              <Input
-                placeholder="Category Description"
-                value={categoryData.description}
-                onChange={(e) =>
-                  setCategoryData({
-                    ...categoryData,
-                    description: e.target.value,
-                  })
-                }
-              />
-            </FormControl>
-          </ModalBody>
+        {/* Modal for Adding/Editing Category */}
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              {isEditMode ? 'Edit Category' : 'Add Category'}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormControl id="categoryName" isRequired>
+                <FormLabel>Category Name</FormLabel>
+                <Input
+                  placeholder="Category Name"
+                  value={categoryData.name}
+                  onChange={(e) =>
+                    setCategoryData({ ...categoryData, name: e.target.value })
+                  }
+                />
+              </FormControl>
+              <FormControl id="categoryDescription" mt={4}>
+                <FormLabel>Category Description</FormLabel>
+                <Input
+                  placeholder="Category Description"
+                  value={categoryData.description}
+                  onChange={(e) =>
+                    setCategoryData({
+                      ...categoryData,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </FormControl>
+            </ModalBody>
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleAddCategory}>
-              {isEditMode ? 'Update Category' : 'Add Category'}
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </Box>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={handleAddCategory}>
+                {isEditMode ? 'Update Category' : 'Add Category'}
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </Box>
+    </RoleBasedPageLayout>
   );
 };
 

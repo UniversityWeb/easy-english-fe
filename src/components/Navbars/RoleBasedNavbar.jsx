@@ -7,6 +7,7 @@ import { USER_ROLES } from '~/utils/constants';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import config from '~/config';
 import NavbarForAdmin from '~/components/Navbars/NavbarForAdmin';
+import { Skeleton } from '@chakra-ui/react';
 
 function RoleBasedNavbar() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ function RoleBasedNavbar() {
   }, [navigate, errorToast]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Skeleton height="70px" mb={4} />;
   }
 
   switch (userRole) {

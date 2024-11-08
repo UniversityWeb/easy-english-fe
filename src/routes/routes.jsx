@@ -58,8 +58,8 @@ const publicRoutes = [
   { path: config.routes.orders, component: Orders },
   { path: config.routes.order_detail, component: OrderDetail },
   { path: config.routes.learn(':courseId'), component: Learn },
-  { path: config.routes.category, component: Category },
-  { path: config.routes.topic_level, component: TopicAndLevel },
+  { path: config.routes.category_for_admin, component: Category },
+  { path: config.routes.topic_level_for_admin, component: TopicAndLevel },
 ];
 
 const privateRoutes = [];
