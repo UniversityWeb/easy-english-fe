@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ChakraProvider,
   Box,
   Flex,
   Text,
@@ -19,10 +18,13 @@ import { FiFileText, FiVideo } from 'react-icons/fi';
 import { FaCheckCircle } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import sectionService from '~/services/sectionService'; // Ensure these services are correctly imported
+import { MdArrowBack } from 'react-icons/md';
+import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
+import lessonTrackerService from '~/services/lessonTrackerService';
 import { useNavigate, useParams } from 'react-router-dom';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import config from '~/config';
+import { getUsername } from '~/utils/authUtils';
 
 const LessonItem = ({
   icon,
@@ -70,6 +72,35 @@ const Learn = () => {
   const [loading, setLoading] = useState(true);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const { courseId } = useParams();
+  const username = getUsername();
+  const Navbar = () => {
+    const navigate = useNavigate();
+
+    const handleBackClick = () => {
+      navigate(`/course-view-detail/${courseId}`);
+    };
+
+    return (
+      <Flex
+        bg="gray.800"
+        color="white"
+        px="8"
+        py="4"
+        alignItems="center"
+        w="full"
+      >
+        <Button
+          leftIcon={<MdArrowBack />}
+          variant="ghost"
+          colorScheme="whiteAlpha"
+          onClick={handleBackClick}
+        >
+          Back to courses
+        </Button>
+      </Flex>
+    );
+  };
+
   useEffect(() => {
     const fetchCurriculumData = async () => {
       setLoading(true);
@@ -83,14 +114,13 @@ const Learn = () => {
             const lessons = await lessonService.fetchLessons({
               sectionId: section.id,
             });
-
             return {
               ...section,
               lessons: lessons.map((lesson) => ({
                 ...lesson,
                 icon: getLessonIcon(lesson.type),
                 iconColor: getLessonColor(lesson.type),
-                complete: false, // Assuming lessons start incomplete
+                complete: lesson.completed,
               })),
             };
           }),
@@ -98,7 +128,6 @@ const Learn = () => {
 
         setSections(sectionsWithLessons);
 
-        // Automatically select the first lesson if available
         if (sectionsWithLessons[0]?.lessons[0]) {
           setSelectedLesson(sectionsWithLessons[0].lessons[0]);
         }
@@ -112,8 +141,21 @@ const Learn = () => {
     fetchCurriculumData();
   }, [courseId]);
 
-  const handleCompleteAndNext = () => {
+  const handleCompleteAndNext = async () => {
     if (!selectedLesson) return;
+
+    if (!selectedLesson.complete) {
+      try {
+        await lessonTrackerService.createCompleteLesson({
+          lessonId: selectedLesson.id,
+          username,
+          isCompleted: true,
+        });
+      } catch (error) {
+        console.error('Error completing the lesson:', error);
+        return;
+      }
+    }
 
     const updatedSections = sections.map((section) => ({
       ...section,
@@ -126,7 +168,6 @@ const Learn = () => {
 
     setSections(updatedSections);
 
-    // Find the next lesson
     let nextLesson = null;
     let foundNextLesson = false;
 
@@ -197,6 +238,16 @@ const Learn = () => {
             </Text>
           </>
         )}
+        {type === 'TEST' && ( // New case for test lessons
+          <>
+            <Text fontSize="lg" color="gray.700" mt={4}>
+              This is a test with {selectedLesson.numberOfQuestions} questions.
+            </Text>
+            <Button colorScheme="blue" mt={4}>
+              Start Test
+            </Button>
+          </>
+        )}
       </>
     );
   };
@@ -207,6 +258,8 @@ const Learn = () => {
         return FiVideo;
       case 'AUDIO':
         return HiOutlineSpeakerWave;
+      case 'TEST': // New case for test lessons
+        return FaCheckCircle; // You can choose a different icon here
       default:
         return FiFileText;
     }
@@ -218,6 +271,8 @@ const Learn = () => {
         return 'blue.500';
       case 'AUDIO':
         return 'purple.500';
+      case 'TEST': // New case for test lessons
+        return 'yellow.500'; // You can choose a different color here
       default:
         return 'green.500';
     }
@@ -232,8 +287,9 @@ const Learn = () => {
   }
 
   return (
-    <RoleBasedPageLayout>
-      <Flex h="100vh">
+    <Flex direction="column" h="100vh">
+      <Navbar />
+      <Flex h="full">
         <Box w="30%" bg="gray.100" p={4}>
           <Text fontSize="xl" fontWeight="bold" mb={4}>
             Let's paint Van Gogh's Starry Night
@@ -284,11 +340,11 @@ const Learn = () => {
             alignSelf="flex-end"
             onClick={handleCompleteAndNext}
           >
-            Complete & Next
+            {selectedLesson?.complete ? 'Next' : 'Complete & Next'}
           </Button>
         </Box>
       </Flex>
-    </RoleBasedPageLayout>
+    </Flex>
   );
 };
 
