@@ -94,6 +94,42 @@ const getCourseId = (testId) => {
   return savedTest ? savedTest?.courseId : null;
 };
 
+const getParts = (testId) => {
+  const savedTest = getTest(testId);
+  return savedTest ? savedTest.parts || [] : [];
+};
+
+const getQuestionGroups = (testId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return [];
+
+  const questionGroups = [];
+  savedTest.parts.forEach(part => {
+    part.questionGroups.forEach(group => {
+      questionGroups.push(group);
+    });
+  });
+
+  return questionGroups;
+};
+
+const getQuestion = (testId, testQuestionId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return null;
+
+  // Iterate through parts and their question groups to find the question by ID
+  for (const part of savedTest.parts) {
+    for (const group of part.questionGroups) {
+      const question = group.questions.find(q => q.id === testQuestionId);
+      if (question) {
+        return question; // Return the question if found
+      }
+    }
+  }
+
+  return null; // Return null if the question is not found
+};
+
 export {
   saveTest,
   getTest,
@@ -103,4 +139,7 @@ export {
   generateSubmitTestRequest,
   getStartedTime,
   getCourseId,
+  getParts,
+  getQuestionGroups,
+  getQuestion,
 };

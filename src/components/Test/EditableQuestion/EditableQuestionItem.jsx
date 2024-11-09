@@ -15,7 +15,7 @@ import {
   useDisclosure,
   Editable,
   EditableInput,
-  EditablePreview, Spacer,
+  EditablePreview,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import testQuestionService from '~/services/testQuestionService';
@@ -28,7 +28,7 @@ import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFa
 import EditableFillBlank from '~/components/Test/EditableQuestion/EditableFillBlank';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 
-const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQuestions }) => {
+const QuestionItem = ({ question, onRemoveQuestion, onReloadQuestions }) => {
   const [questionState, setQuestionState] = useState(question);
   const { successToast, errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -209,6 +209,6 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQ
       </Modal>
     </Box>
   );
-});
+};
 
-export default EditableQuestionItem;
+export default QuestionItem;

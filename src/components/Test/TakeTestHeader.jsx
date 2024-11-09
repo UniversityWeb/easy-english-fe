@@ -18,6 +18,13 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
 } from '@chakra-ui/react';
 import { FaPause, FaPlay } from 'react-icons/fa';
 import { MdVolumeUp } from 'react-icons/md';
@@ -29,6 +36,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
+import TakeTestQuestionReview from '~/components/Test/TakeTestQuestionReview';
 
 const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   const navigate = useNavigate();
@@ -85,15 +93,15 @@ function TakeTestHeader({ resetCountDown, testId }) {
   const audioRef = useRef(new Audio(audioSource));
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(0.5);
+  const [volume, setVolume] = useState(1);
   const [showRemainingTime, setShowRemainingTime] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { successToast, errorToast } = useCustomToast();
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const cancelRef = useRef();
   const [resetTimeCountDown, setResetTimeCountDown] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const audioPath = getTest(testId)?.audioPath;
@@ -188,17 +196,10 @@ function TakeTestHeader({ resetCountDown, testId }) {
     setIsSubmitConfirmOpen(false);
   };
 
-  const handleFullscreenToggle = () => {
-    if (!isFullscreen) {
-      containerRef.current?.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
-    setIsFullscreen(!isFullscreen);
-  };
-
   const handleBackClick = () => {
-    window.history.back();
+    const courseId = getCourseId(testId);
+    clearSavedTest(testId);
+    navigate(config.routes.learn(courseId));
   };
 
   return (
@@ -287,6 +288,23 @@ function TakeTestHeader({ resetCountDown, testId }) {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+
+      {/* Modal display content of Review */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <TakeTestQuestionReview />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }
