@@ -17,7 +17,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import courseService from "~/services/courseService";
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Adjust the import path accordingly
 
-const EnrollCourse = () => {
+const EnrollCoursePage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -119,4 +119,4 @@ const EnrollCourse = () => {
   );
 };
 
-export default EnrollCourse;
+export default EnrollCoursePage;

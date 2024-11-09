@@ -116,8 +116,8 @@ const LineChart = () => {
   );
 };
 
-const AnalyticsCourses = () => {
+const AnalyticsCoursesPage = () => {
 
 }
 
-export default AnalyticsCourses;
+export default AnalyticsCoursesPage;

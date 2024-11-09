@@ -33,13 +33,13 @@ import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Import th
 
 // Hardcoded details for categories (to be used in API response)
 const defaultCategoryDetails = {
-  description: 'Category detail',
+  description: 'CategoryPage detail',
   courses: 10,
   earnings: '$1000',
   image: 'http://10.147.20.214:9000/easy-english/image/course2.jpg',
 };
 
-const Category = () => {
+const CategoryPage = () => {
   // State for categories
   const [categories, setCategories] = useState([]);
 
@@ -86,7 +86,7 @@ const Category = () => {
     setCurrentPage(1); // Reset to first page after search
   };
 
-  // Handle Add/Edit Category
+  // Handle Add/Edit CategoryPage
   const handleAddCategory = async () => {
     if (isEditMode) {
       // Update category
@@ -126,7 +126,7 @@ const Category = () => {
     onOpen();
   };
 
-  // Handle Delete Category
+  // Handle Delete CategoryPage
   const handleDeleteCategory = async (categoryId) => {
     const success = await categoryService.deleteCategory(categoryId);
     if (success) {
@@ -160,7 +160,7 @@ const Category = () => {
   return (
     <RoleBasedPageLayout>
       <Box p={5} mt={10}>
-        {/* Header: Add Category Button (left) and Search Bar (right) */}
+        {/* Header: Add CategoryPage Button (left) and Search Bar (right) */}
         <HStack justify="space-between" mb={4}>
           <Button
             colorScheme="blue"
@@ -169,7 +169,7 @@ const Category = () => {
               onOpen();
             }}
           >
-            Add Category
+            Add CategoryPage
           </Button>
           <HStack>
             <Input
@@ -184,7 +184,7 @@ const Category = () => {
           </HStack>
         </HStack>
 
-        {/* Category table */}
+        {/* CategoryPage table */}
         <Table variant="simple" mt={5}>
           <Thead>
             <Tr>
@@ -259,19 +259,19 @@ const Category = () => {
           totalPages={totalPages}
         />
 
-        {/* Modal for Adding/Editing Category */}
+        {/* Modal for Adding/Editing CategoryPage */}
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              {isEditMode ? 'Edit Category' : 'Add Category'}
+              {isEditMode ? 'Edit CategoryPage' : 'Add CategoryPage'}
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <FormControl id="categoryName" isRequired>
-                <FormLabel>Category Name</FormLabel>
+                <FormLabel>CategoryPage Name</FormLabel>
                 <Input
-                  placeholder="Category Name"
+                  placeholder="CategoryPage Name"
                   value={categoryData.name}
                   onChange={(e) =>
                     setCategoryData({ ...categoryData, name: e.target.value })
@@ -279,9 +279,9 @@ const Category = () => {
                 />
               </FormControl>
               <FormControl id="categoryDescription" mt={4}>
-                <FormLabel>Category Description</FormLabel>
+                <FormLabel>CategoryPage Description</FormLabel>
                 <Input
-                  placeholder="Category Description"
+                  placeholder="CategoryPage Description"
                   value={categoryData.description}
                   onChange={(e) =>
                     setCategoryData({
@@ -295,7 +295,7 @@ const Category = () => {
 
             <ModalFooter>
               <Button colorScheme="blue" mr={3} onClick={handleAddCategory}>
-                {isEditMode ? 'Update Category' : 'Add Category'}
+                {isEditMode ? 'Update CategoryPage' : 'Add CategoryPage'}
               </Button>
               <Button variant="ghost" onClick={onClose}>
                 Cancel
@@ -308,4 +308,4 @@ const Category = () => {
   );
 };
 
-export default Category;
+export default CategoryPage;

@@ -136,7 +136,7 @@ const Filter = ({ onFilterChange }) => {
           </RadioGroup>
         </FilterSection>
 
-        <FilterSection title="Category" isOpen={true}>
+        <FilterSection title="CategoryPage" isOpen={true}>
           <VStack align="start">
             {categories.map((category) => (
               <Checkbox

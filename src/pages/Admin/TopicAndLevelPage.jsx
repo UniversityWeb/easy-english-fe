@@ -36,7 +36,7 @@ import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
-const TopicAndLevel = () => {
+const TopicAndLevelPage = () => {
   const [topics, setTopics] = useState([]);
   const [expandedTopicId, setExpandedTopicId] = useState(null);
   const [levelsByTopic, setLevelsByTopic] = useState({});
@@ -390,4 +390,4 @@ const TopicAndLevel = () => {
   );
 };
 
-export default TopicAndLevel;
+export default TopicAndLevelPage;

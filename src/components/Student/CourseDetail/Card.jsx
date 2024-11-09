@@ -124,7 +124,7 @@ const Search = () => {
 
                                 <Box p={6}>
                                     <VStack align="start" spacing={2}>
-                                        {/* Category */}
+                                        {/* CategoryPage */}
                                         <Text fontSize="sm" color="gray.500">
                                             {course.category}
                                         </Text>

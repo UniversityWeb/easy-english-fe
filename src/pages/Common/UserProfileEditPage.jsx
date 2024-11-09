@@ -198,7 +198,7 @@ const UpdatePassword = () => {
   );
 };
 
-const UserProfileEdit = () => {
+const UserProfileEditPage = () => {
   const [user, setUser] = useState({
     username: 'john',
     fullName: 'john',
@@ -431,4 +431,4 @@ const UserProfileEdit = () => {
   );
 };
 
-export default UserProfileEdit;
+export default UserProfileEditPage;

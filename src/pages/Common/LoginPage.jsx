@@ -29,7 +29,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import AuthService from '~/services/authService';
 import { USER_ROLES } from '~/utils/constants';
 
-const Login = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -222,4 +222,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;

@@ -23,7 +23,7 @@ import StudentPageLayout from '~/components/StudentPageLayout';
 
 const MotionBox = motion(Box);
 
-const NotificationsForStudent = () => {
+const NotificationsForStudentPage = () => {
   const username = getUsername();
   const { successToast, errorToast, infoToast } = useCustomToast();
   const [notifications, setNotifications] = useState([]);
@@ -192,4 +192,4 @@ const NotificationsForStudent = () => {
   );
 };
 
-export default NotificationsForStudent;
+export default NotificationsForStudentPage;

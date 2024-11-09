@@ -3,7 +3,7 @@ import { Box, VStack, Text, Button, Tabs, TabList, TabPanels, Tab, TabPanel } fr
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import Footer from '~/components/Footer';
 
-const PreviewTest = ({ test, onStart }) => {
+const PreviewTestPage = ({ test, onStart }) => {
   return (
     <Box>
       <NavbarForStudent />
@@ -61,4 +61,4 @@ const PreviewTest = ({ test, onStart }) => {
   );
 };
 
-export default PreviewTest;
+export default PreviewTestPage;

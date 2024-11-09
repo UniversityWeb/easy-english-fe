@@ -22,7 +22,7 @@ import {
 import { useParams } from 'react-router-dom';
 import testService from '~/services/testService';
 
-const TakeTest = () => {
+const TakeTestPage = () => {
   const { testId } = useParams();
   const [test, setTest] = useState({});
   const [activePart, setActivePart] = useState('part1');
@@ -167,4 +167,4 @@ const TakeTest = () => {
   );
 };
 
-export default TakeTest;
+export default TakeTestPage;
