@@ -38,7 +38,7 @@ const publicRoutes = [
     component: NotificationsForStudent,
   },
   { path: config.routes.preview_test, component: PreviewTest },
-  { path: config.routes.take_test, component: TakeTest },
+  { path: config.routes.take_test(':testId'), component: TakeTest },
   { path: config.routes.cart, component: Cart },
   { path: config.routes.payment_result, component: PaymentResult },
   { path: config.routes.maincourse, component: Setting },

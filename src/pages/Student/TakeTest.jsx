@@ -1,151 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import { Box, VStack, Tabs, TabList, TabPanels, Tab, TabPanel, Text } from '@chakra-ui/react';
-import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
-import Footer from '~/components/Footer';
-import TestPart from '~/components/Test/TestPart';
-import { DateTime } from 'luxon';
-import { formatTime } from '~/utils/methods';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Box,
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+} from '@chakra-ui/react';
 
-class Test {
-  constructor(id, course, sections, title, description, durationInMilis, startDate, endDate, createdAt) {
-    this.id = id;
-    this.course = course;
-    this.sections = sections;
-    this.title = title;
-    this.description = description;
-    this.durationInMilis = durationInMilis;
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.createdAt = createdAt;
-  }
-}
+import TakeTestHeader from '~/components/Test/TakeTestHeader';
+import TakeTestFooter from '~/components/Test/TakeTestFooter';
+import TakeTestPart from '~/components/Test/TakeTestPart';
+import {
+  saveQuestionState,
+  getTest,
+  saveTest,
+} from '~/utils/testUtils';
+import { useParams } from 'react-router-dom';
+import testService from '~/services/testService';
 
 const TakeTest = () => {
-  // Sample data for the `Test` object
-  const test = new Test(
-    1,
-    { name: "Sample Course" }, // Course is just a name for now
-    [
-      {
-        id: 1,
-        title: "Part 1",
-        questions: [
-          {
-            id: 1,
-            text: "What is the capital of France?",
-            options: ["Paris", "Berlin", "Madrid", "Rome"],
-            type: "SINGLE_CHOICE",
-          },
-          {
-            id: 2,
-            text: "Select all prime numbers.",
-            options: ["2", "3", "4", "5", "6"],
-            type: "MULTI_CHOICE",
-          },
-        ],
-      },
-      {
-        id: 2,
-        title: "Part 2",
-        questions: [
-          {
-            id: 3,
-            text: "Match the countries with their capitals.",
-            items: ["France", "Germany", "Spain"],
-            type: "ITEM_MATCH",
-          },
-        ],
-      },
-    ],
-    "Midterm Exam",
-    "This is a midterm test covering various topics.",
-    3600000, // 1 hour in milliseconds
-    DateTime.now(),
-    DateTime.now().plus({ days: 1 }),
-    DateTime.now()
-  );
-
+  const { testId } = useParams();
+  const [test, setTest] = useState({});
+  const [activePart, setActivePart] = useState('part1');
+  const [scrollToQuestion, setScrollToQuestion] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(test.durationInMilis / 1000); // Convert milliseconds to seconds
-  const localStorageKey = `test_${test.id}_end_time`;
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loadFromLocal, setLoadFromLocal] = useState(false);
 
   useEffect(() => {
-    // Function to get the remaining time
-    const getRemainingTime = () => {
-      const storedEndTime = localStorage.getItem(localStorageKey);
-
-      if (storedEndTime) {
-        const endTime = DateTime.fromISO(storedEndTime);
-        const now = DateTime.now();
-        const remainingTime = endTime.diff(now, ['seconds']).seconds;
-
-        return remainingTime > 0 ? remainingTime : 0;
+    if (testId) {
+      const savedTest = getTest(testId);
+      debugger;
+      if (savedTest) {
+        onOpen();
+      } else {
+        fetchTest();
       }
+    }
+  }, [testId, onOpen]);
 
-      // If no end time is stored, set the end time based on the test's duration
-      const testEndTime = DateTime.now().plus({ milliseconds: test.durationInMilis });
-      localStorage.setItem(localStorageKey, testEndTime.toISO());
-      return test.durationInMilis / 1000;
-    };
+  // Load initial answers from localStorage when component mounts
+  useEffect(() => {
+    const savedAnswers = {};
+    for (let i = 1; i <= 40; i++) {
+      const savedAnswer = localStorage.getItem(`Q${i}`);
+      if (savedAnswer) {
+        savedAnswers[i] = savedAnswer;
+      }
+    }
+    setAnswers(savedAnswers);
+  }, []);
 
-    // Initialize the remaining time
-    setTimeLeft(getRemainingTime());
-
-    // Countdown logic
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    // Cleanup the interval on component unmount
-    return () => clearInterval(timer);
-  }, [test.durationInMilis, localStorageKey]);
-
-  const handleAnswerChange = (questionId, answer) => {
-    setAnswers({ ...answers, [questionId]: answer });
+  const fetchTest = async () => {
+    try {
+      const test = await testService.getById(testId);
+      if (test) {
+        saveTest(testId, test);
+        setTest(test);
+      }
+    } catch (e) {
+      console.error('Failed to fetch test:', e);
+    }
   };
+
+  const loadTestFromLocalStorage = () => {
+    const savedTest = getTest(testId);
+    if (savedTest) {
+      setTest(savedTest);
+    }
+  };
+
+  const handleLoadFromLocal = (loadLocal) => {
+    if (loadLocal) {
+      loadTestFromLocalStorage();
+    } else {
+      fetchTest();
+    }
+    onClose();
+  };
+
+  // Function to handle answering questions
+  const handleQuestionAnswered = useCallback(
+    (questionNumber, value) => {
+      setAnswers((prevAnswers) => {
+        const updatedAnswers = { ...prevAnswers };
+        if (value) {
+          updatedAnswers[questionNumber] = value;
+          saveQuestionState(test?.id, questionNumber, value);
+        } else {
+          delete updatedAnswers[questionNumber];
+          saveQuestionState(test?.id, questionNumber, []);
+        }
+        return updatedAnswers;
+      });
+    },
+    [test?.id],
+  );
+
+  // Get answered questions as a Set
+  const getAnsweredQuestions = useCallback(() => {
+    return new Set(Object.keys(answers).map(Number));
+  }, [answers]);
+
+  // Render the test part component
+  const renderPartComponent = useCallback(
+    () => (
+      <TakeTestPart
+        scrollToQuestion={scrollToQuestion}
+        onQuestionAnswered={handleQuestionAnswered}
+        answers={answers}
+      />
+    ),
+    [scrollToQuestion, handleQuestionAnswered, answers],
+  );
 
   return (
     <Box>
-      <NavbarForStudent />
+      <TakeTestHeader />
+      {renderPartComponent()}
+      <TakeTestFooter
+        activePart={activePart}
+        setActivePart={setActivePart}
+        setScrollToQuestion={setScrollToQuestion}
+        answeredQuestions={getAnsweredQuestions()}
+        answers={answers}
+      />
 
-      <Box p={4}>
-        <Text fontSize="2xl" fontWeight="bold">
-          {test.title}
-        </Text>
-        <Text>{test.description}</Text>
-        <Text mb={4}>
-          Time Left: {formatTime(timeLeft)}
-        </Text>
-
-
-        <Tabs variant="soft-rounded" mt="50px">
-          <TabList>
-            {test.sections.map((section) => (
-              <Tab key={section.id}>{section.title}</Tab>
-            ))}
-          </TabList>
-
-          <TabPanels>
-            {test.sections.map((section) => (
-              <TabPanel key={section.id}>
-                <TestPart
-                  section={section}
-                  onAnswerChange={handleAnswerChange}
-                  answers={answers}
-                />
-              </TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
-      </Box>
-
-      <Footer />
+      {/* Confirmation Dialog */}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        isCentered
+        closeOnOverlayClick={false}
+        closeOnEsc={false}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Load Saved Test?</ModalHeader>
+          <ModalBody>
+            A saved version of this test was found. Would you like to continue
+            where you left off or start fresh?
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              textColor="white"
+              colorScheme="teal"
+              mr={3}
+              onClick={() => handleLoadFromLocal(true)}
+            >
+              Yes, Load Saved Test
+            </Button>
+            <Button variant="ghost" onClick={() => handleLoadFromLocal(false)}>
+              No, Fetch New Test
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

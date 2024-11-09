@@ -13,7 +13,7 @@ import {
 import { QUESTION_TYPES } from '~/utils/constants';
 
 class TestQuestion {
-  constructor(id, text, options, type, items = [], images = [], sentence = "") {
+  constructor(id, text, options, type, items = [], images = [], sentence = '') {
     this.id = id;
     this.text = text;
     this.options = options;

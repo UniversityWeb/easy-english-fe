@@ -10,7 +10,7 @@ const routes = {
   course_management_for_student: '/course-management-for-student',
   notifications_for_student: '/notifications-for-student',
   preview_test: '/preview-test',
-  take_test: '/take-test',
+  take_test: (testId) => `/take-test/${testId}`,
   cart: '/cart',
   payment_result: '/payment/result',
   curriculum: '/curriculum/:courseId',
