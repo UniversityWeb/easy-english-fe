@@ -11,33 +11,30 @@ import {
   Input,
   Grid,
   GridItem,
-  ChakraProvider,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
 import { FaHeart } from 'react-icons/fa';
 import { LuBarChart } from 'react-icons/lu';
 import { TbClockHour4 } from 'react-icons/tb';
-import Pagination from '~/components/Student/Search/Page'; // Assuming you have a Pagination component
-import Filter from '~/components/Student/Search/Filter'; // Assuming you have a Filter component
+import Pagination from '~/components/Student/Search/Page';
+import Filter from '~/components/Student/Search/Filter';
 import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
-const Rating = ({ rating }) => {
-  return (
-    <HStack spacing="1">
-      {Array(5)
-        .fill('')
-        .map((_, i) => (
-          <StarIcon key={i} color={i < rating ? 'yellow.400' : 'gray.300'} />
-        ))}
-      <Text fontSize="sm" ml="2">
-        {rating}
-      </Text>
-    </HStack>
-  );
-};
+const Rating = ({ rating }) => (
+  <HStack spacing="1">
+    {Array(5)
+      .fill('')
+      .map((_, i) => (
+        <StarIcon key={i} color={i < rating ? 'yellow.400' : 'gray.300'} />
+      ))}
+    <Text fontSize="sm" ml="2">
+      {rating}
+    </Text>
+  </HStack>
+);
 
 const Wishlist = () => {
   const [courses, setCourses] = useState([]);
@@ -117,7 +114,7 @@ const Wishlist = () => {
         </Flex>
 
         {/* Main Grid Layout */}
-        <Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
+        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6}>
           {/* Filter Section */}
           <GridItem>
             <Filter onFilterChange={setFilterOptions} />
@@ -135,25 +132,34 @@ const Wishlist = () => {
                   borderRadius="lg"
                   overflow="hidden"
                   boxShadow="md"
-                  height="370px"
+                  height="380px"
                   position="relative"
                   onMouseEnter={() => setHoveredCourseId(course.id)}
                   onMouseLeave={() => setHoveredCourseId(null)}
+                  transition="transform 0.3s ease, box-shadow 0.3s ease"
+                  _hover={{
+                    transform: 'scale(1.05)',
+                    boxShadow: 'xl',
+                  }}
                 >
-                  <Box height="200px" overflow="hidden">
+                  {/* Course Image */}
+                  <Box height="180px" overflow="hidden">
                     <Image
                       src={course.imagePreview}
                       alt={course.title}
                       objectFit="cover"
                       width="100%"
                       height="100%"
+                      transition="transform 0.3s ease"
+                      _hover={{ transform: 'scale(1.05)' }}
                     />
                   </Box>
 
+                  {/* Course Details */}
                   <Box p={6}>
                     <VStack align="start" spacing={2}>
                       <Text fontSize="sm" color="gray.500">
-                        {course.topic.name || 'No topic'}
+                        {course.topic?.name || 'No topic'}
                       </Text>
 
                       <Text
@@ -167,111 +173,122 @@ const Wishlist = () => {
 
                       <Flex justify="space-between" align="center" width="100%">
                         <Rating rating={course.rating} />
-                        <Text
-                          fontWeight="bold"
-                          fontSize="lg"
-                          color="gray.700"
-                          _hover={{ color: 'blue.500' }}
-                        >
+                        <Text fontWeight="bold" fontSize="lg" color="gray.700">
                           {course.price?.salePrice > 0
                             ? `${course.price.salePrice} VND`
                             : `${course.price.price} VND`}
                         </Text>
                       </Flex>
 
-                      {hoveredCourseId === course.id && (
-                        <Box
-                          position="absolute"
-                          top="0"
-                          left="0"
-                          width="100%"
-                          height="100%"
-                          bg="white"
-                          p="6"
-                          borderRadius="lg"
-                          boxShadow="md"
-                          zIndex="10"
+                      {/* Hovered View */}
+                      <Box
+                        position="absolute"
+                        top="0"
+                        left="0"
+                        width="100%"
+                        height="100%"
+                        bg="white"
+                        p={6}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        zIndex="10"
+                        opacity={hoveredCourseId === course.id ? 1 : 0}
+                        transform={
+                          hoveredCourseId === course.id
+                            ? 'scale(1)'
+                            : 'scale(0.95)'
+                        }
+                        transition="opacity 0.3s ease, transform 0.3s ease"
+                        pointerEvents={
+                          hoveredCourseId === course.id ? 'all' : 'none'
+                        }
+                      >
+                        <Text fontSize="sm" fontWeight="bold" mb={2}>
+                          Demo Instructor
+                        </Text>
+
+                        <Text
+                          fontWeight="bold"
+                          fontSize="lg"
+                          mb={2}
+                          noOfLines={2}
+                          minHeight="50px"
                         >
-                          <Text fontSize="sm" fontWeight="bold" mb="2">
-                            Demo Instructor
-                          </Text>
+                          {course.title}
+                        </Text>
 
-                          <Text fontWeight="bold" fontSize="lg" mb="3">
-                            {course.title}
-                          </Text>
+                        <Rating rating={course.rating} />
 
-                          <Rating rating={course.rating} />
+                        <Text
+                          fontSize="sm"
+                          mt={3}
+                          noOfLines={3}
+                          minHeight="65px"
+                        >
+                          {course.descriptionPreview ||
+                            'No description available.'}
+                        </Text>
 
-                          <Text fontSize="sm" mt="3" noOfLines={3}>
-                            {course.descriptionPreview ||
-                              'No description available.'}
-                          </Text>
-
-                          <Flex
-                            mt="4"
-                            alignItems="center"
-                            justify="space-between"
-                          >
-                            <HStack spacing="1">
-                              <Icon
-                                as={LuBarChart}
-                                boxSize={5}
-                                color="gray.600"
-                              />
-                              <Text fontSize="sm">
-                                {course.level?.name || 'No level'}
-                              </Text>
-                            </HStack>
-                            <HStack spacing="1">
-                              <Icon
-                                as={IoBookOutline}
-                                boxSize={5}
-                                color="gray.600"
-                              />
-                              <Text fontSize="sm">
-                                {course.countSection} Lectures
-                              </Text>
-                            </HStack>
-                            <HStack spacing="1">
-                              <Icon
-                                as={TbClockHour4}
-                                boxSize={5}
-                                color="gray.600"
-                              />
-                              <Text fontSize="sm">{course.duration} hours</Text>
-                            </HStack>
-                          </Flex>
-
-                          <Button
-                            mt="4"
-                            colorScheme="blue"
-                            size="sm"
-                            width="full"
-                            onClick={() =>
-                              navigate(`/course-view-detail/${course.id}`)
-                            }
-                          >
-                            PREVIEW THIS COURSE
-                          </Button>
-
-                          <Flex mt="2" justify="space-between">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              colorScheme="red"
-                              onClick={() => removeFromWishlist(course.id)}
-                              leftIcon={<Icon as={FaHeart} color="red.500" />}
-                            >
-                              Remove from Wishlist
-                            </Button>
-                            <Text fontWeight="bold" color="gray.700">
-                              {course.price?.salePrice > 0
-                                ? `$${course.price.salePrice}`
-                                : `$${course.price.price}`}
+                        <Flex
+                          mt={6}
+                          justify="space-between"
+                          align="center"
+                          width="100%"
+                        >
+                          <HStack spacing="1">
+                            <Icon
+                              as={LuBarChart}
+                              boxSize={5}
+                              color="gray.600"
+                            />
+                            <Text fontSize="sm">
+                              {course.level?.name || 'No level'}
                             </Text>
-                          </Flex>
-                        </Box>
-                      )}
+                          </HStack>
+                          <HStack spacing="1">
+                            <Icon
+                              as={IoBookOutline}
+                              boxSize={5}
+                              color="gray.600"
+                            />
+                            <Text fontSize="sm">
+                              {course.countSection} Sections
+                            </Text>
+                          </HStack>
+                          <HStack spacing="1">
+                            <Icon
+                              as={TbClockHour4}
+                              boxSize={5}
+                              color="gray.600"
+                            />
+                            <Text fontSize="sm">{course.duration} hours</Text>
+                          </HStack>
+                        </Flex>
+
+                        <Button
+                          mt={7}
+                          colorScheme="blue"
+                          size="sm"
+                          width="full"
+                          onClick={() =>
+                            navigate(`/course-view-detail/${course.id}`)
+                          }
+                        >
+                          PREVIEW THIS COURSE
+                        </Button>
+
+                        <Button
+                          mt={4}
+                          size="sm"
+                          width="full"
+                          variant="ghost"
+                          colorScheme="red"
+                          onClick={() => removeFromWishlist(course.id)}
+                          leftIcon={<Icon as={FaHeart} color="red.500" />}
+                        >
+                          Remove from Wishlist
+                        </Button>
+                      </Box>
                     </VStack>
                   </Box>
                 </Box>

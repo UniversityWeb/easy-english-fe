@@ -118,7 +118,7 @@ const CourseList = ({
                 <Flex justify="space-between" align="center" width="100%">
                   <Rating rating={course.rating} />
                   <Text fontWeight="bold" fontSize="lg" color="gray.700">
-                    {course.price?.price ? `$${course.price.price}` : 'Free'}
+                    {course.price?.price ? `${course.price.price}đ` : 'Free'}
                   </Text>
                 </Flex>
 
