@@ -29,12 +29,11 @@ const TakeTestPage = () => {
   const [scrollToQuestion, setScrollToQuestion] = useState(null);
   const [answers, setAnswers] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [loadFromLocal, setLoadFromLocal] = useState(false);
+  const [resetCountDownTime, setResetCountDownTime] = useState(0);
 
   useEffect(() => {
     if (testId) {
       const savedTest = getTest(testId);
-      debugger;
       if (savedTest) {
         onOpen();
       } else {
@@ -57,8 +56,9 @@ const TakeTestPage = () => {
 
   const fetchTest = async () => {
     try {
-      const test = await testService.getById(testId);
+      let test = await testService.getById(testId);
       if (test) {
+        test = { ...test, startedAt: new Date().toISOString() };
         saveTest(testId, test);
         setTest(test);
       }
@@ -80,6 +80,7 @@ const TakeTestPage = () => {
     } else {
       fetchTest();
     }
+    setResetCountDownTime(prev => prev + 1);
     onClose();
   };
 
@@ -122,6 +123,7 @@ const TakeTestPage = () => {
     <Box>
       <TakeTestHeader
         testId={testId}
+        resetCountDown={resetCountDownTime}
         audioPath={test?.audioPath}
       />
       {renderPartComponent()}

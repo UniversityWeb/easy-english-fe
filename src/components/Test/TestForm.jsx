@@ -127,7 +127,7 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
             <Input
               type="number"
               name="passingGrade"
-              value={testState.passingGrade}
+              value={testState?.passingGrade}
               onChange={handleChange}
               min="0"
               max="100"
@@ -137,7 +137,7 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
             <FormLabel>Test Type</FormLabel>
             <Select
               name="type"
-              value={testState.type}
+              value={testState?.type}
               onChange={(e) => setTestState({ ...testState, type: e.target.value })}
               isDisabled={!isNew}
             >

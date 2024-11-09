@@ -84,6 +84,16 @@ const generateSubmitTestRequest = (testId) => {
   return submitTestRequest;
 };
 
+const getStartedTime = (testId) => {
+  const savedTest = getTest(testId);
+  return savedTest ? savedTest?.startedAt : null;
+};
+
+const getCourseId = (testId) => {
+  const savedTest = getTest(testId);
+  return savedTest ? savedTest?.courseId : null;
+};
+
 export {
   saveTest,
   getTest,
@@ -91,4 +101,6 @@ export {
   clearAllTestsOfCurUsername,
   saveQuestionState,
   generateSubmitTestRequest,
+  getStartedTime,
+  getCourseId,
 };
