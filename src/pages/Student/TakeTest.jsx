@@ -120,7 +120,10 @@ const TakeTest = () => {
 
   return (
     <Box>
-      <TakeTestHeader />
+      <TakeTestHeader
+        testId={testId}
+        audioPath={test?.audioPath}
+      />
       {renderPartComponent()}
       <TakeTestFooter
         activePart={activePart}
