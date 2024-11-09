@@ -1,4 +1,4 @@
-import { get, post, put, del } from '~/utils/httpRequest';
+import { post } from '~/utils/httpRequest';
 
 const SUFFIX_SECTION_API_URL = '/section';
 

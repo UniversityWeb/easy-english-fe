@@ -1,4 +1,4 @@
-import { get, post, put } from '~/utils/httpRequest';
+import { post } from '~/utils/httpRequest';
 
 const SUFFIX_TEXT_LESSON_API_URL = '/lesson';
 

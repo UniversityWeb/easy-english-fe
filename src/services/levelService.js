@@ -1,5 +1,5 @@
 import { get, post, put, del } from '~/utils/httpRequest';
-const SUFFIX_LEVEL_API_URL = '/level';
+const SUFFIX_LEVEL_API_URL = '/levels';
 
 const fetchAllLevelByTopic = async (levelRequest) => {
   const response = await post(`${SUFFIX_LEVEL_API_URL}/get-all-level-by-topic`,levelRequest);

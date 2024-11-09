@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Tabs, TabList, TabPanels, Tab, TabPanel, SimpleGrid, Button, Heading, Flex, Text } from '@chakra-ui/react';
-import CourseCard from '~/pages/Teacher/Course/CourseCard';
+import CourseCard from '~/components/Teacher/CourseManagementForTeacher/CourseCard';
 import { useNavigate } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import { getUsername } from '~/utils/authUtils';

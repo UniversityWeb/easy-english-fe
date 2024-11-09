@@ -11,15 +11,15 @@ import {
 } from '@chakra-ui/react';
 import { MdArrowBack } from 'react-icons/md';
 import { useNavigate, useParams } from 'react-router-dom';
-import Curriculum from '~/pages/Teacher/DoiMoi/Curriculum';
-import Drip from '~/pages/Teacher/DoiMoi/Drip';
-import Settings from '~/pages/Teacher/DoiMoi/Setting';
-import Pricing from '~/pages/Teacher/DoiMoi/Pricing';
-import FAQ from '~/pages/Teacher/DoiMoi/Faq';
-import Notice from '~/pages/Teacher/DoiMoi/Notice';
+import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';
+import Drip from '~/components/Teacher/CourseDetail/Drip';
+import Settings from '~/components/Teacher/CourseDetail/Setting';
+import Pricing from '~/components/Teacher/CourseDetail/Pricing';
+import FAQ from '~/components/Teacher/CourseDetail/Faq';
+import Notice from '~/components/Teacher/CourseDetail/Notice';
 import config from '~/config';
 
-function ManagementCourse() {
+function CourseDetail() {
   const { courseId } = useParams(); // Extract courseId from URL
   const [activeComponent, setActiveComponent] = useState('Curriculum');
   const navigate = useNavigate();
@@ -49,7 +49,6 @@ function ManagementCourse() {
 
   return (
     <VStack h="100vh" bg="gray.50">
-      {/* Header section */}
       <Flex
         bg="gray.800"
         color="white"
@@ -70,7 +69,6 @@ function ManagementCourse() {
           How to Design Components Right
         </Heading>
 
-        {/* Tabs */}
         <Tabs
           variant="unstyled"
           ml="auto"
@@ -120,7 +118,6 @@ function ManagementCourse() {
         </Button>
       </Flex>
 
-      {/* Main content */}
       <Box w="full" h="full" bg="white" p={8} rounded="md" mt={5}>
         {renderComponent()}
       </Box>
@@ -128,4 +125,4 @@ function ManagementCourse() {
   );
 }
 
-export default ManagementCourse;
+export default CourseDetail;

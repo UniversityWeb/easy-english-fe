@@ -35,9 +35,9 @@ import {
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
 import { useState, useEffect } from 'react';
-import TextLesson from '~/pages/Teacher/DoiMoi/TextLesson';
-import VideoLesson from '~/pages/Teacher/DoiMoi/VideoLesson';
-import AudioLesson from '~/pages/Teacher/DoiMoi/AudioLesson';
+import TextLesson from '~/components/Teacher/CourseDetail/Curriculum/TextLesson';
+import VideoLesson from '~/components/Teacher/CourseDetail/Curriculum/VideoLesson';
+import AudioLesson from '~/components/Teacher/CourseDetail/Curriculum/AudioLesson';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';

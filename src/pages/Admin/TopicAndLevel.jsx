@@ -31,7 +31,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from '@chakra-ui/icons';
-import Pagination from '~/pages/Search/Page';
+import Pagination from '~/components/Student/Search/Page';
 import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';
 

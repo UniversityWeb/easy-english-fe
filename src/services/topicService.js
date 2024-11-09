@@ -1,6 +1,6 @@
 import { get, post, put, del } from '~/utils/httpRequest'; // Removed unused imports
 
-const SUFFIX_TOPIC_API_URL = '/topic';
+const SUFFIX_TOPIC_API_URL = '/topics';
 
 const fetchAllTopic = async () => {
   const response = await get(`${SUFFIX_TOPIC_API_URL}/get-all`);
