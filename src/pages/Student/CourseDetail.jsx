@@ -16,13 +16,13 @@ import {
   TabPanel,
 } from '@chakra-ui/react';
 import { FaClock, FaBook, FaHeart, FaShareAlt, FaStar } from 'react-icons/fa';
-import FAQ from './FAQ';
-import Reviews from './Reviews';
-import Curriculum from './Curriculum';
-import Announcement from './Announcement';
-import Description from './Description';
-import CourseRandom from './CourseRandom';
-import RelateCourse from './RelateCourse';
+import FAQ from '../../components/Student/CourseDetail/FAQ';
+import Reviews from '../../components/Student/CourseDetail/Reviews';
+import Curriculum from '../../components/Student/CourseDetail/Curriculum';
+import Announcement from '../../components/Student/CourseDetail/Announcement';
+import Description from '../../components/Student/CourseDetail/Description';
+import CourseRandom from '../../components/Student/CourseDetail/CourseRandom';
+import RelateCourse from '../../components/Student/CourseDetail/RelateCourse';
 import { useNavigate, useParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
@@ -47,36 +47,30 @@ function CourseDetails() {
 
   useEffect(() => {
     websocketService.connect(() => {});
-
-    // Cleanup function to unsubscribe and disconnect WebSocket on unmount
     return () => {
       websocketService.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    // Load course data on mount
     loadCourseData();
   }, [courseId]);
 
   useEffect(() => {
-    // Logic for determining button state
     const checkEnrollmentStatus = async () => {
       try {
         const canAdd = await cartService.canAddToCart(courseId);
         if (canAdd) {
-          setButtonState('add-to-cart'); // Show "Add to Cart" if applicable
+          setButtonState('add-to-cart');
         } else {
-          // If can't add to cart, check enrollment
           const enrollment = await enrollmentService.isEnrolled(courseId);
           if (enrollment && enrollment.progress === 0) {
-            setButtonState('start-course'); // Show "Start Course" if progress is 0
+            setButtonState('start-course');
           } else if (enrollment && enrollment.progress > 0) {
-            setButtonState('continue-course'); // Show "Continue Course" if progress > 0
+            setButtonState('continue-course');
           }
         }
       } catch (error) {
-        // If there's an error (e.g., 500 error), show "In Cart"
         setButtonState('in-cart');
       }
     };
@@ -135,14 +129,14 @@ function CourseDetails() {
 
             <Flex align="center" mt={5}>
               <Avatar
-                name={courseData.ownerUsername || 'Instructor Name'}
+                name={courseData.ownerUsername || 'Teacher Name'}
                 src="https://bit.ly/ryan-florence"
                 size="lg"
               />
               <Box ml={4}>
                 <Text fontWeight="bold">Instructor</Text>
                 <Text color="blue.500">
-                  {courseData.ownerUsername || 'Instructor Name'}
+                  {courseData.ownerUsername || 'Teacher Name'}
                 </Text>
               </Box>
               <Box ml={10}>

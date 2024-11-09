@@ -22,8 +22,8 @@ import { TbClockHour4 } from 'react-icons/tb';
 import { LuEye } from 'react-icons/lu';
 import { PiStudent } from 'react-icons/pi';
 import courseService from '~/services/courseService';
-import Filter from './Filter';
-import Pagination from './Page';
+import Filter from '../../components/Student/Search/Filter';
+import Pagination from '../../components/Student/Search/Page';
 import { useNavigate } from 'react-router-dom';
 import StudentPageLayout from '~/components/StudentPageLayout';
 

@@ -18,7 +18,7 @@ import { LuBarChart } from "react-icons/lu";
 import { TbClockHour4 } from "react-icons/tb";
 import { LuEye } from "react-icons/lu";
 import { PiStudent } from "react-icons/pi";
-import Page from './Page'
+import Page from '../Search/Page'
 
 const courses = [
     {
@@ -180,7 +180,7 @@ const Search = () => {
                                                 boxShadow="md"
                                                 zIndex="10"
                                             >
-                                                {/* Instructor */}
+                                                {/* Teacher */}
                                                 <Text fontSize="sm" fontWeight="bold" mb="2">
                                                     Demo Instructor
                                                 </Text>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import courseService from '~/services/courseService';
-import './CourseStyles.css';
+import './Description.css';
 
 const Description = ({ courseId }) => {
     const [course, setCourse] = useState(null);
