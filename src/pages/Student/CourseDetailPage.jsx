@@ -34,7 +34,7 @@ import authService from '~/services/authService';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 
-function CourseDetails() {
+function CourseDetailsPage() {
   const navigate = useNavigate();
   const [courseData, setCourseData] = useState(null);
   const [buttonState, setButtonState] = useState('loading'); // State to control the button text
@@ -258,8 +258,8 @@ function CourseDetails() {
               isDisabled={buttonState === 'loading'}
             >
               {buttonState === 'loading' && 'Loading...'}
-              {buttonState === 'add-to-cart' && 'Add to Cart'}
-              {buttonState === 'in-cart' && 'In Cart'}
+              {buttonState === 'add-to-cart' && 'Add to CartPage'}
+              {buttonState === 'in-cart' && 'In CartPage'}
               {buttonState === 'start-course' && 'Start Course'}
               {buttonState === 'continue-course' && 'Continue Course'}
             </Button>
@@ -306,4 +306,4 @@ function CourseDetails() {
   );
 }
 
-export default CourseDetails;
+export default CourseDetailsPage;

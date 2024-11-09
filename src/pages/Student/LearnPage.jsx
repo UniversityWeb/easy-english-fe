@@ -71,7 +71,7 @@ const LessonItem = ({
   </HStack>
 );
 
-const Learn = () => {
+const LearnPage = () => {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -377,4 +377,4 @@ const Learn = () => {
   );
 };
 
-export default Learn;
+export default LearnPage;

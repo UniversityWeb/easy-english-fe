@@ -26,6 +26,7 @@ import Filter from '../../components/Student/Search/Filter';
 import Pagination from '../../components/Student/Search/Page';
 import { useNavigate } from 'react-router-dom';
 import StudentPageLayout from '~/components/StudentPageLayout';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const Rating = ({ rating }) => {
   return (
@@ -303,7 +304,7 @@ const SearchPage = () => {
   };
 
   return (
-    <StudentPageLayout>
+    <RoleBasedPageLayout>
       <Container maxW="80%">
         <Grid templateColumns="300px 1fr" gap={6} p={5}>
           <GridItem>
@@ -319,7 +320,7 @@ const SearchPage = () => {
           </GridItem>
         </Grid>
       </Container>
-    </StudentPageLayout>
+    </RoleBasedPageLayout>
   );
 };
 

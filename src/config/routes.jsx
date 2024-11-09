@@ -10,7 +10,7 @@ const routes = {
   course_management_for_student: '/course-management-for-student',
   notifications_for_student: '/notifications-for-student',
   preview_test: '/preview-test',
-  take_test: '/take-test',
+  take_test: (testId) => `/take-test/${testId}`,
   cart: '/cart',
   payment_result: '/payment/result',
   curriculum: '/curriculum/:courseId',
@@ -25,8 +25,8 @@ const routes = {
   orders: '/orders',
   order_detail: '/order-detail/:orderId',
   learn: (courseId) => `/learn/${courseId}`,
-  category: '/category',
-  topic_level: '/topic-level',
+  category_for_admin: '/admin/category',
+  topic_level_for_admin: '/admin/topic-vs-level',
 };
 
 export default routes;

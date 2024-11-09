@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import StudentPageLayout from '~/components/StudentPageLayout';
 
-const Orders = () => {
+const OrdersPage = () => {
   const username = getUsername();
   const { successToast, errorToast } = useCustomToast();
   const [orders, setOrders] = useState([]);
@@ -178,4 +178,4 @@ const OrderList = ({ orders, loading }) => {
   );
 };
 
-export default Orders;
+export default OrdersPage;

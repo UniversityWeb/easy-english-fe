@@ -19,7 +19,7 @@ import FAQ from '~/components/Teacher/CourseDetail/Faq';
 import Notice from '~/components/Teacher/CourseDetail/Notice';
 import config from '~/config';
 
-function CourseDetail() {
+function CourseDetailPage() {
   const { courseId } = useParams(); // Extract courseId from URL
   const [activeComponent, setActiveComponent] = useState('Curriculum');
   const navigate = useNavigate();
@@ -125,4 +125,4 @@ function CourseDetail() {
   );
 }
 
-export default CourseDetail;
+export default CourseDetailPage;

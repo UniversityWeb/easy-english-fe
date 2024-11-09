@@ -193,7 +193,7 @@ const PasswordResetForm = ({
   );
 }
 
-const ForgotPassword = () => {
+const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { successToast, errorToast } = useCustomToast();
@@ -310,4 +310,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ForgotPasswordPage;

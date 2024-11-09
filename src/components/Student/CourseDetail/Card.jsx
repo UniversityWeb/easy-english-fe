@@ -18,7 +18,6 @@ import { LuBarChart } from "react-icons/lu";
 import { TbClockHour4 } from "react-icons/tb";
 import { LuEye } from "react-icons/lu";
 import { PiStudent } from "react-icons/pi";
-import Page from '../Search/Page'
 
 const courses = [
     {
@@ -125,7 +124,7 @@ const Search = () => {
 
                                 <Box p={6}>
                                     <VStack align="start" spacing={2}>
-                                        {/* Category */}
+                                        {/* CategoryPage */}
                                         <Text fontSize="sm" color="gray.500">
                                             {course.category}
                                         </Text>

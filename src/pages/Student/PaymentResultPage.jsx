@@ -151,7 +151,7 @@ const PaymentFail = ({ paymentData }) => {
   );
 };
 
-const PaymentResult = () => {
+const PaymentResultPage = () => {
   const location = useLocation();
   const { errorToast } = useCustomToast();
   const [paymentStatus, setPaymentStatus] = useState(null);
@@ -223,4 +223,4 @@ const PaymentResult = () => {
   );
 };
 
-export default PaymentResult;
+export default PaymentResultPage;

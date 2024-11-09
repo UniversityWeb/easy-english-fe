@@ -29,7 +29,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import AuthService from '~/services/authService';
 import { USER_ROLES } from '~/utils/constants';
 
-const Login = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,19 +42,28 @@ const Login = () => {
     // Check if the user is already logged in
     AuthService.getCurUser()
       .then((user) => {
+        debugger;
         if (user) {
           // Navigate based on user role
-          if (user.role === USER_ROLES.STUDENT) {
-            navigate(config.routes.search);
-          } else if (user.role === USER_ROLES.TEACHER) {
-            navigate(config.routes.course_management_for_teacher);
-          }
+          navigateByRole(user?.role);
         }
       })
       .catch((err) => {
         console.error("Failed to fetch user:", err);
       });
   }, [navigate]);
+
+  const navigateByRole = (role) => {
+    if (role === USER_ROLES.STUDENT) {
+      navigate(config.routes.search);
+    } else if (role === USER_ROLES.TEACHER) {
+      navigate(config.routes.course_management_for_teacher);
+    } else if (role === USER_ROLES.ADMIN) {
+      navigate(config.routes.course_management_for_teacher);
+    } else {
+      console.log("Role not found");
+    }
+  }
 
   const handleLogin = (event) => {
     event.preventDefault();
@@ -84,12 +93,7 @@ const Login = () => {
 
         successToast(`Login successfully`);
         const user = loginResponse?.user;
-        if (user?.role === USER_ROLES.STUDENT) {
-          navigate(config.routes.search);
-        }
-        else if (user?.role === USER_ROLES.TEACHER) {
-          navigate(config.routes.course_management_for_teacher);
-        }
+        navigateByRole(user?.role);
       })
       .catch((e) => {
         setIsLogging(false); // Stop loading
@@ -218,4 +222,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;

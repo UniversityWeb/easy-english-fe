@@ -22,7 +22,7 @@ import {
 import Footer from '~/components/Footer';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 
-const CourseManagementForStudent = () => {
+const CourseManagementForStudentPage = () => {
   const [visibleCourses, setVisibleCourses] = useState(4);
   const stats = [
     { icon: FaLayerGroup, label: 'Bundles', value: 0 },
@@ -44,7 +44,7 @@ const CourseManagementForStudent = () => {
       duration: '20 hours',
       price: 100,
       description:
-        'Learn how to draw characters like a pro in this comprehensive drawing course.',
+        'LearnPage how to draw characters like a pro in this comprehensive drawing course.',
       isPublish: true,
       createdBy: 'John Doe',
       createdAt: 'September 27, 2024',
@@ -81,7 +81,7 @@ const CourseManagementForStudent = () => {
       imageUrl: '',
       duration: '15 hours',
       price: 300,
-      description: 'Learn advanced Unity techniques from industry pros.',
+      description: 'LearnPage advanced Unity techniques from industry pros.',
       isPublish: true,
       createdBy: 'Michael Green',
       createdAt: 'September 27, 2024',
@@ -94,7 +94,7 @@ const CourseManagementForStudent = () => {
       duration: '10 hours',
       price: 120,
       description:
-        'Learn the fundamentals of Java programming with hands-on examples.',
+        'LearnPage the fundamentals of Java programming with hands-on examples.',
       isPublish: true,
       createdBy: 'Sarah Brown',
       createdAt: 'September 27, 2024',
@@ -120,7 +120,7 @@ const CourseManagementForStudent = () => {
       duration: '12 hours',
       price: 90,
       description:
-        'Learn the basics of digital marketing, from SEO to social media strategies.',
+        'LearnPage the basics of digital marketing, from SEO to social media strategies.',
       isPublish: true,
       createdBy: 'Emma Wilson',
       createdAt: 'September 27, 2024',
@@ -158,7 +158,7 @@ const CourseManagementForStudent = () => {
       imageUrl: '',
       duration: '22 hours',
       price: 220,
-      description: 'Learn how to analyze data using advanced Excel techniques.',
+      description: 'LearnPage how to analyze data using advanced Excel techniques.',
       isPublish: true,
       createdBy: 'Oliver Clark',
       createdAt: 'September 27, 2024',
@@ -258,4 +258,4 @@ const CourseManagementForStudent = () => {
   );
 };
 
-export default CourseManagementForStudent;
+export default CourseManagementForStudentPage;

@@ -21,7 +21,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import useCustomToast from '~/hooks/useCustomToast';
 import { OTP_LENGTH } from '~/utils/constants';
 
-const OtpValidation = () => {
+const OtpValidationPage = () => {
   const location = useLocation();
   const { username } = location.state || {};
   const navigate = useNavigate();
@@ -137,4 +137,4 @@ const OtpValidation = () => {
   );
 };
 
-export default OtpValidation;
+export default OtpValidationPage;

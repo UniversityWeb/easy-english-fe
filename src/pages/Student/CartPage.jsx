@@ -19,7 +19,7 @@ import paymentService from '~/services/paymentService';
 import config from '~/config';
 import StudentPageLayout from '~/components/StudentPageLayout';
 
-const Cart = () => {
+const CartPage = () => {
   const username = getUsername();
   const { successToast, errorToast } = useCustomToast();
   const [cart, setCart] = useState({
@@ -142,4 +142,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default CartPage;

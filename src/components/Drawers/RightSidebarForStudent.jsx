@@ -86,13 +86,13 @@ const RightSidebarForStudent = (props) => {
 
             <SidebarItem
               icon={MdOutlineShoppingCart}
-              text="My Cart"
+              text="My CartPage"
               handleClick={() => navigate(config.routes.cart)}
             />
 
             <SidebarItem
               icon={MdOutlineShoppingBag}
-              text="My Orders"
+              text="My OrdersPage"
               handleClick={() => navigate(config.routes.orders)}
             />
 

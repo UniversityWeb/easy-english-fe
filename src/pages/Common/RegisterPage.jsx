@@ -25,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH } from '~/utils/constants';
 import useCustomToast from '~/hooks/useCustomToast';
 
-const Register = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
   const { successToast, errorToast } = useCustomToast();
   const [showPassword, setShowPassword] = useState(false);
@@ -269,4 +269,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterPage;

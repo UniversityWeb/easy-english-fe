@@ -5,7 +5,7 @@ import orderService from '../../services/orderService';
 import { formatDate } from '~/utils/methods';
 import StudentPageLayout from '~/components/StudentPageLayout';
 
-const OrderDetail = () => {
+const OrderDetailPage = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -91,4 +91,4 @@ const OrderItems = ({ items }) => {
   );
 };
 
-export default OrderDetail;
+export default OrderDetailPage;
