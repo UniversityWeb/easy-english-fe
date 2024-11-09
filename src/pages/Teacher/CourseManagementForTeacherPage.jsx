@@ -7,7 +7,7 @@ import { getUsername } from '~/utils/authUtils';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import config from '~/config';
 
-const CoursesManagementForTeacher = () => {
+const CoursesManagementForTeacherPage = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const username = getUsername();
@@ -89,4 +89,4 @@ const CoursesManagementForTeacher = () => {
     );
 };
 
-export default CoursesManagementForTeacher;
+export default CoursesManagementForTeacherPage;

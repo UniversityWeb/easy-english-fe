@@ -34,7 +34,7 @@ import authService from '~/services/authService';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 
-function CourseDetails() {
+function CourseDetailsPage() {
   const navigate = useNavigate();
   const [courseData, setCourseData] = useState(null);
   const [buttonState, setButtonState] = useState('loading'); // State to control the button text
@@ -306,4 +306,4 @@ function CourseDetails() {
   );
 }
 
-export default CourseDetails;
+export default CourseDetailsPage;

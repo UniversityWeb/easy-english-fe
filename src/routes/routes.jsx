@@ -10,11 +10,11 @@ import TakeTestPage from '~/pages/Student/TakeTestPage';
 import PreviewTestPage from '~/pages/Student/PreviewTestPage';
 import CartPage from '~/pages/Student/CartPage';
 import PaymentResultPage from '~/pages/Student/PaymentResultPage';
-import CourseManagementForTeacher from '~/pages/Teacher/CourseManagementForTeacherPage';
-import Search from '~/pages/Student/SearchPage';
-import Favourite from '~/pages/Student/FavouritePage';
+import CourseManagementForTeacherPage from '~/pages/Teacher/CourseManagementForTeacherPage';
+import SearchPage from '~/pages/Student/SearchPage';
+import FavouritePage from '~/pages/Student/FavouritePage';
 import EnrollCoursePage from '~/pages/Student/EnrollCoursePage';
-import CourseViewDetail from '~/pages/Student/CourseDetailPage';
+import CourseViewDetailPage from '~/pages/Student/CourseDetailPage';
 import CourseDetailPage from '~/pages/Teacher/CourseDetailPage';
 import Setting from '~/components/Teacher/CourseDetail/Setting';
 import OrdersPage from '~/pages/Student/OrdersPage';
@@ -45,12 +45,12 @@ const publicRoutes = [
   { path: config.routes.course_detail, component: CourseDetailPage },
   {
     path: config.routes.course_management_for_teacher,
-    component: CourseManagementForTeacher,
+    component: CourseManagementForTeacherPage,
   },
-  { path: config.routes.search, component: Search },
-  { path: config.routes.favourite, component: Favourite },
+  { path: config.routes.search, component: SearchPage },
+  { path: config.routes.favourite, component: FavouritePage },
   { path: config.routes.enroll_course, component: EnrollCoursePage },
-  { path: config.routes.course_view_detail, component: CourseViewDetail },
+  { path: config.routes.course_view_detail, component: CourseViewDetailPage },
   { path: config.routes.test, component: CourseDetailPage },
 
   { path: config.routes.orders, component: OrdersPage },
