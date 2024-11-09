@@ -143,7 +143,8 @@ const Wishlist = () => {
                       <Rating rating={course.rating} />
 
                       <Text fontSize="sm" mt="3" noOfLines={3}>
-                        {course.description || 'No description available.'}
+                        {course.descriptionPreview ||
+                          'No description available.'}
                       </Text>
 
                       <Flex mt="4" alignItems="center" justify="space-between">

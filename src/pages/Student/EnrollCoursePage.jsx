@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Image,
-  Badge,
   Text,
   VStack,
   HStack,
@@ -11,29 +10,28 @@ import {
   Divider,
   Flex,
   Spinner,
-} from "@chakra-ui/react";
-import { TbClockHour4 } from "react-icons/tb";
+} from '@chakra-ui/react';
+import { TbClockHour4 } from 'react-icons/tb';
 import { ChakraProvider } from '@chakra-ui/react';
-import courseService from "~/services/courseService";
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Adjust the import path accordingly
+import courseService from '~/services/courseService';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const EnrollCoursePage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch courses when the component mounts
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const courseRequest = { username: "hungsam" }; // Define your course request payload if needed
+        const courseRequest = { username: 'hungsam' };
         const response = await courseService.getEnrollCourse(courseRequest);
         if (response) {
           setCourses(response);
         } else {
-          console.log("Failed to fetch courses");
+          console.log('Failed to fetch courses');
         }
       } catch (error) {
-        console.error("Error fetching courses:", error);
+        console.error('Error fetching courses:', error);
       } finally {
         setLoading(false);
       }
@@ -67,10 +65,12 @@ const EnrollCoursePage = () => {
               boxShadow="md"
               maxW="sm"
               height="450px"
+              display="flex"
+              flexDirection="column"
             >
               <Box height="200px" overflow="hidden">
                 <Image
-                  src={course.image || course.imagePreview} // Use API image field
+                  src={course.image || course.imagePreview}
                   alt={course.title}
                   objectFit="cover"
                   width="100%"
@@ -78,11 +78,13 @@ const EnrollCoursePage = () => {
                 />
               </Box>
 
-              <Box p={6}>
-                <VStack align="start" spacing={2}>
-                  <VStack align="start" spacing={1}>
+              <Box p={6} flex="1" display="flex" flexDirection="column">
+                <VStack align="start" spacing={2} flex="1">
+                  <VStack align="start" spacing={1} minHeight="80px">
+                    {' '}
+                    {/* Adjust minHeight to equalize title area */}
                     <Text fontSize="sm" color="gray.500">
-                      {course.category || "Uncategorized"} {/* Fallback for category */}
+                      {course.topic.name || 'Uncategorized'}
                     </Text>
                     <Text fontWeight="bold" fontSize="lg" noOfLines={2}>
                       {course.title}
@@ -93,22 +95,37 @@ const EnrollCoursePage = () => {
                     <Flex justify="space-between" width="100%">
                       <HStack>
                         <Icon as={TbClockHour4} />
-                        <Text fontSize="sm">{course.duration || "N/A"} hours</Text>
+                        <Text fontSize="sm">
+                          {course.duration || 'N/A'} hours
+                        </Text>
                       </HStack>
-                      <Text fontSize="sm">{course.progress || 0}% Complete</Text>
+                      <Text fontSize="sm">
+                        {course.progress || 0}% Complete
+                      </Text>
                     </Flex>
                   </HStack>
 
-                  <Button colorScheme="blue" width="full">
-                    Start Course
-                  </Button>
+                  <Box mt="auto" width="100%">
+                    {' '}
+                    {/* Forces the button to the bottom */}
+                    <Button colorScheme="blue" width="full">
+                      Start Course
+                    </Button>
+                  </Box>
 
                   <Divider />
 
-                  <Text fontSize="sm" color="gray.500" textAlign="center" width="full">
-                    Started {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : "N/A"}
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    textAlign="center"
+                    width="full"
+                  >
+                    Started{' '}
+                    {course.createdAt
+                      ? new Date(course.createdAt).toLocaleDateString()
+                      : 'N/A'}
                   </Text>
-
                 </VStack>
               </Box>
             </Box>

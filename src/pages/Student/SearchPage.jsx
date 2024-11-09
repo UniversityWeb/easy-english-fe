@@ -25,7 +25,6 @@ import courseService from '~/services/courseService';
 import Filter from '../../components/Student/Search/Filter';
 import Pagination from '../../components/Student/Search/Page';
 import { useNavigate } from 'react-router-dom';
-import StudentPageLayout from '~/components/StudentPageLayout';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const Rating = ({ rating }) => {
@@ -57,7 +56,6 @@ const CourseList = ({
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
   const handleSearch = () => {
-    // Reset pagination settings to default
     setCurrentPage(1); // for page 0
     setItemsPerPage(10);
     fetchCourses();
@@ -92,7 +90,6 @@ const CourseList = ({
     }
   };
 
-  // Initialize fetch on mount and when page changes
   React.useEffect(() => {
     if (onSearch) {
       onSearch(fetchCourses);
