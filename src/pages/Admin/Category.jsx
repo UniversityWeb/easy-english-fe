@@ -27,7 +27,7 @@ import {
   FormLabel,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import Pagination from '~/pages/Search/Page'; // Import the Pagination component
+import Pagination from '~/components/Student/Search/Page'; // Import the Pagination component
 import categoryService from '~/services/categoryService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Import the category service
 
