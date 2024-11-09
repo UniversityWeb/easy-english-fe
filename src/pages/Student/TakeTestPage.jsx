@@ -62,6 +62,7 @@ const TakeTestPage = () => {
         saveTest(testId, test);
         setTest(test);
       }
+      setResetCountDownTime(prev => prev + 1);
     } catch (e) {
       console.error('Failed to fetch test:', e);
     }
@@ -72,6 +73,7 @@ const TakeTestPage = () => {
     if (savedTest) {
       setTest(savedTest);
     }
+    setResetCountDownTime(prev => prev + 1);
   };
 
   const handleLoadFromLocal = (loadLocal) => {
@@ -80,7 +82,6 @@ const TakeTestPage = () => {
     } else {
       fetchTest();
     }
-    setResetCountDownTime(prev => prev + 1);
     onClose();
   };
 

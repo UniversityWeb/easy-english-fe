@@ -19,53 +19,36 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
 } from '@chakra-ui/react';
-import {
-  FaPause,
-  FaPlay,
-} from 'react-icons/fa';
+import { FaPause, FaPlay } from 'react-icons/fa';
 import { MdVolumeUp } from 'react-icons/md';
 import { CiPaperplane } from 'react-icons/ci';
-import {
-  TbPlayerTrackPrevFilled,
-  TbPlayerTrackNextFilled,
-} from 'react-icons/tb';
+import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled } from 'react-icons/tb';
 import testResultService from '~/services/testResultService';
-import {
-  generateSubmitTestRequest,
-  saveTest,
-  getTest, getCourseId, clearSavedTest,
-} from '~/utils/testUtils';
+import { generateSubmitTestRequest, getTest, getCourseId, clearSavedTest } from '~/utils/testUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
+import { AiOutlineArrowLeft } from 'react-icons/ai';
 
 const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   const navigate = useNavigate();
   const [timeLimit, setTimeLimit] = useState(2100); // Default time in seconds (35 minutes)
 
   useEffect(() => {
-    // Load `startedAt` and `durationInMilis` from localStorage when testId changes
     const savedTest = getTest(testId);
-
     if (savedTest && savedTest.startedAt && savedTest.durationInMilis) {
       const startedAt = new Date(savedTest.startedAt).getTime();
       const durationInMilis = savedTest.durationInMilis;
-
-      // Calculate the remaining time in seconds
       const currentTime = Date.now();
       const endTime = startedAt + durationInMilis;
-      const remainingTime = Math.max(
-        Math.floor((endTime - currentTime) / 1000),
-        0,
-      );
-
+      const remainingTime = Math.max(Math.floor((endTime - currentTime) / 1000), 0);
       setTimeLimit(remainingTime);
     }
   }, [testId, resetKey]);
 
   useEffect(() => {
     if (timeLimit <= 0) {
-      if (onFinished) onFinished(); // Trigger onFinished callback when time runs out
+      if (onFinished) onFinished();
       const courseId = getCourseId(testId);
       clearSavedTest(testId);
       navigate(config.routes.learn(courseId));
@@ -73,26 +56,20 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
       return;
     }
 
-    // Set up the countdown timer that updates every second
     const timer = setInterval(() => {
       setTimeLimit((prevTime) => Math.max(prevTime - 1, 0));
     }, 1000);
 
-    // Cleanup the interval on component unmount
     return () => clearInterval(timer);
   }, [timeLimit, onFinished]);
 
-  // Format the time as hh:mm:ss
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
-
-    const formattedHours =
-      hours > 0 ? `${hours.toString().padStart(2, '0')}:` : '';
+    const formattedHours = hours > 0 ? `${hours.toString().padStart(2, '0')}:` : '';
     const formattedMinutes = minutes.toString().padStart(2, '0');
     const formattedSeconds = seconds.toString().padStart(2, '0');
-
     return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
   };
 
@@ -103,8 +80,9 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   );
 };
 
-function TakeTestHeader({ audioPath, resetCountDown, testId }) {
-  const audioRef = useRef(audioPath ? new Audio(audioPath) : null);
+function TakeTestHeader({ resetCountDown, testId }) {
+  const [audioSource, setAudioSource] = useState('https://codeskulptor-demos.commondatastorage.googleapis.com/pang/paza-moduless.mp3');
+  const audioRef = useRef(new Audio(audioSource));
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(0.5);
@@ -118,22 +96,31 @@ function TakeTestHeader({ audioPath, resetCountDown, testId }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    const audioPath = getTest(testId)?.audioPath;
+    setAudioSource(audioPath);
+  }, [testId]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.src = audioSource;
+      audioRef.current.load();
+    }
+  }, [audioSource]);
+
+  useEffect(() => {
     setResetTimeCountDown((prev) => prev + 1);
   }, [resetCountDown]);
 
-  // Function to save the current time to localStorage
   const saveCurrentTime = (time) => {
     const key = `audioCurrentTime/${testId}`;
     localStorage.setItem(key, time);
   };
 
-  // Function to get the saved time from localStorage
   const getCurrentTime = () => {
     const key = `audioCurrentTime/${testId}`;
     return parseFloat(localStorage.getItem(key)) || 0;
   };
 
-  // Load saved current time and initialize audio settings
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
@@ -163,19 +150,13 @@ function TakeTestHeader({ audioPath, resetCountDown, testId }) {
 
   const handleNext = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = Math.min(
-        audioRef.current.duration,
-        audioRef.current.currentTime + 5,
-      );
+      audioRef.current.currentTime = Math.min(audioRef.current.duration, audioRef.current.currentTime + 5);
     }
   };
 
   const handlePrev = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = Math.max(
-        0,
-        audioRef.current.currentTime - 5,
-      );
+      audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 5);
     }
   };
 
@@ -216,12 +197,17 @@ function TakeTestHeader({ audioPath, resetCountDown, testId }) {
     setIsFullscreen(!isFullscreen);
   };
 
+  const handleBackClick = () => {
+    window.history.back();
+  };
+
   return (
     <Box w="100%" p={4} bg="white" boxShadow="md" ref={containerRef}>
       <SimpleGrid columns={3} spacing={4} alignItems="center">
-        <Image
-          src="https://res.cloudinary.com/dnhvlncfw/image/upload/v1728881932/cld-sample-2.jpg"
-          alt="Logo"
+        <IconButton
+          aria-label="Back"
+          icon={<AiOutlineArrowLeft />}
+          onClick={handleBackClick} // Handle the click action
           boxSize="50px"
         />
         <CountdownTimer
@@ -243,46 +229,38 @@ function TakeTestHeader({ audioPath, resetCountDown, testId }) {
         </Box>
       </SimpleGrid>
 
-      {audioPath && (
-        <HStack mt={6} spacing={4} alignItems="center">
-          <IconButton
-            aria-label="Rewind"
-            icon={<TbPlayerTrackPrevFilled />}
-            onClick={handlePrev}
-          />
-          <IconButton
-            aria-label={isPlaying ? 'Pause' : 'Play'}
-            icon={isPlaying ? <FaPause /> : <FaPlay />}
-            onClick={togglePlayPause}
-          />
-          <IconButton
-            aria-label="Forward"
-            icon={<TbPlayerTrackNextFilled />}
-            onClick={handleNext}
-          />
-          <Text onClick={toggleTimeDisplay} cursor="pointer">
-            {showRemainingTime
-              ? `-${formatTime(audioRef.current.duration - currentTime)}`
-              : formatTime(currentTime)}
-          </Text>
-          <MdVolumeUp />
-          <Slider
-            aria-label="volume-slider"
-            defaultValue={volume * 100}
-            onChange={handleVolumeChange}
-            maxW="100px"
-          >
-            <SliderTrack bg="gray.200">
-              <SliderFilledTrack bg="teal.400" />
-            </SliderTrack>
-            <SliderThumb boxSize={4} />
-          </Slider>
-        </HStack>
-      )}
+      <HStack mt={6} spacing={4} alignItems="center">
+        {/* Control buttons */}
+        <IconButton aria-label="Rewind" icon={<TbPlayerTrackPrevFilled />} onClick={handlePrev} />
+        <IconButton aria-label={isPlaying ? "Pause" : "Play"} icon={isPlaying ? <FaPause /> : <FaPlay />} onClick={togglePlayPause} />
+        <IconButton aria-label="Forward" icon={<TbPlayerTrackNextFilled />} onClick={handleNext} />
 
-      <Text>
-        test
-      </Text>
+        {/* Time Display */}
+        <Text onClick={toggleTimeDisplay} cursor="pointer">
+          {showRemainingTime
+            ? `-${formatTime(audioRef.current.duration - currentTime)}`
+            : formatTime(currentTime)}
+        </Text>
+
+        <Slider aria-label="time-slider" value={currentTime} max={audioRef.current.duration || 0} onChange={(value) => {
+          audioRef.current.currentTime = value;
+          setCurrentTime(value);
+        }} flex="1">
+          <SliderTrack bg="gray.200">
+            <SliderFilledTrack bg="teal.400" />
+          </SliderTrack>
+          <SliderThumb boxSize={4} />
+        </Slider>
+
+        {/* Volume Control */}
+        <MdVolumeUp />
+        <Slider aria-label="volume-slider" defaultValue={volume * 100} onChange={handleVolumeChange} maxW="100px">
+          <SliderTrack bg="gray.200">
+            <SliderFilledTrack bg="teal.400" />
+          </SliderTrack>
+          <SliderThumb boxSize={4} />
+        </Slider>
+      </HStack>
 
       <AlertDialog
         isOpen={isSubmitConfirmOpen}
