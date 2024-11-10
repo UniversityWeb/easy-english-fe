@@ -207,288 +207,286 @@ const Setting = ({ courseId }) => {
   };
 
   return (
-    <RoleBasedPageLayout>
-      <Box pt={10} pb={10} maxW="600px" mx="auto">
-        <Heading mb={4}>Add new course</Heading>
+    <Box pt={10} pb={10} maxW="600px" mx="auto">
+      <Heading mb={4}>Add new course</Heading>
 
-        <FormControl mb="4">
-          <FormLabel>Course name</FormLabel>
-          <Input
-            value={course.title}
-            onChange={(e) => setCourse({ ...course, title: e.target.value })}
-            placeholder="Enter course name"
-          />
-        </FormControl>
+      <FormControl mb="4">
+        <FormLabel>Course name</FormLabel>
+        <Input
+          value={course.title}
+          onChange={(e) => setCourse({ ...course, title: e.target.value })}
+          placeholder="Enter course name"
+        />
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Course publish</FormLabel>
-          <Switch
-            isChecked={course.isPublish}
-            onChange={() =>
-              setCourse({ ...course, isPublish: !course.isPublish })
-            }
-          />
-        </FormControl>
+      <FormControl mb="4">
+        <FormLabel>Course publish</FormLabel>
+        <Switch
+          isChecked={course.isPublish}
+          onChange={() =>
+            setCourse({ ...course, isPublish: !course.isPublish })
+          }
+        />
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Category</FormLabel>
-          <Select
-            isMulti
-            options={categories.map((category) => ({
+      <FormControl mb="4">
+        <FormLabel>Category</FormLabel>
+        <Select
+          isMulti
+          options={categories.map((category) => ({
+            value: category.id,
+            label: category.name,
+          }))}
+          value={categories
+            .filter((category) => course.categoryIds.includes(category.id))
+            .map((category) => ({
               value: category.id,
               label: category.name,
             }))}
-            value={categories
-              .filter((category) => course.categoryIds.includes(category.id))
-              .map((category) => ({
-                value: category.id,
-                label: category.name,
-              }))}
-            onChange={handleCategoryChange}
-            placeholder="Select categories"
-          />
-        </FormControl>
+          onChange={handleCategoryChange}
+          placeholder="Select categories"
+        />
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Topic</FormLabel>
-          <ChakraSelect
-            placeholder="Select topic"
-            value={course.topicId}
-            onChange={handleTopicChange}
-          >
-            {topics.map((topic) => (
-              <option key={topic.id} value={topic.id}>
-                {topic.name}
-              </option>
-            ))}
-          </ChakraSelect>
-        </FormControl>
+      <FormControl mb="4">
+        <FormLabel>Topic</FormLabel>
+        <ChakraSelect
+          placeholder="Select topic"
+          value={course.topicId}
+          onChange={handleTopicChange}
+        >
+          {topics.map((topic) => (
+            <option key={topic.id} value={topic.id}>
+              {topic.name}
+            </option>
+          ))}
+        </ChakraSelect>
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Level</FormLabel>
-          <ChakraSelect
-            placeholder="Select level"
-            value={course.levelId}
-            onChange={(e) => setCourse({ ...course, levelId: e.target.value })}
-            isDisabled={!levels.length}
-          >
-            {levels.map((level) => (
-              <option key={level.id} value={level.id}>
-                {level.name}
-              </option>
-            ))}
-          </ChakraSelect>
-        </FormControl>
+      <FormControl mb="4">
+        <FormLabel>Level</FormLabel>
+        <ChakraSelect
+          placeholder="Select level"
+          value={course.levelId}
+          onChange={(e) => setCourse({ ...course, levelId: e.target.value })}
+          isDisabled={!levels.length}
+        >
+          {levels.map((level) => (
+            <option key={level.id} value={level.id}>
+              {level.name}
+            </option>
+          ))}
+        </ChakraSelect>
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Course duration</FormLabel>
-          <Input
-            placeholder="Enter course duration"
-            value={course.duration}
-            onChange={(e) => setCourse({ ...course, duration: e.target.value })}
-          />
-        </FormControl>
+      <FormControl mb="4">
+        <FormLabel>Course duration</FormLabel>
+        <Input
+          placeholder="Enter course duration"
+          value={course.duration}
+          onChange={(e) => setCourse({ ...course, duration: e.target.value })}
+        />
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Video</FormLabel>
-          <Box position="relative" width="100%" height="250px" mx="auto">
-            {course.videoPreview ? (
+      <FormControl mb="4">
+        <FormLabel>Video</FormLabel>
+        <Box position="relative" width="100%" height="250px" mx="auto">
+          {course.videoPreview ? (
+            <Box
+              position="relative"
+              width="100%"
+              height="100%"
+              cursor="pointer"
+              overflow="hidden"
+              _hover={{
+                '.overlay': { opacity: 1 },
+                '.remove-btn': { opacity: 1 },
+              }}
+            >
+              <video
+                src={course.videoPreview}
+                controls
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
               <Box
-                position="relative"
+                className="overlay"
+                position="absolute"
+                top="0"
+                left="0"
                 width="100%"
                 height="100%"
-                cursor="pointer"
-                overflow="hidden"
-                _hover={{
-                  '.overlay': { opacity: 1 },
-                  '.remove-btn': { opacity: 1 },
-                }}
-              >
-                <video
-                  src={course.videoPreview}
-                  controls
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <Box
-                  className="overlay"
-                  position="absolute"
-                  top="0"
-                  left="0"
-                  width="100%"
-                  height="100%"
-                  backgroundColor="rgba(0, 0, 0, 0.5)"
-                  opacity="0"
-                  transition="opacity 0.3s ease"
-                />
-                <Flex
-                  className="remove-btn"
-                  position="absolute"
-                  top="50%"
-                  left="50%"
-                  transform="translate(-50%, -50%)"
-                  opacity="0"
-                  transition="opacity 0.3s ease"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Button
-                    onClick={() => setCourse({ ...course, videoPreview: '' })}
-                    colorScheme="blue"
-                  >
-                    Remove
-                  </Button>
-                </Flex>
-              </Box>
-            ) : (
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                opacity="0"
+                transition="opacity 0.3s ease"
+              />
               <Flex
-                border="2px dashed gray"
-                p="4"
-                textAlign="center"
-                cursor="pointer"
-                height="100%"
-                onClick={() => document.getElementById('videoUpload').click()}
+                className="remove-btn"
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                opacity="0"
+                transition="opacity 0.3s ease"
                 justifyContent="center"
                 alignItems="center"
-                flexDirection="column"
               >
-                <Text>
-                  Drag and drop a video or upload it from your computer
-                </Text>
-                <Button mt="2" colorScheme="blue">
-                  Upload a video
+                <Button
+                  onClick={() => setCourse({ ...course, videoPreview: '' })}
+                  colorScheme="blue"
+                >
+                  Remove
                 </Button>
-                <Input
-                  id="videoUpload"
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoChange}
-                  display="none"
-                />
               </Flex>
-            )}
-          </Box>
-        </FormControl>
+            </Box>
+          ) : (
+            <Flex
+              border="2px dashed gray"
+              p="4"
+              textAlign="center"
+              cursor="pointer"
+              height="100%"
+              onClick={() => document.getElementById('videoUpload').click()}
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+            >
+              <Text>
+                Drag and drop a video or upload it from your computer
+              </Text>
+              <Button mt="2" colorScheme="blue">
+                Upload a video
+              </Button>
+              <Input
+                id="videoUpload"
+                type="file"
+                accept="video/*"
+                onChange={handleVideoChange}
+                display="none"
+              />
+            </Flex>
+          )}
+        </Box>
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Image</FormLabel>
-          <Box position="relative" width="100%" height="250px" mx="auto">
-            {course.imagePreview ? (
-              <Box
-                position="relative"
+      <FormControl mb="4">
+        <FormLabel>Image</FormLabel>
+        <Box position="relative" width="100%" height="250px" mx="auto">
+          {course.imagePreview ? (
+            <Box
+              position="relative"
+              width="100%"
+              height="100%"
+              cursor="pointer"
+              overflow="hidden"
+              _hover={{
+                '.overlay': { opacity: 1 },
+                '.remove-btn': { opacity: 1 },
+              }}
+            >
+              <Image
+                src={course.imagePreview}
+                alt="Course Image"
                 width="100%"
                 height="100%"
-                cursor="pointer"
-                overflow="hidden"
-                _hover={{
-                  '.overlay': { opacity: 1 },
-                  '.remove-btn': { opacity: 1 },
-                }}
-              >
-                <Image
-                  src={course.imagePreview}
-                  alt="Course Image"
-                  width="100%"
-                  height="100%"
-                  objectFit="cover"
-                />
-                <Box
-                  className="overlay"
-                  position="absolute"
-                  top="0"
-                  left="0"
-                  width="100%"
-                  height="100%"
-                  backgroundColor="rgba(0, 0, 0, 0.5)"
-                  opacity="0"
-                  transition="opacity 0.3s ease"
-                />
-                <Flex
-                  className="remove-btn"
-                  position="absolute"
-                  top="50%"
-                  left="50%"
-                  transform="translate(-50%, -50%)"
-                  opacity="0"
-                  transition="opacity 0.3s ease"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Button onClick={handleRemoveImage} colorScheme="blue">
-                    Remove
-                  </Button>
-                </Flex>
-              </Box>
-            ) : (
-              <Flex
-                border="2px dashed gray"
-                p="4"
-                textAlign="center"
-                cursor="pointer"
+                objectFit="cover"
+              />
+              <Box
+                className="overlay"
+                position="absolute"
+                top="0"
+                left="0"
+                width="100%"
                 height="100%"
-                onClick={() => document.getElementById('imageUpload').click()}
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                opacity="0"
+                transition="opacity 0.3s ease"
+              />
+              <Flex
+                className="remove-btn"
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                opacity="0"
+                transition="opacity 0.3s ease"
                 justifyContent="center"
                 alignItems="center"
-                flexDirection="column"
               >
-                <Text>
-                  Drag and drop an image or upload it from your computer
-                </Text>
-                <Button mt="2" colorScheme="blue">
-                  Upload an image
+                <Button onClick={handleRemoveImage} colorScheme="blue">
+                  Remove
                 </Button>
-                <Input
-                  id="imageUpload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  display="none"
-                />
               </Flex>
-            )}
-          </Box>
-        </FormControl>
+            </Box>
+          ) : (
+            <Flex
+              border="2px dashed gray"
+              p="4"
+              textAlign="center"
+              cursor="pointer"
+              height="100%"
+              onClick={() => document.getElementById('imageUpload').click()}
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+            >
+              <Text>
+                Drag and drop an image or upload it from your computer
+              </Text>
+              <Button mt="2" colorScheme="blue">
+                Upload an image
+              </Button>
+              <Input
+                id="imageUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                display="none"
+              />
+            </Flex>
+          )}
+        </Box>
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Description preview</FormLabel>
-          <Textarea
-            placeholder="Enter a short description preview..."
-            rows={6}
-            value={course.descriptionPreview}
-            onChange={(e) =>
-              setCourse({ ...course, descriptionPreview: e.target.value })
-            }
+      <FormControl mb="4">
+        <FormLabel>Description preview</FormLabel>
+        <Textarea
+          placeholder="Enter a short description preview..."
+          rows={6}
+          value={course.descriptionPreview}
+          onChange={(e) =>
+            setCourse({ ...course, descriptionPreview: e.target.value })
+          }
+        />
+      </FormControl>
+
+      <FormControl mb="4">
+        <FormLabel>Description</FormLabel>
+        <Box
+          sx={{
+            '.quill': {
+              height: '270px',
+              display: 'flex',
+              flexDirection: 'column',
+            },
+            '.ql-container': {
+              height: '220px',
+              marginBottom: '20px',
+            },
+          }}
+        >
+          <ReactQuill
+            value={course.description}
+            onChange={handleDescriptionChange}
+            theme="snow"
+            placeholder="Enter your description here..."
           />
-        </FormControl>
+        </Box>
+      </FormControl>
 
-        <FormControl mb="4">
-          <FormLabel>Description</FormLabel>
-          <Box
-            sx={{
-              '.quill': {
-                height: '270px',
-                display: 'flex',
-                flexDirection: 'column',
-              },
-              '.ql-container': {
-                height: '220px',
-                marginBottom: '20px',
-              },
-            }}
-          >
-            <ReactQuill
-              value={course.description}
-              onChange={handleDescriptionChange}
-              theme="snow"
-              placeholder="Enter your description here..."
-            />
-          </Box>
-        </FormControl>
-
-        <Button colorScheme="blue" width="100%" onClick={handleSubmit}>
-          {courseId ? 'Update Course' : 'Create Course'}
-        </Button>
-      </Box>
-    </RoleBasedPageLayout>
+      <Button colorScheme="blue" width="100%" onClick={handleSubmit}>
+        {courseId ? 'Update Course' : 'Create Course'}
+      </Button>
+    </Box>
   );
 };
 

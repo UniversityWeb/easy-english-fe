@@ -1,126 +1,68 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChakraProvider, Box, VStack, Text, Button, Icon, HStack } from '@chakra-ui/react';
-import { FaHeadphones } from 'react-icons/fa';
-import QuestionItem from '~/components/Test/Question/QuestionItem';
+import React from 'react';
+import { VStack, Text, Box, Image } from "@chakra-ui/react";
+import SingleChoiceQuestion from '~/components/Test/Question/SingleChoiceQuestion';
 
-function TakeTestGroup({ scrollToQuestion, onQuestionAnswered }) {
-  // Example data for questions
-  const questionsData = [
-    {
-      question: "What is the capital of France?",
-      options: [
-        { value: "A", label: "A. Berlin" },
-        { value: "B", label: "B. Paris" },
-        { value: "C", label: "C. Madrid" },
-      ],
-      questionNumber: 1,
-    },
-    {
-      question: "What is the largest planet?",
-      options: [
-        { value: "A", label: "A. Earth" },
-        { value: "B", label: "B. Jupiter" },
-        { value: "C", label: "C. Saturn" },
-      ],
-      questionNumber: 2,
-    },
-    {
-      question: "Which element has the chemical symbol O?",
-      options: [
-        { value: "A", label: "A. Oxygen" },
-        { value: "B", label: "B. Gold" },
-        { value: "C", label: "C. Iron" },
-      ],
-      questionNumber: 3,
-    },
-  ];
-
-  // State to track answers
-  const [answers, setAnswers] = useState(() => {
-    const savedAnswers = {};
-    [...Array(questionsData.length).keys()].forEach((i) => {
-      const questionNumber = i + 1;
-      const savedAnswer = localStorage.getItem(`Q${questionNumber}`);
-      if (savedAnswer) {
-        savedAnswers[questionNumber] = savedAnswer;
-      }
-    });
-    return savedAnswers;
-  });
-
-  const questionRefs = useRef([]);
-
-  const handleQuestionAnswered = (questionNumber, answer) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionNumber]: answer,
-    }));
-
-    // Save answer to localStorage
-    localStorage.setItem(`Q${questionNumber}`, answer);
-
-    // Callback for parent components (if any)
-    if (onQuestionAnswered) {
-      onQuestionAnswered(questionNumber, answer);
-    }
-  };
-
-  useEffect(() => {
-    if (scrollToQuestion) {
-      const questionIndex = scrollToQuestion - 1;
-      if (questionRefs.current[questionIndex]) {
-        questionRefs.current[questionIndex].scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
-      }
-    }
-  }, [scrollToQuestion]);
-
+function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) {
   return (
-    <ChakraProvider>
-      <Box w="100%" p={6} bg="white" boxShadow="lg" borderRadius="md">
-        <VStack align="start" spacing={6}>
-          <Text fontSize="2xl" fontWeight="bold">
-            Take the Test
-          </Text>
+    <VStack align="start" spacing={6} pt={4}>
+      {/* Always display these fields */}
+      <Text fontSize="lg" fontWeight="bold">
+        {`Group Title: ${questionGroup?.title}`}
+      </Text>
+      <Text fontSize="md">
+        {`Ordinal Number: ${questionGroup?.ordinalNumber}`}
+      </Text>
+      <Text fontSize="md">
+        {`Questions Range: ${questionGroup?.from} - ${questionGroup?.to}`}
+      </Text>
+      <Text fontSize="md">
+        {`Requirement: ${questionGroup?.requirement}`}
+      </Text>
 
-          <HStack spacing={4} alignItems="center">
-            <Text fontSize="xl" color="teal.500" fontWeight="bold">
-              Questions 1-3
-            </Text>
-            <Button
-              leftIcon={<Icon as={FaHeadphones} />}
-              colorScheme="teal"
-              variant="outline"
-            >
-              Listen from here
-            </Button>
-          </HStack>
+      {/* Conditionally display optional fields */}
+      {questionGroup?.audioPath && (
+        <Box>
+          <Text fontSize="md">Audio:</Text>
+          <audio controls>
+            <source src={questionGroup.audioPath} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+        </Box>
+      )}
 
-          <Text>
-            Choose the correct letter,{" "}
-            <Text as="span" fontWeight="bold">
-              A, B, or C.
-            </Text>
-          </Text>
+      {questionGroup?.imagePath && (
+        <Box>
+          <Text fontSize="md">Image:</Text>
+          <Image src={questionGroup.imagePath} alt="Question Image" />
+        </Box>
+      )}
 
-          <VStack align="start" spacing={6} pt={4}>
-            {questionsData.map((data, index) => (
-              <div key={data.questionNumber} ref={(el) => (questionRefs.current[index] = el)}>
-                <QuestionItem
-                  question={data.question}
-                  options={data.options}
-                  questionNumber={data.questionNumber}
-                  onQuestionAnswered={handleQuestionAnswered}
-                  selectedValue={answers[data.questionNumber] || ""}
-                />
-              </div>
-            ))}
-          </VStack>
-        </VStack>
-      </Box>
-    </ChakraProvider>
+      {questionGroup?.contentToDisplay && (
+        <Box>
+          <Text fontSize="md">Content:</Text>
+          <Text>{questionGroup.contentToDisplay}</Text>
+        </Box>
+      )}
+
+      {questionGroup?.originalContent && (
+        <Box>
+          <Text fontSize="md">Original Content:</Text>
+          <Text>{questionGroup.originalContent}</Text>
+        </Box>
+      )}
+
+      {/* Loop over the questions inside the question group */}
+      {questionGroup?.questions?.map((question) => (
+        <SingleChoiceQuestion
+          key={question.id}
+          question={question.title}
+          options={question.options}
+          questionNumber={question.ordinalNumber}
+          onQuestionAnswered={onQuestionAnswered}
+          selectedValue={question.selectedAnswer || ""}
+        />
+      ))}
+    </VStack>
   );
 }
 

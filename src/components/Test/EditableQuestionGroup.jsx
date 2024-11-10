@@ -36,7 +36,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
   const [questions, setQuestions] = useState([]);
   const { successToast, errorToast } = useCustomToast();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(!!group?.audioPath);
   const [isImageEnabled, setIsImageEnabled] = useState(!!group?.imagePath);
   const [isContentEnabled, setIsContentEnabled] = useState(!!group?.contentToDisplay);
 
@@ -65,7 +64,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
       ordinalNumber: group?.ordinalNumber || '',
       from: group?.from || '',
       to: group?.to || '',
-      audioPath: group?.audioPath || '',
       imagePath: group?.imagePath || '',
       contentToDisplay: group?.contentToDisplay || '',
       originalContent: group?.originalContent || '',
@@ -212,24 +210,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
                             style={{ height: '380px', marginBottom: '20px' }}
                           />
                         </Box>
-                      </FormControl>
-
-                      <FormControl mb={4}>
-                        <Flex justify="space-between" align="center" mb={2}>
-                          <FormLabel>Audio Path</FormLabel>
-                          <Switch
-                            isChecked={isAudioEnabled}
-                            onChange={(e) => setIsAudioEnabled(e.target.checked)}
-                            colorScheme="blue"
-                          />
-                        </Flex>
-                        {isAudioEnabled && (
-                          <Input
-                            name="audioPath"
-                            value={groupState.audioPath}
-                            onChange={handleInputChange}
-                          />
-                        )}
                       </FormControl>
 
                       <FormControl mb={4}>

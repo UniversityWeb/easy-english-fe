@@ -25,11 +25,11 @@ import testService from '~/services/testService';
 const TakeTestPage = () => {
   const { testId } = useParams();
   const [test, setTest] = useState({});
-  const [activePart, setActivePart] = useState('part1');
+  const [selectedPartId, setSelectedPartId] = useState();
   const [scrollToQuestion, setScrollToQuestion] = useState(null);
-  const [answers, setAnswers] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [resetCountDownTime, setResetCountDownTime] = useState(0);
+  const [refreshFooterContent, setRefreshFooterContent] = useState(0);
 
   useEffect(() => {
     if (testId) {
@@ -41,18 +41,6 @@ const TakeTestPage = () => {
       }
     }
   }, [testId, onOpen]);
-
-  // Load initial answers from localStorage when component mounts
-  useEffect(() => {
-    const savedAnswers = {};
-    for (let i = 1; i <= 40; i++) {
-      const savedAnswer = localStorage.getItem(`Q${i}`);
-      if (savedAnswer) {
-        savedAnswers[i] = savedAnswer;
-      }
-    }
-    setAnswers(savedAnswers);
-  }, []);
 
   const fetchTest = async () => {
     try {
@@ -85,41 +73,6 @@ const TakeTestPage = () => {
     onClose();
   };
 
-  // Function to handle answering questions
-  const handleQuestionAnswered = useCallback(
-    (questionNumber, value) => {
-      setAnswers((prevAnswers) => {
-        const updatedAnswers = { ...prevAnswers };
-        if (value) {
-          updatedAnswers[questionNumber] = value;
-          saveQuestionState(test?.id, questionNumber, value);
-        } else {
-          delete updatedAnswers[questionNumber];
-          saveQuestionState(test?.id, questionNumber, []);
-        }
-        return updatedAnswers;
-      });
-    },
-    [test?.id],
-  );
-
-  // Get answered questions as a Set
-  const getAnsweredQuestions = useCallback(() => {
-    return new Set(Object.keys(answers).map(Number));
-  }, [answers]);
-
-  // Render the test part component
-  const renderPartComponent = useCallback(
-    () => (
-      <TakeTestPart
-        scrollToQuestion={scrollToQuestion}
-        onQuestionAnswered={handleQuestionAnswered}
-        answers={answers}
-      />
-    ),
-    [scrollToQuestion, handleQuestionAnswered, answers],
-  );
-
   return (
     <Box>
       <TakeTestHeader
@@ -127,13 +80,18 @@ const TakeTestPage = () => {
         resetCountDown={resetCountDownTime}
         audioPath={test?.audioPath}
       />
-      {renderPartComponent()}
+      {/*<TakeTestPart*/}
+      {/*  testId={testId}*/}
+      {/*  partId={selectedPartId}*/}
+      {/*  scrollToQuestion={scrollToQuestion}*/}
+      {/*/>*/}
       <TakeTestFooter
-        activePart={activePart}
-        setActivePart={setActivePart}
+        testId={test?.id}
+        testParts={test?.parts}
+        selectedPartId={selectedPartId}
+        setSelectedPartId={setSelectedPartId}
         setScrollToQuestion={setScrollToQuestion}
-        answeredQuestions={getAnsweredQuestions()}
-        answers={answers}
+        isRefresh={refreshFooterContent}
       />
 
       {/* Confirmation Dialog */}

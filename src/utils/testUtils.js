@@ -99,6 +99,14 @@ const getParts = (testId) => {
   return savedTest ? savedTest.parts || [] : [];
 };
 
+const getPart = (testId, partId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return null;
+
+  // Find the part by its unique partId
+  return savedTest.parts.find(part => part.id === partId) || null;
+};
+
 const getQuestionGroups = (testId) => {
   const savedTest = getTest(testId);
   if (!savedTest || !savedTest.parts) return [];
@@ -130,6 +138,35 @@ const getQuestion = (testId, testQuestionId) => {
   return null; // Return null if the question is not found
 };
 
+const getQuestions = (testId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return [];
+
+  // Extract all questions from all parts and their question groups
+  const questions = [];
+  savedTest.parts.forEach(part => {
+    part.questionGroups.forEach(group => {
+      questions.push(...group.questions);
+    });
+  });
+
+  return questions;
+};
+
+const getQuestionsInRangeByPartId = (testId, partId, startIndex, endIndex) => {
+  const part = getPart(testId, partId);
+  if (!part || !part.questionGroups) return [];
+
+  // Collect all questions from the part's question groups
+  const allQuestions = [];
+  part.questionGroups.forEach(group => {
+    allQuestions.push(...group.questions);
+  });
+
+  // Return the questions within the specified range
+  return allQuestions.slice(startIndex, endIndex);
+};
+
 export {
   saveTest,
   getTest,
@@ -140,6 +177,9 @@ export {
   getStartedTime,
   getCourseId,
   getParts,
+  getPart,
   getQuestionGroups,
   getQuestion,
+  getQuestions,
+  getQuestionsInRangeByPartId,
 };

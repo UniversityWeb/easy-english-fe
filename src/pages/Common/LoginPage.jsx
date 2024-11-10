@@ -42,7 +42,6 @@ const LoginPage = () => {
     // Check if the user is already logged in
     AuthService.getCurUser()
       .then((user) => {
-        debugger;
         if (user) {
           // Navigate based on user role
           navigateByRole(user?.role);

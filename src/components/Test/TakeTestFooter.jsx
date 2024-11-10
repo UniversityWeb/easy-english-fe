@@ -1,11 +1,18 @@
-import React from 'react';
-import { Box, SimpleGrid, VStack, Text, Button, Collapse, HStack } from "@chakra-ui/react";
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Collapse, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react';
+import { getParts, getQuestionsInRangeByPartId, getTest } from '~/utils/testUtils';
 
-function PartSection({ partNumber, questionRange, activePart, setActivePart, setScrollToQuestion, answers }) {
-  const isActive = activePart === `part${partNumber}`;
+function PartSection({
+  part,
+  questionRange = [],
+  selectedPartId,
+  setSelectedPartId,
+  setScrollToQuestion,
+  answers,
+}) {
+  const isActive = selectedPartId?.ordinalNumber === part?.ordinalNumber;
 
-  // Calculate progress based on actual answers
-  const answeredCount = questionRange.filter(num => answers[num]).length;
+  const answeredCount = questionRange.filter((num) => answers[num]).length;
 
   return (
     <VStack
@@ -17,7 +24,7 @@ function PartSection({ partNumber, questionRange, activePart, setActivePart, set
       borderRadius="md"
       alignItems="center"
       cursor="pointer"
-      onClick={() => setActivePart(`part${partNumber}`)}
+      onClick={() => setSelectedPartId(part?.id)}
     >
       {isActive ? (
         <Collapse in={isActive} animateOpacity>
@@ -27,13 +34,13 @@ function PartSection({ partNumber, questionRange, activePart, setActivePart, set
                 key={num}
                 size="sm"
                 borderRadius="full"
-                variant={answers[num] ? "solid" : "outline"}
+                variant={answers[num] ? 'solid' : 'outline'}
                 colorScheme="teal"
                 w="26px"
                 h="30px"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActivePart(`part${partNumber}`);
+                  setSelectedPartId(part?.id);
                   setScrollToQuestion(num);
                 }}
               >
@@ -44,36 +51,76 @@ function PartSection({ partNumber, questionRange, activePart, setActivePart, set
         </Collapse>
       ) : (
         <Text fontWeight="bold" color="teal.500">
-          Part {partNumber} : <Text as="span" fontWeight="normal" color="black">
-          {answeredCount} of {questionRange.length} questions
-        </Text>
+          Part {part} :{' '}
+          <Text as="span" fontWeight="normal" color="black">
+            {answeredCount} of {questionRange.length} questions
+          </Text>
         </Text>
       )}
     </VStack>
   );
 }
 
+function TakeTestFooter({
+  testId,
+  testParts = [],
+  selectedPartId,
+  setSelectedPartId,
+  setScrollToQuestion,
+  isRefresh,
+}) {
+  const [parts, setParts] = useState([]);
 
-function TakeTestFooter({ activePart, setActivePart, setScrollToQuestion, answers }) {
-  const parts = [
-    { partNumber: 1, questionRange: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-    { partNumber: 2, questionRange: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20] },
-    { partNumber: 3, questionRange: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30] },
-    { partNumber: 4, questionRange: [31, 32, 33, 34, 35, 36, 37, 38, 39, 40] },
-  ];
+  useEffect(() => {
+    // Fetch parts with their question ranges when test parts change
+    const newPart = getParts(testId).map((part) => {
+      const allQuestions = getQuestionsInRangeByPartId(
+        testId,
+        part.id,
+        0,
+        part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
+      );
+      const questionRange = allQuestions.map((q) => q.ordinalNumber);
+      return {
+        ...part,
+        questionRange,
+      };
+    });
+    setParts(newPart);
+  }, [testId, isRefresh]);
+
+  const handlePartSelect = (partId) => {
+    setSelectedPartId(partId);
+  };
+
+  const handleScrollToQuestion = (questionId, ordinalNumber) => {
+    // Sets the scroll position based on testQuestionId and ordinalNumber
+    const scrollKey = `${questionId}-${ordinalNumber}`;
+    setScrollToQuestion(scrollKey);
+  };
 
   return (
-    <Box w="100%" p={4} bg="white" boxShadow="md" borderRadius="md" position="sticky" bottom="0" left="0" zIndex="1000">
+    <Box
+      w="100%"
+      p={4}
+      bg="white"
+      boxShadow="md"
+      borderRadius="md"
+      position="sticky"
+      bottom="0"
+      left="0"
+      zIndex="1000"
+    >
       <SimpleGrid columns={4} spacing="5px">
         {parts.map((part) => (
           <PartSection
-            key={part.partNumber}
-            partNumber={part.partNumber}
-            questionRange={part.questionRange}
-            activePart={activePart}
-            setActivePart={setActivePart}
+            key={part?.id}
+            part={part?.ordinalNumber || 1}
+            questionRange={part?.questionRange || []}
+            selectedPartId={selectedPartId}
+            setSelectedPartId={setSelectedPartId}
             setScrollToQuestion={setScrollToQuestion}
-            answers={answers}
+            answers={getTest(testId)?.userAnswers || []}
           />
         ))}
       </SimpleGrid>
