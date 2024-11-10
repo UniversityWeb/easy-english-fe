@@ -1,34 +1,71 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, Collapse, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react';
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  Box,
+  Button,
+  Collapse,
+  HStack,
+  SimpleGrid,
+  Text,
+  VStack,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { getParts, getQuestionsInRangeByPartId, getTest } from '~/utils/testUtils';
 
-function PartSection({
-  part,
-  questionRange = [],
-  selectedPartId,
-  setSelectedPartId,
-  setScrollToQuestion,
-  answers,
-}) {
-  const isActive = selectedPartId?.ordinalNumber === part?.ordinalNumber;
+// Helper function to get the question range for a part
+const getQuestionRange = (testId, part) => {
+  const allQuestions = getQuestionsInRangeByPartId(
+    testId,
+    part.id,
+    0,
+    part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
+  );
+  return allQuestions.map((q) => q.ordinalNumber);
+};
 
+// PartSection Component
+const PartSection = React.memo(({
+                                  part,
+                                  questionRange = [],
+                                  onPartClick,
+                                  setScrollToQuestion,
+                                  answers,
+                                  selectedPartId,
+                                }) => {
+  const { isOpen, onToggle } = useDisclosure({ isOpen: selectedPartId === part?.id });
+  const isActive = selectedPartId === part?.id;
   const answeredCount = questionRange.filter((num) => answers[num]).length;
+
+  const handlePartClick = (e) => {
+    e.preventDefault();
+    onPartClick(part?.id);
+  };
 
   return (
     <VStack
       spacing={2}
-      p={4}
-      h="70px"
+      p={2}
+      h="auto"
       border="2px"
-      borderColor="teal.400"
+      borderColor={isActive ? 'teal.400' : 'transparent'}
       borderRadius="md"
-      alignItems="center"
+      alignItems="flex-start"
       cursor="pointer"
-      onClick={() => setSelectedPartId(part?.id)}
+      onClick={handlePartClick}
+      minW="200px"
+      transition="border-color 0.2s ease-in-out, transform 0.2s ease-in-out"
+      _hover={{ borderColor: 'teal.300', transform: 'scale(1.05)' }}
     >
-      {isActive ? (
+      {/* Collapsed View */}
+      {!isActive ? (
+        <Text fontWeight="bold" color="black">
+          Part {part.ordinalNumber}:{' '}
+          <Text as="span" fontWeight="normal">
+            {answeredCount} of {questionRange.length} questions
+          </Text>
+        </Text>
+      ) : (
         <Collapse in={isActive} animateOpacity>
-          <HStack spacing={1} wrap="nowrap" whiteSpace="nowrap">
+          <HStack spacing={1} wrap="nowrap" whiteSpace="nowrap" overflowX="auto" maxW="100%" p={1}>
             {questionRange.map((num) => (
               <Button
                 key={num}
@@ -36,68 +73,45 @@ function PartSection({
                 borderRadius="full"
                 variant={answers[num] ? 'solid' : 'outline'}
                 colorScheme="teal"
-                w="26px"
+                w="30px"
                 h="30px"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedPartId(part?.id);
                   setScrollToQuestion(num);
+                  onPartClick(part?.id);
                 }}
+                _active={{ transform: 'scale(0.95)', transition: 'transform 0.1s ease-in-out' }}
               >
                 {num}
               </Button>
             ))}
           </HStack>
         </Collapse>
-      ) : (
-        <Text fontWeight="bold" color="teal.500">
-          Part {part} :{' '}
-          <Text as="span" fontWeight="normal" color="black">
-            {answeredCount} of {questionRange.length} questions
-          </Text>
-        </Text>
       )}
     </VStack>
   );
-}
+});
 
+// TakeTestFooter Component
 function TakeTestFooter({
-  testId,
-  testParts = [],
-  selectedPartId,
-  setSelectedPartId,
-  setScrollToQuestion,
-  isRefresh,
-}) {
+                          testId,
+                          selectedPartId,
+                          onPartClick,
+                          setScrollToQuestion,
+                          isRefresh,
+                        }) {
   const [parts, setParts] = useState([]);
+  const userAnswers = useMemo(() => getTest(testId)?.userAnswers || [], [testId]);
 
   useEffect(() => {
-    // Fetch parts with their question ranges when test parts change
-    const newPart = getParts(testId).map((part) => {
-      const allQuestions = getQuestionsInRangeByPartId(
-        testId,
-        part.id,
-        0,
-        part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
-      );
-      const questionRange = allQuestions.map((q) => q.ordinalNumber);
-      return {
+    const fetchParts = () => {
+      return getParts(testId).map((part) => ({
         ...part,
-        questionRange,
-      };
-    });
-    setParts(newPart);
+        questionRange: getQuestionRange(testId, part),
+      }));
+    };
+    setParts(fetchParts());
   }, [testId, isRefresh]);
-
-  const handlePartSelect = (partId) => {
-    setSelectedPartId(partId);
-  };
-
-  const handleScrollToQuestion = (questionId, ordinalNumber) => {
-    // Sets the scroll position based on testQuestionId and ordinalNumber
-    const scrollKey = `${questionId}-${ordinalNumber}`;
-    setScrollToQuestion(scrollKey);
-  };
 
   return (
     <Box
@@ -110,20 +124,21 @@ function TakeTestFooter({
       bottom="0"
       left="0"
       zIndex="1000"
+      overflowX="auto"
     >
-      <SimpleGrid columns={4} spacing="5px">
+      <HStack spacing={4} overflowX="auto" p={2}>
         {parts.map((part) => (
           <PartSection
             key={part?.id}
-            part={part?.ordinalNumber || 1}
+            part={part}
             questionRange={part?.questionRange || []}
             selectedPartId={selectedPartId}
-            setSelectedPartId={setSelectedPartId}
+            onPartClick={onPartClick}
             setScrollToQuestion={setScrollToQuestion}
-            answers={getTest(testId)?.userAnswers || []}
+            answers={userAnswers}
           />
         ))}
-      </SimpleGrid>
+      </HStack>
     </Box>
   );
 }

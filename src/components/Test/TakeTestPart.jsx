@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Box, VStack, Text } from "@chakra-ui/react";
 import TakeTestGroup from '~/components/Test/TakeTestGroup';
-import { getPart, getParts } from '~/utils/testUtils';
+import { getPart, getParts, getQuestionsInRangeByPartId } from '~/utils/testUtils';
 
 function TakeTestPart({ testId, partId, scrollToQuestion, onQuestionAnswered }) {
   const [part, setPart] = useState();
 
   useEffect(() => {
-    let part = getPart(testId, partId);
-    part = { ...part, questionGroups: part.questionGroups || [] };
-    setPart(part || {});
-  }, [partId]);
+    // Fetch parts with their question ranges when test parts change
+    const newPart = getPart(testId, partId);
+    debugger
+    setPart(newPart);
+  }, [testId, partId]);
 
   return (
     <Box w="100%" p={6} bg="white" boxShadow="lg" borderRadius="md">

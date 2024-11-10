@@ -89,7 +89,7 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
 };
 
 function TakeTestHeader({ resetCountDown, testId }) {
-  const [audioSource, setAudioSource] = useState('https://codeskulptor-demos.commondatastorage.googleapis.com/pang/paza-moduless.mp3');
+  const [audioSource, setAudioSource] = useState('');
   const audioRef = useRef(new Audio(audioSource));
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -230,38 +230,40 @@ function TakeTestHeader({ resetCountDown, testId }) {
         </Box>
       </SimpleGrid>
 
-      <HStack mt={6} spacing={4} alignItems="center">
-        {/* Control buttons */}
-        <IconButton aria-label="Rewind" icon={<TbPlayerTrackPrevFilled />} onClick={handlePrev} />
-        <IconButton aria-label={isPlaying ? "Pause" : "Play"} icon={isPlaying ? <FaPause /> : <FaPlay />} onClick={togglePlayPause} />
-        <IconButton aria-label="Forward" icon={<TbPlayerTrackNextFilled />} onClick={handleNext} />
+      {audioSource && (
+        <HStack mt={6} spacing={4} alignItems="center">
+          {/* Control buttons */}
+          <IconButton aria-label="Rewind" icon={<TbPlayerTrackPrevFilled />} onClick={handlePrev} />
+          <IconButton aria-label={isPlaying ? "Pause" : "Play"} icon={isPlaying ? <FaPause /> : <FaPlay />} onClick={togglePlayPause} />
+          <IconButton aria-label="Forward" icon={<TbPlayerTrackNextFilled />} onClick={handleNext} />
 
-        {/* Time Display */}
-        <Text onClick={toggleTimeDisplay} cursor="pointer">
-          {showRemainingTime
-            ? `-${formatTime(audioRef.current.duration - currentTime)}`
-            : formatTime(currentTime)}
-        </Text>
+          {/* Time Display */}
+          <Text onClick={toggleTimeDisplay} cursor="pointer">
+            {showRemainingTime
+              ? `-${formatTime(audioRef.current.duration - currentTime)}`
+              : formatTime(currentTime)}
+          </Text>
 
-        <Slider aria-label="time-slider" value={currentTime} max={audioRef.current.duration || 0} onChange={(value) => {
-          audioRef.current.currentTime = value;
-          setCurrentTime(value);
-        }} flex="1">
-          <SliderTrack bg="gray.200">
-            <SliderFilledTrack bg="teal.400" />
-          </SliderTrack>
-          <SliderThumb boxSize={4} />
-        </Slider>
+          <Slider aria-label="time-slider" value={currentTime} max={audioRef.current.duration || 0} onChange={(value) => {
+            audioRef.current.currentTime = value;
+            setCurrentTime(value);
+          }} flex="1">
+            <SliderTrack bg="gray.200">
+              <SliderFilledTrack bg="teal.400" />
+            </SliderTrack>
+            <SliderThumb boxSize={4} />
+          </Slider>
 
-        {/* Volume Control */}
-        <MdVolumeUp />
-        <Slider aria-label="volume-slider" defaultValue={volume * 100} onChange={handleVolumeChange} maxW="100px">
-          <SliderTrack bg="gray.200">
-            <SliderFilledTrack bg="teal.400" />
-          </SliderTrack>
-          <SliderThumb boxSize={4} />
-        </Slider>
-      </HStack>
+          {/* Volume Control */}
+          <MdVolumeUp />
+          <Slider aria-label="volume-slider" defaultValue={volume * 100} onChange={handleVolumeChange} maxW="100px">
+            <SliderTrack bg="gray.200">
+              <SliderFilledTrack bg="teal.400" />
+            </SliderTrack>
+            <SliderThumb boxSize={4} />
+          </Slider>
+        </HStack>
+      )}
 
       <AlertDialog
         isOpen={isSubmitConfirmOpen}

@@ -25,7 +25,7 @@ import testService from '~/services/testService';
 const TakeTestPage = () => {
   const { testId } = useParams();
   const [test, setTest] = useState({});
-  const [selectedPartId, setSelectedPartId] = useState();
+  const [selectedPartId, setSelectedPartId] = useState(0);
   const [scrollToQuestion, setScrollToQuestion] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [resetCountDownTime, setResetCountDownTime] = useState(0);
@@ -73,23 +73,29 @@ const TakeTestPage = () => {
     onClose();
   };
 
+  const handlePartClick = useCallback((partId) => {
+    setSelectedPartId(partId);
+  }, [setSelectedPartId]);
+
   return (
     <Box>
-      <TakeTestHeader
+      <Box position="sticky" top="0" zIndex="100" bg="white">
+        <TakeTestHeader
+          testId={testId}
+          resetCountDown={resetCountDownTime}
+          audioPath={test?.audioPath}
+        />
+      </Box>
+      <TakeTestPart
         testId={testId}
-        resetCountDown={resetCountDownTime}
-        audioPath={test?.audioPath}
+        partId={selectedPartId}
+        scrollToQuestion={scrollToQuestion}
       />
-      {/*<TakeTestPart*/}
-      {/*  testId={testId}*/}
-      {/*  partId={selectedPartId}*/}
-      {/*  scrollToQuestion={scrollToQuestion}*/}
-      {/*/>*/}
       <TakeTestFooter
         testId={test?.id}
         testParts={test?.parts}
         selectedPartId={selectedPartId}
-        setSelectedPartId={setSelectedPartId}
+        onPartClick={handlePartClick}
         setScrollToQuestion={setScrollToQuestion}
         isRefresh={refreshFooterContent}
       />
