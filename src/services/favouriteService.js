@@ -2,7 +2,7 @@ import { get, post, del } from '~/utils/httpRequest'; // Removed unused imports
 
 const SUFFIX_FAVOURITE_API_URL = '/favourites';
 
-const getAllFavorites = async (page = 0, size = 10) => {
+const getAllFavorites = async (page = 0, size = 8) => {
   const path = `${SUFFIX_FAVOURITE_API_URL}`;
   const response = await get(path, {
     params: {

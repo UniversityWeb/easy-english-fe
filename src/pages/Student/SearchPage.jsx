@@ -12,6 +12,9 @@ import {
   Image,
   Icon,
   Divider,
+  Skeleton,
+  SkeletonText,
+  SkeletonCircle,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
@@ -39,6 +42,37 @@ const Rating = ({ rating }) => (
   </HStack>
 );
 
+const CourseListSkeleton = ({ itemsPerPage }) => {
+  return (
+    <Grid templateColumns="repeat(4, 1fr)" gap={6}>
+      {Array(itemsPerPage)
+        .fill('')
+        .map((_, index) => (
+          <Box
+            key={index}
+            width="100%" // Ensure it takes full width of the grid item
+            borderWidth="1px"
+            borderRadius="lg"
+            overflow="hidden"
+            boxShadow="md"
+            height="380px"
+            position="relative"
+            p={6}
+          >
+            <Skeleton height="180px" width="100%" />
+            <VStack align="start" spacing={3} mt={4}>
+              <SkeletonText noOfLines={1} width="50%" />
+              <SkeletonText noOfLines={2} width="80%" />
+              <SkeletonText noOfLines={1} width="60%" />
+              <SkeletonCircle size="10" />
+              <SkeletonText noOfLines={1} width="90%" />
+            </VStack>
+          </Box>
+        ))}
+    </Grid>
+  );
+};
+
 const CourseList = ({
   courses,
   hoveredCourseId,
@@ -49,15 +83,14 @@ const CourseList = ({
   const navigate = useNavigate();
 
   return (
-    <HStack spacing={5} wrap="wrap" justify="flex-start">
+    <Grid templateColumns="repeat(4, 1fr)" gap={6}>
       {courses.map((course) => {
         const isLiked = likedCourses.find((c) => c.id === course.id)?.liked;
 
         return (
           <Box
-            style={{ zoom: 0.9 }}
             key={course.id}
-            width="300px"
+            width="100%" // Ensure it takes full width of the grid item
             borderWidth="1px"
             borderRadius="lg"
             overflow="hidden"
@@ -199,15 +232,17 @@ const CourseList = ({
           </Box>
         );
       })}
-    </HStack>
+    </Grid>
   );
 };
 
 const SearchPage = () => {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state
   const [hoveredCourseId, setHoveredCourseId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterOptions, setFilterOptions] = useState({
@@ -219,6 +254,7 @@ const SearchPage = () => {
   const [likedCourses, setLikedCourses] = useState([]);
 
   const fetchCourses = async () => {
+    setLoading(true); // Set loading to true when fetching starts
     try {
       const courseRequest = {
         pageNumber: currentPage - 1,
@@ -253,6 +289,8 @@ const SearchPage = () => {
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -304,23 +342,29 @@ const SearchPage = () => {
           </GridItem>
 
           <GridItem>
-            <CourseList
-              courses={courses}
-              hoveredCourseId={hoveredCourseId}
-              setHoveredCourseId={setHoveredCourseId}
-              toggleWishlist={toggleWishlist}
-              likedCourses={likedCourses}
-            />
+            <Flex direction="column" justify="space-between" height="100%">
+              {loading ? (
+                <CourseListSkeleton itemsPerPage={itemsPerPage} />
+              ) : (
+                <CourseList
+                  courses={courses}
+                  hoveredCourseId={hoveredCourseId}
+                  setHoveredCourseId={setHoveredCourseId}
+                  toggleWishlist={toggleWishlist}
+                  likedCourses={likedCourses}
+                />
+              )}
 
-            <Box mt={8}>
-              <Pagination
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                itemsPerPage={itemsPerPage}
-                setItemsPerPage={setItemsPerPage}
-                totalPages={totalPages}
-              />
-            </Box>
+              <Box mt={8}>
+                <Pagination
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
+                  itemsPerPage={itemsPerPage}
+                  setItemsPerPage={setItemsPerPage}
+                  totalPages={totalPages}
+                />
+              </Box>
+            </Flex>
           </GridItem>
         </Grid>
       </Box>
