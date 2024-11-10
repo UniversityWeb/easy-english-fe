@@ -1,104 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, Input, Button, IconButton, Flex } from '@chakra-ui/react';
-import { CheckIcon, DeleteIcon, AddIcon } from '@chakra-ui/icons';
+import React, { useState } from "react";
+import { Box, Input, Heading, Text, VStack, HStack } from "@chakra-ui/react";
 
-const FillBlankQuestion = ({ question, onUpdateQuestionField, onDelete }) => {
-  const [questionText, setQuestionText] = useState(question?.text || '');
-  const [blanks, setBlanks] = useState(question?.blanks || []);
-  const [newBlank, setNewBlank] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+const FillBlankQuestion = ({ question, onQuestionAnswered }) => {
+  const [answers, setAnswers] = useState([]);
 
-  useEffect(() => {
-    setQuestionText(question?.text || '');
-    setBlanks(question?.blanks || []);
-  }, [question]);
-
-  const handleBlankChange = (index, value) => {
-    const updatedBlanks = blanks.map((blank, i) => (i === index ? value : blank));
-    setBlanks(updatedBlanks);
-    onUpdateQuestionField('blanks', updatedBlanks);
+  // Handle input change for each blank
+  const handleInputChange = (index, value) => {
+    const newAnswers = [...answers];
+    newAnswers[index] = value;
+    setAnswers(newAnswers);
+    onQuestionAnswered(question.id, newAnswers);
   };
-
-  const addBlank = () => {
-    if (newBlank.trim()) {
-      setBlanks([...blanks, newBlank.trim()]);
-      setNewBlank('');
-      onUpdateQuestionField('blanks', [...blanks, newBlank.trim()]);
-    }
-  };
-
-  const removeBlank = (index) => {
-    const updatedBlanks = blanks.filter((_, i) => i !== index);
-    setBlanks(updatedBlanks);
-    onUpdateQuestionField('blanks', updatedBlanks);
-  };
-
-  const toggleEditing = () => setIsEditing(!isEditing);
 
   return (
-    <Box p={5} bg="gray.50" borderRadius="md" borderWidth="1px" my={4}>
-      <Text fontSize="lg" fontWeight="bold" mb={3}>Fill in the Blank Question</Text>
+    <Box mb={6} p={4} borderWidth="1px" borderRadius="lg">
+      <Heading as="h4" size="sm" mb={4}>
+        {question.ordinalNumber + 1}. {question.title}
+      </Heading>
 
-      <Box mb={4}>
-        <Text fontSize="md" fontWeight="bold" mb={2}>
-          Question Text
-        </Text>
-        {isEditing ? (
+      <VStack align="start" spacing={4}>
+        <HStack>
+          {/* Part 1: "She is good ___ math." */}
+          <Text>She is good</Text>
           <Input
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-            placeholder="Enter your question with blanks"
+            placeholder="___"
+            value={answers[0] || ""}
+            onChange={(e) => handleInputChange(0, e.target.value)}
+            width="100px"
           />
-        ) : (
-          <Text>{questionText}</Text>
-        )}
-      </Box>
+          <Text>math.</Text>
+        </HStack>
 
-      <Box mb={4}>
-        <Text fontSize="md" fontWeight="bold" mb={2}>Blanks</Text>
-        {blanks.map((blank, index) => (
-          <Flex key={index} mb={2} align="center">
-            <Text>_________</Text>
-            <Input
-              value={blank}
-              onChange={(e) => handleBlankChange(index, e.target.value)}
-              placeholder={`Fill in blank ${index + 1}`}
-              width="200px"
-              ml={2}
-            />
-            <IconButton
-              icon={<DeleteIcon />}
-              aria-label="Delete Blank"
-              size="sm"
-              colorScheme="red"
-              ml={2}
-              onClick={() => removeBlank(index)}
-            />
-          </Flex>
-        ))}
-      </Box>
-
-      <Box>
-        <Input
-          value={newBlank}
-          onChange={(e) => setNewBlank(e.target.value)}
-          placeholder="Enter new blank text"
-          mb={2}
-        />
-        <Button leftIcon={<AddIcon />} onClick={addBlank} colorScheme="blue" mb={2}>
-          Add Blank
-        </Button>
-        <Button onClick={toggleEditing} colorScheme="blue" mb={2}>
-          {isEditing ? 'Save' : 'Edit'}
-        </Button>
-        <IconButton
-          icon={<DeleteIcon />}
-          aria-label="Delete Question"
-          size="sm"
-          colorScheme="red"
-          onClick={onDelete}
-        />
-      </Box>
+        <HStack>
+          {/* Part 2: "___ hi xin chao nhe." */}
+          <Input
+            placeholder="___"
+            value={answers[1] || ""}
+            onChange={(e) => handleInputChange(1, e.target.value)}
+            width="100px"
+          />
+          <Text>hi xin chao nhe.</Text>
+        </HStack>
+      </VStack>
     </Box>
   );
 };

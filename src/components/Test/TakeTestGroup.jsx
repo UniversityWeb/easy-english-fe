@@ -1,8 +1,7 @@
 import React from 'react';
 import { VStack, Text, Box, Image } from "@chakra-ui/react";
-import SingleChoiceQuestion from '~/components/Test/Question/SingleChoiceQuestion';
-import CustomReactQuill from '~/components/CustomReactQuill';
 import ReactQuill from 'react-quill';
+import QuestionItem from '~/components/Test/Question/QuestionItem';
 
 function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) {
   const isRequirementEmpty = (text) => {
@@ -14,12 +13,6 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
       {/* Always display these fields */}
       <Text fontSize="lg" fontWeight="bold">
         {`${questionGroup?.title}`}
-      </Text>
-      <Text fontSize="md">
-        {`Ordinal Number: ${questionGroup?.ordinalNumber}`}
-      </Text>
-      <Text fontSize="md">
-        {`Questions Range: ${questionGroup?.from} - ${questionGroup?.to}`}
       </Text>
 
       {!isRequirementEmpty(questionGroup?.requirement) && (
@@ -56,13 +49,10 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
 
       {/* Loop over the questions inside the question group */}
       {questionGroup?.questions?.map((question) => (
-        <SingleChoiceQuestion
+        <QuestionItem
           key={question.id}
-          question={question.title}
-          options={question.options}
-          questionNumber={question.ordinalNumber}
+          question={question}
           onQuestionAnswered={onQuestionAnswered}
-          selectedValue={question.selectedAnswer || ""}
         />
       ))}
     </VStack>

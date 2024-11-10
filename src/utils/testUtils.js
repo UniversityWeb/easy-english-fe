@@ -54,6 +54,7 @@ const saveQuestionState = (testId, testQuestionId, answers) => {
   // Save the updated test back to localStorage
   const updatedTest = { ...savedTest, userAnswers: updatedUserAnswers };
   saveTest(testId, updatedTest);
+  return updatedTest;
 };
 
 const generateSubmitTestRequest = (testId) => {

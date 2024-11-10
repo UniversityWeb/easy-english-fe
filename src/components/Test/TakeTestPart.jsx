@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, VStack, Text } from '@chakra-ui/react';
 import TakeTestGroup from '~/components/Test/TakeTestGroup';
-import { getPart } from '~/utils/testUtils';
+import { getPart, saveQuestionState } from '~/utils/testUtils';
 import ReactQuill from 'react-quill';
-import CustomReactQuill from '~/components/CustomReactQuill';
 
 function TakeTestPart({
   testId,
@@ -23,6 +22,7 @@ function TakeTestPart({
   const isReadingPassageEmpty = (text) => {
     return !text || text.trim().replace(/<[^>]+>/g, '').length === 0;
   };
+
 
   return (
     <Box w="100%" p={6} bg="white" boxShadow="lg" borderRadius="md">
@@ -66,6 +66,7 @@ function TakeTestPart({
             questionGroup={group}
             scrollToQuestion={scrollToQuestion}
             onQuestionAnswered={onQuestionAnswered}
+            testId={testId}
           />
         ))}
       </VStack>

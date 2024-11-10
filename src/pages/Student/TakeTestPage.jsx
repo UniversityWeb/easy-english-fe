@@ -89,6 +89,15 @@ const TakeTestPage = () => {
     setSelectedPartId(partId);
   }, [setSelectedPartId]);
 
+  const handleAnswerQuestion = useCallback((testQuestionId, answers) => {
+    debugger
+    if (Array.isArray(answers) && answers.every(answer => typeof answer === 'string')) {
+      saveQuestionState(testId, testQuestionId, answers);
+    } else {
+      console.error('Invalid answers: must be an array of strings');
+    }
+  }, []);
+
   return (
     <Box>
       <Box position="sticky" top="0" zIndex="100" bg="white">
@@ -102,6 +111,7 @@ const TakeTestPage = () => {
         testId={testId}
         partId={selectedPartId}
         scrollToQuestion={scrollToQuestion}
+        onQuestionAnswered={handleAnswerQuestion}
       />
       <TakeTestFooter
         testId={test?.id}

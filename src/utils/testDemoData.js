@@ -127,8 +127,6 @@ export const QUESTION_TEMPLATES_TO_ADD = {
     ordinalNumber: 0,
     title: 'What is the past tense of "go"?',
     description: '',
-    audioPath: '',
-    imagePath: '',
     options: ['Gone', 'Going', 'Went', 'Go'],
     correctAnswers: ['Went'],
   },
@@ -137,8 +135,6 @@ export const QUESTION_TEMPLATES_TO_ADD = {
     ordinalNumber: 0,
     title: 'Select all adjectives in the following sentence: "The quick brown fox jumps over the lazy dog."',
     description: '',
-    audioPath: '',
-    imagePath: '',
     options: ['Quick', 'Brown', 'Jumps', 'Lazy'],
     correctAnswers: ['Quick', 'Brown', 'Lazy'], // Multiple correct answers
   },
@@ -147,8 +143,6 @@ export const QUESTION_TEMPLATES_TO_ADD = {
     ordinalNumber: 0,
     title: 'The sentence "She don’t like apples" is grammatically correct.',
     description: '',
-    audioPath: '',
-    imagePath: '',
     options: ['True', 'False'],
     correctAnswers: ['False'], // Only one correct answer
   },
@@ -157,8 +151,6 @@ export const QUESTION_TEMPLATES_TO_ADD = {
     ordinalNumber: 0,
     title: 'Match the words with their definitions.',
     description: '',
-    audioPath: '', // unused
-    imagePath: '', // unused
     options: [
       'Run',
       'Beautiful',
@@ -177,8 +169,6 @@ export const QUESTION_TEMPLATES_TO_ADD = {
     ordinalNumber: 0,
     title: 'She is good ___ math.',
     description: 'She is good |at| math.',
-    audioPath: '', // unused
-    imagePath: '', // unused
     options: [''], // unused
     correctAnswers: ['at'], // Correct word to fill the blank
   },
