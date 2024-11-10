@@ -12,9 +12,9 @@ import {
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
 import EditableQuestionGroup from '~/components/Test/EditableQuestionGroup';
 import questionGroupService from '~/services/questionGroupService';
-import ReactQuill from 'react-quill';
 import useCustomToast from '~/hooks/useCustomToast';
 import testPartService from '~/services/testPartService';
+import CustomReactQuill from '~/components/CustomReactQuill';
 
 const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [questionGroups, setQuestionGroups] = useState([]);
@@ -70,10 +70,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
       to: 10,
       requirement: 'Do me',
       testPartId: part?.id,
-      audioPath: '',
       imagePath: '',
-      contentToDisplay: '',
-      originalContent: '',
     };
 
     try {
@@ -121,27 +118,11 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
       {showReadingPassage && (
         <FormControl mb={10}>
           <FormLabel>Reading Passage</FormLabel>
-          <Box
-            sx={{
-              ".quill": {
-                height: "270px",
-                display: "flex",
-                flexDirection: "column",
-              },
-              ".ql-container": {
-                height: "310px",
-                marginBottom: "20px",
-              },
-            }}
-          >
-            <ReactQuill
-              value={readingPassage}
-              onChange={(readingPassage) => setReadingPassage(readingPassage)}
-              theme="snow"
-              placeholder="Enter lesson content"
-              style={{ height: "380px", marginBottom: "20px" }}
-            />
-          </Box>
+          <CustomReactQuill
+            value={readingPassage}
+            onChange={(readingPassage) => setReadingPassage(readingPassage)}
+            placeholder="Enter lesson content"
+          />
 
           <Button
             colorScheme="blue"

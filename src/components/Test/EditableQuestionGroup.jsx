@@ -27,9 +27,9 @@ import { AddIcon, DeleteIcon, MinusIcon } from '@chakra-ui/icons';
 import EditableQuestionItem from '~/components/Test/EditableQuestion/EditableQuestionItem';
 import testQuestionService from '~/services/testQuestionService';
 import useCustomToast from '~/hooks/useCustomToast';
-import ReactQuill from 'react-quill';
 import questionGroupService from '~/services/questionGroupService';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
+import CustomReactQuill from '~/components/CustomReactQuill';
 
 const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups }) => {
   const [groupState, setGroupState] = useState(group);
@@ -37,7 +37,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
   const { successToast, errorToast } = useCustomToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isImageEnabled, setIsImageEnabled] = useState(!!group?.imagePath);
-  const [isContentEnabled, setIsContentEnabled] = useState(!!group?.contentToDisplay);
 
   // Fetch questions from the server
   const fetchQuestions = async () => {
@@ -65,8 +64,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
       from: group?.from || '',
       to: group?.to || '',
       imagePath: group?.imagePath || '',
-      contentToDisplay: group?.contentToDisplay || '',
-      originalContent: group?.originalContent || '',
       testPartId: group?.testPartId || '',
     });
 
@@ -192,24 +189,15 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
                       </FormControl>
 
                       {/* Additional fields */}
-                      <FormControl mb={4}>
+                      <FormControl mb={10}>
                         <FormLabel>Requirement</FormLabel>
-                        <Box
-                          sx={{
-                            '.quill': { height: '270px' },
-                            '.ql-container': { height: '310px' },
-                          }}
-                        >
-                          <ReactQuill
-                            value={groupState?.requirement}
-                            onChange={(requirement) =>
-                              setGroupState((prev) => ({ ...prev, requirement }))
-                            }
-                            theme="snow"
-                            placeholder="Enter lesson content"
-                            style={{ height: '380px', marginBottom: '20px' }}
-                          />
-                        </Box>
+                        <CustomReactQuill
+                          value={groupState?.requirement}
+                          onChange={(requirement) =>
+                            setGroupState((prev) => ({ ...prev, requirement })
+                          )}
+                          placeholder={"Enter requirement"}
+                        />
                       </FormControl>
 
                       <FormControl mb={4}>
@@ -227,36 +215,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
                             value={groupState.imagePath}
                             onChange={handleInputChange}
                           />
-                        )}
-                      </FormControl>
-
-                      {/* Content to display */}
-                      <FormControl mb={4}>
-                        <Flex justify="space-between" align="center" mb={2}>
-                          <FormLabel>Content to Display</FormLabel>
-                          <Switch
-                            isChecked={isContentEnabled}
-                            onChange={(e) => setIsContentEnabled(e.target.checked)}
-                            colorScheme="blue"
-                          />
-                        </Flex>
-                        {isContentEnabled && (
-                          <Box
-                            sx={{
-                              '.quill': { height: '270px' },
-                              '.ql-container': { height: '310px' },
-                            }}
-                          >
-                            <ReactQuill
-                              value={group?.contentToDisplay}
-                              onChange={(contentToDisplay) =>
-                                setGroupState((prev) => ({ ...prev, contentToDisplay }))
-                              }
-                              theme="snow"
-                              placeholder="Enter lesson content"
-                              style={{ height: '380px', marginBottom: '20px' }}
-                            />
-                          </Box>
                         )}
                       </FormControl>
 

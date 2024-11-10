@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Box, VStack, Text } from "@chakra-ui/react";
+import { Box, VStack, Text } from '@chakra-ui/react';
 import TakeTestGroup from '~/components/Test/TakeTestGroup';
-import { getPart, getParts, getQuestionsInRangeByPartId } from '~/utils/testUtils';
+import { getPart } from '~/utils/testUtils';
+import ReactQuill from 'react-quill';
+import CustomReactQuill from '~/components/CustomReactQuill';
 
-function TakeTestPart({ testId, partId, scrollToQuestion, onQuestionAnswered }) {
+function TakeTestPart({
+  testId,
+  partId,
+  scrollToQuestion,
+  onQuestionAnswered,
+}) {
   const [part, setPart] = useState();
 
   useEffect(() => {
-    // Fetch parts with their question ranges when test parts change
+    // Fetch part data when testId or partId changes
     const newPart = getPart(testId, partId);
-    debugger
     setPart(newPart);
   }, [testId, partId]);
+
+  // Utility function to check if the reading passage is empty
+  const isReadingPassageEmpty = (text) => {
+    return !text || text.trim().replace(/<[^>]+>/g, '').length === 0;
+  };
 
   return (
     <Box w="100%" p={6} bg="white" boxShadow="lg" borderRadius="md">
@@ -21,13 +32,32 @@ function TakeTestPart({ testId, partId, scrollToQuestion, onQuestionAnswered }) 
           {part?.title || 'Untitled Part'}
         </Text>
 
-        {/* Always display ordinalNumber, from, to, and requirement */}
-        <Text fontSize="md">
-          {`Ordinal Number: ${part?.ordinalNumber}`}
-        </Text>
-        <Text fontSize="md">
-          {`Reading Passage: ${part?.readingPassage}`}
-        </Text>
+        {/* Conditionally display the reading passage if it has content */}
+        {!isReadingPassageEmpty(part?.readingPassage) && (
+          <Box
+            w="100%"
+            p={4}
+            bg="cyan.50"
+            borderRadius="md"
+            boxShadow="sm"
+            overflow="hidden"
+            sx={{
+              '.quill': { height: 'auto' },
+              '.ql-editor': { lineHeight: '1.5' },
+              '.ql-size-small': { fontSize: '16px' },
+              '.ql-size-large': { fontSize: '18px' },
+              '.ql-size-huge': { fontSize: '24px' },
+              '.ql-editor p': { marginBottom: '15px' },
+            }}
+          >
+            <ReactQuill
+              value={part?.readingPassage}
+              readOnly={true}
+              theme={'bubble'}
+              style={{ marginBottom: '0px', lineHeight: '1.5' }}
+            />
+          </Box>
+        )}
 
         {/* Render question groups */}
         {part?.questionGroups?.map((group) => (

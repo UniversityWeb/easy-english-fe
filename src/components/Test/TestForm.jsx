@@ -13,9 +13,9 @@ import {
 } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
-import ReactQuill from 'react-quill';
 import { TEST_STATUSES, TEST_TYPES } from '~/utils/constants';
 import { InfoIcon } from '@chakra-ui/icons';
+import CustomReactQuill from '~/components/CustomReactQuill';
 
 const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSaved, isNew }) => {
   const [loading, setLoading] = useState(false);
@@ -90,26 +90,11 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
           </FormControl>
           <FormControl>
             <FormLabel>Description</FormLabel>
-            <Box
-              sx={{
-                '.quill': {
-                  height: '270px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                },
-                '.ql-container': {
-                  height: '220px',
-                  marginBottom: '20px',
-                },
-              }}
-            >
-              <ReactQuill
-                value={testState.description}
-                onChange={desc => setTestState((prevState) => ({ ...prevState, description: desc }))}
-                theme="snow"
-                placeholder="Enter your description here..."
-              />
-            </Box>
+            <CustomReactQuill
+              value={testState?.description}
+              onChange={desc => setTestState((prevState) => ({ ...prevState, description: desc }))}
+              placeholder={"Enter your description here..."}
+            />
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Duration (hours / minutes)</FormLabel>

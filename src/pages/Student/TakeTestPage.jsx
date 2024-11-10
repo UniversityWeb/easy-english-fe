@@ -39,6 +39,12 @@ const TakeTestPage = () => {
       } else {
         fetchTest();
       }
+
+      try {
+        setSelectedPartId(test?.parts[0]?.id || 0);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, [testId, onOpen]);
 
@@ -69,6 +75,12 @@ const TakeTestPage = () => {
       loadTestFromLocalStorage();
     } else {
       fetchTest();
+    }
+
+    try {
+      setSelectedPartId(test?.parts[0]?.id || 0);
+    } catch (e) {
+      console.error(e);
     }
     onClose();
   };

@@ -25,10 +25,7 @@ export const testDemoData = {
           to: 5,
           title: "Group 1: Tenses",
           requirement: "Choose the correct form of the verb in each sentence.",
-          audioPath: "audio/grammar_intro.mp3",
           imagePath: "images/grammar.png",
-          contentToDisplay: "This section tests your knowledge of English verb tenses.",
-          originalContent: "Basic introduction to English grammar tenses.",
           questions: [
             {
               id: 1,
@@ -75,8 +72,6 @@ export const testDemoData = {
           requirement: "Select the synonym that best matches the given word.",
           audioPath: "audio/vocabulary_intro.mp3",
           imagePath: "images/vocabulary.png",
-          contentToDisplay: "This section tests your vocabulary knowledge.",
-          originalContent: "Basic vocabulary and synonym matching.",
           questions: [
             {
               id: 3,
