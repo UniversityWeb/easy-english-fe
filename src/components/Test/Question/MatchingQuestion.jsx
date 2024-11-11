@@ -1,153 +1,75 @@
-import React, { useState } from 'react';
-import { Box, Input, Grid, Text, IconButton, Button, Flex, Center } from '@chakra-ui/react';
-import { EditIcon, DeleteIcon, AddIcon, CheckIcon } from '@chakra-ui/icons';
+import React, { useState, useEffect } from "react";
+import { Box, Flex, Text, Select, VStack } from "@chakra-ui/react";
 
-const MatchingQuestion = ({ question, onUpdateQuestionField }) => {
-  const [options, setOptions] = useState(question?.options || []);
-  const [answers, setAnswers] = useState(question?.correctAnswers || []);
-  const [isEditing, setIsEditing] = useState(Array(options.length).fill(false));
-  const [newQuestion, setNewQuestion] = useState('');
-  const [newAnswer, setNewAnswer] = useState('');
+const MatchingQuestion = ({ question, onQuestionAnswered }) => {
+  const { options, correctAnswers } = question;
+  const [selectedAnswers, setSelectedAnswers] = useState(Array(options.length).fill(""));
 
-  const addNewPair = () => {
-    if (newQuestion.trim() === '' || newAnswer.trim() === '') {
-      return;
-    }
-    const newOptions = [...options, newQuestion];
-    const newAnswers = [...answers, newAnswer];
-    const newIsEditing = [...isEditing, false];
-    setOptions(newOptions);
-    setAnswers(newAnswers);
-    setIsEditing(newIsEditing);
-    onUpdateQuestionField({ options: newOptions, correctAnswers: newAnswers });
-    setNewQuestion('');
-    setNewAnswer('');
+  // Handle change when an answer is selected
+  const handleSelectChange = (index, value) => {
+    const updatedAnswers = [...selectedAnswers];
+    updatedAnswers[index] = value;
+    setSelectedAnswers(updatedAnswers); // Update the local state
+
+    // Automatically submit the answers whenever an option is selected
+    onQuestionAnswered(question.id, updatedAnswers);
   };
 
-  const removeRow = (index) => {
-    const newOptions = options.filter((_, i) => i !== index);
-    const newAnswers = answers.filter((_, i) => i !== index);
-    const newIsEditing = isEditing.filter((_, i) => i !== index);
-    setOptions(newOptions);
-    setAnswers(newAnswers);
-    setIsEditing(newIsEditing);
-    onUpdateQuestionField({ options: newOptions, correctAnswers: newAnswers });
-  };
-
-  const toggleEdit = (index) => {
-    const newIsEditing = [...isEditing];
-    newIsEditing[index] = !newIsEditing[index];
-    setIsEditing(newIsEditing);
-    if (!newIsEditing[index]) {
-      onUpdateQuestionField({ options, correctAnswers: answers });
-    }
-  };
-
-  const handleDataChange = (index, field, value) => {
-    if (field === 'question') {
-      const updatedOptions = [...options];
-      updatedOptions[index] = value;
-      setOptions(updatedOptions);
-    } else if (field === 'answer') {
-      const updatedAnswers = [...answers];
-      updatedAnswers[index] = value;
-      setAnswers(updatedAnswers);
-    }
-  };
+  useEffect(() => {
+    // This effect will run when `selectedAnswers` change, updating the view.
+    // Make sure onQuestionAnswered works with the updated `selectedAnswers`
+  }, [selectedAnswers]);
 
   return (
-    <Box>
+    <VStack align="start" spacing={4} width="100%">
       {options.map((option, index) => (
-        <Box key={index} mb={4} bg="gray.50" p={4} borderRadius="md" border="1px solid" borderColor="gray.200">
-          <Grid templateColumns="1fr 1fr auto" gap={4}>
-            <Box>
-              <Text fontWeight="bold" mb={5}>Question</Text>
-              <Flex align="center" justify="center" w="100%">
-                {isEditing[index] ? (
-                  <Input
-                    value={options[index]}
-                    onChange={(e) => handleDataChange(index, 'question', e.target.value)}
-                    placeholder="Enter question"
-                    bg="white"
-                    border="2px solid"
-                    borderColor="gray.300"
-                    borderRadius="md"
-                    _hover={{ borderColor: 'gray.400' }}
-                    _focus={{ borderColor: 'blue.400', boxShadow: '0 0 0 1px blue.400' }}
-                    p={2}
-                  />
-                ) : (
-                  <Text>{options[index] || 'No question'}</Text>
-                )}
-              </Flex>
-            </Box>
+        <Box
+          key={index}
+          p={3}
+          bg="white"
+          border="1px solid"
+          borderColor="gray.300"
+          borderRadius="md"
+          width="100%"
+        >
+          <Flex alignItems="center" justifyContent="space-between" width="100%">
+            {/* Display the option text with truncation for long text */}
+            <Text
+              fontWeight="bold"
+              fontSize="sm"
+              isTruncated
+              maxWidth="70%"  // Adjust the max width of the text to keep the select box aligned
+              title={option}  // Show full text on hover
+              mr={4}          // Add margin between text and the select box
+            >
+              {option}
+            </Text>
 
-            <Box>
-              <Text fontWeight="bold" mb={5}>Answer</Text>
-              <Flex align="center" justify="center" w="100%">
-                {isEditing[index] ? (
-                  <Input
-                    value={answers[index]}
-                    onChange={(e) => handleDataChange(index, 'answer', e.target.value)}
-                    placeholder="Enter answer"
-                    bg="white"
-                    border="2px solid"
-                    borderColor="gray.300"
-                    borderRadius="md"
-                    _hover={{ borderColor: 'gray.400' }}
-                    _focus={{ borderColor: 'blue.400', boxShadow: '0 0 0 1px blue.400' }}
-                    p={2}
-                  />
-                ) : (
-                  <Text>{answers[index] || 'No answer'}</Text>
-                )}
-              </Flex>
-            </Box>
-
-            <Box>
-              <Flex justify="center">
-                <IconButton
-                  icon={isEditing[index] ? <CheckIcon /> : <EditIcon />}
-                  size="sm"
-                  aria-label={isEditing[index] ? 'Save answer' : 'Edit answer'}
-                  onClick={() => toggleEdit(index)}
-                  ml={2}
-                  colorScheme={isEditing[index] ? 'green' : 'blue'}
-                />
-                <IconButton
-                  icon={<DeleteIcon />}
-                  size="sm"
-                  aria-label="Delete pair"
-                  onClick={() => removeRow(index)}
-                  colorScheme="red"
-                />
-              </Flex>
-            </Box>
-          </Grid>
+            {/* Dropdown for selecting the answer */}
+            <Select
+              fontSize="sm"
+              placeholder="Select an answer"
+              value={selectedAnswers[index] || ""}  // Bind the value to the selectedAnswers state
+              onChange={(e) => handleSelectChange(index, e.target.value)}  // Update the state on change
+              bg="white"
+              border="1px solid"
+              borderColor="gray.300"
+              borderRadius="md"
+              minWidth="180px"
+              maxWidth="30%"  // Restrict the select box width for better alignment
+              _hover={{ borderColor: "gray.400" }}
+              _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
+            >
+              {correctAnswers.map((answer, i) => (
+                <option key={i} value={answer}>
+                  {answer}
+                </option>
+              ))}
+            </Select>
+          </Flex>
         </Box>
       ))}
-
-      <Box mt={4}>
-        <Text mb={2}>Add New Question-Answer Pair</Text>
-        <Grid templateColumns="1fr 1fr" gap={4}>
-          <Input
-            value={newQuestion}
-            onChange={(e) => setNewQuestion(e.target.value)}
-            placeholder="Enter new question"
-            mb={4}
-          />
-          <Input
-            value={newAnswer}
-            onChange={(e) => setNewAnswer(e.target.value)}
-            placeholder="Enter new answer"
-            mb={4}
-          />
-        </Grid>
-        <Button leftIcon={<AddIcon />} onClick={addNewPair} colorScheme="blue">
-          Add Pair
-        </Button>
-      </Box>
-    </Box>
+    </VStack>
   );
 };
 

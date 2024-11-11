@@ -8,7 +8,7 @@ import {
   VStack,
   Text,
   Image,
-  Input,
+  Input, Heading, Spacer,
 } from '@chakra-ui/react';
 import { QUESTION_TYPES } from '~/utils/constants';
 import SingleChoiceQuestion from '~/components/Test/Question/SingleChoiceQuestion';
@@ -39,8 +39,13 @@ const QuestionItem = ({ question, onQuestionAnswered }) => {
         return <Text>Unknown question type</Text>;
     }
   };  return (
-    <Box borderWidth="1px" borderRadius="lg" p={4} w="100%">
-      <Text fontWeight="bold">{question.text}</Text>
+    <Box>
+      {question.type !== QUESTION_TYPES.FILL_BLANK && (
+        <Heading as="h4" size="sm" mb={4}>
+          Question {question.ordinalNumber}. {question.title}
+        </Heading>
+      )}
+
       {renderQuestion()}
     </Box>
   );

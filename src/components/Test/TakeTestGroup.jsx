@@ -15,13 +15,14 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
         {`${questionGroup?.title}`}
       </Text>
 
+      <Text fontSize="lg" fontWeight="bold">
+        Question {questionGroup?.from} - {questionGroup?.to}
+      </Text>
+
       {!isRequirementEmpty(questionGroup?.requirement) && (
         <Box
           w="100%"
           p={4}
-          bg="cyan.50"
-          borderRadius="md"
-          boxShadow="sm"
           overflow="hidden"
           sx={{
             '.ql-editor': { lineHeight: '1.5' },

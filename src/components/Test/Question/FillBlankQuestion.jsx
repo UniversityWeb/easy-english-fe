@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { Box, Input, Heading, Text, VStack, HStack } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import { Box, Input, VStack, HStack, Text } from "@chakra-ui/react";
 
 const FillBlankQuestion = ({ question, onQuestionAnswered }) => {
-  const [answers, setAnswers] = useState([]);
+  // Extract parts using "___" as the delimiter
+  const parts = question?.title.split("___");
+  const [answers, setAnswers] = useState(Array(parts.length - 1).fill(""));
 
   // Handle input change for each blank
   const handleInputChange = (index, value) => {
@@ -12,37 +14,55 @@ const FillBlankQuestion = ({ question, onQuestionAnswered }) => {
     onQuestionAnswered(question.id, newAnswers);
   };
 
+  // Render the text with inputs based on the "___" delimiter
+  const renderQuestion = () => {
+    let count = 0;
+    return parts.map((part, index) => {
+      // Render an input for each blank, except after the last part
+      if (index < parts.length - 1) {
+        count++;
+        return (
+          <React.Fragment key={index}>
+            <Text display="inline" fontSize="md" fontWeight="medium">
+              {part}
+            </Text>
+            <Input
+              fontSize="md"
+              placeholder={count}
+              value={answers[index] || ""}
+              onChange={(e) => handleInputChange(index, e.target.value)}
+              width="120px"
+              mx={2}
+              textAlign="center"
+              bg="white"
+              border="1px solid"
+              borderColor="gray.300"
+              borderRadius="md"
+              _hover={{ borderColor: "gray.400" }}
+              _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
+              transition="border-color 0.2s ease, box-shadow 0.2s ease"
+            />
+          </React.Fragment>
+        );
+      }
+      // Render the last part (after the final blank)
+      return (
+        <Text key={index} display="inline" fontSize="lg" fontWeight="medium">
+          {part}
+        </Text>
+      );
+    });
+  };
+
   return (
-    <Box mb={6} p={4} borderWidth="1px" borderRadius="lg">
-      <Heading as="h4" size="sm" mb={4}>
-        {question.ordinalNumber + 1}. {question.title}
-      </Heading>
-
-      <VStack align="start" spacing={4}>
-        <HStack>
-          {/* Part 1: "She is good ___ math." */}
-          <Text>She is good</Text>
-          <Input
-            placeholder="___"
-            value={answers[0] || ""}
-            onChange={(e) => handleInputChange(0, e.target.value)}
-            width="100px"
-          />
-          <Text>math.</Text>
-        </HStack>
-
-        <HStack>
-          {/* Part 2: "___ hi xin chao nhe." */}
-          <Input
-            placeholder="___"
-            value={answers[1] || ""}
-            onChange={(e) => handleInputChange(1, e.target.value)}
-            width="100px"
-          />
-          <Text>hi xin chao nhe.</Text>
-        </HStack>
-      </VStack>
-    </Box>
+    <VStack align="start" spacing={4}>
+      <Text fontWeight="bold" fontSize="sm" color="gray.700">
+        Question {question?.ordinalNumber + 1}:
+      </Text>
+      <HStack align="start" wrap="wrap">
+        {renderQuestion()}
+      </HStack>
+    </VStack>
   );
 };
 
