@@ -19,11 +19,13 @@ import {
   getTest,
   saveTest,
 } from '~/utils/testUtils';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import testService from '~/services/testService';
+import config from '~/config';
 
 const TakeTestPage = () => {
   const { testId } = useParams();
+  const navigate = useNavigate(); // Initialize navigate for redirection
   const [test, setTest] = useState({});
   const [selectedPartId, setSelectedPartId] = useState(0);
   const [scrollToQuestion, setScrollToQuestion] = useState(null);
@@ -42,7 +44,7 @@ const TakeTestPage = () => {
       if (savedTest) {
         onOpen();
       } else {
-        fetchTest();
+        checkIfTestIsEmpty(); // Call the function to check if the test is empty
       }
 
       try {
@@ -53,6 +55,20 @@ const TakeTestPage = () => {
       }
     }
   }, [testId, onOpen]);
+
+  const checkIfTestIsEmpty = async () => {
+    try {
+      const isEmpty = await testService.isEmptyTest(testId);
+
+      if (isEmpty) {
+        return navigate(config.routes.search);
+      } else {
+        fetchTest();
+      }
+    } catch (e) {
+      console.error('Error checking if test is empty:', e);
+    }
+  };
 
   const fetchTest = async () => {
     try {

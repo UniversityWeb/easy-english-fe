@@ -23,7 +23,6 @@ function TakeTestPart({
     return !text || text.trim().replace(/<[^>]+>/g, '').length === 0;
   };
 
-
   return (
     <Box w="100%" p={6} bg="white" boxShadow="lg" borderRadius="md">
       <VStack align="start" spacing={4}>

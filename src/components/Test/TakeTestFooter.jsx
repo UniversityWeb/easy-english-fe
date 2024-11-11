@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Collapse, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, HStack, VStack, Text, useDisclosure, Collapse } from '@chakra-ui/react';
 import { getParts, getQuestionRange } from '~/utils/testUtils';
 
 // PartSection Component
@@ -97,8 +97,14 @@ function TakeTestFooter({
         questionRange: getQuestionRange(testId, part),
       }));
     };
-    setParts(fetchParts());
-  }, [testId, isRefresh]);
+    const fetchedParts = fetchParts();
+    setParts(fetchedParts);
+
+    // Automatically click on the first part if it exists
+    if (fetchedParts.length > 0 && !selectedPartId) {
+      onPartClick(fetchedParts[0].id); // Trigger click on the first part
+    }
+  }, [testId, isRefresh, onPartClick, selectedPartId]);
 
   return (
     <Box
