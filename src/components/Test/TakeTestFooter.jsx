@@ -1,22 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Button, Collapse, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react';
-import { getParts, getQuestionsInRangeByPartId, getTest } from '~/utils/testUtils';
-
-// Helper function to get the question range for a part
-const getQuestionRange = (testId, part) => {
-  const allQuestions = getQuestionsInRangeByPartId(
-    testId,
-    part.id,
-    0,
-    part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
-  );
-  return allQuestions.map((q) => {
-    return {
-      id: q?.id,
-      ordinalNumber: q?.ordinalNumber
-    };
-  });
-};
+import { getParts, getQuestionRange } from '~/utils/testUtils';
 
 // PartSection Component
 const PartSection = React.memo(({
@@ -29,7 +13,11 @@ const PartSection = React.memo(({
                                 }) => {
   const { isOpen, onToggle } = useDisclosure({ isOpen: selectedPartId === part?.id });
   const isActive = selectedPartId === part?.id;
-  const answeredCount = questionRange.filter((num) => answers[num]).length;
+
+  // Count how many questions have been answered
+  const answeredCount = questionRange.filter((question) =>
+    answers.find((answer) => answer.testQuestionId === question.id)
+  ).length;
 
   const handlePartClick = (e) => {
     e.preventDefault();
@@ -56,31 +44,34 @@ const PartSection = React.memo(({
         <Text fontWeight="bold" color="black">
           Part {part.ordinalNumber}:{' '}
           <Text as="span" fontWeight="normal">
-            {answeredCount} of {questionRange.length} questions
+            {answeredCount} of {questionRange.length} questions answered
           </Text>
         </Text>
       ) : (
         <Collapse in={isActive} animateOpacity>
           <HStack spacing={1} wrap="nowrap" whiteSpace="nowrap" overflowX="auto" maxW="100%" p={1}>
-            {questionRange.map((question) => (
-              <Button
-                key={question?.id}
-                size="sm"
-                borderRadius="full"
-                variant={answers[question?.id] ? 'solid' : 'outline'}
-                colorScheme="teal"
-                w="30px"
-                h="30px"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onScrollToQuestion(question?.id);
-                  onPartClick(part?.id);
-                }}
-                _active={{ transform: 'scale(0.95)', transition: 'transform 0.1s ease-in-out' }}
-              >
-                {question?.ordinalNumber}
-              </Button>
-            ))}
+            {questionRange.map((question) => {
+              const isAnswered = answers.find((answer) => answer.testQuestionId === question.id);
+              return (
+                <Button
+                  key={question.id}
+                  size="sm"
+                  borderRadius="full"
+                  variant={isAnswered ? 'solid' : 'outline'}
+                  colorScheme={isAnswered ? 'teal' : 'gray'}
+                  w="30px"
+                  h="30px"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onScrollToQuestion(question.id);
+                    onPartClick(part?.id);
+                  }}
+                  _active={{ transform: 'scale(0.95)', transition: 'transform 0.1s ease-in-out' }}
+                >
+                  {question.ordinalNumber}
+                </Button>
+              );
+            })}
           </HStack>
         </Collapse>
       )}
@@ -95,9 +86,9 @@ function TakeTestFooter({
                           onPartClick,
                           onScrollToQuestion,
                           isRefresh,
+                          userAnswers, // Receives updated user answers
                         }) {
   const [parts, setParts] = useState([]);
-  const userAnswers = useMemo(() => getTest(testId)?.userAnswers || [], [testId]);
 
   useEffect(() => {
     const fetchParts = () => {
@@ -125,13 +116,13 @@ function TakeTestFooter({
       <HStack spacing={4} overflowX="auto" p={2}>
         {parts.map((part) => (
           <PartSection
-            key={part?.id}
+            key={part.id}
             part={part}
-            questionRange={part?.questionRange || []}
+            questionRange={part.questionRange}
             selectedPartId={selectedPartId}
             onPartClick={onPartClick}
             onScrollToQuestion={onScrollToQuestion}
-            answers={userAnswers}
+            answers={userAnswers} // Pass user answers to determine completed questions
           />
         ))}
       </HStack>

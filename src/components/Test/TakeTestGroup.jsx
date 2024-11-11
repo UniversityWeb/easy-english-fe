@@ -17,7 +17,6 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
       {!isRequirementEmpty(questionGroup?.requirement) && (
         <Box
           w="100%"
-          p={4}
           overflow="hidden"
           sx={{
             '.ql-editor': { lineHeight: '1.5' },

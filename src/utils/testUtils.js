@@ -168,6 +168,21 @@ const getQuestionsInRangeByPartId = (testId, partId, startIndex, endIndex) => {
   return allQuestions.slice(startIndex, endIndex);
 };
 
+const getQuestionRange = (testId, part) => {
+  const allQuestions = getQuestionsInRangeByPartId(
+    testId,
+    part.id,
+    0,
+    part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
+  );
+  return allQuestions.map((q) => {
+    return {
+      id: q?.id,
+      ordinalNumber: q?.ordinalNumber
+    };
+  });
+};
+
 export {
   saveTest,
   getTest,
@@ -183,4 +198,5 @@ export {
   getQuestion,
   getQuestions,
   getQuestionsInRangeByPartId,
+  getQuestionRange,
 };

@@ -29,6 +29,11 @@ const TakeTestPage = () => {
   const [scrollToQuestion, setScrollToQuestion] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [resetCountDownTime, setResetCountDownTime] = useState(0);
+
+  // 💡 New state to track user answers
+  const [userAnswers, setUserAnswers] = useState([]);
+
+  // Refresh state to trigger re-render of footer
   const [refreshFooterContent, setRefreshFooterContent] = useState(0);
 
   useEffect(() => {
@@ -42,6 +47,7 @@ const TakeTestPage = () => {
 
       try {
         setSelectedPartId(test?.parts[0]?.id || 0);
+        setUserAnswers(savedTest?.userAnswers || []); // Set initial user answers from saved test
       } catch (e) {
         console.error(e);
       }
@@ -66,6 +72,7 @@ const TakeTestPage = () => {
     const savedTest = getTest(testId);
     if (savedTest) {
       setTest(savedTest);
+      setUserAnswers(savedTest?.userAnswers || []); // Load saved user answers
     }
     setResetCountDownTime(prev => prev + 1);
   };
@@ -93,13 +100,31 @@ const TakeTestPage = () => {
     setScrollToQuestion(questionId);
   }, [setScrollToQuestion]);
 
+  // 💡 Update userAnswers when a question is answered
   const handleAnswerQuestion = useCallback((testQuestionId, answers) => {
     if (Array.isArray(answers) && answers.every(answer => typeof answer === 'string')) {
       saveQuestionState(testId, testQuestionId, answers);
+
+      // Update local userAnswers state
+      const updatedAnswers = [...userAnswers];
+      const existingAnswerIndex = updatedAnswers.findIndex(
+        answer => answer.testQuestionId === testQuestionId
+      );
+
+      if (existingAnswerIndex !== -1) {
+        updatedAnswers[existingAnswerIndex] = { testQuestionId, answers };
+      } else {
+        updatedAnswers.push({ testQuestionId, answers });
+      }
+
+      setUserAnswers(updatedAnswers); // Update the state with the new answers
+
+      // Trigger a refresh of the footer
+      setRefreshFooterContent(prev => prev + 1);
     } else {
       console.error('Invalid answers: must be an array of strings');
     }
-  }, []);
+  }, [userAnswers, testId]);
 
   return (
     <Box>
@@ -115,7 +140,7 @@ const TakeTestPage = () => {
           testId={testId}
           partId={selectedPartId}
           scrollToQuestion={scrollToQuestion}
-          onQuestionAnswered={handleAnswerQuestion}
+          onQuestionAnswered={handleAnswerQuestion} // Pass down answer handler
         />
       </Box>
       {test?.parts?.length > 0 && (
@@ -130,11 +155,11 @@ const TakeTestPage = () => {
         >
           <TakeTestFooter
             testId={test?.id}
-            testParts={test?.parts}
             selectedPartId={selectedPartId}
             onPartClick={handlePartClick}
             onScrollToQuestion={handleScrollToQuestion}
-            isRefresh={refreshFooterContent}
+            isRefresh={refreshFooterContent} // Pass refresh trigger
+            userAnswers={userAnswers} // Pass updated user answers
           />
         </Box>
       )}

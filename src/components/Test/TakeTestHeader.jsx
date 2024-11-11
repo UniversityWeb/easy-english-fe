@@ -9,22 +9,14 @@ import {
   SliderFilledTrack,
   SliderThumb,
   Text,
-  Image,
   HStack,
-  useDisclosure,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
+  Spinner,
 } from '@chakra-ui/react';
 import { FaPause, FaPlay } from 'react-icons/fa';
 import { MdVolumeUp } from 'react-icons/md';
@@ -36,7 +28,6 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
-import TakeTestQuestionReview from '~/components/Test/TakeTestQuestionReview';
 
 const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   const navigate = useNavigate();
@@ -95,13 +86,13 @@ function TakeTestHeader({ resetCountDown, testId }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
   const [showRemainingTime, setShowRemainingTime] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const { successToast, errorToast } = useCustomToast();
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const cancelRef = useRef();
   const [resetTimeCountDown, setResetTimeCountDown] = useState(0);
   const containerRef = useRef(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const audioPath = getTest(testId)?.audioPath;
@@ -186,19 +177,23 @@ function TakeTestHeader({ resetCountDown, testId }) {
   };
 
   const handleSubmit = async () => {
+    setLoading(false);
     try {
       const submitRequest = generateSubmitTestRequest(testId);
       await testResultService.submit(submitRequest);
       successToast('Test submitted successfully');
+      clearSavedTest(testId);
+      handleBackClick();
     } catch (error) {
       errorToast('Error submitting test');
+    } finally {
+      setLoading(true);
     }
     setIsSubmitConfirmOpen(false);
   };
 
   const handleBackClick = () => {
     const courseId = getCourseId(testId);
-    clearSavedTest(testId);
     navigate(config.routes.learn(courseId));
   };
 
@@ -217,9 +212,6 @@ function TakeTestHeader({ resetCountDown, testId }) {
           onFinished={handleSubmit}
         />
         <Box textAlign="right">
-          <Button variant="outline" onClick={onOpen} me={5}>
-            Review
-          </Button>
           <Button
             colorScheme="teal"
             rightIcon={<CiPaperplane />}
@@ -283,30 +275,13 @@ function TakeTestHeader({ resetCountDown, testId }) {
               >
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={handleSubmit} ml={3}>
-                Submit
+              <Button colorScheme="red" onClick={handleSubmit} ml={3} disabled={loading} rightIcon={loading ? null : <CiPaperplane />}>
+                {loading ? <Spinner size="sm" /> : 'Submit'}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-
-
-      {/* Modal display content of Review */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalCloseButton />
-          <ModalBody>
-            <TakeTestQuestionReview />
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 }
