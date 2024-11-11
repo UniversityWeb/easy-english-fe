@@ -1,5 +1,5 @@
 import React from 'react';
-import { VStack, Text, Box, Image } from "@chakra-ui/react";
+import { Box, Image, Text, VStack } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import QuestionItem from '~/components/Test/Question/QuestionItem';
 
@@ -9,13 +9,8 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
   };
 
   return (
-    <VStack align="start" spacing={6} pt={4}>
-      {/* Always display these fields */}
-      <Text fontSize="lg" fontWeight="bold">
-        {`${questionGroup?.title}`}
-      </Text>
-
-      <Text fontSize="lg" fontWeight="bold">
+    <VStack align="start" spacing={10} pt={4}>
+      <Text fontSize="md" fontWeight="bold">
         Question {questionGroup?.from} - {questionGroup?.to}
       </Text>
 
@@ -48,12 +43,14 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
         </Box>
       )}
 
+
       {/* Loop over the questions inside the question group */}
       {questionGroup?.questions?.map((question) => (
         <QuestionItem
           key={question.id}
           question={question}
           onQuestionAnswered={onQuestionAnswered}
+          scrollToQuestion={scrollToQuestion}
         />
       ))}
     </VStack>

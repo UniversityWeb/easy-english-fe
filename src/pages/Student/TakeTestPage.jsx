@@ -89,8 +89,11 @@ const TakeTestPage = () => {
     setSelectedPartId(partId);
   }, [setSelectedPartId]);
 
+  const handleScrollToQuestion = useCallback((questionId) => {
+    setScrollToQuestion(questionId);
+  }, [setScrollToQuestion]);
+
   const handleAnswerQuestion = useCallback((testQuestionId, answers) => {
-    debugger
     if (Array.isArray(answers) && answers.every(answer => typeof answer === 'string')) {
       saveQuestionState(testId, testQuestionId, answers);
     } else {
@@ -107,20 +110,34 @@ const TakeTestPage = () => {
           audioPath={test?.audioPath}
         />
       </Box>
-      <TakeTestPart
-        testId={testId}
-        partId={selectedPartId}
-        scrollToQuestion={scrollToQuestion}
-        onQuestionAnswered={handleAnswerQuestion}
-      />
-      <TakeTestFooter
-        testId={test?.id}
-        testParts={test?.parts}
-        selectedPartId={selectedPartId}
-        onPartClick={handlePartClick}
-        setScrollToQuestion={setScrollToQuestion}
-        isRefresh={refreshFooterContent}
-      />
+      <Box pb="80px">
+        <TakeTestPart
+          testId={testId}
+          partId={selectedPartId}
+          scrollToQuestion={scrollToQuestion}
+          onQuestionAnswered={handleAnswerQuestion}
+        />
+      </Box>
+      {test?.parts?.length > 0 && (
+        <Box
+          position="fixed"
+          bottom="0"
+          left="0"
+          right="0"
+          zIndex="100"
+          bg="white"
+          boxShadow="0 -2px 10px rgba(0, 0, 0, 0.1)" // Optional shadow for better visibility
+        >
+          <TakeTestFooter
+            testId={test?.id}
+            testParts={test?.parts}
+            selectedPartId={selectedPartId}
+            onPartClick={handlePartClick}
+            onScrollToQuestion={handleScrollToQuestion}
+            isRefresh={refreshFooterContent}
+          />
+        </Box>
+      )}
 
       {/* Confirmation Dialog */}
       <Modal

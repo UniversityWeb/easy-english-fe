@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
-  Flex,
+  Button,
   Editable,
   EditableInput,
   EditablePreview,
+  Flex,
+  FormControl,
+  FormLabel,
   IconButton,
-  Button,
-  FormLabel, FormControl, Switch,
+  Switch,
 } from '@chakra-ui/react';
-import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import EditableQuestionGroup from '~/components/Test/EditableQuestionGroup';
 import questionGroupService from '~/services/questionGroupService';
 import useCustomToast from '~/hooks/useCustomToast';
@@ -65,9 +67,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const handleAddGroup = async () => {
     const newGroup = {
       title: 'Question 1 - 10',
-      ordinalNumber: questionGroups.length + 1,
-      from: 1,
-      to: 10,
+      ordinalNumber: questionGroups.length + 1 || 1,
       requirement: 'Do me',
       testPartId: part?.id,
       imagePath: '',
@@ -125,6 +125,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
           />
 
           <Button
+            mt={10}
             colorScheme="blue"
             onClick={(e) => updateTestPart(part.id, { ...part, readingPassage })}
           >
@@ -133,8 +134,9 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
         </FormControl>
       )}
 
-      {questionGroups.map((group) => (
+      {questionGroups.map((group, index) => (
         <EditableQuestionGroup
+          index={index}
           key={group?.id}
           group={group}
           onRemoveGroup={handleRemoveGroup}

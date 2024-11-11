@@ -1,14 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import {
-  Box,
-  Button,
-  Collapse,
-  HStack,
-  SimpleGrid,
-  Text,
-  VStack,
-  useDisclosure,
-} from '@chakra-ui/react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Button, Collapse, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import { getParts, getQuestionsInRangeByPartId, getTest } from '~/utils/testUtils';
 
 // Helper function to get the question range for a part
@@ -19,7 +10,12 @@ const getQuestionRange = (testId, part) => {
     0,
     part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
   );
-  return allQuestions.map((q) => q.ordinalNumber);
+  return allQuestions.map((q) => {
+    return {
+      id: q?.id,
+      ordinalNumber: q?.ordinalNumber
+    };
+  });
 };
 
 // PartSection Component
@@ -27,7 +23,7 @@ const PartSection = React.memo(({
                                   part,
                                   questionRange = [],
                                   onPartClick,
-                                  setScrollToQuestion,
+                                  onScrollToQuestion,
                                   answers,
                                   selectedPartId,
                                 }) => {
@@ -66,23 +62,23 @@ const PartSection = React.memo(({
       ) : (
         <Collapse in={isActive} animateOpacity>
           <HStack spacing={1} wrap="nowrap" whiteSpace="nowrap" overflowX="auto" maxW="100%" p={1}>
-            {questionRange.map((num) => (
+            {questionRange.map((question) => (
               <Button
-                key={num}
+                key={question?.id}
                 size="sm"
                 borderRadius="full"
-                variant={answers[num] ? 'solid' : 'outline'}
+                variant={answers[question?.id] ? 'solid' : 'outline'}
                 colorScheme="teal"
                 w="30px"
                 h="30px"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setScrollToQuestion(num);
+                  onScrollToQuestion(question?.id);
                   onPartClick(part?.id);
                 }}
                 _active={{ transform: 'scale(0.95)', transition: 'transform 0.1s ease-in-out' }}
               >
-                {num}
+                {question?.ordinalNumber}
               </Button>
             ))}
           </HStack>
@@ -97,7 +93,7 @@ function TakeTestFooter({
                           testId,
                           selectedPartId,
                           onPartClick,
-                          setScrollToQuestion,
+                          onScrollToQuestion,
                           isRefresh,
                         }) {
   const [parts, setParts] = useState([]);
@@ -134,7 +130,7 @@ function TakeTestFooter({
             questionRange={part?.questionRange || []}
             selectedPartId={selectedPartId}
             onPartClick={onPartClick}
-            setScrollToQuestion={setScrollToQuestion}
+            onScrollToQuestion={onScrollToQuestion}
             answers={userAnswers}
           />
         ))}

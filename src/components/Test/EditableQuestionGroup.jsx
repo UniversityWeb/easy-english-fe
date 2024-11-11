@@ -1,27 +1,24 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Box,
-  Flex,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Editable,
-  EditableInput,
-  EditablePreview,
-  IconButton,
-  Button,
   Accordion,
-  AccordionItem,
   AccordionButton,
+  AccordionItem,
   AccordionPanel,
-  AccordionIcon,
+  Box,
+  Button,
+  Flex,
   FormControl,
   FormLabel,
+  Heading,
+  IconButton,
   Input,
   Switch,
-  Heading,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon, MinusIcon } from '@chakra-ui/icons';
 import EditableQuestionItem from '~/components/Test/EditableQuestion/EditableQuestionItem';
@@ -31,7 +28,7 @@ import questionGroupService from '~/services/questionGroupService';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 import CustomReactQuill from '~/components/CustomReactQuill';
 
-const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups }) => {
+const EditableQuestionGroup = React.memo(({ index, group, onRemoveGroup, onReloadGroups }) => {
   const [groupState, setGroupState] = useState(group);
   const [questions, setQuestions] = useState([]);
   const { successToast, errorToast } = useCustomToast();
@@ -58,11 +55,7 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
 
   useEffect(() => {
     setGroupState({
-      title: group?.title || '',
       requirement: group?.requirement || '',
-      ordinalNumber: group?.ordinalNumber || '',
-      from: group?.from || '',
-      to: group?.to || '',
       imagePath: group?.imagePath || '',
       testPartId: group?.testPartId || '',
     });
@@ -124,20 +117,10 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
 
   return (
     <Box p={4} bg="gray.50" mb={4} borderRadius="lg" borderWidth="1px">
-
-      <Flex justify="space-between" mb={4} align="center">
-        <Editable
-          defaultValue={groupState?.title}
-          fontWeight="bolder"
-          onSubmit={async (value) => {
-            await setGroupState((prev) => ({ ...prev, title: value }));
-            await handleUpdateGroup();
-          }}
-        >
-          <EditablePreview />
-          <EditableInput name="title" />
-        </Editable>
-
+      <Flex justify="space-between" align="center" mb={4}>
+        <Text fontWeight="bold" fontSize="md">
+          {`Group ${index + 1}`}
+        </Text>
         <IconButton
           icon={<DeleteIcon />}
           aria-label="Delete question group"
@@ -178,16 +161,6 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
 
                   <TabPanels>
                     <TabPanel>
-                      <FormControl mb={2}>
-                        <FormLabel>Ordinal Number</FormLabel>
-                        <Input
-                          name="ordinalNumber"
-                          value={groupState?.ordinalNumber}
-                          onChange={handleInputChange}
-                          type="number"
-                        />
-                      </FormControl>
-
                       {/* Additional fields */}
                       <FormControl mb={10}>
                         <FormLabel>Requirement</FormLabel>
@@ -229,8 +202,9 @@ const EditableQuestionGroup = React.memo(({ group, onRemoveGroup, onReloadGroups
                       <Heading size="md" mb={5}>Questions</Heading>
 
                       {/* Question Items */}
-                      {questions.map((question) => (
+                      {questions.map((question, index) => (
                         <EditableQuestionItem
+                          index={index}
                           key={question.id}
                           question={question}
                           onRemoveQuestion={removeQuestion}

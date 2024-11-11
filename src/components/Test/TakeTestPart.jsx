@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Box, VStack, Text } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Container, Text, VStack } from '@chakra-ui/react';
 import TakeTestGroup from '~/components/Test/TakeTestGroup';
-import { getPart, saveQuestionState } from '~/utils/testUtils';
+import { getPart } from '~/utils/testUtils';
 import ReactQuill from 'react-quill';
 
 function TakeTestPart({
@@ -59,16 +59,18 @@ function TakeTestPart({
           </Box>
         )}
 
-        {/* Render question groups */}
-        {part?.questionGroups?.map((group) => (
-          <TakeTestGroup
-            key={group.id}
-            questionGroup={group}
-            scrollToQuestion={scrollToQuestion}
-            onQuestionAnswered={onQuestionAnswered}
-            testId={testId}
-          />
-        ))}
+        <Container maxW="container.lg" px={4} py={6}>
+          {/* Render question groups */}
+          {part?.questionGroups?.map((group) => (
+            <TakeTestGroup
+              key={group.id}
+              questionGroup={group}
+              scrollToQuestion={scrollToQuestion}
+              onQuestionAnswered={onQuestionAnswered}
+              testId={testId}
+            />
+          ))}
+        </Container>
       </VStack>
     </Box>
   );

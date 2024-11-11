@@ -30,7 +30,7 @@ const CustomReactQuill = ({
         '.quill': { height: 'auto' },
         '.ql-container': { height },
         '.ql-editor': { minHeight: height, width, lineHeight: '1.5' },
-        '.ql-toolbar': { backgroundColor: 'transparent', padding: '5px' },
+        '.ql-toolbar': { backgroundColor: 'white', padding: '5px' },
         '.ql-size-small': { fontSize: '16px' },
         '.ql-size-large': { fontSize: '18px' },
         '.ql-size-huge': { fontSize: '24px' },
