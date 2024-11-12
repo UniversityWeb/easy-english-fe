@@ -112,6 +112,11 @@ const TestResultPage = () => {
 
   const isPassed = correctPercent >= test?.passingGrade;
 
+  const formattedPercent = new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 2,
+  }).format(correctPercent / 100);
+
   const Navbar = ({ courseId }) => {
     const navigate = useNavigate();
 
@@ -152,7 +157,10 @@ const TestResultPage = () => {
         {/* Incorrect Answer Box */}
         <Box bg="red.100" p={5} borderRadius="md" textAlign="center" mb={6}>
           <Heading size="2xl" color="red.500">
-            {correctPercent}%
+            {new Intl.NumberFormat('en-US', {
+              style: 'percent',
+              maximumFractionDigits: 2,
+            }).format(correctPercent / 100)}
           </Heading>
           <HStack justifyContent="center" mt={2}>
             <Text fontSize="lg" color="gray.700">
