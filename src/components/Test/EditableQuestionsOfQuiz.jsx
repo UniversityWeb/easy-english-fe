@@ -71,8 +71,9 @@ const EditableQuestionsOfQuiz = ({ test }) => {
       <Heading size="md" mt={10} mb={5}>Questions</Heading>
 
       {/* Question Items */}
-      {questions.map((question) => (
+      {questions.map((question, index) => (
         <EditableQuestionItem
+          index={index}
           key={question.id}
           question={question}
           onRemoveQuestion={removeQuestion}

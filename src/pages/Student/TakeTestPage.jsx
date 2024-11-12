@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
+  HStack,
   Modal,
   ModalBody,
   ModalContent,
@@ -14,14 +15,11 @@ import {
 import TakeTestHeader from '~/components/Test/TakeTestHeader';
 import TakeTestFooter from '~/components/Test/TakeTestFooter';
 import TakeTestPart from '~/components/Test/TakeTestPart';
-import {
-  saveQuestionState,
-  getTest,
-  saveTest,
-} from '~/utils/testUtils';
+import { saveQuestionState, getTest, saveTest } from '~/utils/testUtils';
 import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import testService from '~/services/testService';
 import config from '~/config';
+import { FaColumns, FaCompress, FaExpand } from 'react-icons/fa';
 
 const TakeTestPage = () => {
   const { testId } = useParams();
@@ -31,6 +29,7 @@ const TakeTestPage = () => {
   const [scrollToQuestion, setScrollToQuestion] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [resetCountDownTime, setResetCountDownTime] = useState(0);
+  const [isSplitLayout, setIsSplitLayout] = useState(true);
 
   // 💡 New state to track user answers
   const [userAnswers, setUserAnswers] = useState([]);
@@ -78,7 +77,7 @@ const TakeTestPage = () => {
         saveTest(testId, test);
         setTest(test);
       }
-      setResetCountDownTime(prev => prev + 1);
+      setResetCountDownTime((prev) => prev + 1);
     } catch (e) {
       console.error('Failed to fetch test:', e);
     }
@@ -90,7 +89,7 @@ const TakeTestPage = () => {
       setTest(savedTest);
       setUserAnswers(savedTest?.userAnswers || []); // Load saved user answers
     }
-    setResetCountDownTime(prev => prev + 1);
+    setResetCountDownTime((prev) => prev + 1);
   };
 
   const handleLoadFromLocal = (loadLocal) => {
@@ -108,66 +107,92 @@ const TakeTestPage = () => {
     onClose();
   };
 
-  const handlePartClick = useCallback((partId) => {
-    setSelectedPartId(partId);
-  }, [setSelectedPartId]);
+  const handlePartClick = useCallback(
+    (partId) => {
+      setSelectedPartId(partId);
+    },
+    [setSelectedPartId],
+  );
 
-  const handleScrollToQuestion = useCallback((questionId) => {
-    setScrollToQuestion(questionId);
-  }, [setScrollToQuestion]);
+  const handleScrollToQuestion = useCallback(
+    (questionId) => {
+      setScrollToQuestion(questionId);
+    },
+    [setScrollToQuestion],
+  );
 
   // 💡 Update userAnswers when a question is answered
-  const handleAnswerQuestion = useCallback((testQuestionId, answers) => {
-    if (Array.isArray(answers) && answers.every(answer => typeof answer === 'string')) {
-      saveQuestionState(testId, testQuestionId, answers);
+  const handleAnswerQuestion = useCallback(
+    (testQuestionId, answers) => {
+      if (
+        Array.isArray(answers) &&
+        answers.every((answer) => typeof answer === 'string')
+      ) {
+        saveQuestionState(testId, testQuestionId, answers);
 
-      // Update local userAnswers state
-      const updatedAnswers = [...userAnswers];
-      const existingAnswerIndex = updatedAnswers.findIndex(
-        answer => answer.testQuestionId === testQuestionId
-      );
+        // Update local userAnswers state
+        const updatedAnswers = [...userAnswers];
+        const existingAnswerIndex = updatedAnswers.findIndex(
+          (answer) => answer.testQuestionId === testQuestionId,
+        );
 
-      if (existingAnswerIndex !== -1) {
-        updatedAnswers[existingAnswerIndex] = { testQuestionId, answers };
+        if (existingAnswerIndex !== -1) {
+          updatedAnswers[existingAnswerIndex] = { testQuestionId, answers };
+        } else {
+          updatedAnswers.push({ testQuestionId, answers });
+        }
+
+        setUserAnswers(updatedAnswers); // Update the state with the new answers
+
+        // Trigger a refresh of the footer
+        setRefreshFooterContent((prev) => prev + 1);
       } else {
-        updatedAnswers.push({ testQuestionId, answers });
+        console.error('Invalid answers: must be an array of strings');
       }
+    },
+    [userAnswers, testId],
+  );
 
-      setUserAnswers(updatedAnswers); // Update the state with the new answers
-
-      // Trigger a refresh of the footer
-      setRefreshFooterContent(prev => prev + 1);
-    } else {
-      console.error('Invalid answers: must be an array of strings');
-    }
-  }, [userAnswers, testId]);
+  const toggleLayout = () => {
+    setIsSplitLayout((prev) => !prev);
+  };
 
   return (
-    <Box>
-      <Box position="sticky" top="0" zIndex="100" bg="white">
+    <Box height="100vh" display="flex" flexDirection="column" overflow="hidden">
+      {/* Header */}
+      <Box position="sticky" top="0" zIndex="100" bg="white" boxShadow="md">
         <TakeTestHeader
           testId={testId}
           resetCountDown={resetCountDownTime}
           audioPath={test?.audioPath}
+          isSplitLayout={isSplitLayout}
+          onToggleLayout={toggleLayout}
         />
       </Box>
-      <Box pb="80px">
+
+      {/* Test Part (Scrollable Content) */}
+      <Box flex="1" overflowY="auto" px={4}>
         <TakeTestPart
           testId={testId}
           partId={selectedPartId}
           scrollToQuestion={scrollToQuestion}
           onQuestionAnswered={handleAnswerQuestion} // Pass down answer handler
+          isSplitLayout={isSplitLayout} // Pass layout mode to TakeTestPart
+          setIsSplitLayout={setIsSplitLayout}
         />
       </Box>
+
+      {/* Footer */}
       {test?.parts?.length > 0 && (
         <Box
-          position="fixed"
+          position="sticky"
           bottom="0"
           left="0"
           right="0"
           zIndex="100"
           bg="white"
-          boxShadow="0 -2px 10px rgba(0, 0, 0, 0.1)" // Optional shadow for better visibility
+          boxShadow="lg"
+          p={4}
         >
           <TakeTestFooter
             testId={test?.id}

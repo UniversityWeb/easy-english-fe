@@ -109,10 +109,7 @@ function TakeTestFooter({
   return (
     <Box
       w="100%"
-      p={4}
       bg="white"
-      boxShadow="md"
-      borderRadius="md"
       position="sticky"
       bottom="0"
       left="0"

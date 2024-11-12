@@ -18,10 +18,10 @@ import {
   AlertDialogFooter,
   Spinner,
 } from '@chakra-ui/react';
-import { FaPause, FaPlay } from 'react-icons/fa';
-import { MdVolumeUp } from 'react-icons/md';
+import { FaColumns, FaCompress, FaExpand, FaPause, FaPlay } from 'react-icons/fa';
+import { MdFullscreen, MdFullscreenExit, MdViewHeadline, MdVolumeUp } from 'react-icons/md';
 import { CiPaperplane } from 'react-icons/ci';
-import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled } from 'react-icons/tb';
+import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled, TbLayoutColumns } from 'react-icons/tb';
 import testResultService from '~/services/testResultService';
 import { generateSubmitTestRequest, getTest, getCourseId, clearSavedTest } from '~/utils/testUtils';
 import useCustomToast from '~/hooks/useCustomToast';
@@ -79,7 +79,7 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   );
 };
 
-function TakeTestHeader({ resetCountDown, testId }) {
+function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout }) {
   const [audioSource, setAudioSource] = useState('');
   const audioRef = useRef(new Audio(audioSource));
   const [isPlaying, setIsPlaying] = useState(false);
@@ -93,6 +93,7 @@ function TakeTestHeader({ resetCountDown, testId }) {
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     const audioPath = getTest(testId)?.audioPath;
@@ -197,6 +198,22 @@ function TakeTestHeader({ resetCountDown, testId }) {
     navigate(config.routes.learn(courseId));
   };
 
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullScreen(true);
+      }).catch((err) => {
+        console.error("Error attempting to enable full-screen mode:", err);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullScreen(false);
+      }).catch((err) => {
+        console.error("Error attempting to exit full-screen mode:", err);
+      });
+    }
+  };
+
   return (
     <Box w="100%" p={4} bg="white" boxShadow="md" ref={containerRef}>
       <SimpleGrid columns={3} spacing={4} alignItems="center">
@@ -206,12 +223,30 @@ function TakeTestHeader({ resetCountDown, testId }) {
           onClick={handleBackClick} // Handle the click action
           boxSize="50px"
         />
+
         <CountdownTimer
           testId={testId}
           resetKey={resetTimeCountDown}
           onFinished={handleSubmit}
         />
-        <Box textAlign="right">
+
+        <HStack justifyContent="flex-end" p={4}>
+          {/* Fullscreen Button */}
+          <IconButton
+            aria-label={isFullScreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            icon={isFullScreen ? <MdFullscreenExit /> : <MdFullscreen />}
+            colorScheme="teal"
+            variant="outline"
+            onClick={toggleFullScreen}
+          />
+
+          <IconButton
+            aria-label={isSplitLayout ? 'Switch to Reading Mode' : 'Switch to Split Layout'}
+            icon={isSplitLayout ? <MdViewHeadline /> : <TbLayoutColumns />}
+            colorScheme="teal"
+            variant="outline"
+            onClick={onToggleLayout}
+          />
           <Button
             colorScheme="teal"
             rightIcon={<CiPaperplane />}
@@ -219,15 +254,15 @@ function TakeTestHeader({ resetCountDown, testId }) {
           >
             Submit
           </Button>
-        </Box>
+        </HStack>
       </SimpleGrid>
 
-      {audioSource && (
+      {audioSource && audioSource !== '' && (
         <HStack mt={6} spacing={4} alignItems="center">
           {/* Control buttons */}
-          <IconButton aria-label="Rewind" icon={<TbPlayerTrackPrevFilled />} onClick={handlePrev} />
-          <IconButton aria-label={isPlaying ? "Pause" : "Play"} icon={isPlaying ? <FaPause /> : <FaPlay />} onClick={togglePlayPause} />
-          <IconButton aria-label="Forward" icon={<TbPlayerTrackNextFilled />} onClick={handleNext} />
+          <IconButton size={"sm"} aria-label="Rewind" icon={<TbPlayerTrackPrevFilled />} onClick={handlePrev} />
+          <IconButton size={"sm"} aria-label={isPlaying ? "Pause" : "Play"} icon={isPlaying ? <FaPause /> : <FaPlay />} onClick={togglePlayPause} />
+          <IconButton size={"sm"} aria-label="Forward" icon={<TbPlayerTrackNextFilled />} onClick={handleNext} />
 
           {/* Time Display */}
           <Text onClick={toggleTimeDisplay} cursor="pointer">
