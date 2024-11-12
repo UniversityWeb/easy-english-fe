@@ -3,7 +3,17 @@ import { Box, Flex, Text, Select, VStack } from "@chakra-ui/react";
 
 const MatchingQuestion = ({ question, onQuestionAnswered }) => {
   const { options, correctAnswers } = question;
+  const [shuffledAnswers, setShuffledAnswers] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState(Array(options.length).fill(""));
+
+  const shuffleArray = (array) => {
+    const shuffled = [...array]; // Create a copy to avoid mutating the original array
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
   // Handle change when an answer is selected
   const handleSelectChange = (index, value) => {
@@ -16,9 +26,11 @@ const MatchingQuestion = ({ question, onQuestionAnswered }) => {
   };
 
   useEffect(() => {
-    // This effect will run when `selectedAnswers` change, updating the view.
-    // Make sure onQuestionAnswered works with the updated `selectedAnswers`
-  }, [selectedAnswers]);
+    if (correctAnswers) {
+      const shuffled = shuffleArray(correctAnswers);
+      setShuffledAnswers(shuffled);
+    }
+  }, [correctAnswers]);
 
   return (
     <VStack align="start" spacing={4} width="100%">
@@ -60,7 +72,7 @@ const MatchingQuestion = ({ question, onQuestionAnswered }) => {
               _hover={{ borderColor: "gray.400" }}
               _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
             >
-              {correctAnswers.map((answer, i) => (
+              {shuffledAnswers.map((answer, i) => (
                 <option key={i} value={answer}>
                   {answer}
                 </option>

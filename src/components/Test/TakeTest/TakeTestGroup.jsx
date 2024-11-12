@@ -1,9 +1,13 @@
 import React from 'react';
-import { Box, Image, Text, VStack } from '@chakra-ui/react';
+import { Box, Image, List, ListItem, Text, VStack } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import QuestionItem from '~/components/Test/Question/QuestionItem';
 
-function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) {
+function TakeTestGroup({
+  questionGroup,
+  scrollToQuestion,
+  onQuestionAnswered,
+}) {
   const isRequirementEmpty = (text) => {
     return !text || text.trim().replace(/<[^>]+>/g, '').length === 0;
   };
@@ -42,16 +46,19 @@ function TakeTestGroup({ questionGroup, scrollToQuestion, onQuestionAnswered }) 
         </Box>
       )}
 
-
       {/* Loop over the questions inside the question group */}
-      {questionGroup?.questions?.map((question) => (
-        <QuestionItem
-          key={question.id}
-          question={question}
-          onQuestionAnswered={onQuestionAnswered}
-          scrollToQuestion={scrollToQuestion}
-        />
-      ))}
+      <List spacing={4} w="100%">
+        {questionGroup?.questions?.map((question) => (
+          <ListItem key={question?.id} p={4} borderWidth="1px" borderRadius="md">
+            <QuestionItem
+              key={question.id}
+              question={question}
+              onQuestionAnswered={onQuestionAnswered}
+              scrollToQuestion={scrollToQuestion}
+            />
+          </ListItem>
+        ))}
+      </List>
     </VStack>
   );
 }

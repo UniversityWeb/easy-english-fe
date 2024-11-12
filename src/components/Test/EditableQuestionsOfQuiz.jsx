@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, List, ListItem } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import EditableQuestionItem from '~/components/Test/EditableQuestion/EditableQuestionItem';
 import { AddIcon } from '@chakra-ui/icons';
@@ -71,15 +71,19 @@ const EditableQuestionsOfQuiz = ({ test }) => {
       <Heading size="md" mt={10} mb={5}>Questions</Heading>
 
       {/* Question Items */}
-      {questions.map((question, index) => (
-        <EditableQuestionItem
-          index={index}
-          key={question.id}
-          question={question}
-          onRemoveQuestion={removeQuestion}
-          onReloadQuestions={reloadQuestions}
-        />
-      ))}
+      <List spacing={4} w="100%">
+        {questions.map((question, index) => (
+          <ListItem key={question?.id} p={4} borderWidth="1px" borderRadius="md">
+            <EditableQuestionItem
+              index={index}
+              key={question.id}
+              question={question}
+              onRemoveQuestion={removeQuestion}
+              onReloadQuestions={reloadQuestions}
+            />
+          </ListItem>
+        ))}
+      </List>
 
       <Flex justify="end" mb={10}>
         <Button

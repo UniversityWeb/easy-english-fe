@@ -9,26 +9,30 @@ import {
   Text,
   VStack,
   ChakraProvider,
-  HStack, Container,
+  HStack,
+  Container,
 } from '@chakra-ui/react';
-import { BsEraserFill } from "react-icons/bs";
-import { FaHighlighter, FaColumns, FaExpand } from "react-icons/fa";
-import TakeTestGroup from '~/components/Test/TakeTestGroup';
+import { BsEraserFill } from 'react-icons/bs';
+import { FaHighlighter, FaColumns, FaExpand } from 'react-icons/fa';
+import TakeTestGroup from '~/components/Test/TakeTest/TakeTestGroup';
 import { getPart } from '~/utils/testUtils';
 import ReactQuill from 'react-quill';
 
 function TakeTestPart({
-                        testId,
-                        partId,
-                        scrollToQuestion,
-                        onQuestionAnswered,
-                        isSplitLayout,
-  setIsSplitLayout
-                      }) {
+  testId,
+  partId,
+  scrollToQuestion,
+  onQuestionAnswered,
+  isSplitLayout,
+  setIsSplitLayout,
+}) {
   const [part, setPart] = useState();
-  const [leftWidth, setLeftWidth] = useState(50);  // Width of the reading passage (left pane)
+  const [leftWidth, setLeftWidth] = useState(50); // Width of the reading passage (left pane)
   const [highlightButtonVisible, setHighlightButtonVisible] = useState(false);
-  const [highlightPosition, setHighlightPosition] = useState({ top: 0, left: 0 });
+  const [highlightPosition, setHighlightPosition] = useState({
+    top: 0,
+    left: 0,
+  });
   const selectedRangeRef = useRef(null);
 
   useEffect(() => {
@@ -88,7 +92,10 @@ function TakeTestPart({
     const selectedText = selection.toString();
     const parentNode = range.commonAncestorContainer.parentNode;
 
-    if (parentNode.tagName === 'SPAN' && parentNode.style.backgroundColor === 'yellow') {
+    if (
+      parentNode.tagName === 'SPAN' &&
+      parentNode.style.backgroundColor === 'yellow'
+    ) {
       parentNode.replaceWith(document.createTextNode(parentNode.textContent));
       setHighlightButtonVisible(false);
     } else {
@@ -152,12 +159,14 @@ function TakeTestPart({
             {highlightButtonVisible && (
               <IconButton
                 aria-label={
-                  selectedRangeRef.current?.commonAncestorContainer?.parentNode?.style?.backgroundColor === 'yellow'
+                  selectedRangeRef.current?.commonAncestorContainer?.parentNode
+                    ?.style?.backgroundColor === 'yellow'
                     ? 'Remove Highlight'
                     : 'Highlight'
                 }
                 icon={
-                  selectedRangeRef.current?.commonAncestorContainer?.parentNode?.style?.backgroundColor === 'yellow' ? (
+                  selectedRangeRef.current?.commonAncestorContainer?.parentNode
+                    ?.style?.backgroundColor === 'yellow' ? (
                     <Icon as={BsEraserFill} />
                   ) : (
                     <Icon as={FaHighlighter} />
@@ -220,7 +229,6 @@ function TakeTestPart({
       ) : (
         // Full-width layout: reading passage takes the full width, questions are hidden
         <Box padding="20px" borderWidth="1px" borderRadius="lg" boxShadow="lg">
-
           {/* Conditionally display the reading passage if it has content */}
           {!isReadingPassageEmpty(part?.readingPassage) && (
             <>

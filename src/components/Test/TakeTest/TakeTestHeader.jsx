@@ -18,12 +18,32 @@ import {
   AlertDialogFooter,
   Spinner,
 } from '@chakra-ui/react';
-import { FaColumns, FaCompress, FaExpand, FaPause, FaPlay } from 'react-icons/fa';
-import { MdFullscreen, MdFullscreenExit, MdViewHeadline, MdVolumeUp } from 'react-icons/md';
+import {
+  FaColumns,
+  FaCompress,
+  FaExpand,
+  FaPause,
+  FaPlay,
+} from 'react-icons/fa';
+import {
+  MdFullscreen,
+  MdFullscreenExit,
+  MdViewHeadline,
+  MdVolumeUp,
+} from 'react-icons/md';
 import { CiPaperplane } from 'react-icons/ci';
-import { TbPlayerTrackPrevFilled, TbPlayerTrackNextFilled, TbLayoutColumns } from 'react-icons/tb';
+import {
+  TbPlayerTrackPrevFilled,
+  TbPlayerTrackNextFilled,
+  TbLayoutColumns,
+} from 'react-icons/tb';
 import testResultService from '~/services/testResultService';
-import { generateSubmitTestRequest, getTest, getCourseId, clearSavedTest } from '~/utils/testUtils';
+import {
+  generateSubmitTestRequest,
+  getTest,
+  getCourseId,
+  clearSavedTest,
+} from '~/utils/testUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
@@ -40,7 +60,10 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
       const durationInMilis = savedTest.durationInMilis;
       const currentTime = Date.now();
       const endTime = startedAt + durationInMilis;
-      const remainingTime = Math.max(Math.floor((endTime - currentTime) / 1000), 0);
+      const remainingTime = Math.max(
+        Math.floor((endTime - currentTime) / 1000),
+        0,
+      );
       setTimeLimit(remainingTime);
     }
   }, [testId, resetKey]);
@@ -66,7 +89,8 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
-    const formattedHours = hours > 0 ? `${hours.toString().padStart(2, '0')}:` : '';
+    const formattedHours =
+      hours > 0 ? `${hours.toString().padStart(2, '0')}:` : '';
     const formattedMinutes = minutes.toString().padStart(2, '0');
     const formattedSeconds = seconds.toString().padStart(2, '0');
     return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
@@ -79,7 +103,12 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   );
 };
 
-function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout }) {
+function TakeTestHeader({
+  resetCountDown,
+  testId,
+  isSplitLayout,
+  onToggleLayout,
+}) {
   const [audioSource, setAudioSource] = useState('');
   const audioRef = useRef(new Audio(audioSource));
   const [isPlaying, setIsPlaying] = useState(false);
@@ -150,13 +179,19 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
 
   const handleNext = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = Math.min(audioRef.current.duration, audioRef.current.currentTime + 5);
+      audioRef.current.currentTime = Math.min(
+        audioRef.current.duration,
+        audioRef.current.currentTime + 5,
+      );
     }
   };
 
   const handlePrev = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 5);
+      audioRef.current.currentTime = Math.max(
+        0,
+        audioRef.current.currentTime - 5,
+      );
     }
   };
 
@@ -178,17 +213,21 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
   };
 
   const handleSubmit = async () => {
-    setLoading(false);
+    setLoading(true);
     try {
       const submitRequest = generateSubmitTestRequest(testId);
-      await testResultService.submit(submitRequest);
+      const testResultResponse = await testResultService.submit(submitRequest);
       successToast('Test submitted successfully');
       clearSavedTest(testId);
-      handleBackClick();
+      if (testResultResponse?.id) {
+        navigate(config.routes.test_result(testResultResponse?.id));
+      } else {
+        handleBackClick();
+      }
     } catch (error) {
       errorToast('Error submitting test');
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
     setIsSubmitConfirmOpen(false);
   };
@@ -200,17 +239,23 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
-        setIsFullScreen(true);
-      }).catch((err) => {
-        console.error("Error attempting to enable full-screen mode:", err);
-      });
+      document.documentElement
+        .requestFullscreen()
+        .then(() => {
+          setIsFullScreen(true);
+        })
+        .catch((err) => {
+          console.error('Error attempting to enable full-screen mode:', err);
+        });
     } else {
-      document.exitFullscreen().then(() => {
-        setIsFullScreen(false);
-      }).catch((err) => {
-        console.error("Error attempting to exit full-screen mode:", err);
-      });
+      document
+        .exitFullscreen()
+        .then(() => {
+          setIsFullScreen(false);
+        })
+        .catch((err) => {
+          console.error('Error attempting to exit full-screen mode:', err);
+        });
     }
   };
 
@@ -241,7 +286,11 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
           />
 
           <IconButton
-            aria-label={isSplitLayout ? 'Switch to Reading Mode' : 'Switch to Split Layout'}
+            aria-label={
+              isSplitLayout
+                ? 'Switch to Reading Mode'
+                : 'Switch to Split Layout'
+            }
             icon={isSplitLayout ? <MdViewHeadline /> : <TbLayoutColumns />}
             colorScheme="teal"
             variant="outline"
@@ -260,9 +309,24 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
       {audioSource && audioSource !== '' && (
         <HStack mt={6} spacing={4} alignItems="center">
           {/* Control buttons */}
-          <IconButton size={"sm"} aria-label="Rewind" icon={<TbPlayerTrackPrevFilled />} onClick={handlePrev} />
-          <IconButton size={"sm"} aria-label={isPlaying ? "Pause" : "Play"} icon={isPlaying ? <FaPause /> : <FaPlay />} onClick={togglePlayPause} />
-          <IconButton size={"sm"} aria-label="Forward" icon={<TbPlayerTrackNextFilled />} onClick={handleNext} />
+          <IconButton
+            size={'sm'}
+            aria-label="Rewind"
+            icon={<TbPlayerTrackPrevFilled />}
+            onClick={handlePrev}
+          />
+          <IconButton
+            size={'sm'}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+            icon={isPlaying ? <FaPause /> : <FaPlay />}
+            onClick={togglePlayPause}
+          />
+          <IconButton
+            size={'sm'}
+            aria-label="Forward"
+            icon={<TbPlayerTrackNextFilled />}
+            onClick={handleNext}
+          />
 
           {/* Time Display */}
           <Text onClick={toggleTimeDisplay} cursor="pointer">
@@ -271,10 +335,16 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
               : formatTime(currentTime)}
           </Text>
 
-          <Slider aria-label="time-slider" value={currentTime} max={audioRef.current.duration || 0} onChange={(value) => {
-            audioRef.current.currentTime = value;
-            setCurrentTime(value);
-          }} flex="1">
+          <Slider
+            aria-label="time-slider"
+            value={currentTime}
+            max={audioRef.current.duration || 0}
+            onChange={(value) => {
+              audioRef.current.currentTime = value;
+              setCurrentTime(value);
+            }}
+            flex="1"
+          >
             <SliderTrack bg="gray.200">
               <SliderFilledTrack bg="teal.400" />
             </SliderTrack>
@@ -283,7 +353,12 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
 
           {/* Volume Control */}
           <MdVolumeUp />
-          <Slider aria-label="volume-slider" defaultValue={volume * 100} onChange={handleVolumeChange} maxW="100px">
+          <Slider
+            aria-label="volume-slider"
+            defaultValue={volume * 100}
+            onChange={handleVolumeChange}
+            maxW="100px"
+          >
             <SliderTrack bg="gray.200">
               <SliderFilledTrack bg="teal.400" />
             </SliderTrack>
@@ -310,7 +385,13 @@ function TakeTestHeader({ resetCountDown, testId, isSplitLayout, onToggleLayout 
               >
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={handleSubmit} ml={3} disabled={loading} rightIcon={loading ? null : <CiPaperplane />}>
+              <Button
+                colorScheme="red"
+                onClick={handleSubmit}
+                ml={3}
+                disabled={loading}
+                rightIcon={loading ? null : <CiPaperplane />}
+              >
                 {loading ? <Spinner size="sm" /> : 'Submit'}
               </Button>
             </AlertDialogFooter>

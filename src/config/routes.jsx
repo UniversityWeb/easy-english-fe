@@ -27,6 +27,7 @@ const routes = {
   learn: (courseId) => `/learn/${courseId}`,
   category_for_admin: '/admin/category',
   topic_level_for_admin: '/admin/topic-vs-level',
+  test_result: (testResultId) => `/test-result/${testResultId}`,
 };
 
 export default routes;

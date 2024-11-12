@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
-  HStack,
   Modal,
   ModalBody,
   ModalContent,
@@ -11,15 +10,13 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-
-import TakeTestHeader from '~/components/Test/TakeTestHeader';
-import TakeTestFooter from '~/components/Test/TakeTestFooter';
-import TakeTestPart from '~/components/Test/TakeTestPart';
+import TakeTestHeader from '~/components/Test/TakeTest/TakeTestHeader';
+import TakeTestFooter from '~/components/Test/TakeTest/TakeTestFooter';
+import TakeTestPart from '~/components/Test/TakeTest/TakeTestPart';
 import { saveQuestionState, getTest, saveTest } from '~/utils/testUtils';
 import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import testService from '~/services/testService';
 import config from '~/config';
-import { FaColumns, FaCompress, FaExpand } from 'react-icons/fa';
 
 const TakeTestPage = () => {
   const { testId } = useParams();
