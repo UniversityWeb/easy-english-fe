@@ -13,10 +13,10 @@ import {
     Text,
     Select,
 } from "@chakra-ui/react";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import lessonService from "~/services/lessonService";
 import useCustomToast from '~/hooks/useCustomToast';
+import CustomReactQuill from '~/components/CustomReactQuill';
 
 const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
     const [loading, setLoading] = useState(false);
@@ -330,29 +330,13 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
                         />
                     </FormControl>
 
-                    <FormControl mb={4}>
+                    <FormControl mb={10}>
                         <FormLabel>Content</FormLabel>
-                        <Box
-                            sx={{
-                                ".quill": {
-                                    height: "270px",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                },
-                                ".ql-container": {
-                                    height: "350px",
-                                    marginBottom: "20px",
-                                },
-                            }}
-                        >
-                            <ReactQuill
-                                value={lesson.content}
-                                onChange={(content) => setLesson({ ...lesson, content })}
-                                theme="snow"
-                                placeholder="Enter lesson content"
-                                style={{ height: "420px", marginBottom: "20px" }}
-                            />
-                        </Box>
+                        <CustomReactQuill
+                          value={lesson.content}
+                          onChange={(content) => setLesson({ ...lesson, content })}
+                          height={"420px"}
+                        />
                     </FormControl>
                     <Box
                         position="sticky"

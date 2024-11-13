@@ -1,20 +1,22 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
-  Flex,
+  Button,
   Editable,
   EditableInput,
   EditablePreview,
+  Flex,
+  FormControl,
+  FormLabel,
   IconButton,
-  Button,
-  FormLabel, FormControl, Switch,
+  Switch,
 } from '@chakra-ui/react';
-import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import EditableQuestionGroup from '~/components/Test/EditableQuestionGroup';
 import questionGroupService from '~/services/questionGroupService';
-import ReactQuill from 'react-quill';
 import useCustomToast from '~/hooks/useCustomToast';
 import testPartService from '~/services/testPartService';
+import CustomReactQuill from '~/components/CustomReactQuill';
 
 const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [questionGroups, setQuestionGroups] = useState([]);
@@ -65,15 +67,10 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const handleAddGroup = async () => {
     const newGroup = {
       title: 'Question 1 - 10',
-      ordinalNumber: questionGroups.length + 1,
-      from: 1,
-      to: 10,
+      ordinalNumber: questionGroups.length + 1 || 1,
       requirement: 'Do me',
       testPartId: part?.id,
-      audioPath: '',
       imagePath: '',
-      contentToDisplay: '',
-      originalContent: '',
     };
 
     try {
@@ -121,29 +118,14 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
       {showReadingPassage && (
         <FormControl mb={10}>
           <FormLabel>Reading Passage</FormLabel>
-          <Box
-            sx={{
-              ".quill": {
-                height: "270px",
-                display: "flex",
-                flexDirection: "column",
-              },
-              ".ql-container": {
-                height: "310px",
-                marginBottom: "20px",
-              },
-            }}
-          >
-            <ReactQuill
-              value={readingPassage}
-              onChange={(readingPassage) => setReadingPassage(readingPassage)}
-              theme="snow"
-              placeholder="Enter lesson content"
-              style={{ height: "380px", marginBottom: "20px" }}
-            />
-          </Box>
+          <CustomReactQuill
+            value={readingPassage}
+            onChange={(readingPassage) => setReadingPassage(readingPassage)}
+            placeholder="Enter lesson content"
+          />
 
           <Button
+            mt={10}
             colorScheme="blue"
             onClick={(e) => updateTestPart(part.id, { ...part, readingPassage })}
           >
@@ -152,8 +134,9 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
         </FormControl>
       )}
 
-      {questionGroups.map((group) => (
+      {questionGroups.map((group, index) => (
         <EditableQuestionGroup
+          index={index}
           key={group?.id}
           group={group}
           onRemoveGroup={handleRemoveGroup}

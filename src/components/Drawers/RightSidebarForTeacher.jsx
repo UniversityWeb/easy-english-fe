@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Text,
@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
+import AuthService from '~/services/authService';
 
 const menuItems = [
   { label: 'Dashboard', icon: MdDashboard, route: '' },
@@ -31,10 +32,18 @@ const menuItems = [
 
 function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState();
 
-  const handleLogout = () => {
-    removeLoginResponse();
-    navigate(config.routes.login);
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      await AuthService.logout();
+      removeLoginResponse();
+      navigate(config.routes.login);
+    } catch (e) {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -45,7 +54,11 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
       size="sm"
     >
       <DrawerOverlay />
-      <DrawerContent backgroundColor="white">
+      <DrawerContent
+        backgroundColor="white"
+        maxWidth={"230px"}
+        width="auto"
+      >
         <DrawerHeader borderBottomWidth="1px">
           <Box
             display="flex"
@@ -83,7 +96,8 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
               icon={MdLogout}
               text="Logout"
               handleClick={handleLogout}
-            />>
+              isLoading={isLoading}
+            />
           </VStack>
         </DrawerBody>
 

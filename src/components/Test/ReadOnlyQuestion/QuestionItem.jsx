@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, Heading, Text } from '@chakra-ui/react';
 import { QUESTION_TYPES } from '~/utils/constants';
-import SingleChoiceQuestion from '~/components/Test/Question/SingleChoiceQuestion';
-import MultipleChoiceQuestion from '~/components/Test/Question/MultipleChoiceQuestion';
-import TrueFalseQuestion from '~/components/Test/Question/TrueFalseQuestion';
-import MatchingQuestion from '~/components/Test/Question/MatchingQuestion';
-import FillBlankQuestion from '~/components/Test/Question/FillBlankQuestion';
+import SingleChoiceQuestion from '~/components/Test/ReadOnlyQuestion/SingleChoiceQuestion';
+import MultipleChoiceQuestion from '~/components/Test/ReadOnlyQuestion/MultipleChoiceQuestion';
+import TrueFalseQuestion from '~/components/Test/ReadOnlyQuestion/TrueFalseQuestion';
+import MatchingQuestion from '~/components/Test/ReadOnlyQuestion/MatchingQuestion';
+import FillBlankQuestion from '~/components/Test/ReadOnlyQuestion/FillBlankQuestion';
 
-const QuestionItem = ({ question, scrollToQuestion, onQuestionAnswered }) => {
+const QuestionItem = ({ question, scrollToQuestion, userAnswers }) => {
   const questionRef = useRef(null);
 
   useEffect(() => {
@@ -17,22 +17,17 @@ const QuestionItem = ({ question, scrollToQuestion, onQuestionAnswered }) => {
   }, [scrollToQuestion, question.id]);
 
   const renderQuestion = () => {
-    const commonProps = {
-      onQuestionAnswered,
-      question,
-    };
-
     switch (question.type) {
       case QUESTION_TYPES.SINGLE_CHOICE:
-        return <SingleChoiceQuestion {...commonProps} />;
+        return <SingleChoiceQuestion question={question} userAnswers={userAnswers} />;
       case QUESTION_TYPES.MULTI_CHOICE:
-        return <MultipleChoiceQuestion {...commonProps} />;
+        return <MultipleChoiceQuestion question={question} userAnswer={userAnswers} />;
       case QUESTION_TYPES.TRUE_FALSE:
-        return <TrueFalseQuestion {...commonProps} />;
+        return <TrueFalseQuestion question={question} userAnswers={userAnswers} />;
       case QUESTION_TYPES.MATCHING:
-        return <MatchingQuestion {...commonProps} />;
+        return <MatchingQuestion question={question} userAnswers={userAnswers} />;
       case QUESTION_TYPES.FILL_BLANK:
-        return <FillBlankQuestion {...commonProps} />;
+        return <FillBlankQuestion question={question} userAnswers={userAnswers} />;
       default:
         return <Text>Unknown question type</Text>;
     }

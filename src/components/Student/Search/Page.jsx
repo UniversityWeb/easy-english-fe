@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   HStack,
   Button,
@@ -9,10 +9,20 @@ import {
   MenuItem,
   Text,
   ChakraProvider,
-} from "@chakra-ui/react";
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "@chakra-ui/icons";
+} from '@chakra-ui/react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
+} from '@chakra-ui/icons';
 
-const Pagination = ({ currentPage, setCurrentPage, itemsPerPage, setItemsPerPage, totalPages }) => {
+const Pagination = ({
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+  setItemsPerPage,
+  totalPages,
+}) => {
   const maxVisiblePages = 5;
 
   const pageNumbers = React.useMemo(() => {
@@ -56,7 +66,7 @@ const Pagination = ({ currentPage, setCurrentPage, itemsPerPage, setItemsPerPage
               {itemsPerPage}
             </MenuButton>
             <MenuList>
-              {[1, 2, 3, 5].map((item) => (
+              {[8, 12, 16, 20].map((item) => (
                 <MenuItem key={item} onClick={() => setItemsPerPage(item)}>
                   {item}
                 </MenuItem>
@@ -79,12 +89,12 @@ const Pagination = ({ currentPage, setCurrentPage, itemsPerPage, setItemsPerPage
               <Button
                 key={`${page}-${index}`}
                 onClick={() => handlePageChange(page)}
-                colorScheme={currentPage === page ? "teal" : "gray"}
-                variant={currentPage === page ? "solid" : "outline"}
+                colorScheme={currentPage === page ? 'teal' : 'gray'}
+                variant={currentPage === page ? 'solid' : 'outline'}
               >
                 {page}
               </Button>
-            ) : null
+            ) : null,
           )}
 
           <IconButton

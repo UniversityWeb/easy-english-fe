@@ -109,7 +109,7 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
   };
 
   return (
-    <Box p={4} paddingBottom={0} shadow="md" borderWidth="1px" width="100%">
+    <Box p={4} paddingBottom={0} shadow="md" borderWidth="1px">
       <TestForm
         sectionId={sectionId}
         ordinalNumber={ordinalNumber}

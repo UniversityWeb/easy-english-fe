@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Checkbox,
@@ -12,9 +12,9 @@ import {
   HStack,
   Radio,
   RadioGroup,
-  ChakraProvider
-} from "@chakra-ui/react";
-import { StarIcon, AddIcon, MinusIcon } from "@chakra-ui/icons";
+  ChakraProvider,
+} from '@chakra-ui/react';
+import { StarIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
 import topicService from '~/services/topicService';
 import categoryService from '~/services/categoryService';
 import levelService from '~/services/levelService';
@@ -48,18 +48,21 @@ const RatingFilter = ({ selectedRating, setSelectedRating }) => {
   const ratings = [4.5, 4.0, 3.5, 3.0];
 
   return (
-    <RadioGroup value={selectedRating?.toString()} onChange={(value) => setSelectedRating(parseFloat(value))}>
+    <RadioGroup
+      value={selectedRating?.toString()}
+      onChange={(value) => setSelectedRating(parseFloat(value))}
+    >
       <VStack align="start">
         {ratings.map((rating) => (
           <HStack key={rating} spacing={2} alignItems="center">
             <Radio value={rating.toString()}>
               <HStack spacing={1}>
                 {Array(5)
-                  .fill("")
+                  .fill('')
                   .map((_, i) => (
                     <StarIcon
                       key={i}
-                      color={i < Math.floor(rating) ? "yellow.400" : "gray.300"}
+                      color={i < Math.floor(rating) ? 'yellow.400' : 'gray.300'}
                     />
                   ))}
                 <Text>{rating} & up</Text>
@@ -97,13 +100,13 @@ const Filter = ({ onFilterChange }) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+        : [...prev, categoryId],
     );
   };
 
   const handleTopicChange = async (topicId) => {
     setSelectedTopic(topicId);
-    setSelectedLevel(null);  // Reset selected level mỗi khi đổi topic
+    setSelectedLevel(null); // Reset selected level mỗi khi đổi topic
     const levelsData = await levelService.fetchAllLevelByTopic({ topicId });
     setLevels(levelsData || []);
   };
@@ -123,9 +126,18 @@ const Filter = ({ onFilterChange }) => {
 
   return (
     <ChakraProvider>
-      <Box p={4} w="300px" borderWidth="1px" borderRadius="lg">
+      <Box
+        style={{ zoom: 0.9 }}
+        p={4}
+        w="300px"
+        borderWidth="1px"
+        borderRadius="lg"
+      >
         <FilterSection title="Topic" isOpen={true}>
-          <RadioGroup value={selectedTopic?.toString()} onChange={(value) => handleTopicChange(value)}>
+          <RadioGroup
+            value={selectedTopic?.toString()}
+            onChange={(value) => handleTopicChange(value)}
+          >
             <VStack align="start">
               {topics.map((topic) => (
                 <Radio key={topic.id} value={topic.id.toString()}>
@@ -152,7 +164,10 @@ const Filter = ({ onFilterChange }) => {
 
         <FilterSection title="Level" isOpen={true}>
           {levels.length > 0 ? (
-            <RadioGroup value={selectedLevel?.toString() || ""} onChange={(value) => handleLevelChange(value)}>
+            <RadioGroup
+              value={selectedLevel?.toString() || ''}
+              onChange={(value) => handleLevelChange(value)}
+            >
               <VStack align="start">
                 {levels.map((level) => (
                   <Radio key={level.id} value={level.id.toString()}>
@@ -162,12 +177,15 @@ const Filter = ({ onFilterChange }) => {
               </VStack>
             </RadioGroup>
           ) : (
-            <Text>No levels available</Text>  // Hiển thị khi không có level
+            <Text>No levels available</Text> // Hiển thị khi không có level
           )}
         </FilterSection>
 
         <FilterSection title="Rating" isOpen={true}>
-          <RatingFilter selectedRating={selectedRating} setSelectedRating={setSelectedRating} />
+          <RatingFilter
+            selectedRating={selectedRating}
+            setSelectedRating={setSelectedRating}
+          />
         </FilterSection>
       </Box>
     </ChakraProvider>

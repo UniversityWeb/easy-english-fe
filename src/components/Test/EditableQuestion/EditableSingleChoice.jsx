@@ -10,7 +10,6 @@ import {
   Button,
   Input,
   IconButton,
-  Image,
   Text, Textarea,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
@@ -21,7 +20,6 @@ const EditableSingleChoice = React.memo(
     const [correctAnswer, setCorrectAnswer] = useState('');
     const [newOption, setNewOption] = useState('');
     const [error, setError] = useState('');
-    const [image, setImage] = useState(null);
 
     useEffect(() => {
       setOptions(question?.options || []);
@@ -75,32 +73,9 @@ const EditableSingleChoice = React.memo(
       onUpdateQuestionField('correctAnswers', [value]);
     };
 
-    // Handle image upload
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        setImage(imageUrl);
-      }
-    };
-
     return (
       <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
-        {/* Image icon and upload functionality */}
         <Flex align="center" mb={4}>
-          <IconButton
-            icon={<Image />}
-            aria-label="Upload question image"
-            mr={2}
-            onClick={() => document.getElementById('image-upload').click()}
-          />
-          <input
-            id="image-upload"
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageUpload}
-          />
           <Editable
             width="100%"
             defaultValue={question.title}
@@ -115,18 +90,6 @@ const EditableSingleChoice = React.memo(
             />
           </Editable>
         </Flex>
-
-        {/* Display uploaded image */}
-        {image && (
-          <Box mb={4}>
-            <Image
-              src={image}
-              alt="Uploaded question image"
-              maxW="200px"
-              borderRadius="md"
-            />
-          </Box>
-        )}
 
         {/* Option options */}
         <RadioGroup value={correctAnswer} onChange={handleCorrectAnswerChange}>

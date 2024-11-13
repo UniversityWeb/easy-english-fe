@@ -8,7 +8,7 @@ import {
   FormLabel,
   Heading,
   Image,
-  Input,
+  Input, Link,
   Stack,
   Text,
   VStack,
@@ -49,39 +49,36 @@ const OtpValidationPage = () => {
     return true;
   };
 
-  const handleValidateOtp = () => {
+  const handleValidateOtp = async () => {
     if (!validateOtp()) return;
 
     setIsLoading(true);
     const activeAccountRequest = {username, otp};
-    AuthService.activeAccount(activeAccountRequest)
-      .then((response) => {
-        successToast(response.message);
-        navigate(config.routes.login);
-      })
-      .catch((e) => {
-        errorToast(e.message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      const response = await AuthService.activeAccount(activeAccountRequest)
+      successToast(response.message);
+      navigate(config.routes.login);
+    } catch (e) {
+      errorToast(e.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resendOtp = async () => {
     setIsLoading(true);
     const activeAccountRequest = {username, otp};
-    AuthService.resendOTPToActiveAccount(activeAccountRequest)
-      .then((response) => {
-        setMessage('OTP sent successfully!');
-        setError(false);
-      })
-      .catch((e) => {
-        setMessage(e.message);
-        setError(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      debugger
+      await AuthService.resendOTPToActiveAccount(activeAccountRequest);
+      setMessage('OTP sent successfully!');
+      setError(false);
+    } catch (e) {
+      setMessage(e.message);
+      setError(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -128,6 +125,15 @@ const OtpValidationPage = () => {
                     {message}
                   </Alert>
                 )}
+              </Text>
+
+              <Text align={'center'} mt={4}>
+                <Button variant="link" color="blue.500" mr={4} onClick={() => navigate(config.routes.register)}>
+                  Go to Register
+                </Button>
+                <Button variant="link" color="blue.500" onClick={() => navigate(config.routes.login)}>
+                  Go to Login
+                </Button>
               </Text>
             </Stack>
           </CardBody>

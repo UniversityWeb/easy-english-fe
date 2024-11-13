@@ -22,6 +22,7 @@ import OrderDetailPage from '~/pages/Student/OrderDetailPage';
 import LearnPage from '~/pages/Student/LearnPage';
 import CategoryPage from '~/pages/Admin/CategoryPage';
 import TopicAndLevelPage from '~/pages/Admin/TopicAndLevelPage';
+import TestResultPage from '~/pages/Common/TestResultPage';
 
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
@@ -58,6 +59,7 @@ const publicRoutes = [
   { path: config.routes.learn(':courseId'), component: LearnPage },
   { path: config.routes.category_for_admin, component: CategoryPage },
   { path: config.routes.topic_level_for_admin, component: TopicAndLevelPage },
+  { path: config.routes.test_result(":testResultId"), component: TestResultPage },
 ];
 
 const privateRoutes = [];

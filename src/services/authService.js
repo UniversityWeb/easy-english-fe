@@ -1,5 +1,6 @@
 import { getToken, isLoggedIn, removeLoginResponse, saveLoginResponse } from '~/utils/authUtils';
 import { get, handleResponse, post, put } from '~/utils/httpRequest';
+import { USER_STATUSES } from '~/utils/constants';
 
 const SUFFIX_AUTH_API_URL = '/auth';
 
@@ -26,7 +27,9 @@ const login = async (loginRequest) => {
   }
 
   const loginResponse = await response.data;
-  saveLoginResponse(loginResponse);
+  if (loginResponse?.accountStatus === USER_STATUSES.ACTIVE) {
+    saveLoginResponse(loginResponse);
+  }
   return loginResponse;
 };
 
@@ -78,6 +81,21 @@ const resetPasswordWithOtp = async (resetPasswordWithOtp) => {
   return handleResponse(response, 200);
 }
 
+const loginWithGoogle = async (token) => {
+  const path = `${SUFFIX_AUTH_API_URL}/login-with-google`;
+  const response = await post(path, {token: token});
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  const loginResponse = await response.data;
+  if (loginResponse?.accountStatus === USER_STATUSES.ACTIVE) {
+    saveLoginResponse(loginResponse);
+  }
+  return loginResponse;
+};
+
 const AuthService = {
   getCurUser,
   login,
@@ -89,6 +107,7 @@ const AuthService = {
   updatePasswordWithOtp,
   generateOtpToResetPassword,
   resetPasswordWithOtp,
+  loginWithGoogle,
 };
 
 export default AuthService;

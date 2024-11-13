@@ -1,21 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
-  Flex,
-  Select,
-  IconButton,
-  Text,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
+  Flex,
+  IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  Text,
   useDisclosure,
-  Editable,
-  EditableInput,
-  EditablePreview, Spacer,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import testQuestionService from '~/services/testQuestionService';
@@ -28,7 +25,7 @@ import EditableTrueFalse from '~/components/Test/EditableQuestion/EditableTrueFa
 import EditableFillBlank from '~/components/Test/EditableQuestion/EditableFillBlank';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 
-const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQuestions }) => {
+const QuestionItem = ({ index, question, onRemoveQuestion, onReloadQuestions }) => {
   const [questionState, setQuestionState] = useState(question);
   const { successToast, errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -39,7 +36,6 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQ
       setQuestionState({
         id: question?.id,
         type: question?.type || 'SINGLE_CHOICE', // Default type if not provided
-        ordinalNumber: question?.ordinalNumber || 0,
         title: question?.title || '',
         description: question?.description || '',
         audioPath: question?.audioPath || '',
@@ -139,25 +135,7 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQ
     <Box p={4} bg="gray.100" mb={4} borderRadius="lg" borderWidth="1px">
       <Flex justify="space-between" mb={4} align="center">
         <Flex align="center" justify="space-between">
-          <Text mr={1}>Question</Text>
-          <Editable
-            defaultValue={questionState?.ordinalNumber?.toString()}
-            onSubmit={async (value) => {
-              let newOrdinalNumber = parseInt(value, 10);
-              if (newOrdinalNumber < 1) {
-                newOrdinalNumber = 1;
-              }
-
-              if (newOrdinalNumber !== question?.ordinalNumber) {
-                // Update the ordinal number in the backend and state
-                await updateQuestionField('ordinalNumber', newOrdinalNumber);
-                await onReloadQuestions();
-              }
-            }}
-          >
-            <EditablePreview />
-            <EditableInput type="number" />
-          </Editable>
+          <Text mr={1}>Question {index + 1}</Text>
         </Flex>
 
         <Flex align="center">
@@ -209,6 +187,6 @@ const EditableQuestionItem = React.memo(({ question, onRemoveQuestion, onReloadQ
       </Modal>
     </Box>
   );
-});
+};
 
-export default EditableQuestionItem;
+export default QuestionItem;

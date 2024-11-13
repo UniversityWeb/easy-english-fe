@@ -52,6 +52,12 @@ const uploadAudio = async (testId, audioFile) => {
   return handleResponse(response, 200);
 };
 
+const isEmptyTest = async (testId) => {
+  const path = `${SUFFIX_TEST_API_URL}/is-empty/${testId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const testService = {
   create,
   update,
@@ -60,6 +66,7 @@ const testService = {
   remove,
   getTestsBySection,
   uploadAudio,
+  isEmptyTest,
 };
 
 export default testService;

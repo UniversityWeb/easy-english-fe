@@ -54,6 +54,7 @@ const saveQuestionState = (testId, testQuestionId, answers) => {
   // Save the updated test back to localStorage
   const updatedTest = { ...savedTest, userAnswers: updatedUserAnswers };
   saveTest(testId, updatedTest);
+  return updatedTest;
 };
 
 const generateSubmitTestRequest = (testId) => {
@@ -84,6 +85,104 @@ const generateSubmitTestRequest = (testId) => {
   return submitTestRequest;
 };
 
+const getStartedTime = (testId) => {
+  const savedTest = getTest(testId);
+  return savedTest ? savedTest?.startedAt : null;
+};
+
+const getCourseId = (testId) => {
+  const savedTest = getTest(testId);
+  return savedTest ? savedTest?.courseId : null;
+};
+
+const getParts = (testId) => {
+  const savedTest = getTest(testId);
+  return savedTest ? savedTest.parts || [] : [];
+};
+
+const getPart = (testId, partId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return null;
+
+  // Find the part by its unique partId
+  return savedTest.parts.find(part => part.id === partId) || null;
+};
+
+const getQuestionGroups = (testId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return [];
+
+  const questionGroups = [];
+  savedTest.parts.forEach(part => {
+    part.questionGroups.forEach(group => {
+      questionGroups.push(group);
+    });
+  });
+
+  return questionGroups;
+};
+
+const getQuestion = (testId, testQuestionId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return null;
+
+  // Iterate through parts and their question groups to find the question by ID
+  for (const part of savedTest.parts) {
+    for (const group of part.questionGroups) {
+      const question = group.questions.find(q => q.id === testQuestionId);
+      if (question) {
+        return question; // Return the question if found
+      }
+    }
+  }
+
+  return null; // Return null if the question is not found
+};
+
+const getQuestions = (testId) => {
+  const savedTest = getTest(testId);
+  if (!savedTest || !savedTest.parts) return [];
+
+  // Extract all questions from all parts and their question groups
+  const questions = [];
+  savedTest.parts.forEach(part => {
+    part.questionGroups.forEach(group => {
+      questions.push(...group.questions);
+    });
+  });
+
+  return questions;
+};
+
+const getQuestionsInRangeByPartId = (testId, partId, startIndex, endIndex) => {
+  const part = getPart(testId, partId);
+  if (!part || !part.questionGroups) return [];
+
+  // Collect all questions from the part's question groups
+  const allQuestions = [];
+  part.questionGroups.forEach(group => {
+    allQuestions.push(...group.questions);
+  });
+
+  // Return the questions within the specified range
+  return allQuestions.slice(startIndex, endIndex);
+};
+
+const getQuestionRange = (testId, part) => {
+  const allQuestions = getQuestionsInRangeByPartId(
+    testId,
+    part.id,
+    0,
+    part.questionGroups.reduce((acc, group) => acc + group.questions.length, 0)
+  );
+  return allQuestions.map((q) => {
+    return {
+      id: q?.id,
+      ordinalNumber: q?.ordinalNumber
+    };
+  });
+};
+
 export {
   saveTest,
   getTest,
@@ -91,4 +190,13 @@ export {
   clearAllTestsOfCurUsername,
   saveQuestionState,
   generateSubmitTestRequest,
+  getStartedTime,
+  getCourseId,
+  getParts,
+  getPart,
+  getQuestionGroups,
+  getQuestion,
+  getQuestions,
+  getQuestionsInRangeByPartId,
+  getQuestionRange,
 };
