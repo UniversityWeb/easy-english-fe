@@ -22,51 +22,143 @@ import {
   RxDragHandleDots2,
 } from 'react-icons/rx';
 import { RiDeleteBinFill } from 'react-icons/ri';
-import { MdSubdirectoryArrowRight } from 'react-icons/md'; // Import the new icon
-import { useState } from 'react';
+import { MdSubdirectoryArrowRight } from 'react-icons/md';
+import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { SEC_ITEM_TYPES } from '~/utils/constants';
+import sectionService from '~/services/sectionService';
+import lessonService from '~/services/lessonService';
+import dripService from '~/services/dripService';
+import testService from '~/services/testService';
 
 const getLessonIcon = (type) => {
   switch (type) {
-    case SEC_ITEM_TYPES.TEXT:
+    case 'TEXT':
       return { icon: FiFileText, color: 'green.500' };
-    case SEC_ITEM_TYPES.VIDEO:
+    case 'VIDEO':
       return { icon: FiVideo, color: 'blue.500' };
-    case SEC_ITEM_TYPES.AUDIO:
+    case 'AUDIO':
       return { icon: HiOutlineSpeakerWave, color: 'purple.500' };
-    case SEC_ITEM_TYPES.TEST:
+    case 'QUIZ':
+      return { icon: FiHelpCircle, color: 'orange.500' };
+    case 'CUSTOM':
       return { icon: FiHelpCircle, color: 'orange.500' };
     default:
       return { icon: FiFileText, color: 'gray.500' };
   }
 };
 
-const Drip = () => {
+const Drip = ({ courseId }) => {
   // Sample data
-  const [sections, setSections] = useState([
-    {
-      id: 'section-1',
-      title: 'Section 1',
-      lessons: [
-        { id: 'lesson-1', title: 'Lesson 1', type: SEC_ITEM_TYPES.TEXT },
-        { id: 'lesson-2', title: 'Lesson 2', type: SEC_ITEM_TYPES.VIDEO },
-      ],
-    },
-    {
-      id: 'section-2',
-      title: 'Section 2',
-      lessons: [
-        { id: 'lesson-3', title: 'Lesson 3', type: SEC_ITEM_TYPES.AUDIO },
-        { id: 'lesson-4', title: 'Lesson 4', type: SEC_ITEM_TYPES.TEST },
-      ],
-    },
-  ]);
+  const [sections, setSections] = useState([]);
+  const [dripContents, setDripContents] = useState([]);
 
-  const [dripContents, setDripContents] = useState([
-    { id: 'drip-1', lessons: [] },
-    { id: 'drip-2', lessons: [] },
-  ]);
+  // Hàm chuyển đổi dữ liệu drip từ API thành định dạng dripContents
+  const convertToDripContents = (drips) => {
+    return drips.map((drip) => ({
+      id: `drip-${drip.id}`, // Giữ nguyên id từ drip gốc
+      lessons: [
+        {
+          id:
+            (['TEXT', 'VIDEO', 'AUDIO'].includes(drip.prevDetailType)
+              ? 'lesson-'
+              : 'lesson-test-') + drip.prevId,
+          title: drip.prevTitle,
+          type: drip.prevDetailType || 'TEXT',
+        },
+        ...drip.nextDrips.map((next) => ({
+          id:
+            (['TEXT', 'VIDEO', 'AUDIO'].includes(next.nextDetailType)
+              ? 'lesson-'
+              : 'lesson-test-') + next.nextId,
+          title: next.nextTitle,
+          type: next.nextDetailType || 'TEXT',
+        })),
+      ],
+    }));
+  };
+
+  const prepareDripsUpdateRequest = (dripContents) => {
+    return dripContents.map((drip) => {
+      const prevId = parseInt(
+        drip.lessons[0].id.replace(/lesson-(test-)?/, ''),
+      );
+      const prevType = drip.lessons[0].id.startsWith('lesson-test-')
+        ? 'TEST'
+        : 'LESSON';
+
+      return {
+        prevId,
+        prevType,
+        requiredCompletion: true,
+        nextDrips: drip.lessons.slice(1).map((lesson) => {
+          const nextId = parseInt(lesson.id.replace(/lesson-(test-)?/, ''));
+          const nextType = lesson.id.startsWith('lesson-test-')
+            ? 'TEST'
+            : 'LESSON';
+
+          return {
+            nextId,
+            nextType,
+            requiredCompletion: true,
+          };
+        }),
+      };
+    });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const sectionRequest = { courseId };
+      const fetchedSections =
+        await sectionService.fetchSectionsByCourse(sectionRequest);
+      if (fetchedSections) {
+        const sectionsWithFormattedLessons = await Promise.all(
+          fetchedSections.map(async (section) => {
+            const sectionId = section?.id;
+            const lessons = await lessonService.fetchLessons({ sectionId });
+            const formattedLessons = lessons.map((lesson) => ({
+              id: 'lesson-' + lesson.id.toString(),
+              title: lesson.title,
+              type: lesson.type,
+            }));
+
+            const tests = await testService.getTestsBySection(sectionId);
+            const formattedTests = tests.map((test) => ({
+              id: 'lesson-test-' + test.id.toString(),
+              title: test.title,
+              type: test.type,
+            }));
+            const allLessonsAndTests = [...formattedLessons, ...formattedTests];
+
+            return {
+              id: 'section-' + section.id.toString(),
+              title: section.title,
+              lessons: allLessonsAndTests,
+            };
+          }),
+        );
+        setSections(sectionsWithFormattedLessons);
+      }
+      const fetchedDrips = await dripService.getAllDripsByCourseId(courseId);
+      if (fetchedDrips) {
+        const convertedDrips = convertToDripContents(fetchedDrips);
+        setDripContents(convertedDrips);
+      }
+    };
+
+    fetchData();
+  }, [courseId]);
+
+  const onSaveDrips = async () => {
+    const dripsUpdateRequest = prepareDripsUpdateRequest(dripContents);
+
+    const result = await dripService.updateDrips(courseId, dripsUpdateRequest);
+    if (result) {
+      console.log('Drips updated successfully');
+    } else {
+      console.error('Failed to update drips');
+    }
+  };
 
   const addDripContent = () => {
     setDripContents((prev) => [
@@ -75,14 +167,11 @@ const Drip = () => {
     ]);
   };
 
-  // Handle the drag-and-drop functionality
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
-    // If no destination, exit early
     if (!destination) return;
 
-    // If the source and destination are the same, and it's in a drip content, reorder the lessons
     if (source.droppableId === destination.droppableId) {
       setDripContents((prevDripContents) =>
         prevDripContents.map((dripContent) => {
@@ -102,7 +191,6 @@ const Drip = () => {
       return;
     }
 
-    // Handle dragging from sections to drip content
     if (source.droppableId.startsWith('section-')) {
       const sourceSection = sections.find(
         (section) => section.id === source.droppableId,
@@ -113,7 +201,7 @@ const Drip = () => {
         setDripContents((prevDripContents) =>
           prevDripContents.map((dripContent) => {
             if (dripContent.id === destination.droppableId) {
-              // Check if the lesson is already in the drip content to avoid duplicates
+              // Check if the lesson is already in the drip
               if (
                 !dripContent.lessons.find(
                   (lesson) => lesson.id === draggedLesson.id,
@@ -133,13 +221,11 @@ const Drip = () => {
         );
       }
     } else {
-      // Handle dragging between drip contents
       let draggedLesson = null;
 
       setDripContents((prevDripContents) =>
         prevDripContents.map((dripContent) => {
           if (dripContent.id === source.droppableId) {
-            // Remove the lesson from the source drip content
             const updatedLessons = Array.from(dripContent.lessons);
             [draggedLesson] = updatedLessons.splice(source.index, 1);
             return {
@@ -155,12 +241,19 @@ const Drip = () => {
         setDripContents((prevDripContents) =>
           prevDripContents.map((dripContent) => {
             if (dripContent.id === destination.droppableId) {
-              const updatedLessons = Array.from(dripContent.lessons);
-              updatedLessons.splice(destination.index, 0, draggedLesson);
-              return {
-                ...dripContent,
-                lessons: updatedLessons,
-              };
+              // Check if the lesson is already in the drip
+              if (
+                !dripContent.lessons.find(
+                  (lesson) => lesson.id === draggedLesson.id,
+                )
+              ) {
+                const updatedLessons = Array.from(dripContent.lessons);
+                updatedLessons.splice(destination.index, 0, draggedLesson);
+                return {
+                  ...dripContent,
+                  lessons: updatedLessons,
+                };
+              }
             }
             return dripContent;
           }),
@@ -169,7 +262,6 @@ const Drip = () => {
     }
   };
 
-  // Handle deleting a lesson from a drip content
   const deleteLessonFromDrip = (dripId, lessonId) => {
     setDripContents((prevDripContents) =>
       prevDripContents.map((dripContent) => {
@@ -187,7 +279,6 @@ const Drip = () => {
     );
   };
 
-  // Handle deleting an entire drip content
   const deleteDripContent = (dripId) => {
     setDripContents((prevDripContents) =>
       prevDripContents.filter((content) => content.id !== dripId),
@@ -197,7 +288,6 @@ const Drip = () => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <HStack spacing={5} align="start" h="full">
-        {/* Left Section (Lessons) */}
         <Box w="30%" bg="gray.100" p={5} rounded="md">
           <Text fontSize="2xl" fontWeight="bold" mb={4}>
             Drip
@@ -241,7 +331,7 @@ const Drip = () => {
                               );
                               return (
                                 <Draggable
-                                  draggableId={lesson.id} // Use lesson.id for section lessons
+                                  draggableId={lesson.id}
                                   index={index}
                                   key={lesson.id}
                                 >
@@ -277,7 +367,6 @@ const Drip = () => {
           </Accordion>
         </Box>
 
-        {/* Right Section (Drip Contents) */}
         <Box w="70%" textAlign="center" maxHeight="80vh" overflow="auto">
           <Text fontSize="2xl" fontWeight="bold" mb={4}>
             Drip Contents
@@ -285,7 +374,6 @@ const Drip = () => {
 
           {dripContents.map((dripContent, index) => (
             <Box key={dripContent.id} mb={4} width="750px">
-              {/* Drip title and delete button */}
               <HStack mb={2} spacing={2} align="center">
                 <Text fontWeight="bold">Drip Content {index + 1}</Text>
                 <IconButton
@@ -315,7 +403,6 @@ const Drip = () => {
                           const { icon, color } = getLessonIcon(lesson?.type);
                           return (
                             <Draggable
-                              // Create unique draggableId for lessons in drip content
                               draggableId={`drip-${dripContent.id}-${lesson.id}`}
                               index={lessonIndex}
                               key={lesson.id}
@@ -337,7 +424,7 @@ const Drip = () => {
                                     <HStack spacing={2} align="center">
                                       {lessonIndex !== 0 && (
                                         <Icon
-                                          as={MdSubdirectoryArrowRight} // Add icon for non-first lessons
+                                          as={MdSubdirectoryArrowRight}
                                           color="gray.500"
                                         />
                                       )}
@@ -373,6 +460,9 @@ const Drip = () => {
 
           <Button mt={4} colorScheme="blue" onClick={addDripContent}>
             Add Drip Content
+          </Button>
+          <Button ml={4} mt={4} colorScheme="blue" onClick={onSaveDrips}>
+            Save
           </Button>
         </Box>
       </HStack>
