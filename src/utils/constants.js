@@ -7,6 +7,12 @@ export const USER_ROLES = {
   ADMIN: 'ADMIN',
 };
 
+export const USER_STATUSES = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  DELETED: 'DELETED',
+}
+
 export const SEC_ITEM_TYPES = {
   TEXT: 'TEXT',
   VIDEO: 'VIDEO',

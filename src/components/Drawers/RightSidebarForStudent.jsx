@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   VStack,
@@ -28,14 +28,23 @@ import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import { FaRegStar } from 'react-icons/fa';
+import AuthService from '~/services/authService';
 
 const RightSidebarForStudent = (props) => {
   const user = props.user;
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState();
 
-  const handleLogout = () => {
-    removeLoginResponse();
-    navigate(config.routes.login);
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      await AuthService.logout();
+      removeLoginResponse();
+      navigate(config.routes.login);
+    } catch (e) {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,7 +55,11 @@ const RightSidebarForStudent = (props) => {
       size={'sm'}
     >
       <DrawerOverlay />
-      <DrawerContent backgroundColor={'var(--white)'}>
+      <DrawerContent
+        backgroundColor={'var(--white)'}
+        maxWidth={"230px"}
+        width="auto"
+      >
         <DrawerHeader borderBottomWidth="1px">
           <Box
             display="flex"
@@ -118,6 +131,7 @@ const RightSidebarForStudent = (props) => {
               icon={MdLogout}
               text="Logout"
               handleClick={handleLogout}
+              isLoading={isLoading}
             />
           </VStack>
         </DrawerBody>
