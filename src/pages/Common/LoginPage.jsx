@@ -114,9 +114,13 @@ const LoginPage = () => {
     setIsLogging(true)
     try {
       const loginResponse = await AuthService.loginWithGoogle(response?.credential);
+      if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
+        navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.username } });
+      }
+
+      successToast(`Login successfully`);
       const user = loginResponse?.user;
       navigateByRole(user?.role);
-      successToast('Login successfully');
     } catch (e) {
       errorToast('Failed to login with Google');
       console.error(e);

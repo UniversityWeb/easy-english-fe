@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Heading, VStack } from '@chakra-ui/react';
+import { Box, Button, Heading, Tab, TabList, TabPanel, TabPanels, Tabs, VStack } from '@chakra-ui/react';
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
 import testPartService from '~/services/testPartService';
@@ -8,6 +8,7 @@ import testService from '~/services/testService';
 import { TEST_TYPES } from '~/utils/constants';
 import EditableQuestionsOfQuiz from '~/components/Test/EditableQuestionsOfQuiz';
 import TestAudioUpload from '~/components/Test/TestAudioUpload';
+import TestResultTable from '~/components/Test/Result/TestResultTable';
 
 const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
   const [testState, setTestState] = useState({
@@ -110,46 +111,65 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
 
   return (
     <Box p={4} paddingBottom={0} shadow="md" borderWidth="1px">
-      <TestForm
-        sectionId={sectionId}
-        ordinalNumber={ordinalNumber}
-        testState={testState}
-        setTestState={setTestState}
-        isNew={isNew}
-        onTestSaved={onTestSaved}
-      />
+      {/* Tabs Layout */}
+      <Tabs variant="enclosed" isFitted>
+        <TabList>
+          <Tab>Test Form</Tab>
+          <Tab>Submissions</Tab>
+        </TabList>
 
-      {!isNew && testState?.type === TEST_TYPES.CUSTOM && (
-        <TestAudioUpload testState={testState} setTestState={setTestState} />
-      )}
-
-      {!isNew && (
-        <>
-          {/* QUIZ test */}
-          {testState?.type === TEST_TYPES.QUIZ ? (
-            <EditableQuestionsOfQuiz
-              test={testState}
+        <TabPanels>
+          {/* Tab 1: Original Content */}
+          <TabPanel>
+            <TestForm
+              sectionId={sectionId}
+              ordinalNumber={ordinalNumber}
+              testState={testState}
+              setTestState={setTestState}
+              isNew={isNew}
+              onTestSaved={onTestSaved}
             />
-          ) : (
-            <>
-              {/* CUSTOM test */}
-              <Heading size="lg" mt={10}>Test parts</Heading>
-              <VStack spacing={4} mt={4}>
-                {testParts.map((part) => (
-                  <EditableTestPart
-                    key={part.id}
-                    part={part}
-                    onRemovePart={removeTestPart}
+
+            {!isNew && testState?.type === TEST_TYPES.CUSTOM && (
+              <TestAudioUpload testState={testState} setTestState={setTestState} />
+            )}
+
+            {!isNew && (
+              <>
+                {/* QUIZ test */}
+                {testState?.type === TEST_TYPES.QUIZ ? (
+                  <EditableQuestionsOfQuiz
+                    test={testState}
                   />
-                ))}
-                <Button colorScheme="blue" onClick={addTestPart} mb={10}>
-                  Add Test Part
-                </Button>
-              </VStack>
-            </>
-          )}
-        </>
-      )}
+                ) : (
+                  <>
+                    {/* CUSTOM test */}
+                    <Heading size="lg" mt={10}>Test parts</Heading>
+                    <VStack spacing={4} mt={4}>
+                      {testParts.map((part) => (
+                        <EditableTestPart
+                          key={part.id}
+                          part={part}
+                          onRemovePart={removeTestPart}
+                        />
+                      ))}
+                      <Button colorScheme="blue" onClick={addTestPart} mb={10}>
+                        Add Test Part
+                      </Button>
+                    </VStack>
+                  </>
+                )}
+              </>
+            )}
+          </TabPanel>
+
+          {/* Tab 2: TestResultTable */}
+          <TabPanel>
+            <TestResultTable testId={testId} />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
     </Box>
   );
 };
