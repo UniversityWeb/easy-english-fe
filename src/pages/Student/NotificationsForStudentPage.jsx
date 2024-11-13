@@ -32,6 +32,7 @@ const NotificationsForStudentPage = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
+    websocketService.disconnect();
     websocketService.connect(() => {
       websocketService.subscribe(websocketConstants.notificationTopic(username), (notification) => {
         console.log(`Received message: ${JSON.stringify(notification)}`);

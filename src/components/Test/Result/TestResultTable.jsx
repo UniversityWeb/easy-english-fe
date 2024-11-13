@@ -8,6 +8,9 @@ import { websocketConstants } from '~/utils/websocketConstants';
 import testResultService from '~/services/testResultService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { TEST_RESULT_STATUSES } from '~/utils/constants';
+import config from '~/config';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion'
 
 const TestResultTable = ({ testId }) => {
   const [testResults, setTestResults] = useState([]);
@@ -19,7 +22,8 @@ const TestResultTable = ({ testId }) => {
   const [currentPage, setCurrentPage] = useState(0); // Page index starts from 0
   const [totalPages, setTotalPages] = useState(1);   // Total number of pages
   const [pageSize] = useState(10);                   // Fixed page size
-  const { successToast, errorToast } = useCustomToast();
+  const { infoToast, successToast, errorToast } = useCustomToast();
+  const navigate = useNavigate();
 
   // Fetch test results by testId with pagination
   const fetchTestResults = async (page = 0) => {
@@ -42,11 +46,20 @@ const TestResultTable = ({ testId }) => {
 
   // WebSocket effect to listen for new test result notifications
   useEffect(() => {
+    websocketService.disconnect();
     websocketService.connect(() => {
-      websocketService.subscribe(websocketConstants.testResultNotificationTopic(testId), (notification) => {
-        const newResult = JSON.parse(notification.body);
-        setTestResults((prevResults) => [newResult, ...prevResults]); // Add new result to the top of the table
-        successToast('New test result added!');
+      websocketService.subscribe(websocketConstants.testResultNotificationTopic(testId), (newTestResult) => {
+        setTestResults((prevResults) => {
+          if (!prevResults.some(result => result.id === newTestResult.id)) {
+            const updatedResults = [newTestResult, ...prevResults];
+            if (updatedResults.length > pageSize) {
+              updatedResults.pop();
+            }
+            return updatedResults;
+          }
+          return prevResults;
+        });
+        infoToast('Received new test result!');
       });
     });
 
@@ -98,6 +111,7 @@ const TestResultTable = ({ testId }) => {
     fetchTestResults(currentPage);  // Fetch the data again for the current page
   };
 
+  // Get status color for each status
   const getStatusColor = (status) => {
     switch (status) {
       case TEST_RESULT_STATUSES.DONE:
@@ -109,6 +123,17 @@ const TestResultTable = ({ testId }) => {
       default:
         return 'gray.100'; // Default color
     }
+  };
+
+  const navigateToTestResult = (result) => {
+    navigate(config.routes.test_result(result?.id));
+  };
+
+  // Motion configuration for zoom-in animation
+  const zoomInAnimation = {
+    initial: { scale: 0.9, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    transition: { duration: 0.3 }
   };
 
   return (
@@ -173,9 +198,19 @@ const TestResultTable = ({ testId }) => {
             </Thead>
             <Tbody>
               {filteredResults.map((result) => (
-                <Tr key={result.id}>
+                <motion.tr
+                  key={result.id}
+                  {...zoomInAnimation}
+                  onClick={() => navigateToTestResult(result)}
+                  whileHover={{
+                    cursor: 'pointer',
+                    backgroundColor: '#f7fafc', // Chakra's 'gray.100' equivalent
+                    transition: { duration: 0.3 },
+                  }}
+                >
                   <Td>{result.username}</Td>
-                  <Td>{new Intl.NumberFormat('en-US', {
+                  <Td>
+                    {new Intl.NumberFormat('en-US', {
                       style: 'percent',
                       maximumFractionDigits: 2,
                     }).format(result.correctPercent / 100)}
@@ -190,14 +225,21 @@ const TestResultTable = ({ testId }) => {
                       {result.status}
                     </Box>
                   </Td>
-                  <Td>{new Date(result.startedAt).toLocaleString()}</Td>
-                  <Td>{new Date(result.finishedAt).toLocaleString()}</Td>
+                  <Td style={{ whiteSpace: 'nowrap' }}>{new Date(result.startedAt).toLocaleString()}</Td>
+                  <Td style={{ whiteSpace: 'nowrap' }}>{new Date(result.finishedAt).toLocaleString()}</Td>
                   <Td>
-                    <Button colorScheme="red" size="sm" onClick={() => deleteTestResult(result.id)}>
+                    <Button
+                      colorScheme="red"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click when 'Delete' is clicked
+                        deleteTestResult(result.id);
+                      }}
+                    >
                       Delete
                     </Button>
                   </Td>
-                </Tr>
+                </motion.tr>
               ))}
             </Tbody>
           </Table>

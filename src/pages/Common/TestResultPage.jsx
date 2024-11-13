@@ -88,7 +88,6 @@ const TestResultPage = () => {
     status,
     startedAt,
     finishedAt,
-    username,
     userAnswers,
     courseId,
   } = testResult;
@@ -111,11 +110,6 @@ const TestResultPage = () => {
   };
 
   const isPassed = correctPercent >= test?.passingGrade;
-
-  const formattedPercent = new Intl.NumberFormat('en-US', {
-    style: 'percent',
-    maximumFractionDigits: 2,
-  }).format(correctPercent / 100);
 
   const Navbar = ({ courseId }) => {
     const navigate = useNavigate();

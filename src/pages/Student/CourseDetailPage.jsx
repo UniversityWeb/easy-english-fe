@@ -46,6 +46,7 @@ function CourseDetailsPage() {
   };
 
   useEffect(() => {
+    websocketService.disconnect();
     websocketService.connect(() => {});
     return () => {
       websocketService.disconnect();
