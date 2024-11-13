@@ -28,6 +28,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import dripService from '~/services/dripService';
+import testService from '~/services/testService';
 
 const getLessonIcon = (type) => {
   switch (type) {
@@ -38,6 +39,8 @@ const getLessonIcon = (type) => {
     case 'AUDIO':
       return { icon: HiOutlineSpeakerWave, color: 'purple.500' };
     case 'QUIZ':
+      return { icon: FiHelpCircle, color: 'orange.500' };
+    case 'CUSTOM':
       return { icon: FiHelpCircle, color: 'orange.500' };
     default:
       return { icon: FiFileText, color: 'gray.500' };
@@ -55,30 +58,52 @@ const Drip = ({ courseId }) => {
       id: `drip-${drip.id}`, // Giữ nguyên id từ drip gốc
       lessons: [
         {
-          id: `lesson-${drip.prevId}`,
-          title: `Lesson ${drip.prevId}`,
-          type: drip.prevType || 'TEXT',
+          id:
+            (['TEXT', 'VIDEO', 'AUDIO'].includes(drip.prevDetailType)
+              ? 'lesson-'
+              : 'lesson-test-') + drip.prevId,
+          title: drip.prevTitle,
+          type: drip.prevDetailType || 'TEXT',
         },
         ...drip.nextDrips.map((next) => ({
-          id: `lesson-${next.nextId}`, // Thêm từng bài học tiếp theo
-          title: `Lesson ${next.nextId}`,
-          type: next.nextType || 'TEXT',
+          id:
+            (['TEXT', 'VIDEO', 'AUDIO'].includes(next.nextDetailType)
+              ? 'lesson-'
+              : 'lesson-test-') + next.nextId,
+          title: next.nextTitle,
+          type: next.nextDetailType || 'TEXT',
         })),
       ],
     }));
   };
 
   const prepareDripsUpdateRequest = (dripContents) => {
-    return dripContents.map((drip) => ({
-      prevId: parseInt(drip.lessons[0].id.replace('lesson-', '')),
-      prevType: 'LESSON',
-      requiredCompletion: true,
-      nextDrips: drip.lessons.slice(1).map((lesson) => ({
-        nextId: parseInt(lesson.id.replace('lesson-', '')),
-        nextType: 'LESSON',
+    return dripContents.map((drip) => {
+      const prevId = parseInt(
+        drip.lessons[0].id.replace(/lesson-(test-)?/, ''),
+      );
+      const prevType = drip.lessons[0].id.startsWith('lesson-test-')
+        ? 'TEST'
+        : 'LESSON';
+
+      return {
+        prevId,
+        prevType,
         requiredCompletion: true,
-      })),
-    }));
+        nextDrips: drip.lessons.slice(1).map((lesson) => {
+          const nextId = parseInt(lesson.id.replace(/lesson-(test-)?/, ''));
+          const nextType = lesson.id.startsWith('lesson-test-')
+            ? 'TEST'
+            : 'LESSON';
+
+          return {
+            nextId,
+            nextType,
+            requiredCompletion: true,
+          };
+        }),
+      };
+    });
   };
 
   useEffect(() => {
@@ -97,10 +122,18 @@ const Drip = ({ courseId }) => {
               type: lesson.type,
             }));
 
+            const tests = await testService.getTestsBySection(sectionId);
+            const formattedTests = tests.map((test) => ({
+              id: 'lesson-test-' + test.id.toString(),
+              title: test.title,
+              type: test.type,
+            }));
+            const allLessonsAndTests = [...formattedLessons, ...formattedTests];
+
             return {
               id: 'section-' + section.id.toString(),
               title: section.title,
-              lessons: formattedLessons,
+              lessons: allLessonsAndTests,
             };
           }),
         );
