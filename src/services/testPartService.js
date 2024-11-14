@@ -38,6 +38,12 @@ const getTestPartsByTestId = async (testId) => {
   return handleResponse(response, 200);
 };
 
+const swapPart = async (partId1, partId2) => {
+  const path = `${SUFFIX_TEST_PART_API_URL}/swap/${partId1}/${partId2}`;
+  const response = await put(path);
+  return handleResponse(response, 204);
+};
+
 const testPartService = {
   create,
   update,
@@ -45,6 +51,7 @@ const testPartService = {
   getById,
   remove,
   getTestPartsByTestId,
+  swapPart
 };
 
 export default testPartService;

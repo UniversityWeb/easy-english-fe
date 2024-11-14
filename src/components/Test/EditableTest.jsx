@@ -55,7 +55,9 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
           description: data.description || '',
           durationInMilis: data.durationInMilis || 0,
           startDate: data.startDate || new Date().toISOString().slice(0, 16),
-          endDate: data.endDate || new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16),
+          endDate:
+            data.endDate ||
+            new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16),
           type: data.type || 'CUSTOM',
           status: data.status || 'DISPLAY',
           audioPath: data?.audioPath,
@@ -68,7 +70,7 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
       console.error(error?.message);
       errorToast('Error fetching test data');
     }
-  }
+  };
 
   const fetchTestParts = async () => {
     if (!testId) return;
@@ -108,6 +110,32 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
     } catch (error) {
       console.error('Error adding test part:', error);
       errorToast('Failed to add test part.');
+    }
+  };
+
+  const onDragEnd = async (result) => {
+    const { source, destination } = result;
+
+    // If there's no destination or the item was dropped in the same position, return
+    if (!destination || source.index === destination.index) return;
+
+    // Reorder the test parts in the local state
+    const reorderedParts = Array.from(testParts);
+    const [removed] = reorderedParts.splice(source.index, 1);
+    reorderedParts.splice(destination.index, 0, removed);
+
+    setTestParts(reorderedParts);
+
+    // Call the swapPart API to persist the new order
+    try {
+      const partId1 = testParts[source.index].id;
+      const partId2 = testParts[destination.index].id;
+
+      await testPartService.swapPart(partId1, partId2);
+      successToast('Test parts reordered successfully.');
+    } catch (error) {
+      console.error('Error swapping test parts:', error);
+      errorToast('Error reordering test parts.');
     }
   };
 

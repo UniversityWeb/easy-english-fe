@@ -138,7 +138,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
       <Flex justify="space-between" align="center">
         <Editable
           fontWeight="bolder"
-          defaultValue={part?.title || 'Default'}
+          defaultValue={`Part ${part?.ordinalNumber ?? 'Default'}`}
           onSubmit={(value) =>
             updateTestPart(part.id, { ...part, title: value })
           }
