@@ -52,6 +52,13 @@ const uploadAudio = async (testId, audioFile) => {
   return handleResponse(response, 200);
 };
 
+const deleteAudio = async (testId) => {
+  const path = `${SUFFIX_TEST_API_URL}/${testId}/delete-audio`;
+  const response = await del(path);
+
+  return handleResponse(response, 204);
+};
+
 const isEmptyTest = async (testId) => {
   const path = `${SUFFIX_TEST_API_URL}/is-empty/${testId}`;
   const response = await get(path);
@@ -66,6 +73,7 @@ const testService = {
   remove,
   getTestsBySection,
   uploadAudio,
+  deleteAudio,
   isEmptyTest,
 };
 

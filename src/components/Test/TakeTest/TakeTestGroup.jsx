@@ -14,9 +14,11 @@ function TakeTestGroup({
 
   return (
     <VStack align="start" spacing={10} pt={4}>
-      <Text fontSize="md" fontWeight="bold">
-        Question {questionGroup?.from} - {questionGroup?.to}
-      </Text>
+      {questionGroup?.from !== questionGroup?.to && (
+        <Text fontSize="md" fontWeight="bold">
+          Question {questionGroup?.from} - {questionGroup?.to}
+        </Text>
+      )}
 
       {!isRequirementEmpty(questionGroup?.requirement) && (
         <Box
@@ -36,13 +38,6 @@ function TakeTestGroup({
             theme={'bubble'}
             style={{ marginBottom: '0px', lineHeight: '1.5' }}
           />
-        </Box>
-      )}
-
-      {questionGroup?.imagePath && (
-        <Box>
-          <Text fontSize="md">Image:</Text>
-          <Image src={questionGroup.imagePath} alt="Question Image" />
         </Box>
       )}
 

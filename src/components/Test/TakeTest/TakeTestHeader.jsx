@@ -213,14 +213,23 @@ function TakeTestHeader({
   };
 
   const handleSubmit = async () => {
+    const answers = getTest(testId)?.userAnswers;
+    if (!Array.isArray(answers) || answers.length === 0) {
+      errorToast("You have not answered any questions");
+      return;
+    }
+
     setLoading(true);
     try {
       const submitRequest = generateSubmitTestRequest(testId);
       const testResultResponse = await testResultService.submit(submitRequest);
       successToast('Test submitted successfully');
+      const courseId = getCourseId(testId);
       clearSavedTest(testId);
       if (testResultResponse?.id) {
-        navigate(config.routes.test_result(testResultResponse?.id));
+        navigate(config.routes.test_result(testResultResponse?.id), {
+          state: { returnUrl: config.routes.learn(courseId) }
+        });
       } else {
         handleBackClick();
       }

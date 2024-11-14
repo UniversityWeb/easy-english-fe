@@ -43,7 +43,7 @@ const publicRoutes = [
   { path: config.routes.cart, component: CartPage },
   { path: config.routes.payment_result, component: PaymentResultPage },
   { path: config.routes.maincourse, component: Setting },
-  { path: config.routes.course_detail, component: CourseDetailPage },
+  { path: config.routes.course_detail(':courseId'), component: CourseDetailPage },
   {
     path: config.routes.course_management_for_teacher,
     component: CourseManagementForTeacherPage,

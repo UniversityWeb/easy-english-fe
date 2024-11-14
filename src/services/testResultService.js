@@ -1,4 +1,4 @@
-import { post, handleResponse, get } from '~/utils/httpRequest';
+import { post, handleResponse, get, del } from '~/utils/httpRequest';
 
 const SUFFIX_TEST_RESULT_API_URL = '/test-results';
 
@@ -14,9 +14,29 @@ const submit = async (submitTestRequest) => {
   return handleResponse(response, 200);
 };
 
+const getTestHistory = async (testId, page, size) => {
+  const path = `${SUFFIX_TEST_RESULT_API_URL}/get-test-history-by-test-id`;
+  const response = await get(path, {
+    params: {
+      testId: testId,
+      page: page,
+      size: size,
+    }
+  });
+  return handleResponse(response, 200);
+};
+
+const remove = async (testResultId) => {
+  const path = `${SUFFIX_TEST_RESULT_API_URL}/delete/${testResultId}`;
+  const response = await del(path);
+  return handleResponse(response, 200);
+}
+
 const testResultService = {
   getById,
   submit,
+  getTestHistory,
+  remove,
 };
 
 export default testResultService;

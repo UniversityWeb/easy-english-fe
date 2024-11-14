@@ -49,6 +49,11 @@ const getAllQuestionsForQuizType = async (testId) => {
   const response = await get(path);
   return handleResponse(response, 200);
 };
+const swapQuestions = async (questionId1, questionId2) => {
+  const path = `${SUFFIX_TEST_QUESTION_API_URL}/swap/${questionId1}/${questionId2}`;
+  const response = await put(path); // Không cần dữ liệu payload
+  return handleResponse(response, 204);
+};
 
 const testQuestionService = {
   create,
@@ -59,6 +64,7 @@ const testQuestionService = {
   getByQuestionGroup,
   createNewQuestionForQuizType,
   getAllQuestionsForQuizType,
+  swapQuestions,
 };
 
 export default testQuestionService;

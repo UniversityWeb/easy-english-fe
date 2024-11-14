@@ -29,6 +29,7 @@ const NavbarForStudent = React.memo((props) => {
 
   useEffect(() => {
     const username = getUsername();
+    websocketService.disconnect();
     websocketService.connect(() => {
       websocketService.subscribe(websocketConstants.cartItemCountTopic(username), async (notification) => {
         await fetchCartItems();

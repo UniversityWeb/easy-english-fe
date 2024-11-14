@@ -268,6 +268,7 @@ const Curriculum = ({ courseId }) => {
       case SEC_ITEM_TYPES.TEST:
         return (
           <EditableTest
+            courseId={courseId}
             testId={selectedTestId}
             sectionId={selectedSectionId}
             ordinalNumber={1}

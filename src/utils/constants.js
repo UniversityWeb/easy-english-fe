@@ -46,3 +46,9 @@ export const getOrdersTabStatusByIndex = (index) => {
 };
 
 export const DEFAULT_LIST_SIZE = 10;
+
+export const TEST_RESULT_STATUSES = {
+  DONE: 'DONE',
+  IN_PROGRESS: 'IN_PROGRESS',
+  FAILED: 'FAILED'
+}

@@ -38,8 +38,6 @@ const QuestionItem = ({ index, question, onRemoveQuestion, onReloadQuestions }) 
         type: question?.type || 'SINGLE_CHOICE', // Default type if not provided
         title: question?.title || '',
         description: question?.description || '',
-        audioPath: question?.audioPath || '',
-        imagePath: question?.imagePath || '',
         options: question?.options || [],
         correctAnswers: question?.correctAnswers || [],
         questionGroupId: question?.questionGroupId || 0,

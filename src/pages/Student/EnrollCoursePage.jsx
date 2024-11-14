@@ -20,8 +20,11 @@ import enrollmentService from '~/services/enrollmentService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import Pagination from '~/components/Student/Search/Page'; // Assuming you have a Pagination component
 import Filter from '~/components/Student/Search/Filter'; // Assuming you have a Filter component
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 const EnrollCoursePage = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -163,7 +166,13 @@ const EnrollCoursePage = () => {
                         </HStack>
 
                         <Box mt="auto" width="100%">
-                          <Button colorScheme="blue" width="full">
+                          <Button
+                            colorScheme="blue"
+                            width="full"
+                            onClick={() =>
+                              navigate(config.routes.learn(course.id))
+                            }
+                          >
                             Start Course
                           </Button>
                         </Box>
