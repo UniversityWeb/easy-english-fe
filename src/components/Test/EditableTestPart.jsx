@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Editable,
-  EditableInput,
-  EditablePreview,
+  Input,
   Flex,
   FormControl,
   FormLabel,
@@ -24,6 +22,10 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [showReadingPassage, setShowReadingPassage] = useState(false);
   const [readingPassage, setReadingPassage] = useState('');
   const { successToast, errorToast } = useCustomToast();
+
+  // State to manage inline editing
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(part?.title || '');
 
   useEffect(() => {
     const fetchQuestionGroups = async () => {
@@ -93,28 +95,22 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
-    // If there's no destination, return
     if (!destination) return;
-
-    // If the item was dropped in the same position, return
     if (
       source.index === destination.index &&
       source.droppableId === destination.droppableId
     )
       return;
 
-    // Reorder the question groups in the local state
     const reorderedGroups = Array.from(questionGroups);
     const [removed] = reorderedGroups.splice(source.index, 1);
     reorderedGroups.splice(destination.index, 0, removed);
 
     setQuestionGroups(reorderedGroups);
 
-    // Extract group IDs for swapping
     const groupId1 = questionGroups[source.index]?.id;
     const groupId2 = questionGroups[destination.index]?.id;
 
-    // Call the swap API
     try {
       if (groupId1 && groupId2) {
         await questionGroupService.swapTestPart(groupId1, groupId2);
@@ -123,6 +119,31 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
     } catch (error) {
       console.error('Error swapping question groups:', error);
       errorToast('Failed to swap question groups.');
+    }
+  };
+
+  // Handle title editing
+  const handleTitleClick = () => {
+    setIsEditingTitle(true);
+  };
+
+  const handleTitleChange = (e) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleTitleBlur = async () => {
+    setIsEditingTitle(false);
+    if (editedTitle !== part.title) {
+      await updateTestPart(part.id, { ...part, title: editedTitle });
+    }
+  };
+
+  const handleTitleKeyDown = async (e) => {
+    if (e.key === 'Enter') {
+      setIsEditingTitle(false);
+      if (editedTitle !== part.title) {
+        await updateTestPart(part.id, { ...part, title: editedTitle });
+      }
     }
   };
 
@@ -136,16 +157,30 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
       width="100%"
     >
       <Flex justify="space-between" align="center">
-        <Editable
-          fontWeight="bolder"
-          defaultValue={`Part ${part?.ordinalNumber ?? 'Default'}`}
-          onSubmit={(value) =>
-            updateTestPart(part.id, { ...part, title: value })
-          }
+        {/* Inline editing for the part title */}
+        <Box
+          flex="1"
+          textAlign="left"
+          fontWeight="bold"
+          display="flex"
+          alignItems="center"
         >
-          <EditablePreview />
-          <EditableInput />
-        </Editable>
+          {isEditingTitle ? (
+            <Input
+              value={editedTitle}
+              onChange={handleTitleChange}
+              onBlur={handleTitleBlur}
+              onKeyDown={handleTitleKeyDown}
+              autoFocus
+              size="sm"
+              width="auto"
+            />
+          ) : (
+            <Box onClick={handleTitleClick} cursor="pointer">
+              {part?.title || 'Untitled'}
+            </Box>
+          )}
+        </Box>
 
         <IconButton
           icon={<DeleteIcon />}

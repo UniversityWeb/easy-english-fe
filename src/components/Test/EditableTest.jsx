@@ -1,5 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Heading, Tab, TabList, TabPanel, TabPanels, Tabs, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Heading,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  VStack,
+} from '@chakra-ui/react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'; // Import drag-and-drop components
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
 import testPartService from '~/services/testPartService';
@@ -10,7 +21,14 @@ import EditableQuestionsOfQuiz from '~/components/Test/EditableQuestionsOfQuiz';
 import TestAudioUpload from '~/components/Test/TestAudioUpload';
 import TestResultTable from '~/components/Test/Result/TestResultTable';
 
-const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
+const EditableTest = ({
+  courseId,
+  sectionId,
+  ordinalNumber,
+  testId,
+  isNew,
+  onTestSaved,
+}) => {
   const [testState, setTestState] = useState({
     title: 'Test Form',
     description: 'Make your description here',
@@ -26,8 +44,6 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
   const { successToast, errorToast } = useCustomToast();
 
   useEffect(() => {
-    console.log(`EditableTest - useEffect - testId: ${testId}`);
-
     if (!isNew && testId) {
       fetchTestById();
       fetchTestParts();
@@ -38,14 +54,13 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
         durationInMilis: 2700000,
         passingGrade: 0.0,
         audioPath: '',
-        status: "DISPLAY",
+        status: 'DISPLAY',
         createdAt: new Date().toISOString(),
       }); // Reset form
     }
   }, [testId, isNew]);
 
   const fetchTestById = async () => {
-    if (!testId) return;
     try {
       const data = await testService.getById(testId);
       if (data) {
@@ -73,8 +88,6 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
   };
 
   const fetchTestParts = async () => {
-    if (!testId) return;
-
     try {
       const parts = await testPartService.getTestPartsByTestId(testId);
       setTestParts(parts);
@@ -113,29 +126,36 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
     }
   };
 
+  // Handle drag end event to reorder test parts
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
-    // If there's no destination or the item was dropped in the same position, return
-    if (!destination || source.index === destination.index) return;
+    // If there's no destination, return
+    if (!destination) return;
+
+    // If the item was dropped in the same position, return
+    if (source.index === destination.index) return;
 
     // Reorder the test parts in the local state
     const reorderedParts = Array.from(testParts);
-    const [removed] = reorderedParts.splice(source.index, 1);
-    reorderedParts.splice(destination.index, 0, removed);
+    const [movedPart] = reorderedParts.splice(source.index, 1);
+    reorderedParts.splice(destination.index, 0, movedPart);
 
     setTestParts(reorderedParts);
 
-    // Call the swapPart API to persist the new order
-    try {
-      const partId1 = testParts[source.index].id;
-      const partId2 = testParts[destination.index].id;
+    // Extract part IDs for swapping
+    const partId1 = testParts[source.index]?.id;
+    const partId2 = testParts[destination.index]?.id;
 
-      await testPartService.swapPart(partId1, partId2);
-      successToast('Test parts reordered successfully.');
+    // Call the swap API
+    try {
+      if (partId1 && partId2) {
+        await testPartService.swapPart(partId1, partId2);
+        successToast('Test parts reordered successfully!');
+      }
     } catch (error) {
       console.error('Error swapping test parts:', error);
-      errorToast('Error reordering test parts.');
+      errorToast('Failed to reorder test parts.');
     }
   };
 
@@ -161,32 +181,66 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
             />
 
             {!isNew && testState?.type === TEST_TYPES.CUSTOM && (
-              <TestAudioUpload testState={testState} setTestState={setTestState} />
+              <TestAudioUpload
+                testState={testState}
+                setTestState={setTestState}
+              />
             )}
 
             {!isNew && (
               <>
                 {/* QUIZ test */}
                 {testState?.type === TEST_TYPES.QUIZ ? (
-                  <EditableQuestionsOfQuiz
-                    test={testState}
-                  />
+                  <EditableQuestionsOfQuiz test={testState} />
                 ) : (
                   <>
                     {/* CUSTOM test */}
-                    <Heading size="lg" mt={10}>Test parts</Heading>
-                    <VStack spacing={4} mt={4}>
-                      {testParts.map((part) => (
-                        <EditableTestPart
-                          key={part.id}
-                          part={part}
-                          onRemovePart={removeTestPart}
-                        />
-                      ))}
-                      <Button colorScheme="blue" onClick={addTestPart} mb={10}>
-                        Add Test Part
-                      </Button>
-                    </VStack>
+                    <Heading size="lg" mt={10}>
+                      Test parts
+                    </Heading>
+                    <DragDropContext onDragEnd={onDragEnd}>
+                      <Droppable
+                        droppableId="droppable-test-parts"
+                        type="test-part"
+                      >
+                        {(provided) => (
+                          <VStack
+                            spacing={4}
+                            mt={4}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                          >
+                            {testParts.map((part, index) => (
+                              <Draggable
+                                key={part.id}
+                                draggableId={`part-${part.id}`}
+                                index={index}
+                              >
+                                {(provided) => (
+                                  <Box
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    w="100%"
+                                  >
+                                    <EditableTestPart
+                                      key={part.id}
+                                      part={part}
+                                      onRemovePart={removeTestPart}
+                                    />
+                                  </Box>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </VStack>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
+
+                    <Button colorScheme="blue" onClick={addTestPart} mb={10}>
+                      Add Test Part
+                    </Button>
                   </>
                 )}
               </>
@@ -195,11 +249,10 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
 
           {/* Tab 2: TestResultTable */}
           <TabPanel>
-            <TestResultTable testId={testId} courseId={courseId}/>
+            <TestResultTable testId={testId} courseId={courseId} />
           </TabPanel>
         </TabPanels>
       </Tabs>
-
     </Box>
   );
 };
