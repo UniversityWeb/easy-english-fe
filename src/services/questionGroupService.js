@@ -38,6 +38,12 @@ const getByTestPart = async (testPartId) => {
   return handleResponse(response, 200);
 };
 
+const swapTestPart = async (questionGroupId1, questionGroupId2) => {
+  const path = `${SUFFIX_QUESTION_GROUP_API_URL}/swap/${questionGroupId1}/${questionGroupId2}`;
+  const response = await put(path); 
+  return handleResponse(response, 204);
+};
+
 const questionGroupService = {
   create,
   update,
@@ -45,6 +51,7 @@ const questionGroupService = {
   getById,
   remove,
   getByTestPart,
+  swapTestPart,
 };
 
 export default questionGroupService;
