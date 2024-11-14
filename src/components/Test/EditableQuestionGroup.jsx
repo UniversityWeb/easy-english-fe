@@ -35,7 +35,6 @@ const EditableQuestionGroup = React.memo(
     const [questions, setQuestions] = useState([]);
     const { successToast, errorToast } = useCustomToast();
     const [isUpdating, setIsUpdating] = useState(false);
-    const [isImageEnabled, setIsImageEnabled] = useState(!!group?.imagePath);
 
     // Fetch questions from the server
     const fetchQuestions = async () => {
@@ -60,7 +59,6 @@ const EditableQuestionGroup = React.memo(
     useEffect(() => {
       setGroupState({
         requirement: group?.requirement || '',
-        imagePath: group?.imagePath || '',
         testPartId: group?.testPartId || '',
       });
 
@@ -208,26 +206,6 @@ const EditableQuestionGroup = React.memo(
                             }
                             placeholder={'Enter requirement'}
                           />
-                        </FormControl>
-
-                        <FormControl mb={4}>
-                          <Flex justify="space-between" align="center" mb={2}>
-                            <FormLabel>Image Path</FormLabel>
-                            <Switch
-                              isChecked={isImageEnabled}
-                              onChange={(e) =>
-                                setIsImageEnabled(e.target.checked)
-                              }
-                              colorScheme="blue"
-                            />
-                          </Flex>
-                          {isImageEnabled && (
-                            <Input
-                              name="imagePath"
-                              value={groupState.imagePath}
-                              onChange={handleInputChange}
-                            />
-                          )}
                         </FormControl>
 
                         <Flex justify="space-between" mb={4}>

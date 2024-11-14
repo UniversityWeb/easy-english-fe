@@ -41,13 +41,6 @@ function TakeTestGroup({
         </Box>
       )}
 
-      {questionGroup?.imagePath && (
-        <Box>
-          <Text fontSize="md">Image:</Text>
-          <Image src={questionGroup.imagePath} alt="Question Image" />
-        </Box>
-      )}
-
       {/* Loop over the questions inside the question group */}
       <List spacing={4} w="100%">
         {questionGroup?.questions?.map((question) => (
