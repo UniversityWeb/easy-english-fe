@@ -10,7 +10,7 @@ import EditableQuestionsOfQuiz from '~/components/Test/EditableQuestionsOfQuiz';
 import TestAudioUpload from '~/components/Test/TestAudioUpload';
 import TestResultTable from '~/components/Test/Result/TestResultTable';
 
-const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
+const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTestSaved }) => {
   const [testState, setTestState] = useState({
     title: 'Test Form',
     description: 'Make your description here',
@@ -165,7 +165,7 @@ const EditableTest = ({ sectionId, ordinalNumber, testId, isNew, onTestSaved }) 
 
           {/* Tab 2: TestResultTable */}
           <TabPanel>
-            <TestResultTable testId={testId} />
+            <TestResultTable testId={testId} courseId={courseId}/>
           </TabPanel>
         </TabPanels>
       </Tabs>

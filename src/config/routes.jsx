@@ -15,7 +15,7 @@ const routes = {
   payment_result: '/payment/result',
   curriculum: '/curriculum/:courseId',
   maincourse: '/maincourse',
-  course_detail: '/course-detail/:courseId',
+  course_detail: (courseId) => `/course-detail/${courseId}`,
   course_management_for_teacher: '/course-management-for-teacher',
   search: '/search',
   favourite: '/favourite',

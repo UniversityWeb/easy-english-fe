@@ -12,7 +12,7 @@ import config from '~/config';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'
 
-const TestResultTable = ({ testId }) => {
+const TestResultTable = ({ testId, courseId }) => {
   const [testResults, setTestResults] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
   const [searchFilters, setSearchFilters] = useState({
@@ -126,7 +126,9 @@ const TestResultTable = ({ testId }) => {
   };
 
   const navigateToTestResult = (result) => {
-    navigate(config.routes.test_result(result?.id));
+    navigate(config.routes.test_result(result?.id), {
+      state: { returnUrl: config.routes.course_detail(courseId) }
+    });
   };
 
   // Motion configuration for zoom-in animation

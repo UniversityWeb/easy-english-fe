@@ -21,7 +21,7 @@ import {
   HiOutlineTrophy,
   HiOutlineClock,
 } from 'react-icons/hi2';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import testResultService from '~/services/testResultService';
 import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
 import config from '~/config';
@@ -29,6 +29,8 @@ import { MdArrowBack } from 'react-icons/md';
 
 const TestResultPage = () => {
   const { testResultId } = useParams();
+  const { state } = useLocation();
+  const returnUrl = state?.returnUrl || config.routes.home[0];
   const navigate = useNavigate();
   const [testResult, setTestResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -111,11 +113,12 @@ const TestResultPage = () => {
 
   const isPassed = correctPercent >= test?.passingGrade;
 
-  const Navbar = ({ courseId }) => {
+  const Navbar = ({ returnUrl }) => {
     const navigate = useNavigate();
 
     const handleBackClick = () => {
-      navigate(config.routes.learn(courseId));
+      debugger
+      navigate(returnUrl);
     };
 
     return (
@@ -141,7 +144,7 @@ const TestResultPage = () => {
 
   return (
     <Box>
-      <Navbar courseId={courseId} />
+      <Navbar returnUrl={returnUrl} />
       <Container maxW="800px" mx="auto" p={5}>
         {/* Quiz Title */}
         <Heading as="h2" size="lg" mb={4}>
