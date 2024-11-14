@@ -74,7 +74,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
     const newGroup = {
       title: 'Question 1 - 10',
       ordinalNumber: questionGroups.length + 1 || 1,
-      requirement: 'Do me',
+      requirement: '',
       testPartId: part?.id,
       imagePath: '',
     };

@@ -16,7 +16,7 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
     description: 'Make your description here',
     durationInMilis: 2700000, // Default duration (e.g., 45 minutes in milliseconds)
     passingGrade: 0.0,
-    authPath: '',
+    audioPath: '',
     type: 'CUSTOM',
     status: 'DISPLAY',
     createdAt: new Date().toISOString(),
@@ -37,6 +37,7 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
         description: '',
         durationInMilis: 2700000,
         passingGrade: 0.0,
+        audioPath: '',
         status: "DISPLAY",
         createdAt: new Date().toISOString(),
       }); // Reset form
@@ -57,6 +58,7 @@ const EditableTest = ({ courseId, sectionId, ordinalNumber, testId, isNew, onTes
           endDate: data.endDate || new Date(new Date().getTime() + 2700000).toISOString().slice(0, 16),
           type: data.type || 'CUSTOM',
           status: data.status || 'DISPLAY',
+          audioPath: data?.audioPath,
           createdAt: data.createdAt || new Date().toISOString().slice(0, 16),
           sectionId: data.sectionId || 0,
         });

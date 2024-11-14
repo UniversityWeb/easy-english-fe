@@ -14,9 +14,11 @@ function TakeTestGroup({
 
   return (
     <VStack align="start" spacing={10} pt={4}>
-      <Text fontSize="md" fontWeight="bold">
-        Question {questionGroup?.from} - {questionGroup?.to}
-      </Text>
+      {questionGroup?.from !== questionGroup?.to && (
+        <Text fontSize="md" fontWeight="bold">
+          Question {questionGroup?.from} - {questionGroup?.to}
+        </Text>
+      )}
 
       {!isRequirementEmpty(questionGroup?.requirement) && (
         <Box

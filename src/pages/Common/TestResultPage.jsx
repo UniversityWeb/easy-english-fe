@@ -117,7 +117,6 @@ const TestResultPage = () => {
     const navigate = useNavigate();
 
     const handleBackClick = () => {
-      debugger
       navigate(returnUrl);
     };
 
