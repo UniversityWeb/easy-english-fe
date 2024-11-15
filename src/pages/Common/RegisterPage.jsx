@@ -131,12 +131,12 @@ const RegisterPage = () => {
   };
 
   return (
-    <Center height="100vh">
+    <Center>
       <VStack spacing={4} align="center">
         <Image boxSize="200px" src={TransientAppLogo} alt="Logo" />
         <Heading size="md">Create an account</Heading>
         <Text>Start making your dreams come true</Text>
-        <Card mt={6} p="2rem" w={'400px'}>
+        <Card mt={6} p="2rem" w={'400px'} mb={100}>
           <CardBody>
             <Stack spacing={6}>
               <FormControl id="fullName" isRequired>

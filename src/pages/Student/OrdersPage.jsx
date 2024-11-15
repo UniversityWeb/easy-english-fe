@@ -1,12 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Box, Button, Container, Flex, Skeleton, Stack, Tab, TabList, Tabs, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Button,
+  Container,
+  Flex,
+  Skeleton,
+  Stack,
+  Tab,
+  TabList,
+  Tabs,
+  Text,
+  Image,
+} from '@chakra-ui/react';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import orderService from '~/services/orderService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
 import { delayLoading, formatDate } from '~/utils/methods';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { DEFAULT_LIST_SIZE, getOrdersTabStatusByIndex, SAVED_ORDERS_TAB_INDEX_KEY } from '~/utils/constants';
-import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import StudentPageLayout from '~/components/StudentPageLayout';
 
@@ -26,7 +39,6 @@ const OrdersPage = () => {
 
   const fetchOrdersByStatus = async (pageNumber, selectedIndex) => {
     setLoading(true);
-
     const startTime = Date.now();
 
     try {
@@ -153,14 +165,13 @@ const OrderList = ({ orders, loading }) => {
             shadow="md"
             backgroundColor="white"
             display="flex"
-            justifyContent="space-between"
-            alignItems="center"
+            flexDirection="column"
             cursor="pointer"
             _hover={{ backgroundColor: 'gray.100' }}
             onClick={() => handleOrderClick(order.id)}
           >
-            <Box flex="1">
-              <Text>Order ID: {order.id}</Text>
+            {/* Order Information */}
+            <Box flex="1" mb={4}>
               <Text fontSize="sm" color="gray.500">
                 Total Amount: {order.totalAmount} {order.currency}
               </Text>
@@ -170,6 +181,36 @@ const OrderList = ({ orders, loading }) => {
               <Badge colorScheme={order.status === 'PAID' ? 'green' : 'red'}>
                 {order.status}
               </Badge>
+            </Box>
+
+            {/* Displaying Order Items with Preview Images */}
+            <Box>
+              {order.items && order.items.length > 0 ? (
+                <Stack spacing={3}>
+                  {order.items.map((item) => (
+                    <Flex key={item.id} align="center" borderWidth="1px" borderRadius="md" p={2}>
+                      <Image
+                        src={item.course.imagePreview} // Assuming the preview image is from the course object
+                        alt={item.course.title} // Alt text as the course title
+                        boxSize="50px"
+                        objectFit="cover"
+                        borderRadius="md"
+                        mr={4}
+                      />
+                      <Box flex="1">
+                        <Text fontWeight="bold">{item.course.title}</Text>
+                        <Text fontSize="sm" color="gray.500">
+                          Price: {item.price} (Discount: {item.discountPercent}%)
+                        </Text>
+                      </Box>
+                    </Flex>
+                  ))}
+                </Stack>
+              ) : (
+                <Text fontSize="sm" color="gray.500">
+                  No items available for this order.
+                </Text>
+              )}
             </Box>
           </Box>
         ))

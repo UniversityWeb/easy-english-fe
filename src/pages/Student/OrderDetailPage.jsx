@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Text, Spinner, Badge, Container } from '@chakra-ui/react';
+import { Box, Text, Spinner, Badge, Container, Image, Flex } from '@chakra-ui/react';
 import orderService from '../../services/orderService';
 import { formatDate } from '~/utils/methods';
 import StudentPageLayout from '~/components/StudentPageLayout';
@@ -45,11 +45,14 @@ const OrderDetailPage = () => {
   return (
     <StudentPageLayout>
       <Container maxW="80%" mb="50px">
-        <Text fontSize="2xl" fontWeight="bold">
+        <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={8} mb={6}>
           Order Details
         </Text>
 
+        {/* Order Summary Section */}
         <OrderSummary order={order} />
+
+        {/* Order Items Section */}
         <OrderItems items={order.items} />
       </Container>
     </StudentPageLayout>
@@ -57,12 +60,16 @@ const OrderDetailPage = () => {
 };
 
 const OrderSummary = ({ order }) => (
-  <Box mt={4} borderWidth="1px" borderRadius="lg" shadow="md" p={6}>
-    <Text>Order ID: {order.id}</Text>
-    <Text>Total Amount: {order.totalAmount} {order.currency}</Text>
-    <Text>Created At: {formatDate(order.createdAt)}</Text>
-    <Text>Updated At: {formatDate(order.updatedAt)}</Text>
-    <Badge colorScheme={order.status === 'PAID' ? 'green' : 'red'}>
+  <Box mt={4} borderWidth="1px" borderRadius="lg" shadow="md" p={6} mb={6}>
+    <Text fontSize="lg" fontWeight="bold">
+      Order ID: {order.id}
+    </Text>
+    <Text mt={2}>
+      Total Amount: {order.totalAmount} {order.currency}
+    </Text>
+    <Text mt={2}>Created At: {formatDate(order.createdAt)}</Text>
+    <Text mt={2}>Updated At: {formatDate(order.updatedAt)}</Text>
+    <Badge mt={3} colorScheme={order.status === 'PAID' ? 'green' : 'red'}>
       {order.status}
     </Badge>
   </Box>
@@ -70,22 +77,43 @@ const OrderSummary = ({ order }) => (
 
 const OrderItems = ({ items }) => {
   if (items.length === 0) {
-    return <Text color="gray.500">No items in this order.</Text>;
+    return <Text color="gray.500" mt={6}>No items in this order.</Text>;
   }
 
   return (
     <Box mt={4} borderWidth="1px" borderRadius="lg" shadow="md" p={6}>
-      <Text fontSize="xl" fontWeight="bold">Order Items</Text>
+      <Text fontSize="xl" fontWeight="bold" mb={4}>Order Items</Text>
+
       {items.map(item => (
-        <Box key={item.id} borderBottomWidth="1px" py={2}>
-          <Text>Course: {item.course.name}</Text>
-          <Text>Price: {item.price} {item.course.currency}</Text>
-          {item.discountPercent && (
-            <Text color="orange.500">
-              Discount: {item.discountPercent}%
-            </Text>
-          )}
-        </Box>
+        <Flex
+          key={item.id}
+          alignItems="center"
+          borderBottomWidth="1px"
+          py={4}
+          justifyContent="space-between"
+          _last={{ borderBottomWidth: 0 }}
+        >
+          {/* Left side: Item details */}
+          <Box flex="1">
+            <Text fontWeight="bold">Course: {item.course.title}</Text>
+            <Text mt={1}>Price: {item.price} {item.course.currency}</Text>
+            {item.discountPercent && (
+              <Text mt={1} color="orange.500">
+                Discount: {item.discountPercent}%
+              </Text>
+            )}
+          </Box>
+
+          {/* Right side: Course image */}
+          <Image
+            src={item.course.imagePreview} // Assuming the image URL is stored in course.imagePreview
+            alt={item.course.title}
+            boxSize="100px"
+            objectFit="cover"
+            borderRadius="md"
+            ml={4}
+          />
+        </Flex>
       ))}
     </Box>
   );

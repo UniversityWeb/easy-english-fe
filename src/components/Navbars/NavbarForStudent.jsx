@@ -68,6 +68,7 @@ const NavbarForStudent = React.memo((props) => {
         src={TransientAppLogo}
         alt="Logo"
         style={{ width: '100px', height: '100px' }}
+        ms={5}
       />
       <div className="navbar--list">
         <div className="navbar--list__gap20" align="center">
@@ -79,9 +80,6 @@ const NavbarForStudent = React.memo((props) => {
             }
           >
             Courses
-          </Button>
-          <Button id="assignment" light onClick={() => navigate('')}>
-            Assignments
           </Button>
 
           <Box

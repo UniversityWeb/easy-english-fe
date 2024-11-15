@@ -39,6 +39,7 @@ const NavbarForAdmin = React.memo((props) => {
         src={TransientAppLogo}
         alt="Logo"
         style={{ width: '100px', height: '100px' }}
+        ms={5}
       />
       <div className="navbar--list">
         <div className="navbar--list__gap20" align="center">

@@ -12,8 +12,7 @@ import {
   Avatar,
   Skeleton, Image,
 } from '@chakra-ui/react';
-import { MdDashboard, MdLogout, MdAdd, MdAnnouncement, MdGrade, MdAssignment, MdAttachMoney } from 'react-icons/md';
-import { BsLayers } from 'react-icons/bs';
+import { MdDashboard, MdLogout, MdAdd, MdAnnouncement, MdAttachMoney } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
@@ -21,13 +20,10 @@ import SidebarItem from '~/components/Drawers/SidebarItem';
 import AuthService from '~/services/authService';
 
 const menuItems = [
-  { label: 'Dashboard', icon: MdDashboard, route: '' },
-  { label: 'Add Course', icon: MdAdd, route: config.routes.course_management_for_teacher },
-  { label: 'Announcement', icon: MdAnnouncement, route: '' },
-  { label: 'Gradebook', icon: MdGrade, route: '' },
-  { label: 'Assignments', icon: MdAssignment, route: '' },
+  { label: 'Dashboard', icon: MdDashboard, route: config.routes.course_management_for_teacher },
+  { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
+  { label: 'Notifications', icon: MdAnnouncement, route: config.routes.notifications_for_student },
   { label: 'Payout', icon: MdAttachMoney, route: '' },
-  { label: 'Bundles', icon: BsLayers, route: '' },
 ];
 
 function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
@@ -73,7 +69,12 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
               cursor: 'pointer',
             }}
           >
-            <Avatar size="md" name={user?.fullName} src={user?.avatarSrc} />
+            <Avatar
+              size="md"
+              cursor="pointer"
+              name={user?.fullName}
+              src={user?.avatarPath}
+            />
             {!isLoggedIn() || isUserLoading ? (
               <Skeleton height="20px" width="100%" />
             ) : (
