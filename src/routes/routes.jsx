@@ -23,7 +23,9 @@ import LearnPage from '~/pages/Student/LearnPage';
 import CategoryPage from '~/pages/Admin/CategoryPage';
 import TopicAndLevelPage from '~/pages/Admin/TopicAndLevelPage';
 import TestResultPage from '~/pages/Common/TestResultPage';
-
+import CourseLineChartPage from '~/pages/Admin/CourseLineChartPage';
+import ReviewAnalystPage from '~/pages/Admin/ReviewAnalystPage';
+import UserManagement from '~/pages/Admin/UserManagementPage';
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
   { path: config.routes.register, component: RegisterPage },
@@ -43,7 +45,10 @@ const publicRoutes = [
   { path: config.routes.cart, component: CartPage },
   { path: config.routes.payment_result, component: PaymentResultPage },
   { path: config.routes.maincourse, component: Setting },
-  { path: config.routes.course_detail(':courseId'), component: CourseDetailPage },
+  {
+    path: config.routes.course_detail(':courseId'),
+    component: CourseDetailPage,
+  },
   {
     path: config.routes.course_management_for_teacher,
     component: CourseManagementForTeacherPage,
@@ -59,7 +64,13 @@ const publicRoutes = [
   { path: config.routes.learn(':courseId'), component: LearnPage },
   { path: config.routes.category_for_admin, component: CategoryPage },
   { path: config.routes.topic_level_for_admin, component: TopicAndLevelPage },
-  { path: config.routes.test_result(":testResultId"), component: TestResultPage },
+  {
+    path: config.routes.test_result(':testResultId'),
+    component: TestResultPage,
+  },
+  { path: config.routes.analytics_courses, component: CourseLineChartPage },
+  { path: config.routes.analytics_reviews, component: ReviewAnalystPage },
+  { path: config.routes.user_management, component: UserManagement },
 ];
 
 const privateRoutes = [];

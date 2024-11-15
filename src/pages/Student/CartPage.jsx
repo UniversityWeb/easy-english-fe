@@ -143,3 +143,176 @@ const CartPage = () => {
 };
 
 export default CartPage;
+
+
+
+
+
+// import React from "react";
+// import {
+//   Box,
+//   Flex,
+//   Image,
+//   Text,
+//   Button,
+//   Divider,
+//   Heading,
+//   Badge,
+//   VStack,
+//   HStack,
+//   Input,
+//   InputGroup,
+//   InputRightElement,
+// } from "@chakra-ui/react";
+
+// const ShoppingCart = () => {
+//   return (
+//     <Box p={8} maxW="1200px" mx="auto">
+//       <Heading size="lg" mb={6}>
+//         Shopping Cart
+//       </Heading>
+
+//       <Flex>
+//         {/* Left Side - Course Cards */}
+//         <Box flex="1" pr={8}>
+//           <Text fontSize="lg" mb={4}>
+//             2 Courses in Cart
+//           </Text>
+
+//           <Box borderWidth="1px" borderRadius="md" p={4} mb={4}>
+//             <Flex align="center" mb={4}>
+//               <Image
+//                 src="https://via.placeholder.com/150"
+//                 alt="Course"
+//                 boxSize="100px"
+//                 objectFit="cover"
+//                 borderRadius="md"
+//                 mr={4}
+//               />
+//               <Box>
+//                 <Text fontWeight="bold" fontSize="lg">
+//                   The Complete AI-Powered Copywriting Course & ChatGPT
+//                 </Text>
+//                 <Text fontSize="sm" color="gray.500">
+//                   By Ing. Tomas Moravek and 1 other
+//                 </Text>
+//                 <Badge colorScheme="green" mt={2}>
+//                   Updated Recently
+//                 </Badge>
+//                 <Text mt={1}>
+//                   <strong>4.4</strong> ⭐️ (1,681 ratings)
+//                 </Text>
+//                 <Text fontSize="sm" color="gray.500">
+//                   26.5 total hours • 187 lectures • All Levels
+//                 </Text>
+//               </Box>
+//               <Box ml="auto" textAlign="right">
+//                 <Text color="purple.600" fontWeight="bold" fontSize="lg">
+//                   đ349,000
+//                 </Text>
+//                 <Text as="s" color="gray.500">
+//                   đ1,899,000
+//                 </Text>
+//               </Box>
+//             </Flex>
+//             <HStack spacing={4} mt={2}>
+//               <Button variant="link" colorScheme="purple">
+//                 Remove
+//               </Button>
+//               <Button variant="link" colorScheme="purple">
+//                 Save for Later
+//               </Button>
+//             </HStack>
+//           </Box>
+
+//           {/* Repeat for second course */}
+//           <Box borderWidth="1px" borderRadius="md" p={4} mb={4}>
+//             <Flex align="center" mb={4}>
+//               <Image
+//                 src="https://via.placeholder.com/150"
+//                 alt="Course"
+//                 boxSize="100px"
+//                 objectFit="cover"
+//                 borderRadius="md"
+//                 mr={4}
+//               />
+//               <Box>
+//                 <Text fontWeight="bold" fontSize="lg">
+//                   ChatGPT Complete Guide: Learn Generative AI, ChatGPT & More
+//                 </Text>
+//                 <Text fontSize="sm" color="gray.500">
+//                   By Julian Melanson and 2 others
+//                 </Text>
+//                 <Badge colorScheme="yellow" mt={2}>
+//                   Bestseller
+//                 </Badge>
+//                 <Text mt={1}>
+//                   <strong>4.6</strong> ⭐️ (40,272 ratings)
+//                 </Text>
+//                 <Text fontSize="sm" color="gray.500">
+//                   26.5 total hours • 415 lectures • All Levels
+//                 </Text>
+//               </Box>
+//               <Box ml="auto" textAlign="right">
+//                 <Text color="purple.600" fontWeight="bold" fontSize="lg">
+//                   đ249,000
+//                 </Text>
+//                 <Text as="s" color="gray.500">
+//                   đ1,699,000
+//                 </Text>
+//               </Box>
+//             </Flex>
+//             <HStack spacing={4} mt={2}>
+//               <Button variant="link" colorScheme="purple">
+//                 Remove
+//               </Button>
+//               <Button variant="link" colorScheme="purple">
+//                 Save for Later
+//               </Button>
+//             </HStack>
+//           </Box>
+//         </Box>
+
+//         {/* Right Side - Payment Summary */}
+//         <Box w="300px" borderWidth="1px" borderRadius="md" p={4}>
+//           <Text fontSize="lg" fontWeight="bold" mb={2}>
+//             Total:
+//           </Text>
+//           <Text fontSize="3xl" color="purple.600" fontWeight="bold">
+//             đ598,000
+//           </Text>
+//           <Text as="s" color="gray.500">
+//             đ3,598,000
+//           </Text>
+//           <Text fontSize="sm" color="gray.500">
+//             83% off
+//           </Text>
+//           <Button colorScheme="purple" w="full" mt={4}>
+//             Checkout
+//           </Button>
+
+//           <Divider my={4} />
+
+//           <Heading size="md" mb={4}>
+//             Promotions
+//           </Heading>
+//           <VStack spacing={2}>
+//             <Text fontSize="sm" color="gray.500">
+//               24T2MT111524 is applied
+//             </Text>
+//             <InputGroup>
+//               <Input placeholder="Enter Coupon" />
+//               <InputRightElement width="4.5rem">
+//                 <Button h="1.75rem" size="sm" colorScheme="purple">
+//                   Apply
+//                 </Button>
+//               </InputRightElement>
+//             </InputGroup>
+//           </VStack>
+//         </Box>
+//       </Flex>
+//     </Box>
+//   );
+// };
+
+// export default ShoppingCart;
