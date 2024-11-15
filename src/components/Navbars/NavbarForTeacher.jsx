@@ -46,24 +46,10 @@ const NavbarForTeacher = React.memo((props) => {
         src={TransientAppLogo}
         alt="Logo"
         style={{ width: '100px', height: '100px' }}
+        ms={5}
       />
       <div className="navbar--list">
         <div className="navbar--list__gap20" align="center">
-          <Button
-            id="dashboard"
-            light
-            onClick={() => navigate('')}
-          >
-            Dashboard
-          </Button>
-          <Button
-            id="add-course"
-            light
-            onClick={() => navigate(config.routes.course_management_for_teacher)}
-          >
-            Add Course
-          </Button>
-
           <Spacer />
 
           {isLoggedIn() ? (
@@ -74,7 +60,7 @@ const NavbarForTeacher = React.memo((props) => {
                   cursor="pointer"
                   name={user?.fullName}
                   onClick={onOpen}
-                  src={user?.urlImage}
+                  src={user?.avatarPath}
                 />
               </div>
               <RightSidebarForTeacher

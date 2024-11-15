@@ -21,7 +21,7 @@ import {
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import AuthService from '~/services/authService';
@@ -34,10 +34,10 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isRememberMe, setIsRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const { successToast, errorToast, warningToast } = useCustomToast();
   const [isLogging, setIsLogging] = useState(false);
+  const passwordInputRef = useRef(null);
 
   useEffect(() => {
     // Check if the user is already logged in
@@ -136,9 +136,22 @@ const LoginPage = () => {
 
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
+  const handleKeyDownForUsernameBox = (e) => {
+    if (e.key === 'Enter') {
+      // When Enter is pressed, focus on the password input
+      passwordInputRef.current.focus();
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleLogin(event);
+    }
+  };
+
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <Center height="100vh">
+      <Center>
         <VStack spacing={4} align="center">
           <Image boxSize="200px" src={TransientAppLogo} alt="Logo" />
           <Heading size="md">Login in to your account</Heading>
@@ -148,7 +161,7 @@ const LoginPage = () => {
               Register
             </Link>
           </Text>
-          <Card mt={6} p="2rem">
+          <Card mt={6} p="2rem" mb={100}>
             <CardBody>
               <FormControl isRequired>
                 <FormLabel>Username Or Email</FormLabel>
@@ -158,6 +171,7 @@ const LoginPage = () => {
                   size="lg"
                   value={usernameOrEmail}
                   onChange={(e) => setUsernameOrEmail(e.target.value)}
+                  onKeyDown={handleKeyDownForUsernameBox}
                 />
               </FormControl>
 
@@ -167,10 +181,12 @@ const LoginPage = () => {
                   <Input
                     id="password"
                     placeholder="********"
+                    ref={passwordInputRef}
                     type={showPassword ? 'text' : 'password'}
                     size="lg"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={handleKeyDown}
                   />
                   <InputRightElement h={'full'}>
                     <Button
@@ -222,14 +238,29 @@ const LoginPage = () => {
                   onFailure={handleGoogleFailure}
                   render={(renderProps) => (
                     <Button
-                      width="50px"
-                      size="50px"
-                      colorScheme="gray"
-                      variant="outline"
+                      width="200px"
+                      size="lg"
+                      colorScheme="google"
+                      variant="solid"
                       onClick={renderProps.onClick}
                       disabled={renderProps.disabled}
+                      borderRadius="md"
+                      isLoading={isLogging}
+                      isDisabled={isLogging}
+                      leftIcon={<Image src={GoogleIcon} alt="Google Icon" boxSize="20px" />}
+                      _hover={{
+                        bg: 'google.500',
+                        boxShadow: 'xl',
+                      }}
+                      _focus={{
+                        boxShadow: 'outline',
+                      }}
+                      _active={{
+                        bg: 'google.600',
+                      }}
+                      p={4}
                     >
-                      <Image src={GoogleIcon} alt="Google Icon" />
+                      Sign in with Google
                     </Button>
                   )}
                 />

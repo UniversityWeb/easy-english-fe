@@ -259,8 +259,8 @@ function CourseDetailsPage() {
               isDisabled={buttonState === 'loading'}
             >
               {buttonState === 'loading' && 'Loading...'}
-              {buttonState === 'add-to-cart' && 'Add to CartPage'}
-              {buttonState === 'in-cart' && 'In CartPage'}
+              {buttonState === 'add-to-cart' && 'Add to Cart'}
+              {buttonState === 'in-cart' && 'In Cart'}
               {buttonState === 'start-course' && 'Start Course'}
               {buttonState === 'continue-course' && 'Continue Course'}
             </Button>
