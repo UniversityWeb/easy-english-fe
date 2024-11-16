@@ -13,6 +13,8 @@ import {
   Icon,
   Button,
   IconButton,
+  Spinner,
+  useToast,
 } from '@chakra-ui/react';
 import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
@@ -48,14 +50,14 @@ const getLessonIcon = (type) => {
 };
 
 const Drip = ({ courseId }) => {
-  // Sample data
   const [sections, setSections] = useState([]);
   const [dripContents, setDripContents] = useState([]);
+  const [loading, setLoading] = useState(false); // Loading state for save operation
+  const toast = useToast(); // For showing success/error messages
 
-  // Hàm chuyển đổi dữ liệu drip từ API thành định dạng dripContents
   const convertToDripContents = (drips) => {
     return drips.map((drip) => ({
-      id: `drip-${drip.id}`, // Giữ nguyên id từ drip gốc
+      id: `drip-${drip.id}`,
       lessons: [
         {
           id:
@@ -106,57 +108,80 @@ const Drip = ({ courseId }) => {
     });
   };
 
+  const fetchData = async () => {
+    const sectionRequest = { courseId };
+    const fetchedSections =
+      await sectionService.fetchSectionsByCourse(sectionRequest);
+    if (fetchedSections) {
+      const sectionsWithFormattedLessons = await Promise.all(
+        fetchedSections.map(async (section) => {
+          const sectionId = section?.id;
+          const lessons = await lessonService.fetchLessons({ sectionId });
+          const formattedLessons = lessons.map((lesson) => ({
+            id: 'lesson-' + lesson.id.toString(),
+            title: lesson.title,
+            type: lesson.type,
+          }));
+
+          const tests = await testService.getTestsBySection(sectionId);
+          const formattedTests = tests.map((test) => ({
+            id: 'lesson-test-' + test.id.toString(),
+            title: test.title,
+            type: test.type,
+          }));
+          const allLessonsAndTests = [...formattedLessons, ...formattedTests];
+
+          return {
+            id: 'section-' + section.id.toString(),
+            title: section.title,
+            lessons: allLessonsAndTests,
+          };
+        }),
+      );
+      setSections(sectionsWithFormattedLessons);
+    }
+
+    const fetchedDrips = await dripService.getAllDripsByCourseId(courseId);
+    if (fetchedDrips) {
+      const convertedDrips = convertToDripContents(fetchedDrips);
+      setDripContents(convertedDrips);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const sectionRequest = { courseId };
-      const fetchedSections =
-        await sectionService.fetchSectionsByCourse(sectionRequest);
-      if (fetchedSections) {
-        const sectionsWithFormattedLessons = await Promise.all(
-          fetchedSections.map(async (section) => {
-            const sectionId = section?.id;
-            const lessons = await lessonService.fetchLessons({ sectionId });
-            const formattedLessons = lessons.map((lesson) => ({
-              id: 'lesson-' + lesson.id.toString(),
-              title: lesson.title,
-              type: lesson.type,
-            }));
-
-            const tests = await testService.getTestsBySection(sectionId);
-            const formattedTests = tests.map((test) => ({
-              id: 'lesson-test-' + test.id.toString(),
-              title: test.title,
-              type: test.type,
-            }));
-            const allLessonsAndTests = [...formattedLessons, ...formattedTests];
-
-            return {
-              id: 'section-' + section.id.toString(),
-              title: section.title,
-              lessons: allLessonsAndTests,
-            };
-          }),
-        );
-        setSections(sectionsWithFormattedLessons);
-      }
-      const fetchedDrips = await dripService.getAllDripsByCourseId(courseId);
-      if (fetchedDrips) {
-        const convertedDrips = convertToDripContents(fetchedDrips);
-        setDripContents(convertedDrips);
-      }
-    };
-
     fetchData();
   }, [courseId]);
 
   const onSaveDrips = async () => {
+    setLoading(true); // Start loading
     const dripsUpdateRequest = prepareDripsUpdateRequest(dripContents);
 
-    const result = await dripService.updateDrips(courseId, dripsUpdateRequest);
-    if (result) {
-      console.log('Drips updated successfully');
-    } else {
-      console.error('Failed to update drips');
+    try {
+      const result = await dripService.updateDrips(
+        courseId,
+        dripsUpdateRequest,
+      );
+      if (result) {
+        toast({
+          title: 'Drips updated successfully.',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        await fetchData(); // Re-fetch data after saving
+      } else {
+        throw new Error('Failed to update drips');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error updating drips.',
+        description: error.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -201,7 +226,6 @@ const Drip = ({ courseId }) => {
         setDripContents((prevDripContents) =>
           prevDripContents.map((dripContent) => {
             if (dripContent.id === destination.droppableId) {
-              // Check if the lesson is already in the drip
               if (
                 !dripContent.lessons.find(
                   (lesson) => lesson.id === draggedLesson.id,
@@ -241,7 +265,6 @@ const Drip = ({ courseId }) => {
         setDripContents((prevDripContents) =>
           prevDripContents.map((dripContent) => {
             if (dripContent.id === destination.droppableId) {
-              // Check if the lesson is already in the drip
               if (
                 !dripContent.lessons.find(
                   (lesson) => lesson.id === draggedLesson.id,
@@ -461,7 +484,13 @@ const Drip = ({ courseId }) => {
           <Button mt={4} colorScheme="blue" onClick={addDripContent}>
             Add Drip Content
           </Button>
-          <Button ml={4} mt={4} colorScheme="blue" onClick={onSaveDrips}>
+          <Button
+            ml={4}
+            mt={4}
+            colorScheme="blue"
+            onClick={onSaveDrips}
+            isLoading={loading} // Show spinner while saving
+          >
             Save
           </Button>
         </Box>
