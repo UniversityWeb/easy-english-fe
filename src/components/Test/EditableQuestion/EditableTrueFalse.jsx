@@ -6,12 +6,15 @@ import {
   EditableInput,
   EditablePreview,
   RadioGroup,
-  Radio, Textarea,
+  Radio, Textarea, Input,
 } from '@chakra-ui/react';
-import { AddIcon } from "@chakra-ui/icons";
 
 const EditableTrueFalse = React.memo(({ question, onUpdateQuestionField }) => {
   const [correctAnswer, setCorrectAnswer] = useState("");
+
+  // State to manage inline editing for the title and options
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(question?.title || '');
 
   useEffect(() => {
     setCorrectAnswer(question?.correctAnswers[0] || "");
@@ -23,22 +26,48 @@ const EditableTrueFalse = React.memo(({ question, onUpdateQuestionField }) => {
     onUpdateQuestionField('correctAnswers', [value]);
   };
 
+  // Handle title editing
+  const handleTitleClick = () => {
+    setIsEditingTitle(true);
+  };
+
+  const handleTitleChange = (e) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleTitleBlur = async () => {
+    setIsEditingTitle(false);
+    if (editedTitle !== question.title) {
+      await onUpdateQuestionField('title', editedTitle);
+    }
+  };
+
+  const handleTitleKeyDown = async (e) => {
+    if (e.key === 'Enter') {
+      handleTitleBlur();
+    }
+  };
+
   return (
     <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
       <Flex align="center" mb={4}>
-        <Editable
-          width="100%"
-          defaultValue={question.title}
-          onSubmit={(value) => onUpdateQuestionField('title', value)}
-        >
-          <EditablePreview />
-          <Textarea
-            as={EditableInput}
-            placeholder="Enter question title"
-            resize="vertical" // Allows vertical resizing
-            size="sm" // Adjust size as needed
-          />
-        </Editable>
+        <Box flex="1" textAlign="left" fontWeight="bold" display="flex" alignItems="center">
+          {isEditingTitle ? (
+            <Input
+              value={editedTitle}
+              onChange={handleTitleChange}
+              onBlur={handleTitleBlur}
+              onKeyDown={handleTitleKeyDown}
+              autoFocus
+              size="sm"
+              width="auto"
+            />
+          ) : (
+            <Box onClick={handleTitleClick} cursor="pointer">
+              {editedTitle || 'Untitled'}
+            </Box>
+          )}
+        </Box>
       </Flex>
 
       {/* True/False options */}

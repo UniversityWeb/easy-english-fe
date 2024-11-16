@@ -73,12 +73,25 @@ const CourseCard = ({ course, onMakeFeatured }) => {
           <CheckCircleIcon mr={1} />
           <Text>{course.isPublish ? 'Published' : 'Unpublished'}</Text>
         </Flex>
-        {course.price?.price && (
-          <Text as="s" color="gray.500">
-            ${course.price.price}
-          </Text>
-        )}
-        <Text fontWeight="bold">${course.price?.salePrice}</Text>
+
+        {/* Price Section */}
+        <Flex direction="column" align="flex-end">
+          {/* Original Price */}
+          {course.price?.price && course.price.price !== course.price?.salePrice && course.price.price !== 0 && (
+            <Text as="s" color="gray.500">
+              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price.price)}
+            </Text>
+          )}
+
+          {/* Sale Price or Free */}
+          {course.price?.salePrice === 0 ? (
+            <Text fontWeight="bold" color="green.500">FREE</Text>
+          ) : (
+            <Text fontWeight="bold" color="red.500">
+              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price.salePrice)}
+            </Text>
+          )}
+        </Flex>
       </Stack>
       <Button
         colorScheme="blue"

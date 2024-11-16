@@ -2,15 +2,13 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
-  Editable,
-  EditableInput,
-  EditablePreview,
   CheckboxGroup,
   Checkbox,
   Button,
   Input,
   IconButton,
-  Text, Textarea,
+  Text,
+  Textarea,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
@@ -19,12 +17,16 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [newOption, setNewOption] = useState("");
   const [error, setError] = useState("");
+  const [editedTitle, setEditedTitle] = useState(question?.title || "");
+  const [editedOptions, setEditedOptions] = useState([]);
 
   useEffect(() => {
     setOptions(question?.options || []);
     setCorrectAnswers(question?.correctAnswers || []);
+    setEditedOptions(question?.options || []);
   }, [question]);
 
+  // Add a new option
   const addOption = async () => {
     const trimmedNewOption = newOption?.trim();
     if (options.includes(trimmedNewOption)) {
@@ -35,6 +37,7 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
     if (trimmedNewOption) {
       const updatedOptions = [...options, trimmedNewOption];
       setOptions(updatedOptions);
+      setEditedOptions(updatedOptions);
       setNewOption("");
 
       onUpdateQuestionField('options', updatedOptions);
@@ -42,17 +45,29 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
     }
   };
 
+  // Remove an option
   const removeOption = async (indexToRemove) => {
     const updatedOptions = options.filter((_, index) => index !== indexToRemove);
     setOptions(updatedOptions);
+    setEditedOptions(updatedOptions);
 
     onUpdateQuestionField('options', updatedOptions);
   };
 
-  const handleOptionEdit = async (index, newValue) => {
-    const updatedOptions = options.map((opt, i) => (i === index ? newValue : opt));
-    setOptions(updatedOptions);
+  // Handle option editing
+  const handleOptionChange = (index, value) => {
+    const updatedOptions = editedOptions.map((opt, i) =>
+      i === index ? value : opt
+    );
+    setEditedOptions(updatedOptions);
+  };
 
+  // Handle blur (when input loses focus) for options
+  const handleOptionBlur = (index) => {
+    const updatedOptions = options.map((opt, i) =>
+      i === index ? editedOptions[i] : opt
+    );
+    setOptions(updatedOptions);
     onUpdateQuestionField('options', updatedOptions);
   };
 
@@ -66,22 +81,28 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
     onUpdateQuestionField('correctAnswers', updatedCorrectAnswers);
   };
 
+  // Handle title change and blur
+  const handleTitleChange = (e) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleTitleBlur = () => {
+    if (editedTitle !== question.title) {
+      onUpdateQuestionField('title', editedTitle);
+    }
+  };
+
   return (
     <Box p={5} bg="gray.50" borderRadius="lg" borderWidth="1px" my={4}>
       <Flex align="center" mb={4}>
-        <Editable
-          width="100%"
-          defaultValue={question.title}
-          onSubmit={(value) => onUpdateQuestionField('title', value)}
-        >
-          <EditablePreview />
-          <Textarea
-            as={EditableInput}
-            placeholder="Enter question title"
-            resize="vertical" // Allows vertical resizing
-            size="sm" // Adjust size as needed
-          />
-        </Editable>
+        <Textarea
+          value={editedTitle}
+          onChange={handleTitleChange}
+          onBlur={handleTitleBlur}
+          placeholder="Enter question title"
+          resize="vertical"
+          size="sm"
+        />
       </Flex>
 
       {/* Options section */}
@@ -98,12 +119,18 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
             mb={2}
           >
             <Flex align="center" flexGrow={1}>
-              <Editable defaultValue={option} onSubmit={(value) => handleOptionEdit(index, value)}>
-                <EditablePreview />
-                <EditableInput />
-              </Editable>
+              <Input
+                value={editedOptions[index]}
+                onChange={(e) => handleOptionChange(index, e.target.value)}
+                onBlur={() => handleOptionBlur(index)}
+                size="sm"
+              />
             </Flex>
-            <Checkbox value={option} onChange={() => handleCorrectAnswerChange(option)}>
+            <Checkbox
+              value={option}
+              onChange={() => handleCorrectAnswerChange(option)}
+              ms={2}
+            >
               Correct
             </Checkbox>
             <IconButton
@@ -131,7 +158,11 @@ const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) 
       </Flex>
 
       {/* Error message if duplicate option is added */}
-      {error && <Text color="red.500" mt={2}>{error}</Text>}
+      {error && (
+        <Text color="red.500" mt={2}>
+          {error}
+        </Text>
+      )}
     </Box>
   );
 });
