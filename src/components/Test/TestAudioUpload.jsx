@@ -125,7 +125,7 @@ const TestAudioUpload = ({ testState, setTestState }) => {
         textAlign="center"
         _hover={{ borderColor: 'blue.300' }}
       >
-        {audioFile || audioUrl ? (
+        {audioFile && audioUrl ? (
           <VStack spacing={3}>
             <FaFileAudio size={48} color="blue.500" />
             <Text fontSize="md" fontWeight="600">
@@ -186,7 +186,7 @@ const TestAudioUpload = ({ testState, setTestState }) => {
       </Box>
 
       {/* Audio Player Section */}
-      {audioUrl && (
+      {audioUrl && audioFile && (
         <Box bg="gray.50" p={4} borderRadius="md" boxShadow="md">
           <audio
             ref={audioRef}

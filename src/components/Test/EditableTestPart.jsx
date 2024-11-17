@@ -177,7 +177,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
             />
           ) : (
             <Box onClick={handleTitleClick} cursor="pointer">
-              {part?.title || 'Untitled'}
+              {editedTitle || 'Untitled'}
             </Box>
           )}
         </Box>

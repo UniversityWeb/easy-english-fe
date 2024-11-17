@@ -1,4 +1,4 @@
-import { handleResponse, put } from '~/utils/httpRequest';
+import { handleResponse, put, post, get } from '~/utils/httpRequest';
 
 const SUFFIX_USER_API_URL = '/users';
 
@@ -15,16 +15,30 @@ const uploadAvatar = async (avatar) => {
 
   const response = await put(path, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   });
 
+  return handleResponse(response, 200);
+};
+
+const updateUserForAdmin = async (username, userForAdminReq) => {
+  const path = `${SUFFIX_USER_API_URL}/update-user-for-admin/${username}`;
+  const response = await put(path, userForAdminReq);
+  return handleResponse(response, 200);
+};
+
+const getUsersWithoutAdmin = async (filterReq) => {
+  const path = `${SUFFIX_USER_API_URL}/admin/get`;
+  const response = await post(path, filterReq);
   return handleResponse(response, 200);
 };
 
 const userService = {
   updateOwnProfile,
   uploadAvatar,
+  getUsersWithoutAdmin,
+  updateUserForAdmin,
 };
 
 export default userService;

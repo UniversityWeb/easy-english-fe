@@ -22,13 +22,19 @@ import {
   MdLogout,
   MdOutlineShoppingCart,
 } from 'react-icons/md';
-import { PiCertificate } from "react-icons/pi";
-import { IoBarChartOutline, IoBookOutline, IoChatbubbleEllipsesOutline, IoListOutline } from 'react-icons/io5';
+import { PiCertificate } from 'react-icons/pi';
+import {
+  IoBarChartOutline,
+  IoBookOutline,
+  IoChatbubbleEllipsesOutline,
+  IoListOutline,
+} from 'react-icons/io5';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import { FaRegStar } from 'react-icons/fa';
 import AuthService from '~/services/authService';
+import { FaUserEdit } from 'react-icons/fa';
 
 const RightSidebarForAdmin = (props) => {
   const user = props.user;
@@ -48,15 +54,11 @@ const RightSidebarForAdmin = (props) => {
   };
 
   return (
-    <Drawer
-      isOpen={props?.isOpen}
-      placement="right"
-      onClose={props.onClose}
-    >
+    <Drawer isOpen={props?.isOpen} placement="right" onClose={props.onClose}>
       <DrawerOverlay />
       <DrawerContent
         backgroundColor="var(--white)"
-        maxWidth={"230px"}
+        maxWidth={'230px'}
         width="auto"
       >
         <DrawerHeader borderBottomWidth="1px">
@@ -86,7 +88,12 @@ const RightSidebarForAdmin = (props) => {
           <VStack ps="10px" align="stretch" padding="8px">
             {/* Management Section */}
             <Box paddingTop="10px" paddingBottom="5px">
-              <Text fontWeight="bold" fontSize="sm" color="gray.500" paddingLeft="10px">
+              <Text
+                fontWeight="bold"
+                fontSize="sm"
+                color="gray.500"
+                paddingLeft="10px"
+              >
                 Management
               </Text>
             </Box>
@@ -108,9 +115,20 @@ const RightSidebarForAdmin = (props) => {
               handleClick={() => navigate(config.routes.topic_level_for_admin)}
             />
 
+            <SidebarItem
+              icon={FaUserEdit}
+              text="Users Management"
+              handleClick={() => navigate(config.routes.user_management)}
+            />
+
             {/* Analytics Section */}
             <Box paddingTop="10px" paddingBottom="5px">
-              <Text fontWeight="bold" fontSize="sm" color="gray.500" paddingLeft="10px">
+              <Text
+                fontWeight="bold"
+                fontSize="sm"
+                color="gray.500"
+                paddingLeft="10px"
+              >
                 Analytics
               </Text>
             </Box>
@@ -128,7 +146,12 @@ const RightSidebarForAdmin = (props) => {
 
             {/* Account Section */}
             <Box paddingTop="10px" paddingBottom="5px">
-              <Text fontWeight="bold" fontSize="sm" color="gray.500" paddingLeft="10px">
+              <Text
+                fontWeight="bold"
+                fontSize="sm"
+                color="gray.500"
+                paddingLeft="10px"
+              >
                 Account
               </Text>
             </Box>
@@ -150,6 +173,6 @@ const RightSidebarForAdmin = (props) => {
       </DrawerContent>
     </Drawer>
   );
-}
+};
 
 export default RightSidebarForAdmin;

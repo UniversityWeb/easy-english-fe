@@ -1,4 +1,4 @@
-import { Category } from "@mui/icons-material";
+import { Category } from '@mui/icons-material';
 
 const routes = {
   home: ['/', '/home'],
@@ -28,6 +28,9 @@ const routes = {
   category_for_admin: '/admin/category',
   topic_level_for_admin: '/admin/topic-vs-level',
   test_result: (testResultId) => `/test-result/${testResultId}`,
+  analytics_courses: '/admin/analytics/courses',
+  analytics_reviews: '/admin/analytics/reviews',
+  user_management: '/admin/user-management',
 };
 
 export default routes;
