@@ -1,31 +1,40 @@
+import React, { lazy } from 'react';
 import config from '~/config';
-import LoginPage from '~/pages/Common/LoginPage';
-import RegisterPage from '~/pages/Common/RegisterPage';
-import ForgotPasswordPage from '~/pages/Common/ForgotPasswordPage';
-import UserProfileEditPage from '~/pages/Common/UserProfileEditPage';
-import OtpValidationPage from '~/pages/Common/OtpValidationPage';
-import CourseManagementForStudentPage from '~/pages/Student/CourseManagementForStudentPage';
-import NotificationsForStudentPage from '~/pages/Student/NotificationsForStudentPage';
-import TakeTestPage from '~/pages/Student/TakeTestPage';
-import PreviewTestPage from '~/pages/Student/PreviewTestPage';
-import CartPage from '~/pages/Student/CartPage';
-import PaymentResultPage from '~/pages/Student/PaymentResultPage';
-import CourseManagementForTeacherPage from '~/pages/Teacher/CourseManagementForTeacherPage';
-import SearchPage from '~/pages/Student/SearchPage';
-import FavouritePage from '~/pages/Student/FavouritePage';
-import EnrollCoursePage from '~/pages/Student/EnrollCoursePage';
-import CourseViewDetailPage from '~/pages/Student/CourseDetailPage';
-import CourseDetailPage from '~/pages/Teacher/CourseDetailPage';
-import Setting from '~/components/Teacher/CourseDetail/Setting';
-import OrdersPage from '~/pages/Student/OrdersPage';
-import OrderDetailPage from '~/pages/Student/OrderDetailPage';
-import LearnPage from '~/pages/Student/LearnPage';
-import CategoryPage from '~/pages/Admin/CategoryPage';
-import TopicAndLevelPage from '~/pages/Admin/TopicAndLevelPage';
-import TestResultPage from '~/pages/Common/TestResultPage';
-import CourseLineChartPage from '~/pages/Admin/CourseLineChartPage';
-import ReviewAnalystPage from '~/pages/Admin/ReviewAnalystPage';
-import UserManagement from '~/pages/Admin/UserManagementPage';
+
+const LoginPage = lazy(() => import('~/pages/Common/LoginPage'));
+const RegisterPage = lazy(() => import('~/pages/Common/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('~/pages/Common/ForgotPasswordPage'));
+const UserProfileEditPage = lazy(() => import('~/pages/Common/UserProfileEditPage'));
+const OtpValidationPage = lazy(() => import('~/pages/Common/OtpValidationPage'));
+const CourseManagementForStudentPage = lazy(() =>
+  import('~/pages/Student/CourseManagementForStudentPage')
+);
+const NotificationsForStudentPage = lazy(() =>
+  import('~/pages/Student/NotificationsForStudentPage')
+);
+const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
+const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
+const CartPage = lazy(() => import('~/pages/Student/CartPage'));
+const PaymentResultPage = lazy(() => import('~/pages/Student/PaymentResultPage'));
+const CourseManagementForTeacherPage = lazy(() =>
+  import('~/pages/Teacher/CourseManagementForTeacherPage')
+);
+const SearchPage = lazy(() => import('~/pages/Student/SearchPage'));
+const FavouritePage = lazy(() => import('~/pages/Student/FavouritePage'));
+const EnrollCoursePage = lazy(() => import('~/pages/Student/EnrollCoursePage'));
+const CourseViewDetailPage = lazy(() => import('~/pages/Student/CourseDetailPage'));
+const CourseDetailPage = lazy(() => import('~/pages/Teacher/CourseDetailPage'));
+const Setting = lazy(() => import('~/components/Teacher/CourseDetail/Setting'));
+const OrdersPage = lazy(() => import('~/pages/Student/OrdersPage'));
+const OrderDetailPage = lazy(() => import('~/pages/Student/OrderDetailPage'));
+const LearnPage = lazy(() => import('~/pages/Student/LearnPage'));
+const CategoryPage = lazy(() => import('~/pages/Admin/CategoryPage'));
+const TopicAndLevelPage = lazy(() => import('~/pages/Admin/TopicAndLevelPage'));
+const TestResultPage = lazy(() => import('~/pages/Common/TestResultPage'));
+const CourseLineChartPage = lazy(() => import('~/pages/Admin/CourseLineChartPage'));
+const ReviewAnalystPage = lazy(() => import('~/pages/Admin/ReviewAnalystPage'));
+const UserManagement = lazy(() => import('~/pages/Admin/UserManagementPage'));
+
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
   { path: config.routes.register, component: RegisterPage },

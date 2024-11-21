@@ -38,7 +38,8 @@
     "recharts": "^2.13.3",
     "sass": "^1.80.5",
     "sockjs-client": "^1.6.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "webpack-dev-server": "^5.1.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -66,6 +67,9 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-class-properties": "^7.25.9",
+    "@babel/plugin-transform-private-methods": "^7.25.9",
     "customize-cra": "^1.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
