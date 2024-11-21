@@ -1,5 +1,3 @@
-import { Category } from '@mui/icons-material';
-
 const routes = {
   home: ['/', '/home'],
   login: '/login',
