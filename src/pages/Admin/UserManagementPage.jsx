@@ -49,10 +49,10 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [filters, setFilters] = useState({
-    username: '',
-    role: '',
-    gender: '',
-    status: '',
+    fullName: null,
+    role: null,
+    gender: null,
+    status: null,
     page: 1,
     size: 10,
   });
@@ -64,10 +64,9 @@ const UserManagement = () => {
   // Fetch users from API
   const fetchUsers = async () => {
     try {
-      const filterReq = []; // You can build this from the `filters` state if needed
       const response = await userService.getUsersWithoutAdmin(filters);
-      setUsers(response.data); // Assuming `response.data` contains the users list
-      setFilteredUsers(response.data);
+      setUsers(response.content || []); // Assuming `response.data` contains the users list
+      setFilteredUsers(response.content || []);
     } catch (error) {
       toast({
         title: 'Error fetching users',
@@ -147,7 +146,10 @@ const UserManagement = () => {
   // Handle filter change
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value === '' ? null : value, // Nếu value là chuỗi rỗng, gán thành null
+    }));
   };
 
   // Apply filters and fetch users when the search button is clicked
@@ -155,7 +157,7 @@ const UserManagement = () => {
     try {
       const filterReq = { ...filters }; // Use the filters state to build the request
       const response = await userService.getUsersWithoutAdmin(filterReq);
-      setFilteredUsers(response.data);
+      setFilteredUsers(response.content || []);
     } catch (error) {
       toast({
         title: 'Error applying filters',
@@ -226,9 +228,9 @@ const UserManagement = () => {
         <Flex mb={4} gap={4}>
           <Box>
             <Input
-              placeholder="Search by username"
-              name="username"
-              value={filters.username}
+              placeholder="Search by full name"
+              name="fullName"
+              value={filters.fullName}
               onChange={handleFilterChange}
             />
           </Box>
