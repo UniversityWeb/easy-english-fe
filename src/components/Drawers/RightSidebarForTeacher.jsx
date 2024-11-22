@@ -12,7 +12,7 @@ import {
   Avatar,
   Skeleton, Image,
 } from '@chakra-ui/react';
-import { MdDashboard, MdLogout, MdAdd, MdAnnouncement, MdAttachMoney } from 'react-icons/md';
+import { MdDashboard, MdLogout, MdAdd, MdAnnouncement, MdChat } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
@@ -23,7 +23,7 @@ const menuItems = [
   { label: 'Dashboard', icon: MdDashboard, route: config.routes.course_management_for_teacher },
   { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
   { label: 'Notifications', icon: MdAnnouncement, route: config.routes.notifications_for_student },
-  { label: 'Payout', icon: MdAttachMoney, route: '' },
+  { label: 'Chat', icon: MdChat, route: config.routes.chat },
 ];
 
 function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {

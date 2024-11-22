@@ -16,13 +16,12 @@ import {
 import styles from './Drawer.module.scss';
 import { useNavigate } from 'react-router-dom';
 import {
-  MdOutlineAssignment,
   MdOutlineShoppingBag,
   MdNotificationsNone,
   MdLogout,
   MdOutlineShoppingCart,
 } from 'react-icons/md';
-import { PiCertificate } from "react-icons/pi";
+import { IoChatboxOutline } from "react-icons/io5";
 import { IoBookOutline } from "react-icons/io5";
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
@@ -113,6 +112,12 @@ const RightSidebarForStudent = (props) => {
               icon={MdNotificationsNone}
               text="Notifications"
               handleClick={() => navigate(config.routes.notifications_for_student)}
+            />
+
+            <SidebarItem
+              icon={IoChatboxOutline}
+              text="Chat"
+              handleClick={() => navigate(config.routes.chat)}
             />
 
             <SidebarItem
