@@ -20,6 +20,7 @@ import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import StudentPageLayout from '~/components/StudentPageLayout';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const MotionBox = motion(Box);
 
@@ -96,7 +97,7 @@ const NotificationsForStudentPage = () => {
   };
 
   return (
-    <StudentPageLayout>
+    <RoleBasedPageLayout>
       <Container maxW="80%">
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mt={10}>
           Your Notifications
@@ -189,7 +190,7 @@ const NotificationsForStudentPage = () => {
           </Stack>
         )}
       </Container>
-    </StudentPageLayout>
+    </RoleBasedPageLayout>
   );
 };
 

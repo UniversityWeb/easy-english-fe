@@ -29,6 +29,7 @@ const routes = {
   analytics_courses: '/admin/analytics/courses',
   analytics_reviews: '/admin/analytics/reviews',
   user_management: '/admin/user-management',
+  chat: '/chat',
 };
 
 export default routes;

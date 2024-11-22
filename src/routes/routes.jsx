@@ -34,6 +34,7 @@ const TestResultPage = lazy(() => import('~/pages/Common/TestResultPage'));
 const CourseLineChartPage = lazy(() => import('~/pages/Admin/CourseLineChartPage'));
 const ReviewAnalystPage = lazy(() => import('~/pages/Admin/ReviewAnalystPage'));
 const UserManagement = lazy(() => import('~/pages/Admin/UserManagementPage'));
+const ChatPage = lazy(() => import('~/pages/Common/ChatPage'));
 
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
@@ -80,6 +81,8 @@ const publicRoutes = [
   { path: config.routes.analytics_courses, component: CourseLineChartPage },
   { path: config.routes.analytics_reviews, component: ReviewAnalystPage },
   { path: config.routes.user_management, component: UserManagement },
+
+  { path: config.routes.chat, component: ChatPage },
 ];
 
 const privateRoutes = [];

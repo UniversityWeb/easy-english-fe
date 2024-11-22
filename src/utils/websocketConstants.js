@@ -8,7 +8,11 @@ const cartItemCountDestination = '/app/cart-item-count';
 
 const testResultNotificationTopic = (testId) => `/topic/test-result/${testId}`;
 
-const testResultDestination = '/app/test-result/';
+const testResultDestination = '/app/test-result';
+
+const messageTopic = (recipientUsername) => `/topic/messages/${recipientUsername}`;
+
+const messageDestination = '/app/messages';
 
 export const websocketConstants = {
   notificationTopic,
@@ -17,4 +21,7 @@ export const websocketConstants = {
   cartItemCountDestination,
   testResultNotificationTopic,
   testResultDestination,
+
+  messageTopic,
+  messageDestination,
 };
