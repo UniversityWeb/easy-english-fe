@@ -6,13 +6,14 @@ import { ChakraProvider } from '@chakra-ui/react';
 import customTheme from '~/themes/customTheme';
 import NotFound from '~/components/NotFound';
 import config from '~/config';
+import LoaderPage from '~/components/LoaderPage';
 
 function App() {
   return (
     <Router>
       <ChakraProvider theme={customTheme}>
         <div className="App">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<LoaderPage />}>
             <Routes>
               <Route path="/" element={<Navigate to={config.routes.login} replace />} />
 
