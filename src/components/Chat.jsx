@@ -18,12 +18,19 @@ import { websocketConstants } from "~/utils/websocketConstants";
 import useCustomToast from "~/hooks/useCustomToast";
 import { getUsername } from "~/utils/authUtils";
 
+// Define message types as constants
+const MESSAGE_TYPES = {
+  TEXT: "TEXT",
+  IMAGE: "IMAGE",
+  COURSE_INFO: "COURSE_INFO",
+};
+
 const Chat = ({ recipient, courseData }) => {
   const curUsername = getUsername();
   const [messages, setMessages] = useState([]);
   const [messageContent, setMessageContent] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null); // State for image preview
+  const [imagePreview, setImagePreview] = useState(null);
 
   const { infoToast } = useCustomToast();
   const scrollRef = useRef(null);
@@ -67,7 +74,7 @@ const Chat = ({ recipient, courseData }) => {
         (message) => {
           setMessages((prevMessages) => [...prevMessages, message]);
         }
-      )
+      );
     });
 
     return () => {
@@ -75,34 +82,20 @@ const Chat = ({ recipient, courseData }) => {
     };
   }, [curUsername]);
 
-  const sendMessage = async (type = "TEXT", content = "") => {
-    if (type === "TEXT" && messageContent.trim() === "" && !selectedImage) return;
+  const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = "") => {
+    if (type === MESSAGE_TYPES.TEXT && messageContent.trim() === "" && !selectedImage) return;
 
     const message = {
       type,
-      content: type === "IMAGE" ? await convertToBase64(selectedImage) : content || messageContent,
+      content: type === MESSAGE_TYPES.IMAGE ? await convertToBase64(selectedImage) : content || messageContent,
       senderUsername: curUsername,
       recipientUsername: recipient?.username,
     };
 
     websocketService.send(websocketConstants.messageDestination, message);
-
     setMessageContent("");
     setSelectedImage(null);
-    setImagePreview(null); // Clear the preview after sending
-  };
-
-  const sendCourseInfo = async () => {
-    const courseInfoMessage = {
-      id: courseData?.id,
-      title: courseData?.title,
-      description: courseData?.description,
-      category: courseData?.category,
-      ownerUsername: courseData?.ownerUsername,
-      price: courseData?.price?.price,
-    };
-
-    await sendMessage("COURSE_INFO", JSON.stringify(courseInfoMessage));
+    setImagePreview(null);
   };
 
   const convertToBase64 = (file) =>
@@ -112,6 +105,10 @@ const Chat = ({ recipient, courseData }) => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
+
+  const sendCourseInfo = async () => {
+    await sendMessage(MESSAGE_TYPES.COURSE_INFO, JSON.stringify(courseData));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -176,9 +173,9 @@ const Chat = ({ recipient, courseData }) => {
               borderRadius="md"
               maxWidth="70%"
             >
-              {msg.type === "IMAGE" ? (
-                <Image src={msg.content} alt="Image" maxH="200px" />
-              ) : msg.type === "COURSE_INFO" ? (
+              {msg.type === MESSAGE_TYPES.IMAGE && msg.file ? (
+                <Image src={msg.file} alt="Image" maxH="200px" />
+              ) : msg.type === MESSAGE_TYPES.COURSE_INFO ? (
                 <Box>
                   <Text fontWeight="bold">{JSON.parse(msg.content).title}</Text>
                   <Text>{JSON.parse(msg.content).description}</Text>
@@ -194,7 +191,7 @@ const Chat = ({ recipient, courseData }) => {
         ))}
       </Box>
 
-      {imagePreview && ( // Display the image preview if an image is selected
+      {imagePreview && (
         <Box p={4} bg="gray.50" borderTop="1px solid" borderColor="gray.200">
           <Text fontSize="sm" mb={2}>
             Image Preview:
@@ -220,7 +217,7 @@ const Chat = ({ recipient, courseData }) => {
           onChange={(e) => setMessageContent(e.target.value)}
           onKeyDown={async (e) => {
             if (e.key === "Enter") {
-              await sendMessage("TEXT");
+              await sendMessage(MESSAGE_TYPES.TEXT);
             }
           }}
         />
@@ -234,7 +231,7 @@ const Chat = ({ recipient, courseData }) => {
         <label htmlFor="image-upload">
           <IconButton as="span" icon={<FiImage />} colorScheme="teal" />
         </label>
-        <Button colorScheme="blue" onClick={() => sendMessage("TEXT")}>
+        <Button colorScheme="blue" onClick={() => sendMessage(MESSAGE_TYPES.TEXT)}>
           <Icon as={FiSend} />
         </Button>
       </HStack>
