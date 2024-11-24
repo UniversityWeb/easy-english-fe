@@ -1,39 +1,48 @@
-import { Fragment } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Fragment, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { publicRoutes } from '~/routes';
 import DefaultLayout from '~/layouts/DefaultLayout';
 import { ChakraProvider } from '@chakra-ui/react';
 import customTheme from '~/themes/customTheme';
+import NotFound from '~/components/NotFound';
+import config from '~/config';
+import LoaderPage from '~/components/LoaderPage';
 
 function App() {
   return (
     <Router>
       <ChakraProvider theme={customTheme}>
         <div className="App">
-          <Routes>
-            {publicRoutes.map((route, index) => {
-              const Page = route.component;
-              let Layout = DefaultLayout;
+          <Suspense fallback={<LoaderPage />}>
+            <Routes>
+              <Route path="/" element={<Navigate to={config.routes.login} replace />} />
 
-              if (route.layout) {
-                Layout = route.layout;
-              } else if (route.layout === null) {
-                Layout = Fragment;
-              }
+              {publicRoutes.map((route, index) => {
+                const Page = route.component;
+                let Layout = DefaultLayout;
 
-              return (
-                <Route
-                  key={index}
-                  path={route.path}
-                  element={
-                    <Layout>
-                      <Page />
-                    </Layout>
-                  }
-                />
-              );
-            })}
-          </Routes>
+                if (route.layout) {
+                  Layout = route.layout;
+                } else if (route.layout === null) {
+                  Layout = Fragment;
+                }
+
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={
+                      <Layout>
+                        <Page />
+                      </Layout>
+                    }
+                  />
+                );
+              })}
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </div>
       </ChakraProvider>
     </Router>
