@@ -1,4 +1,4 @@
-import { get, post } from '~/utils/httpRequest'; // Removed unused imports
+import { handleResponse, get, post, put } from '~/utils/httpRequest'; // Removed unused imports
 
 const SUFFIX_COURSE_API_URL = '/course';
 
@@ -23,7 +23,7 @@ const createCourse = async (courseRequest) => {
     },
   );
 
-  if (response?.status !== 200) {
+  if (response?.status !== 201) {
     return null;
   }
 
@@ -147,8 +147,20 @@ const addCourseToFavourite = async (courseRequest) => {
   return response.data;
 };
 
+const getAllCourseForAdmin = async (filterReq) => {
+  const path = `${SUFFIX_COURSE_API_URL}/admin/get`;
+  const response = await post(path, filterReq);
+  return handleResponse(response, 200);
+};
+
+const updateCourseStatus = async (courseId, status) => {
+  const path = `${SUFFIX_COURSE_API_URL}/update-status/${courseId}/${status}`;
+  const response = await put(path);
+  return handleResponse(response, 200);
+};
 
 const courseService = {
+  updateCourseStatus,
   addCourseToFavourite,
   fetchAllCourseOfTeacher,
   fetchAllCourses,
@@ -160,6 +172,7 @@ const courseService = {
   getCourseOfFavourite,
   deleteCourseOfFavourite,
   getEnrollCourse,
+  getAllCourseForAdmin,
 };
 
 export default courseService;

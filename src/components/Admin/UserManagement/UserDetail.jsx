@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -13,40 +13,38 @@ import {
   Grid,
   GridItem,
   IconButton,
-  useToast,
-} from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+} from '@chakra-ui/react';
+import { AddIcon } from '@chakra-ui/icons';
+import userService from '~/services/userService';
+import useCustomToast from '~/hooks/useCustomToast';
 
-// Constants for options
 const GENDER_OPTIONS = {
-  MALE: "Male",
-  FEMALE: "Female",
-  OTHER: "Other",
+  MALE: 'Male',
+  FEMALE: 'Female',
+  OTHER: 'Other',
 };
 
 const ROLE_OPTIONS = {
-  ADMIN: "Admin",
-  TEACHER: "Teacher",
-  STUDENT: "Student",
+  ADMIN: 'Admin',
+  TEACHER: 'Teacher',
+  STUDENT: 'Student',
 };
 
 const STATUS_OPTIONS = {
-  ACTIVE: "Active",
-  INACTIVE: "Inactive",
-  DELETED: "Deleted",
+  ACTIVE: 'Active',
+  INACTIVE: 'Inactive',
+  DELETED: 'Deleted',
 };
 
-function ProfileEdit({ user, onSave }) {
-  const toast = useToast();
-
-  // State to store temporary data for editing
-  const [tempData, setTempData] = useState(user);
+function ProfileEdit({ user, mode, onSuccess, onError }) {
+  const { successToast, errorToast } = useCustomToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tempData, setTempData] = useState({ ...user, dob: user.dob || '' });
 
   useEffect(() => {
-    setTempData(user); // Reset tempData if the user prop changes
+    setTempData({ ...user, dob: user.dob || '' });
   }, [user]);
 
-  // Handle input changes for tempData
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTempData((prev) => ({
@@ -55,7 +53,6 @@ function ProfileEdit({ user, onSave }) {
     }));
   };
 
-  // Handle avatar upload
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -70,21 +67,47 @@ function ProfileEdit({ user, onSave }) {
     }
   };
 
-  // Handle avatar click
   const handleAvatarClick = () => {
-    document.getElementById("avatarUpload").click();
+    document.getElementById('avatarUpload').click();
   };
 
-  // Handle form submission and call onSave with updated data
-  const handleSubmit = () => {
-    onSave(tempData);
-    toast({
-      title: "Profile Updated",
-      description: "User profile has been successfully updated.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+
+      if (mode === 'edit') {
+        await userService.updateUserForAdmin(tempData.username, tempData);
+        successToast(
+          `User ${tempData.username} has been updated successfully.`,
+        );
+      } else {
+        const newUser = await userService.addUserForAdmin(tempData);
+        if (!newUser) {
+          throw new Error('Failed to add user');
+        }
+        successToast(`User ${newUser.username} has been added successfully.`);
+      }
+
+      onSuccess?.(tempData);
+    } catch (error) {
+      const errorMessage =
+        error?.message ||
+        `An error occurred while ${mode === 'edit' ? 'updating' : 'adding'} the user.`;
+      errorToast(errorMessage);
+      onError?.(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const validateForm = () => {
+    // Define required fields based on mode
+    const requiredFields =
+      mode === 'edit'
+        ? ['fullName', 'email', 'role', 'status'] // Update mode: username and password not required
+        : ['username', 'password', 'fullName', 'email', 'role', 'status']; // Create mode: all fields required
+
+    return requiredFields.every((field) => tempData[field]);
   };
 
   return (
@@ -102,7 +125,7 @@ function ProfileEdit({ user, onSave }) {
             <Avatar
               size="full"
               name={tempData.fullName}
-              src={tempData.avatarPath || "https://via.placeholder.com/150"}
+              src={tempData.avatarPath || 'https://via.placeholder.com/150'}
               cursor="pointer"
               onClick={handleAvatarClick}
             />
@@ -136,22 +159,39 @@ function ProfileEdit({ user, onSave }) {
         {/* Profile Edit Form */}
         <Box flex="2" p={8}>
           <Heading size="md" mb={6}>
-            Edit Profile
+            {mode === 'edit' ? 'Edit Profile' : 'Add User'}
           </Heading>
           <Grid templateColumns="repeat(2, 1fr)" gap={4}>
             <GridItem colSpan={2}>
-              <FormControl>
+              <FormControl isRequired={mode !== 'edit'}>
                 <FormLabel>Username</FormLabel>
                 <Input
                   name="username"
                   value={tempData.username}
                   onChange={handleChange}
-                  isReadOnly // Set to read-only if username should not be editable
+                  isReadOnly={mode === 'edit'}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={2}>
-              <FormControl>
+              <FormControl isRequired={mode !== 'edit'}>
+                <FormLabel>Password</FormLabel>
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder={
+                    mode === 'edit'
+                      ? 'Leave blank to keep current password'
+                      : ''
+                  }
+                  value={tempData.password || ''}
+                  onChange={handleChange}
+                />
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={2}>
+              <FormControl isRequired>
                 <FormLabel>Full Name</FormLabel>
                 <Input
                   name="fullName"
@@ -160,6 +200,7 @@ function ProfileEdit({ user, onSave }) {
                 />
               </FormControl>
             </GridItem>
+
             <GridItem colSpan={2}>
               <FormControl>
                 <FormLabel>Bio</FormLabel>
@@ -181,7 +222,7 @@ function ProfileEdit({ user, onSave }) {
               </FormControl>
             </GridItem>
             <GridItem>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel>Email</FormLabel>
                 <Input
                   name="email"
@@ -199,25 +240,41 @@ function ProfileEdit({ user, onSave }) {
                   value={tempData.gender}
                   onChange={handleChange}
                 >
-                  {Object.keys(GENDER_OPTIONS).map((key) => (
+                  {Object.entries(GENDER_OPTIONS).map(([key, value]) => (
                     <option key={key} value={key}>
-                      {GENDER_OPTIONS[key]}
+                      {value}
                     </option>
                   ))}
                 </Select>
               </FormControl>
             </GridItem>
             <GridItem>
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel>Role</FormLabel>
                 <Select
                   name="role"
                   value={tempData.role}
                   onChange={handleChange}
                 >
-                  {Object.keys(ROLE_OPTIONS).map((key) => (
+                  {Object.entries(ROLE_OPTIONS).map(([key, value]) => (
                     <option key={key} value={key}>
-                      {ROLE_OPTIONS[key]}
+                      {value}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+            </GridItem>
+            <GridItem>
+              <FormControl isRequired>
+                <FormLabel>Status</FormLabel>
+                <Select
+                  name="status"
+                  value={tempData.status}
+                  onChange={handleChange}
+                >
+                  {Object.entries(STATUS_OPTIONS).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value}
                     </option>
                   ))}
                 </Select>
@@ -225,18 +282,13 @@ function ProfileEdit({ user, onSave }) {
             </GridItem>
             <GridItem>
               <FormControl>
-                <FormLabel>Status</FormLabel>
-                <Select
-                  name="status"
-                  value={tempData.status}
+                <FormLabel>Date of Birth</FormLabel>
+                <Input
+                  name="dob"
+                  type="date"
+                  value={tempData.dob}
                   onChange={handleChange}
-                >
-                  {Object.keys(STATUS_OPTIONS).map((key) => (
-                    <option key={key} value={key}>
-                      {STATUS_OPTIONS[key]}
-                    </option>
-                  ))}
-                </Select>
+                />
               </FormControl>
             </GridItem>
           </Grid>
@@ -246,8 +298,10 @@ function ProfileEdit({ user, onSave }) {
             size="lg"
             width="100%"
             onClick={handleSubmit}
+            isLoading={isSubmitting}
+            isDisabled={!validateForm()}
           >
-            Save Profile
+            {mode === 'edit' ? 'Save Profile' : 'Add User'}
           </Button>
         </Box>
       </Flex>

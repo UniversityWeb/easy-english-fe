@@ -3,26 +3,36 @@ import config from '~/config';
 
 const LoginPage = lazy(() => import('~/pages/Common/LoginPage'));
 const RegisterPage = lazy(() => import('~/pages/Common/RegisterPage'));
-const ForgotPasswordPage = lazy(() => import('~/pages/Common/ForgotPasswordPage'));
-const UserProfileEditPage = lazy(() => import('~/pages/Common/UserProfileEditPage'));
-const OtpValidationPage = lazy(() => import('~/pages/Common/OtpValidationPage'));
-const CourseManagementForStudentPage = lazy(() =>
-  import('~/pages/Student/CourseManagementForStudentPage')
+const ForgotPasswordPage = lazy(
+  () => import('~/pages/Common/ForgotPasswordPage'),
 );
-const NotificationsForStudentPage = lazy(() =>
-  import('~/pages/Student/NotificationsForStudentPage')
+const UserProfileEditPage = lazy(
+  () => import('~/pages/Common/UserProfileEditPage'),
+);
+const OtpValidationPage = lazy(
+  () => import('~/pages/Common/OtpValidationPage'),
+);
+const CourseManagementForStudentPage = lazy(
+  () => import('~/pages/Student/CourseManagementForStudentPage'),
+);
+const NotificationsForStudentPage = lazy(
+  () => import('~/pages/Student/NotificationsForStudentPage'),
 );
 const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
 const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
 const CartPage = lazy(() => import('~/pages/Student/CartPage'));
-const PaymentResultPage = lazy(() => import('~/pages/Student/PaymentResultPage'));
-const CourseManagementForTeacherPage = lazy(() =>
-  import('~/pages/Teacher/CourseManagementForTeacherPage')
+const PaymentResultPage = lazy(
+  () => import('~/pages/Student/PaymentResultPage'),
+);
+const CourseManagementForTeacherPage = lazy(
+  () => import('~/pages/Teacher/CourseManagementForTeacherPage'),
 );
 const SearchPage = lazy(() => import('~/pages/Student/SearchPage'));
 const FavouritePage = lazy(() => import('~/pages/Student/FavouritePage'));
 const EnrollCoursePage = lazy(() => import('~/pages/Student/EnrollCoursePage'));
-const CourseViewDetailPage = lazy(() => import('~/pages/Student/CourseDetailPage'));
+const CourseViewDetailPage = lazy(
+  () => import('~/pages/Student/CourseDetailPage'),
+);
 const CourseDetailPage = lazy(() => import('~/pages/Teacher/CourseDetailPage'));
 const Setting = lazy(() => import('~/components/Teacher/CourseDetail/Setting'));
 const OrdersPage = lazy(() => import('~/pages/Student/OrdersPage'));
@@ -31,10 +41,15 @@ const LearnPage = lazy(() => import('~/pages/Student/LearnPage'));
 const CategoryPage = lazy(() => import('~/pages/Admin/CategoryPage'));
 const TopicAndLevelPage = lazy(() => import('~/pages/Admin/TopicAndLevelPage'));
 const TestResultPage = lazy(() => import('~/pages/Common/TestResultPage'));
-const CourseLineChartPage = lazy(() => import('~/pages/Admin/CourseLineChartPage'));
+const CourseLineChartPage = lazy(
+  () => import('~/pages/Admin/CourseLineChartPage'),
+);
 const ReviewAnalystPage = lazy(() => import('~/pages/Admin/ReviewAnalystPage'));
 const UserManagement = lazy(() => import('~/pages/Admin/UserManagementPage'));
 const ChatPage = lazy(() => import('~/pages/Common/ChatPage'));
+const CourseManagementForAdminPage = lazy(
+  () => import('~/pages/Admin/CourseManagementPage'),
+);
 
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
@@ -83,6 +98,10 @@ const publicRoutes = [
   { path: config.routes.user_management, component: UserManagement },
 
   { path: config.routes.chat, component: ChatPage },
+  {
+    path: config.routes.course_management_for_admin,
+    component: CourseManagementForAdminPage,
+  },
 ];
 
 const privateRoutes = [];
