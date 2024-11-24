@@ -10,7 +10,8 @@ import {
   Text,
   Select as ChakraSelect,
   Image,
-  Flex, Heading,
+  Flex,
+  Heading,
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
@@ -194,11 +195,13 @@ const Setting = ({ courseId }) => {
         successToast('Course updated successfully.');
         console.log('Course updated successfully.');
       } else {
-        await courseService.createCourse(formData);
+        const newCourse = await courseService.createCourse(formData);
+        const newCourseId = newCourse.id;
+        console.log('newCourseId', newCourseId);
         successToast('Course created successfully.');
         console.log('Course created successfully.');
 
-        navigate(config.routes.course_management_for_teacher);
+        navigate(config.routes.course_detail(newCourseId));
       }
     } catch (error) {
       errorToast('Error saving course.');
@@ -350,9 +353,7 @@ const Setting = ({ courseId }) => {
               alignItems="center"
               flexDirection="column"
             >
-              <Text>
-                Drag and drop a video or upload it from your computer
-              </Text>
+              <Text>Drag and drop a video or upload it from your computer</Text>
               <Button mt="2" colorScheme="blue">
                 Upload a video
               </Button>

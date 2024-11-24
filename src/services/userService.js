@@ -22,16 +22,30 @@ const uploadAvatar = async (avatar) => {
   return handleResponse(response, 200);
 };
 
-const updateUserForAdmin = async (username, userForAdminReq) => {
-  const path = `${SUFFIX_USER_API_URL}/update-user-for-admin/${username}`;
-  const response = await put(path, userForAdminReq);
-  return handleResponse(response, 200);
-};
-
 const getUsersWithoutAdmin = async (filterReq) => {
   const path = `${SUFFIX_USER_API_URL}/admin/get`;
   const response = await post(path, filterReq);
   return handleResponse(response, 200);
+};
+
+const deleteUserForAdmin = async (username) => {
+  const path = `${SUFFIX_USER_API_URL}/admin/delete/${username}`;
+  const response = await put(path);
+  return handleResponse(response, 204);
+};
+
+const updateUserForAdmin = async (username, userForAdminReq) => {
+  const path = `${SUFFIX_USER_API_URL}/admin/update/${username}`;
+  const response = await put(path, userForAdminReq);
+  return handleResponse(response, 200);
+};
+
+const addUserForAdmin = async (userData) => {
+  const response = await post(`${SUFFIX_USER_API_URL}/admin/add`, userData);
+  if (response?.status !== 201) {
+    return null;
+  }
+  return response.data;
 };
 
 const userService = {
@@ -39,6 +53,8 @@ const userService = {
   uploadAvatar,
   getUsersWithoutAdmin,
   updateUserForAdmin,
+  deleteUserForAdmin,
+  addUserForAdmin,
 };
 
 export default userService;

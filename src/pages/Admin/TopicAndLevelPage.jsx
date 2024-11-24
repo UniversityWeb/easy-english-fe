@@ -42,7 +42,7 @@ const TopicAndLevelPage = () => {
   const [levelsByTopic, setLevelsByTopic] = useState({});
   const [levelCounts, setLevelCounts] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(2);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -265,7 +265,10 @@ const TopicAndLevelPage = () => {
 
                   <Tr>
                     <Td colSpan={4} p={0}>
-                      <Collapse in={expandedTopicId === topic.id} animateOpacity>
+                      <Collapse
+                        in={expandedTopicId === topic.id}
+                        animateOpacity
+                      >
                         <Table variant="simple" size="sm">
                           <Thead>
                             <Tr>
@@ -370,7 +373,10 @@ const TopicAndLevelPage = () => {
                   placeholder="Level Name"
                   value={currentLevel.name}
                   onChange={(e) =>
-                    setCurrentLevel((prev) => ({ ...prev, name: e.target.value }))
+                    setCurrentLevel((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
                   }
                 />
               </FormControl>

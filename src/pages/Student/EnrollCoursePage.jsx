@@ -118,7 +118,7 @@ const EnrollCoursePage = () => {
               <HStack spacing={5} wrap="wrap" justify="start">
                 {courses.map((course) => (
                   <Box
-                    style={{ zoom: 0.9 }}
+                    style={{ zoom: 0.85 }}
                     key={course.id}
                     width="300px"
                     borderWidth="1px"

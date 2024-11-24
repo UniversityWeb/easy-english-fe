@@ -45,7 +45,7 @@ const CategoryPage = () => {
 
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(2); // Default items per page
+  const [itemsPerPage, setItemsPerPage] = useState(8); // Default items per page
 
   // State for search input and search result
   const [searchTerm, setSearchTerm] = useState('');

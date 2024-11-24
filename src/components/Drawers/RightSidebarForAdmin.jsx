@@ -101,7 +101,9 @@ const RightSidebarForAdmin = (props) => {
             <SidebarItem
               icon={IoBookOutline}
               text="Courses"
-              handleClick={() => navigate('')}
+              handleClick={() =>
+                navigate(config.routes.course_management_for_admin)
+              }
             />
 
             <SidebarItem
