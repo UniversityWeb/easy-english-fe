@@ -61,7 +61,7 @@ const LoginPage = () => {
     } else if (role === USER_ROLES.TEACHER) {
       navigate(config.routes.course_management_for_teacher);
     } else if (role === USER_ROLES.ADMIN) {
-      navigate(config.routes.course_management_for_teacher);
+      navigate(config.routes.course_management_for_admin);
     } else {
       console.log("Role not found");
     }

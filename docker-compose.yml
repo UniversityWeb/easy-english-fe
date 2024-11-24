@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  easy-english-fe:
+    container_name: easy-english-fe
+    image: vananne/easy-english-fe:latest
+    ports:
+      - "80:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_OPTIONS="--max-old-space-size=4096"
+    healthcheck:
+      test: curl -f http://localhost:3000 || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3

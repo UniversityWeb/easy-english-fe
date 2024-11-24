@@ -33,3 +33,9 @@ export const validatePassword = (password, confirmPassword) => {
   if (password !== confirmPassword) errors.push("Password and Confirm Password do not match.");
   return errors;
 };
+
+export const formatVNDMoney = (value) => {
+  return new Intl
+    .NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+    .format(value);
+}
