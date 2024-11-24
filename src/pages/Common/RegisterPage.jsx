@@ -249,7 +249,6 @@ const RegisterPage = () => {
                 borderRadius="xl"
                 mt={6}
                 p={6}
-                disabled={true}
                 onClick={handleRegister}
               >
                 Register
