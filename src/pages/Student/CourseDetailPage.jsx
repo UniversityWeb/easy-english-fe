@@ -15,7 +15,8 @@ import {
   TabPanels,
   TabPanel,
 } from '@chakra-ui/react';
-import { FaClock, FaBook, FaHeart, FaShareAlt, FaStar } from 'react-icons/fa';
+import { FaClock, FaBook, FaHeart, FaStar } from 'react-icons/fa';
+import { IoChatbox } from "react-icons/io5";
 import FAQ from '../../components/Student/CourseDetail/FAQ';
 import Reviews from '../../components/Student/CourseDetail/Reviews';
 import Curriculum from '../../components/Student/CourseDetail/Curriculum';
@@ -115,13 +116,13 @@ function CourseDetailsPage() {
         <Flex justify="space-between" direction={['column', 'column', 'row']}>
           <Box flex="2">
             <Text color="gray.500" fontSize="sm">
-              {courseData.topic.name}
+              {courseData?.topic.name}
             </Text>
             <Text fontSize="3xl" fontWeight="bold" mt={2}>
-              {courseData.title}
+              {courseData?.title}
             </Text>
             <Text fontSize="md" mt={4} color="gray.600">
-              {courseData.descriptionPreview}
+              {courseData?.descriptionPreview}
             </Text>
 
             <Text color="blue.500" mt={2} cursor="pointer">
@@ -130,31 +131,31 @@ function CourseDetailsPage() {
 
             <Flex align="center" mt={5}>
               <Avatar
-                name={courseData.ownerUsername || 'Teacher Name'}
-                src="https://bit.ly/ryan-florence"
+                name={courseData?.ownerUsername || 'Teacher Name'}
+                src={courseData?.ownerUsername}
                 size="lg"
               />
               <Box ml={4}>
-                <Text fontWeight="bold">Instructor</Text>
+                <Text fontWeight="bold">Teacher</Text>
                 <Text color="blue.500">
-                  {courseData.ownerUsername || 'Teacher Name'}
+                  {courseData?.ownerUsername || 'Teacher Name'}
                 </Text>
               </Box>
               <Box ml={10}>
-                <Text fontWeight="bold">{courseData.countStudent}</Text>
+                <Text fontWeight="bold">{courseData?.countStudent}</Text>
                 <Text>Students enrolled</Text>
               </Box>
               <Box ml={10}>
                 <Flex align="center">
-                  {[...Array(Math.round(courseData.rating))].map((_, i) => (
+                  {[...Array(Math.round(courseData?.rating))].map((_, i) => (
                     <Icon key={i} as={FaStar} color="orange.400" />
                   ))}
-                  {[...Array(5 - Math.round(courseData.rating))].map((_, i) => (
+                  {[...Array(5 - Math.round(courseData?.rating))].map((_, i) => (
                     <Icon key={i + 5} as={FaStar} color="gray.300" />
                   ))}
                   <Text ml={2}>
-                    {courseData.ratingCount} review
-                    {courseData.ratingCount !== 1 ? 's' : ''}
+                    {courseData?.ratingCount} review
+                    {courseData?.ratingCount !== 1 ? 's' : ''}
                   </Text>
                 </Flex>
               </Box>
@@ -225,7 +226,7 @@ function CourseDetailsPage() {
                   <TabPanel>
                     <Reviews
                       courseId={courseId}
-                      instructorName={courseData.ownerUsername}
+                      instructorName={courseData?.ownerUsername}
                       buttonState={buttonState}
                     />
                   </TabPanel>
@@ -243,11 +244,18 @@ function CourseDetailsPage() {
                 Add to wishlist
               </Button>
               <Button
-                leftIcon={<FaShareAlt />}
+                leftIcon={<IoChatbox />}
                 variant="ghost"
                 colorScheme="gray"
+                onClick={() => {
+                  navigate(config.routes.chat, {
+                    state: {
+                      course: courseData
+                    }
+                  });
+                }}
               >
-                Share
+                Chat
               </Button>
             </Flex>
 
@@ -274,14 +282,14 @@ function CourseDetailsPage() {
                   <Icon as={FaClock} color="gray.500" />
                   <Text>Duration</Text>
                   <Text ml="auto" fontWeight="bold">
-                    {courseData.duration} hours
+                    {courseData?.duration} hours
                   </Text>
                 </HStack>
                 <HStack>
                   <Icon as={FaBook} color="gray.500" />
                   <Text>Lectures</Text>
                   <Text ml="auto" fontWeight="bold">
-                    {courseData.countSection}
+                    {courseData?.countSection}
                   </Text>
                 </HStack>
 
@@ -289,7 +297,7 @@ function CourseDetailsPage() {
                   <Icon as={FaBook} color="gray.500" />
                   <Text>Level</Text>
                   <Text ml="auto" fontWeight="bold">
-                    {courseData.level.name}
+                    {courseData?.level.name}
                   </Text>
                 </HStack>
               </Stack>

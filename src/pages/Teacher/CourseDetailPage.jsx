@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -18,10 +18,12 @@ import Pricing from '~/components/Teacher/CourseDetail/Pricing';
 import FAQ from '~/components/Teacher/CourseDetail/Faq';
 import Notice from '~/components/Teacher/CourseDetail/Notice';
 import config from '~/config';
+import courseService from '~/services/courseService';
 
 function CourseDetailPage() {
   const { courseId } = useParams(); // Extract courseId from URL
   const [activeComponent, setActiveComponent] = useState('Curriculum');
+  const [courseTitle, setCourseTitle] = useState('');
   const navigate = useNavigate();
 
   const handleBackClick = () => {
@@ -47,6 +49,24 @@ function CourseDetailPage() {
     }
   };
 
+  useEffect(() => {
+    if (courseId) {
+      const fetchCourseData = async () => {
+        try {
+          const courseRequest = { id: courseId };
+          const data = await courseService.fetchMainCourse(courseRequest);
+          if (data) {
+            setCourseTitle(data.title || 'Course Detail'); // Lưu tiêu đề từ API
+          }
+        } catch (error) {
+          console.error('Error fetching course data.', error);
+        }
+      };
+
+      fetchCourseData();
+    }
+  }, [courseId]);
+
   return (
     <VStack h="100vh" bg="gray.50">
       <Flex
@@ -66,7 +86,7 @@ function CourseDetailPage() {
           Back to courses
         </Button>
         <Heading as="h2" size="md" ml="4">
-          How to Design Components Right
+          {courseTitle}
         </Heading>
 
         <Tabs

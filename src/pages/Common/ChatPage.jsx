@@ -1,38 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Input,
-  Button,
   VStack,
   Text,
   HStack,
   Icon,
   Avatar,
   Flex,
-  Image,
   useToast,
-  IconButton,
 } from "@chakra-ui/react";
-import { FiSend, FiImage } from "react-icons/fi"; // Added FiImage for image sending
-import { IoArrowBack } from "react-icons/io5"; // Back icon
-import websocketService from "~/services/websocketService";
-import { getUsername } from "~/utils/authUtils";
-import { websocketConstants } from "~/utils/websocketConstants";
+import { IoArrowBack } from "react-icons/io5";
 import servicesService from "~/services/messageService";
-import { useNavigate } from 'react-router-dom';
-import config from '~/config';
+import { useNavigate, useLocation } from "react-router-dom";
+import config from "~/config";
+import Chat from '~/components/Chat';
+
 
 const ChatPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { courseData } = location.state || {}; // Retrieve course data from state
   const [recentUsers, setRecentUsers] = useState([]);
-  const [selectedRecipient, setSelectedRecipient] = useState('');
+  const [selectedRecipient, setSelectedRecipient] = useState(null);
 
   // Fetch recent conversations list from the API
   useEffect(() => {
     const fetchRecentChats = async () => {
       try {
         const response = await servicesService.getRecentChats(0, 10);
-        setRecentUsers(response.content);
+        setRecentUsers(response.content || []);
       } catch (error) {
         console.error("Failed to fetch recent chats:", error);
       }
@@ -41,9 +37,20 @@ const ChatPage = () => {
     fetchRecentChats();
   }, []);
 
+  // Handle recipient selection
   const handleRecipientSelect = (recipient) => {
     setSelectedRecipient(recipient);
   };
+
+  // Automatically open a chat with the course owner if `courseData` is provided
+  useEffect(() => {
+    if (courseData?.ownerUsername) {
+      handleRecipientSelect({
+        username: courseData.ownerUsername,
+        fullName: courseData.ownerUsername, // Update based on your data structure
+      });
+    }
+  }, [courseData]);
 
   const handleBack = () => {
     setSelectedRecipient(null);
@@ -62,7 +69,7 @@ const ChatPage = () => {
         p={4}
       >
         <HStack mb={4}>
-          <Icon as={IoArrowBack} boxSize={5} color="gray.600" onClick={handleBack}/>
+          <Icon as={IoArrowBack} boxSize={5} color="gray.600" onClick={handleBack} />
           <Text fontSize="xl" fontWeight="bold">
             Recent Chats
           </Text>
@@ -99,7 +106,7 @@ const ChatPage = () => {
       {/* Chat Window */}
       <Flex flex="1" direction="column" bg="gray.50">
         {selectedRecipient ? (
-          <Chat recipient={selectedRecipient} />
+          <Chat recipient={selectedRecipient} courseData={courseData} />
         ) : (
           <Flex
             flex="1"
@@ -115,195 +122,6 @@ const ChatPage = () => {
           </Flex>
         )}
       </Flex>
-    </Flex>
-  );
-};
-
-const Chat = ({ recipient }) => {
-  const curUsername = getUsername();
-  const [messages, setMessages] = useState([]);
-  const [messageContent, setMessageContent] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null); // For image upload
-  const toast = useToast();
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await servicesService.getAllMessages(
-          curUsername,
-          recipient?.username,
-          0,
-          20
-        );
-        setMessages(response.content); // Assuming `response.content` contains the messages
-      } catch (error) {
-        console.error("Failed to fetch messages:", error);
-      }
-    };
-
-    if (recipient) {
-      fetchMessages();
-    }
-  }, [recipient, curUsername]);
-
-  // WebSocket setup
-  useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {
-      websocketService.subscribe(
-        websocketConstants.messageTopic(curUsername),
-        (message) => {
-          setMessages((prevMessages) => [...prevMessages, message]);
-        }
-      );
-    });
-
-    return () => {
-      websocketService.disconnect();
-    };
-  }, [curUsername]);
-
-  const sendMessage = async () => {
-    if (messageContent.trim() === "" && !selectedImage) return;
-
-    const message = {
-      type: selectedImage ? "IMAGE" : "TEXT",
-      content: selectedImage
-        ? await convertToBase64(selectedImage) // Convert image to base64
-        : messageContent,
-      senderUsername: curUsername,
-      recipientUsername: recipient?.username,
-    };
-
-    websocketService.send(websocketConstants.messageDestination, message);
-    setMessages((prevMessages) => [...prevMessages, message]);
-
-    setMessageContent("");
-    setSelectedImage(null); // Clear the selected image
-  };
-
-  // Convert image file to base64
-  const convertToBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      toast({
-        title: "Image selected.",
-        description: file.name,
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
-
-  return (
-    <Flex h="100%" direction="column">
-      {/* Chat Header */}
-      <HStack
-        bg="white"
-        p={4}
-        borderBottom="1px solid"
-        borderColor="gray.200"
-        shadow="sm"
-        justify="space-between"
-        align="center"
-      >
-        <HStack>
-          <Avatar
-            size="md"
-            name={recipient?.username || "User"} // Fallback to "User" if username is not available
-            src={recipient?.avatarPath || undefined} // Use avatarPath if available, otherwise fallback to undefined
-          />
-          <Text fontSize="lg" fontWeight="bold">
-            {recipient?.fullName || recipient?.username}
-          </Text>
-        </HStack>
-      </HStack>
-
-      {/* Messages Section */}
-      <Box
-        flex="1"
-        overflowY="auto"
-        p={4}
-        bg="white"
-        borderRadius="md"
-        border="1px solid"
-        borderColor="gray.200"
-      >
-        {messages.map((msg, index) => (
-          <HStack
-            key={index}
-            justify={
-              msg.senderUsername === curUsername ? "flex-end" : "flex-start"
-            }
-            mb={2}
-          >
-            {msg?.senderUsername !== curUsername && (
-                <Avatar
-                  size="sm"
-                  name={msg?.senderUsername || "User"}
-                  src={msg?.avatarPath || undefined} // If avatarPath exists, it will use it as the image source
-                />
-            )}
-            <Box
-              p={3}
-              bg={
-                msg.senderUsername === curUsername ? "blue.100" : "gray.200"
-              }
-              borderRadius="md"
-              maxWidth="70%"
-            >
-              {msg.type === "IMAGE" ? (
-                <Image src={msg.content} alt="Image" maxH="200px" />
-              ) : (
-                <Text>{msg.content}</Text>
-              )}
-            </Box>
-          </HStack>
-        ))}
-      </Box>
-
-      {/* Message Input */}
-      <HStack
-        p={4}
-        bg="white"
-        borderTop="1px solid"
-        borderColor="gray.200"
-        shadow="sm"
-      >
-        <Input
-          placeholder="Type a message"
-          value={messageContent}
-          onChange={(e) => setMessageContent(e.target.value)}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          style={{ display: "none" }}
-          id="image-upload"
-        />
-        <label htmlFor="image-upload">
-          <IconButton
-            as="span"
-            icon={<FiImage />}
-            colorScheme="teal"
-            aria-label="Upload Image"
-          />
-        </label>
-        <Button colorScheme="blue" onClick={sendMessage}>
-          <Icon as={FiSend} />
-        </Button>
-      </HStack>
     </Flex>
   );
 };

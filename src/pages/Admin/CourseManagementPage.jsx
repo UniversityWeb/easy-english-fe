@@ -110,7 +110,7 @@ const CourseManagement = () => {
       successToast('Course status updated successfully.');
       fetchCourses();
     } catch (error) {
-      errorToast('Failed to update course status.');
+      errorToast(error?.message);
     }
   };
 
