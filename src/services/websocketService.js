@@ -53,7 +53,7 @@ class WebSocketService {
   }
 
   onConnect() {
-    Object.keys(this.subscribers).forEach(destination => {
+    Object.keys(this.subscribers).forEach((destination) => {
       this.subscribe(destination, this.subscribers[destination]);
     });
   }

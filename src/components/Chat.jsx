@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from 'react';
 import {
   Avatar,
   Box,
@@ -10,30 +10,31 @@ import {
   Image,
   Input,
   Text,
-} from "@chakra-ui/react";
-import { FiImage, FiSend } from "react-icons/fi";
-import servicesService from "~/services/messageService";
-import websocketService from "~/services/websocketService";
-import { websocketConstants } from "~/utils/websocketConstants";
-import useCustomToast from "~/hooks/useCustomToast";
-import { getUsername } from "~/utils/authUtils";
+} from '@chakra-ui/react';
+import { FiImage, FiSend } from 'react-icons/fi';
+import servicesService from '~/services/messageService';
+import websocketService from '~/services/websocketService';
+import { websocketConstants } from '~/utils/websocketConstants';
+import useCustomToast from '~/hooks/useCustomToast';
+import { getUsername } from '~/utils/authUtils';
 
 // Define message types as constants
 const MESSAGE_TYPES = {
-  TEXT: "TEXT",
-  IMAGE: "IMAGE",
-  COURSE_INFO: "COURSE_INFO",
+  TEXT: 'TEXT',
+  IMAGE: 'IMAGE',
+  COURSE_INFO: 'COURSE_INFO',
 };
 
 const Chat = ({ recipient, courseData }) => {
   const curUsername = getUsername();
   const [messages, setMessages] = useState([]);
-  const [messageContent, setMessageContent] = useState("");
+  const [messageContent, setMessageContent] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
   const { infoToast } = useCustomToast();
   const scrollRef = useRef(null);
+  const subscribed = useRef(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -46,11 +47,11 @@ const Chat = ({ recipient, courseData }) => {
           curUsername,
           recipient?.username,
           0,
-          1000
+          1000,
         );
         setMessages(response.content || []);
       } catch (error) {
-        console.error("Failed to fetch messages:", error);
+        console.error('Failed to fetch messages:', error);
       }
     };
 
@@ -60,40 +61,55 @@ const Chat = ({ recipient, courseData }) => {
   }, [recipient, curUsername]);
 
   useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {
-      websocketService.subscribe(
-        websocketConstants.messageTopic(curUsername),
-        (message) => {
-          setMessages((prevMessages) => [...prevMessages, message]);
-        }
-      );
+    if (!subscribed.current) {
+      websocketService.disconnect();
+      websocketService.connect(() => {
+        websocketService.subscribe(
+          websocketConstants.messageTopic(curUsername),
+          (message) => {
+            setMessages((prevMessages) => [...prevMessages, message]);
+          },
+        );
 
-      websocketService.subscribe(
-        websocketConstants.messageTopic(recipient?.username),
-        (message) => {
-          setMessages((prevMessages) => [...prevMessages, message]);
-        }
-      );
-    });
+        websocketService.subscribe(
+          websocketConstants.messageTopic(recipient?.username),
+          (message) => {
+            setMessages((prevMessages) => [...prevMessages, message]);
+          },
+        );
+
+        subscribed.current = true;
+      });
+    }
 
     return () => {
-      websocketService.disconnect();
+      if (subscribed.current) {
+        websocketService.disconnect();
+        subscribed.current = false;
+      }
     };
   }, [curUsername]);
 
-  const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = "") => {
-    if (type === MESSAGE_TYPES.TEXT && messageContent.trim() === "" && !selectedImage) return;
+  const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = '') => {
+    if (
+      type === MESSAGE_TYPES.TEXT &&
+      messageContent.trim() === '' &&
+      !selectedImage
+    )
+      return;
 
     const message = {
       type,
-      content: type === MESSAGE_TYPES.IMAGE ? await convertToBase64(selectedImage) : content || messageContent,
+      content:
+        type === MESSAGE_TYPES.IMAGE
+          ? await convertToBase64(selectedImage)
+          : content || messageContent,
       senderUsername: curUsername,
       recipientUsername: recipient?.username,
     };
 
     websocketService.send(websocketConstants.messageDestination, message);
-    setMessageContent("");
+    setMessageContent('');
     setSelectedImage(null);
     setImagePreview(null);
   };
@@ -115,7 +131,7 @@ const Chat = ({ recipient, courseData }) => {
     if (file) {
       setSelectedImage(file);
       setImagePreview(URL.createObjectURL(file)); // Generate preview URL
-      infoToast("Image selected.");
+      infoToast('Image selected.');
     }
   };
 
@@ -127,10 +143,13 @@ const Chat = ({ recipient, courseData }) => {
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    const time = date.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     return `${day}-${month}-${year} ${time}`;
   };
 
@@ -145,7 +164,7 @@ const Chat = ({ recipient, courseData }) => {
         align="center"
       >
         <HStack>
-          <Avatar size="md" name={recipient?.username || "User"} />
+          <Avatar size="md" name={recipient?.username || 'User'} />
           <Text fontSize="lg" fontWeight="bold">
             {recipient?.fullName || recipient?.username}
           </Text>
@@ -161,15 +180,17 @@ const Chat = ({ recipient, courseData }) => {
         {messages.map((msg, index) => (
           <HStack
             key={index}
-            justify={msg.senderUsername === curUsername ? "flex-end" : "flex-start"}
+            justify={
+              msg.senderUsername === curUsername ? 'flex-end' : 'flex-start'
+            }
             mb={2}
           >
             {msg.senderUsername !== curUsername && (
-              <Avatar size="sm" name={msg.senderUsername || "User"} />
+              <Avatar size="sm" name={msg.senderUsername || 'User'} />
             )}
             <Box
               p={3}
-              bg={msg.senderUsername === curUsername ? "blue.100" : "gray.200"}
+              bg={msg.senderUsername === curUsername ? 'blue.100' : 'gray.200'}
               borderRadius="md"
               maxWidth="70%"
             >
@@ -216,7 +237,7 @@ const Chat = ({ recipient, courseData }) => {
           value={messageContent}
           onChange={(e) => setMessageContent(e.target.value)}
           onKeyDown={async (e) => {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               await sendMessage(MESSAGE_TYPES.TEXT);
             }
           }}
@@ -225,13 +246,16 @@ const Chat = ({ recipient, courseData }) => {
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          style={{ display: "none" }}
+          style={{ display: 'none' }}
           id="image-upload"
         />
         <label htmlFor="image-upload">
           <IconButton as="span" icon={<FiImage />} colorScheme="teal" />
         </label>
-        <Button colorScheme="blue" onClick={() => sendMessage(MESSAGE_TYPES.TEXT)}>
+        <Button
+          colorScheme="blue"
+          onClick={() => sendMessage(MESSAGE_TYPES.TEXT)}
+        >
           <Icon as={FiSend} />
         </Button>
       </HStack>
