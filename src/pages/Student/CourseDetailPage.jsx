@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ChakraProvider,
   Box,
   Text,
   Flex,
@@ -31,7 +30,6 @@ import enrollmentService from '~/services/enrollmentService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
-import authService from '~/services/authService';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 
@@ -45,14 +43,6 @@ function CourseDetailsPage() {
     const response = await courseService.fetchMainCourse({ id: courseId });
     if (response) setCourseData(response);
   };
-
-  useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {});
-    return () => {
-      websocketService.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     loadCourseData();

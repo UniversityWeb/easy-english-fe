@@ -18,8 +18,8 @@ import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent'
 import { FiShoppingCart } from 'react-icons/fi';
 import { Icon } from '@chakra-ui/icons';
 import CartService from '~/services/cartService';
-import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
+import WebSocketService from '~/services/websocketService';
 
 const NavbarForStudent = React.memo((props) => {
   const navigate = useNavigate();
@@ -27,34 +27,42 @@ const NavbarForStudent = React.memo((props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [countedCartItems, setCountedCartItems] = useState(0);
 
+  const fetchUser = async () => {
+    try {
+      const user = await AuthService.getCurUser();
+      setUser(user);
+    } catch (e) {
+      console.log(e?.message);
+    }
+  };
+
   useEffect(() => {
     const username = getUsername();
-    websocketService.disconnect();
-    websocketService.connect(() => {
-      websocketService.subscribe(websocketConstants.cartItemCountTopic(username), async (notification) => {
-        await fetchCartItems();
-      });
-    });
+    let wsService;
 
-    // Cleanup function to unsubscribe and disconnect WebSocket on unmount
-    return () => {
-      websocketService.unsubscribe(websocketConstants.cartItemCountTopic(username));
-      websocketService.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const fetchUser = async () => {
+    const initializeWebsocket = async () => {
       try {
-        const user = await AuthService.getCurUser();
-        setUser(user);
-      } catch (e) {
-        console.log(e?.message);
+        wsService = await WebSocketService.getIns();
+
+        wsService.subscribe(websocketConstants.cartItemCountTopic(username), async (notification) => {
+          await fetchCartItems();
+        });
+      } catch (error) {
+        console.error('WebSocket initialization failed:', error);
       }
-    };
+    }
+
+    initializeWebsocket();
 
     fetchUser();
     fetchCartItems();
+
+    return () => {
+      if (wsService) {
+        wsService.unsubscribe(websocketConstants.cartItemCountTopic(username));
+        wsService.disconnect();
+      }
+    }
   }, []);
 
   const fetchCartItems = async () => {

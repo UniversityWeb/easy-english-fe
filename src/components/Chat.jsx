@@ -12,8 +12,8 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { FiImage, FiSend } from 'react-icons/fi';
-import servicesService from '~/services/messageService';
-import websocketService from '~/services/websocketService';
+import messageService from '~/services/messageService';
+import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
@@ -34,7 +34,6 @@ const Chat = ({ recipient, courseData }) => {
 
   const { infoToast } = useCustomToast();
   const scrollRef = useRef(null);
-  const subscribed = useRef(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -43,7 +42,7 @@ const Chat = ({ recipient, courseData }) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await servicesService.getAllMessages(
+        const response = await messageService.getAllMessages(
           curUsername,
           recipient?.username,
           0,
@@ -61,34 +60,32 @@ const Chat = ({ recipient, courseData }) => {
   }, [recipient, curUsername]);
 
   useEffect(() => {
-    if (!subscribed.current) {
-      websocketService.disconnect();
-      websocketService.connect(() => {
-        websocketService.subscribe(
-          websocketConstants.messageTopic(curUsername),
-          (message) => {
-            setMessages((prevMessages) => [...prevMessages, message]);
-          },
-        );
+    let wsService;
 
-        websocketService.subscribe(
-          websocketConstants.messageTopic(recipient?.username),
-          (message) => {
-            setMessages((prevMessages) => [...prevMessages, message]);
-          },
-        );
+    const initializeWebsocket = async () => {
+      try {
+        wsService = await WebSocketService.getIns();
 
-        subscribed.current = true;
-      });
+        wsService.subscribe(websocketConstants.messageTopic(curUsername), message => {
+          const recipientUsername = recipient?.username;
+          if (recipientUsername === message?.recipientUsername || recipientUsername === message?.senderUsername) {
+            setMessages((prevMessages) => [...prevMessages, message]);
+          }
+        });
+      } catch (error) {
+        console.error('WebSocket initialization failed:', error);
+      }
     }
 
+    initializeWebsocket();
+
     return () => {
-      if (subscribed.current) {
-        websocketService.disconnect();
-        subscribed.current = false;
+      if (wsService) {
+        wsService.unsubscribe(websocketConstants.messageTopic(curUsername));
+        wsService.disconnect();
       }
-    };
-  }, [curUsername]);
+    }
+  }, []);
 
   const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = '') => {
     if (
@@ -106,9 +103,12 @@ const Chat = ({ recipient, courseData }) => {
           : content || messageContent,
       senderUsername: curUsername,
       recipientUsername: recipient?.username,
+      sendingTime: new Date().toISOString(),
     };
 
-    websocketService.send(websocketConstants.messageDestination, message);
+    const wsService = await WebSocketService.getIns();
+    wsService.send(websocketConstants.messageDestination, message);
+    setMessages((prevMessages) => [...prevMessages, message]);
     setMessageContent('');
     setSelectedImage(null);
     setImagePreview(null);
