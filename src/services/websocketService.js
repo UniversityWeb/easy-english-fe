@@ -1,5 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { getToken } from '~/utils/authUtils';
 
 class WebSocketService {
   static instance = null;
@@ -87,6 +88,8 @@ class WebSocketService {
    * Create the WebSocket client and set up event handlers.
    */
   createClient() {
+    const token = getToken();
+    this.url = this.url + "?token=" + token;
     const socket = new SockJS(this.url);
     this.client = new Client({
       webSocketFactory: () => socket,
