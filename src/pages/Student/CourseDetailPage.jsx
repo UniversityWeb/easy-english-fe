@@ -16,13 +16,13 @@ import {
 } from '@chakra-ui/react';
 import { FaClock, FaBook, FaHeart, FaStar } from 'react-icons/fa';
 import { IoChatbox } from "react-icons/io5";
-import FAQ from '../../components/Student/CourseDetail/FAQ';
-import Reviews from '../../components/Student/CourseDetail/Reviews';
-import Curriculum from '../../components/Student/CourseDetail/Curriculum';
-import Announcement from '../../components/Student/CourseDetail/Announcement';
-import Description from '../../components/Student/CourseDetail/Description';
-import CourseRandom from '../../components/Student/CourseDetail/CourseRandom';
-import RelateCourse from '../../components/Student/CourseDetail/RelateCourse';
+import FAQ from '~/components/Student/CourseDetail/FAQ';
+import Reviews from '~/components/Student/CourseDetail/Reviews';
+import Curriculum from '~/components/Student/CourseDetail/Curriculum';
+import Announcement from '~/components/Student/CourseDetail/Announcement';
+import Description from '~/components/Student/CourseDetail/Description';
+import CourseRandom from '~/components/Student/CourseDetail/CourseRandom';
+import RelateCourse from '~/components/Student/CourseDetail/RelateCourse';
 import { useNavigate, useParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
@@ -46,6 +46,8 @@ function CourseDetailsPage() {
 
   useEffect(() => {
     loadCourseData();
+
+    window.scrollTo(0, 0);
   }, [courseId]);
 
   useEffect(() => {
@@ -225,7 +227,7 @@ function CourseDetailsPage() {
               </Tabs>
             </Box>
             <Box mt={10}>
-              <RelateCourse />
+              <RelateCourse courseId={courseId} numberOfCourses={3} type={"LEVEL"}/>
             </Box>
           </Box>
 
@@ -297,7 +299,7 @@ function CourseDetailsPage() {
               <Text fontWeight="bold" fontSize="lg" mb={4}>
                 Related Courses
               </Text>
-              <CourseRandom />
+              <CourseRandom courseId={courseId} numberOfCourses={4} type={"TOPIC"}/>
             </Box>
           </Box>
         </Flex>
