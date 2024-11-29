@@ -12,15 +12,12 @@ import {
 import { motion } from 'framer-motion'; // Import motion
 import notificationService from '~/services/notificationService';
 import useCustomToast from '~/hooks/useCustomToast';
-import Footer from '~/components/Footer';
-import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import { getUsername } from '~/utils/authUtils';
 import { formatDate } from '~/utils/methods';
 import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
-import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
-import StudentPageLayout from '~/components/StudentPageLayout';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import WebSocketService from '~/services/websocketService';
 
 const MotionBox = motion(Box);
 
@@ -33,20 +30,31 @@ const NotificationsForStudentPage = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {
-      websocketService.subscribe(websocketConstants.notificationTopic(username), (notification) => {
-        console.log(`Received message: ${JSON.stringify(notification)}`);
-        setNotifications((prev) => [notification, ...prev]);
-        infoToast("You have a new message");
-      });
-    });
+    let wsService;
 
-    // Cleanup function to unsubscribe and disconnect WebSocket on unmount
+    const initializeWebsocket = async () => {
+      try {
+        wsService = await WebSocketService.getIns();
+
+        wsService.subscribe(websocketConstants.notificationTopic(username), (notification) => {
+          console.log(`Received message: ${JSON.stringify(notification)}`);
+          setNotifications((prev) => [notification, ...prev]);
+          infoToast("You have a new message");
+        });
+
+      } catch (error) {
+        console.error('WebSocket initialization failed:', error);
+      }
+    }
+
+    initializeWebsocket();
+
     return () => {
-      websocketService.unsubscribe(websocketConstants.notificationTopic(username));
-      websocketService.disconnect();
-    };
+      if (wsService) {
+        wsService.unsubscribe(websocketConstants.notificationTopic(username));
+        wsService.disconnect();
+      }
+    }
   }, []);
 
   useEffect(() => {

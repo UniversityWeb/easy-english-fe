@@ -7,13 +7,16 @@ import {
   Icon,
   Avatar,
   Flex,
-  useToast,
-} from "@chakra-ui/react";
+  AvatarBadge,
+} from '@chakra-ui/react';
 import { IoArrowBack } from "react-icons/io5";
 import servicesService from "~/services/messageService";
 import { useNavigate, useLocation } from "react-router-dom";
 import config from "~/config";
 import Chat from '~/components/Chat';
+import WebSocketService from '~/services/websocketService';
+import { websocketConstants } from '~/utils/websocketConstants';
+import { getUsername } from '~/utils/authUtils';
 
 
 const ChatPage = () => {
@@ -25,6 +28,66 @@ const ChatPage = () => {
 
   // Fetch recent conversations list from the API
   useEffect(() => {
+    const username = getUsername();
+    let wsService;
+
+    const initializeWebsocket = async () => {
+      try {
+        wsService = await WebSocketService.getIns();
+
+        wsService.subscribe(websocketConstants.recentChatsTopic(username), (message) => {
+          try {
+            const { senderUsername, recipientUsername, content, sendingTime } = message;
+
+            // Determine the chat partner (exclude the logged-in user)
+            const chatPartner = senderUsername === username ? recipientUsername : senderUsername;
+
+            // Update the recent chats list dynamically
+            setRecentUsers((prevUsers) => {
+              const existingUserIndex = prevUsers.findIndex((user) => user.username === chatPartner);
+
+              // If the user already exists in the list, update them and move them to the top
+              if (existingUserIndex !== -1) {
+                const updatedUser = {
+                  ...prevUsers[existingUserIndex],
+                  lastMessage: content,
+                  lastMessageTime: sendingTime,
+                };
+                const updatedUsers = [...prevUsers];
+                updatedUsers.splice(existingUserIndex, 1); // Remove the existing user
+                return [updatedUser, ...updatedUsers]; // Add the updated user to the top
+              }
+
+              // If the user doesn't exist, add them to the top of the list
+              return [
+                {
+                  username: chatPartner,
+                  lastMessage: content,
+                  lastMessageTime: sendingTime,
+                  fullName: chatPartner, // Adjust if additional data is available
+                },
+                ...prevUsers,
+              ];
+            });
+          } catch (error) {
+            console.error("Failed to process WebSocket message:", error);
+          }
+        });
+
+        wsService.subscribe(websocketConstants.onlineUsersTopic, (onlineUsernames) => {
+          setRecentUsers((prevUsers) =>
+            prevUsers.map((user) => ({
+              ...user,
+              isOnline: onlineUsernames.includes(user.username),
+            }))
+          );
+        });
+
+      } catch (error) {
+        console.error('WebSocket initialization failed:', error);
+      }
+    }
+
     const fetchRecentChats = async () => {
       try {
         const response = await servicesService.getRecentChats(0, 10);
@@ -34,7 +97,16 @@ const ChatPage = () => {
       }
     };
 
+    initializeWebsocket();
     fetchRecentChats();
+
+    return () => {
+      if (wsService) {
+        wsService.unsubscribe(websocketConstants.recentChatsTopic(username));
+        wsService.unsubscribe(websocketConstants.onlineUsersTopic);
+        wsService.disconnect();
+      }
+    }
   }, []);
 
   // Handle recipient selection
@@ -88,11 +160,29 @@ const ChatPage = () => {
               cursor="pointer"
               onClick={() => handleRecipientSelect(user)}
             >
-              <Avatar
-                size="sm"
-                name={user?.fullName || user?.username || "User"}
-                src={user?.avatarPath || undefined}
-              />
+              <Flex position="relative" w="fit-content">
+                {/* Avatar Component */}
+                <Avatar
+                  size="sm"
+                  name={user?.fullName || user?.username || "User"}
+                  src={user?.avatarPath || undefined}
+                />
+
+                {/* Online Dot */}
+                {user?.isOnline && (
+                  <Box
+                    position="absolute"
+                    bottom="0"
+                    right="0"
+                    bg="green.400"
+                    borderWidth="2px"
+                    borderColor="white"
+                    borderRadius="full"
+                    width="12px"
+                    height="12px"
+                  />
+                )}
+              </Flex>
               <Box flex="1">
                 <Text fontWeight="bold">
                   {user?.fullName || user?.username}

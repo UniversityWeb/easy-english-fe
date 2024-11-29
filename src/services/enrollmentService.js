@@ -1,16 +1,11 @@
-import { get, post, put } from '~/utils/httpRequest';
+import { get, handleResponse, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_ENROLLMENT_API_URL = '/enrollments';
 
 const isEnrolled = async (courseId) => {
   const path = `${SUFFIX_ENROLLMENT_API_URL}/is-enrolled/${courseId}`;
   const response = await get(path);
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const getAllEnrolls = async (page = 0, size = 10) => {
@@ -21,11 +16,7 @@ const getAllEnrolls = async (page = 0, size = 10) => {
       size: size,
     },
   });
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const getEnrollByFilter = async (courseRequest) => {
@@ -33,12 +24,7 @@ const getEnrollByFilter = async (courseRequest) => {
     `${SUFFIX_ENROLLMENT_API_URL}/filter`,
     courseRequest,
   );
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const enrollmentService = {

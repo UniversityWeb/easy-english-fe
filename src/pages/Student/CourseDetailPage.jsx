@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ChakraProvider,
   Box,
   Text,
   Flex,
@@ -29,11 +28,10 @@ import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
 import enrollmentService from '~/services/enrollmentService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
-import authService from '~/services/authService';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
+import WebsocketService from '~/services/websocketService';
 
 function CourseDetailsPage() {
   const navigate = useNavigate();
@@ -45,14 +43,6 @@ function CourseDetailsPage() {
     const response = await courseService.fetchMainCourse({ id: courseId });
     if (response) setCourseData(response);
   };
-
-  useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {});
-    return () => {
-      websocketService.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     loadCourseData();
@@ -90,7 +80,8 @@ function CourseDetailsPage() {
           const addRequest = {
             username: getUsername(),
           };
-          websocketService.send(websocketConstants.cartItemCountDestination, addRequest);
+          const wsService = await WebsocketService.getIns();
+          wsService.send(websocketConstants.cartItemCountDestination, addRequest);
           setButtonState('in-cart');
         } catch (error) {
           console.error('Error adding to cart:', error);

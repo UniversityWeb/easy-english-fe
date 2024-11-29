@@ -3,7 +3,6 @@ import {
   Box, Button, Table, Thead, Tbody, Tr, Th, Td, Input, VStack, HStack, Text, Skeleton, Icon, Flex, InputGroup, InputLeftElement
 } from '@chakra-ui/react';
 import { FaSearch, FaFilter, FaBan, FaRedo } from 'react-icons/fa';
-import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import testResultService from '~/services/testResultService';
 import useCustomToast from '~/hooks/useCustomToast';
@@ -11,6 +10,7 @@ import { TEST_RESULT_STATUSES } from '~/utils/constants';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'
+import WebSocketService from '~/services/websocketService';
 
 const TestResultTable = ({ testId, courseId }) => {
   const [testResults, setTestResults] = useState([]);
@@ -44,30 +44,39 @@ const TestResultTable = ({ testId, courseId }) => {
     fetchTestResults(currentPage);
   }, [testId, currentPage]);
 
-  // WebSocket effect to listen for new test result notifications
   useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {
-      websocketService.subscribe(websocketConstants.testResultNotificationTopic(testId), (newTestResult) => {
-        setTestResults((prevResults) => {
-          if (!prevResults.some(result => result.id === newTestResult.id)) {
-            const updatedResults = [newTestResult, ...prevResults];
-            if (updatedResults.length > pageSize) {
-              updatedResults.pop();
-            }
-            return updatedResults;
-          }
-          return prevResults;
-        });
-        infoToast('Received new test result!');
-      });
-    });
+    let wsService;
 
-    // Cleanup WebSocket on unmount
+    const initializeWebsocket = async () => {
+      try {
+        wsService = await WebSocketService.getIns();
+
+        wsService.subscribe(websocketConstants.testResultNotificationTopic(testId), (newTestResult) => {
+          setTestResults((prevResults) => {
+            if (!prevResults.some(result => result.id === newTestResult.id)) {
+              const updatedResults = [newTestResult, ...prevResults];
+              if (updatedResults.length > pageSize) {
+                updatedResults.pop();
+              }
+              return updatedResults;
+            }
+            return prevResults;
+          });
+          infoToast('Received new test result!');
+        });
+      } catch (error) {
+        console.error('WebSocket initialization failed:', error);
+      }
+    }
+
+    initializeWebsocket();
+
     return () => {
-      websocketService.unsubscribe(websocketConstants.testResultNotificationTopic(testId));
-      websocketService.disconnect();
-    };
+      if (wsService) {
+        wsService.unsubscribe(websocketConstants.testResultNotificationTopic(testId));
+        wsService.disconnect();
+      }
+    }
   }, []);
 
   // Handle deleting a test result

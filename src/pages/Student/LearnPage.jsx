@@ -26,6 +26,7 @@ import lessonTrackerService from '~/services/lessonTrackerService';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
+import TestPreview from '~/components/Test/TestPreview';
 
 const LessonItem = ({
                       icon,
@@ -169,8 +170,9 @@ const LearnPage = () => {
         if (selectedItem.isLesson) {
           await lessonTrackerService.createCompleteLesson({
             lessonId: selectedItem.id,
-            username,
+            username: username,
             isCompleted: true,
+            completedAt: new Date().toISOString(),
           });
         }
         // Add test completion logic here if needed
@@ -245,19 +247,7 @@ const LearnPage = () => {
     const { content, contentUrl, description, type, isTest } = selectedItem;
 
     if (isTest) {
-      return (
-        <>
-          <Text fontSize="sm" fontWeight="bold" color="gray.500">
-            {description || 'Test Description'}
-          </Text>
-          <Text fontSize="lg" color="gray.700" mt={4}>
-            This is a test with {selectedItem.questions?.length || 0} questions.
-          </Text>
-          <Button colorScheme="blue" mt={4}>
-            Start Test
-          </Button>
-        </>
-      );
+      return <TestPreview test={selectedItem} />;
     }
 
     return (
@@ -363,14 +353,16 @@ const LearnPage = () => {
             {renderContent()}
           </VStack>
 
-          <Button
-            colorScheme="blue"
-            mt={8}
-            alignSelf="flex-end"
-            onClick={handleCompleteAndNext}
-          >
-            {selectedItem?.complete ? 'Next' : 'Complete & Next'}
-          </Button>
+          {!selectedItem?.isTest && (
+            <Button
+              colorScheme="blue"
+              mt={8}
+              alignSelf="flex-end"
+              onClick={handleCompleteAndNext}
+            >
+              {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+            </Button>
+          )}
         </Box>
       </Flex>
     </Flex>

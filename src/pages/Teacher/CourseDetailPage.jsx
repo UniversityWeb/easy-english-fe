@@ -43,7 +43,7 @@ function CourseDetailPage() {
       case 'FAQ':
         return <FAQ courseId={courseId} />;
       case 'Notice':
-        return <Notice />;
+        return <Notice courseId={courseId} />;
       default:
         return <Curriculum courseId={courseId} />;
     }
@@ -138,7 +138,7 @@ function CourseDetailPage() {
         </Button>
       </Flex>
 
-      <Box w="full" h="full" bg="white" p={8} rounded="md" mt={5}>
+      <Box w="full" h="full" bg="white" p={8} rounded="md">
         {renderComponent()}
       </Box>
     </VStack>

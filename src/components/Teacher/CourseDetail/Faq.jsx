@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -242,4 +242,4 @@ function Faq({ courseId }) {
   );
 }
 
-export default Faq;
+export default React.memo(Faq);

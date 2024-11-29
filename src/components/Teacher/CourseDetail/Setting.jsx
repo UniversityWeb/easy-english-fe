@@ -26,7 +26,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 
-const Setting = ({ courseId }) => {
+const Setting = React.memo(({ courseId }) => {
   const navigate = useNavigate();
   const username = getUsername();
   const [course, setCourse] = useState({
@@ -210,9 +210,7 @@ const Setting = ({ courseId }) => {
   };
 
   return (
-    <Box pt={10} pb={10} maxW="600px" mx="auto">
-      <Heading mb={4}>Add new course</Heading>
-
+    <Box pb={10} maxW="600px" mx="auto">
       <FormControl mb="4">
         <FormLabel>Course name</FormLabel>
         <Input
@@ -489,6 +487,6 @@ const Setting = ({ courseId }) => {
       </Button>
     </Box>
   );
-};
+});
 
 export default Setting;
