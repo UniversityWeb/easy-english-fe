@@ -174,6 +174,12 @@ const countView = async (courseId) => {
   return handleResponse(response, 200);
 };
 
+const getRelatedCourses = async (getRelatedCourseReq) => {
+  const path = `${SUFFIX_COURSE_API_URL}/get-related-courses`;
+  const response = await post(path, getRelatedCourseReq);
+  return handleResponse(response, 200);
+};
+
 const courseService = {
   updateCourseStatus,
   addCourseToFavourite,
@@ -190,6 +196,7 @@ const courseService = {
   getAllCourseForAdmin,
   updateCourseNotice,
   countView,
+  getRelatedCourses,
 };
 
 export default courseService;
