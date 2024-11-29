@@ -205,7 +205,15 @@ const CourseList = ({
                     colorScheme="blue"
                     size="sm"
                     width="full"
-                    onClick={() => navigate(`/course-view-detail/${course.id}`)}
+                    onClick={async () => {
+                      const courseId = course.id;
+                      try {
+                        await courseService.countView(courseId)
+                      } catch (e) {
+                        console.error(e);
+                      }
+                      navigate(`/course-view-detail/${courseId}`);
+                    }}
                   >
                     PREVIEW THIS COURSE
                   </Button>

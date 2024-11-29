@@ -14,6 +14,9 @@ import useCustomToast from "~/hooks/useCustomToast";
 import cartService from "~/services/cartService";
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { formatVNDMoney } from '~/utils/methods';
+import paymentService from '~/services/paymentService';
+import { getUsername } from '~/utils/authUtils';
+import config from '~/config';
 
 const CartPage = () => {
   const { successToast, errorToast } = useCustomToast();
@@ -49,12 +52,22 @@ const CartPage = () => {
   };
 
   const handleCheckout = async () => {
+    const username = getUsername();
     try {
-      // Implement checkout logic as per your requirements
-      successToast("Proceeding to checkout...");
+      const urlReturn = `${window.location.protocol}//${window.location.host}${config.routes.payment_result}`;
+      const paymentRequest = {
+        username: username,
+        method: 'VN_PAY',
+        urlReturn: urlReturn,
+      };
+
+      const paymentResponse =
+        await paymentService.createPaymentOrder(paymentRequest);
+      successToast('Checkout successful! Redirecting to payment...');
+      window.location.href = paymentResponse?.paymentUrl;
     } catch (error) {
-      console.error(error.message);
-      errorToast("Error during checkout.");
+      console.error(error?.message);
+      errorToast('Error during checkout. Please try again.');
     }
   };
 

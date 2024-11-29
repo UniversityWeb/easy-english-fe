@@ -159,6 +159,21 @@ const updateCourseStatus = async (courseId, status) => {
   return handleResponse(response, 200);
 };
 
+const updateCourseNotice = async (courseId, notice) => {
+  const path = `${SUFFIX_COURSE_API_URL}/update-notice`;
+  const response = await put(path, {
+    id: courseId,
+    notice: notice,
+  });
+  return handleResponse(response, 200);
+};
+
+const countView = async (courseId) => {
+  const path = `${SUFFIX_COURSE_API_URL}/count-view/${courseId}`;
+  const response = await put(path);
+  return handleResponse(response, 200);
+};
+
 const courseService = {
   updateCourseStatus,
   addCourseToFavourite,
@@ -173,6 +188,8 @@ const courseService = {
   deleteCourseOfFavourite,
   getEnrollCourse,
   getAllCourseForAdmin,
+  updateCourseNotice,
+  countView,
 };
 
 export default courseService;
