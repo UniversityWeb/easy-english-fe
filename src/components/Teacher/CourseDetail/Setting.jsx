@@ -174,6 +174,8 @@ const Setting = React.memo(({ courseId }) => {
     formData.append('descriptionPreview', course.descriptionPreview);
     formData.append('duration', course.duration);
     formData.append('isPublish', course.isPublish);
+    formData.append('imagePreview', course.imagePreview);
+    formData.append('videoPreview', course.videoPreview);
     course.categoryIds.forEach((id) => {
       formData.append('categoryIds', id); // Thêm từng categoryId vào FormData
     });

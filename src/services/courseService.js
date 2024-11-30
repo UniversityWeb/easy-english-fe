@@ -113,12 +113,9 @@ const updateCourseStatus = async (courseId, status) => {
   return handleResponse(response, 200);
 };
 
-const updateCourseNotice = async (courseId, notice) => {
+const updateCourseNotice = async (courseRequest) => {
   const path = `${SUFFIX_COURSE_API_URL}/update-notice`;
-  const response = await put(path, {
-    id: courseId,
-    notice: notice,
-  });
+  const response = await put(path, courseRequest);
   return handleResponse(response, 200);
 };
 

@@ -15,7 +15,7 @@ import {
   TabPanel,
 } from '@chakra-ui/react';
 import { FaClock, FaBook, FaHeart, FaStar } from 'react-icons/fa';
-import { IoChatbox } from "react-icons/io5";
+import { IoChatbox } from 'react-icons/io5';
 import FAQ from '~/components/Student/CourseDetail/FAQ';
 import Reviews from '~/components/Student/CourseDetail/Reviews';
 import Curriculum from '~/components/Student/CourseDetail/Curriculum';
@@ -23,7 +23,7 @@ import Announcement from '~/components/Student/CourseDetail/Announcement';
 import Description from '~/components/Student/CourseDetail/Description';
 import CourseRandom from '~/components/Student/CourseDetail/CourseRandom';
 import RelateCourse from '~/components/Student/CourseDetail/RelateCourse';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
 import enrollmentService from '~/services/enrollmentService';
@@ -32,25 +32,39 @@ import { websocketConstants } from '~/utils/websocketConstants';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 import WebsocketService from '~/services/websocketService';
-
+import favouriteService from '~/services/favouriteService';
 const CourseDetailBtnStat = {
-  START_COURSE: "START_COURSE",
-  CONTINUE_COURSE: "CONTINUE_COURSE",
-  IN_CART: "IN_CART",
-  ADD_TO_CART: "ADD_TO_CART",
+  START_COURSE: 'START_COURSE',
+  CONTINUE_COURSE: 'CONTINUE_COURSE',
+  IN_CART: 'IN_CART',
+  ADD_TO_CART: 'ADD_TO_CART',
   LOADING: 'LOADING',
-}
+};
 
 function CourseDetailsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [courseData, setCourseData] = useState(null);
   const [buttonState, setButtonState] = useState(CourseDetailBtnStat.LOADING); // State to control the button text
   const { courseId } = useParams();
+  const [isLiked, setIsLiked] = useState(false);
+
+  // Determine the active tab based on the query parameter
+  const activeTab = searchParams.get('tab') || 'description';
 
   const loadCourseData = async () => {
     try {
       const response = await courseService.fetchMainCourse({ id: courseId });
       if (response) setCourseData(response);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const checkCourseInFavourite = async () => {
+    try {
+      const response = await favouriteService.checkCourseInFavourite(courseId);
+      if (response) setIsLiked(response);
     } catch (e) {
       console.error(e);
     }
@@ -64,11 +78,26 @@ function CourseDetailsPage() {
     } catch (e) {
       setButtonState(CourseDetailBtnStat.LOADING);
     }
-  }
+  };
+
+  const toggleWishlist = async (id, isLiked) => {
+    try {
+      if (isLiked) {
+        await favouriteService.deleteFavourite(id);
+        setIsLiked(false);
+      } else {
+        await favouriteService.addFavourite(id);
+        setIsLiked(true);
+      }
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+    }
+  };
 
   useEffect(() => {
     loadCourseData();
     fetchButtonStat();
+    checkCourseInFavourite();
 
     window.scrollTo(0, 0);
   }, [courseId]);
@@ -82,7 +111,10 @@ function CourseDetailsPage() {
             username: getUsername(),
           };
           const wsService = await WebsocketService.getIns();
-          wsService.send(websocketConstants.cartItemCountDestination, addRequest);
+          wsService.send(
+            websocketConstants.cartItemCountDestination,
+            addRequest,
+          );
           setButtonState(CourseDetailBtnStat.IN_CART);
         } catch (error) {
           console.error('Error adding to cart:', error);
@@ -98,6 +130,30 @@ function CourseDetailsPage() {
       default:
         break;
     }
+  };
+
+  const handleTabChange = (index) => {
+    // Map tab indices to query parameter values
+    const tabMapping = [
+      'description',
+      'curriculum',
+      'faq',
+      'announcement',
+      'reviews',
+    ];
+    setSearchParams({ tab: tabMapping[index] });
+  };
+
+  const getTabIndex = () => {
+    // Map query parameter values to tab indices
+    const tabMapping = {
+      description: 0,
+      curriculum: 1,
+      faq: 2,
+      announcement: 3,
+      reviews: 4,
+    };
+    return tabMapping[activeTab] || 0;
   };
 
   if (!courseData) return <Text>Loading...</Text>;
@@ -142,9 +198,11 @@ function CourseDetailsPage() {
                   {[...Array(Math.round(courseData?.rating))].map((_, i) => (
                     <Icon key={i} as={FaStar} color="orange.400" />
                   ))}
-                  {[...Array(5 - Math.round(courseData?.rating))].map((_, i) => (
-                    <Icon key={i + 5} as={FaStar} color="gray.300" />
-                  ))}
+                  {[...Array(5 - Math.round(courseData?.rating))].map(
+                    (_, i) => (
+                      <Icon key={i + 5} as={FaStar} color="gray.300" />
+                    ),
+                  )}
                   <Text ml={2}>
                     {courseData?.ratingCount} review
                     {courseData?.ratingCount !== 1 ? 's' : ''}
@@ -154,7 +212,11 @@ function CourseDetailsPage() {
             </Flex>
 
             <Box mt={10}>
-              <Tabs variant="unstyled">
+              <Tabs
+                variant="unstyled"
+                index={getTabIndex()}
+                onChange={handleTabChange}
+              >
                 <TabList>
                   <Tab
                     _selected={{
@@ -226,14 +288,25 @@ function CourseDetailsPage() {
               </Tabs>
             </Box>
             <Box mt={10}>
-              <RelateCourse courseId={courseId} numberOfCourses={3} type={"LEVEL"}/>
+              <RelateCourse
+                courseId={courseId}
+                numberOfCourses={3}
+                type={'LEVEL'}
+              />
             </Box>
           </Box>
 
           <Box flex="1" mt={[8, 8, 0]} pl={[0, 0, 10]}>
             <Flex justify="space-between" mb={4}>
-              <Button leftIcon={<FaHeart />} variant="ghost" colorScheme="gray">
-                Add to wishlist
+              <Button
+                variant="ghost"
+                colorScheme={isLiked ? 'red' : 'gray'}
+                onClick={() => toggleWishlist(courseId, isLiked)}
+                leftIcon={
+                  <Icon as={FaHeart} color={isLiked ? 'red.500' : 'gray.500'} />
+                }
+              >
+                {isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
               </Button>
               <Button
                 leftIcon={<IoChatbox />}
@@ -242,8 +315,8 @@ function CourseDetailsPage() {
                 onClick={() => {
                   navigate(config.routes.chat, {
                     state: {
-                      course: courseData
-                    }
+                      course: courseData,
+                    },
                   });
                 }}
               >
@@ -261,8 +334,10 @@ function CourseDetailsPage() {
               {buttonState === CourseDetailBtnStat.LOADING && 'Loading...'}
               {buttonState === CourseDetailBtnStat.ADD_TO_CART && 'Add to Cart'}
               {buttonState === CourseDetailBtnStat.IN_CART && 'In Cart'}
-              {buttonState === CourseDetailBtnStat.START_COURSE && 'Start Course'}
-              {buttonState === CourseDetailBtnStat.CONTINUE_COURSE && 'Continue Course'}
+              {buttonState === CourseDetailBtnStat.START_COURSE &&
+                'Start Course'}
+              {buttonState === CourseDetailBtnStat.CONTINUE_COURSE &&
+                'Continue Course'}
             </Button>
 
             <Box mt={6}>
@@ -298,7 +373,11 @@ function CourseDetailsPage() {
               <Text fontWeight="bold" fontSize="lg" mb={4}>
                 Related Courses
               </Text>
-              <CourseRandom courseId={courseId} numberOfCourses={4} type={"TOPIC"}/>
+              <CourseRandom
+                courseId={courseId}
+                numberOfCourses={4}
+                type={'TOPIC'}
+              />
             </Box>
           </Box>
         </Flex>
