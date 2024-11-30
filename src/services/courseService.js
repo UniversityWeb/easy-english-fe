@@ -4,12 +4,7 @@ const SUFFIX_COURSE_API_URL = '/course';
 
 const fetchAllCourses = async () => {
   const response = await get(`${SUFFIX_COURSE_API_URL}/get-all-course`);
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const createCourse = async (courseRequest) => {
@@ -22,12 +17,7 @@ const createCourse = async (courseRequest) => {
       },
     },
   );
-
-  if (response?.status !== 201) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 201);
 };
 
 const updateCourse = async (courseRequest) => {
@@ -40,12 +30,7 @@ const updateCourse = async (courseRequest) => {
       },
     },
   );
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const deleteCourse = async (courseRequest) => {
@@ -53,12 +38,7 @@ const deleteCourse = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/delete-course`,
     courseRequest,
   );
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const fetchAllCourseOfTeacher = async (courseRequest) => {
@@ -78,12 +58,7 @@ const getCourseByFilter = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/get-course-by-filter`,
     courseRequest,
   );
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const getCourseOfFavourite = async (courseRequest) => {
@@ -91,12 +66,7 @@ const getCourseOfFavourite = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/get-all-course-favorite-of-student`,
     courseRequest,
   );
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const deleteCourseOfFavourite = async (courseRequest) => {
@@ -104,11 +74,7 @@ const deleteCourseOfFavourite = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/remove-course-from-favorite`,
     courseRequest,
   );
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const getEnrollCourse = async (courseRequest) => {
@@ -116,10 +82,7 @@ const getEnrollCourse = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/get-all-course-of-student`,
     courseRequest,
   );
-  if (response?.status !== 200) {
-    return null;
-  }
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const fetchMainCourse = async (courseRequest) => {
@@ -127,12 +90,7 @@ const fetchMainCourse = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/get-main-course`,
     courseRequest,
   );
-
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const addCourseToFavourite = async (courseRequest) => {
@@ -140,11 +98,7 @@ const addCourseToFavourite = async (courseRequest) => {
     `${SUFFIX_COURSE_API_URL}/add-course-to-favorite`,
     courseRequest,
   );
-  if (response?.status !== 200) {
-    return null;
-  }
-
-  return response.data;
+  return handleResponse(response, 200);
 };
 
 const getAllCourseForAdmin = async (filterReq) => {
@@ -180,6 +134,12 @@ const getRelatedCourses = async (getRelatedCourseReq) => {
   return handleResponse(response, 200);
 };
 
+const getCourseDetailButtonStatus = async (courseId) => {
+  const path = `${SUFFIX_COURSE_API_URL}/get-button-status/${courseId}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const courseService = {
   updateCourseStatus,
   addCourseToFavourite,
@@ -197,6 +157,7 @@ const courseService = {
   updateCourseNotice,
   countView,
   getRelatedCourses,
+  getCourseDetailButtonStatus,
 };
 
 export default courseService;
