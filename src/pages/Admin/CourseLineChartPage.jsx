@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { Box, Text } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Text,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Spinner,
+} from '@chakra-ui/react';
 import {
   AreaChart,
   Area,
@@ -11,30 +22,37 @@ import {
   Legend,
 } from 'recharts';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-
-const data = [
-  { name: 'May', course1: 50, course2: 20, course3: 10, course4: 40 },
-  { name: 'June', course1: 0, course2: 30, course3: 10, course4: 60 },
-  { name: 'July', course1: 100, course2: 50, course3: 60, course4: 80 },
-  { name: 'August', course1: 200, course2: 130, course3: 100, course4: 150 },
-  { name: 'September', course1: 300, course2: 200, course3: 150, course4: 200 },
-  { name: 'October', course1: 0, course2: 0, course3: 0, course4: 0 },
-];
-
-const courses = [
-  { key: 'course1', label: 'Course 1', color: '#82ca9d' },
-  { key: 'course2', label: 'Course 2', color: '#8884d8' },
-  { key: 'course3', label: 'Course 3', color: '#ffc658' },
-  { key: 'course4', label: 'Course 4', color: '#83a6ed' },
-];
+import { formatVNDMoney } from '~/utils/methods';
+import courseStatisticsService from '~/services/courseStatisticsService';
 
 const CourseLineChartPage = () => {
-  const [visibleCourses, setVisibleCourses] = useState({
-    course1: true,
-    course2: true,
-    course3: true,
-    course4: true,
-  });
+  const [data, setData] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [visibleCourses, setVisibleCourses] = useState({});
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await courseStatisticsService.getRevenueByYear(2024);
+        setData(response.data);
+        setCourses(response.courses);
+        setVisibleCourses(
+          response.courses.reduce((acc, course) => {
+            acc[course.key] = true;
+            return acc;
+          }, {})
+        );
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleLegendClick = (courseKey) => {
     setVisibleCourses((prev) => ({
@@ -43,44 +61,51 @@ const CourseLineChartPage = () => {
     }));
   };
 
+  if (loading) {
+    return (
+      <RoleBasedPageLayout>
+        <Box w="full" p={5} textAlign="center">
+          <Spinner size="xl" />
+        </Box>
+      </RoleBasedPageLayout>
+    );
+  }
+
   return (
     <RoleBasedPageLayout>
-      <Box w="full" p={5} shadow="md" borderWidth="1px" rounded="md">
+      {/* Chart Section */}
+      <Box w="full" p={5} shadow="md" borderWidth="1px" rounded="md" mb={8}>
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={4}>
-          Earnings
+          Earnings Overview (3 Courses)
         </Text>
         <ResponsiveContainer width="100%" height={400}>
           <AreaChart
             data={data}
-            margin={{
-              top: 10,
-              right: 30,
-              left: 0,
-              bottom: 0,
-            }}
+            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
           >
             <defs>
-              <linearGradient id="color1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="color2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="color3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#ffc658" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="color4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#83a6ed" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#83a6ed" stopOpacity={0} />
-              </linearGradient>
+              {courses.map((course, index) => (
+                <linearGradient
+                  key={course.key}
+                  id={`color${index + 1}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor={course.color} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={course.color} stopOpacity={0} />
+                </linearGradient>
+              ))}
             </defs>
             <XAxis dataKey="name" />
-            <YAxis />
+            <YAxis
+              tickFormatter={(value) => formatVNDMoney(value)} // Format Y-axis values as VND
+            />
             <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip />
+            <Tooltip
+              formatter={(value) => formatVNDMoney(value)} // Format tooltip values as VND
+            />
             <Legend
               formatter={(value) => {
                 const course = courses.find((c) => c.key === value);
@@ -92,30 +117,61 @@ const CourseLineChartPage = () => {
                         ? 'none'
                         : 'line-through',
                       cursor: 'pointer',
-                      color: course.color,
+                      color: course?.color,
                     }}
                   >
-                    {course.label}
+                    {course?.label}
                   </span>
                 );
               }}
             />
-            {courses.map((course) => (
+            {courses.map((course, index) => (
               <Area
                 key={course.key}
                 type="monotone"
                 dataKey={course.key}
                 stroke={course.color}
                 fillOpacity={1}
-                fill={`url(#${course.key === 'course1' ? 'color1' : course.key === 'course2' ? 'color2' : course.key === 'course3' ? 'color3' : 'color4'})`}
+                fill={`url(#color${index + 1})`}
                 style={{
                   strokeWidth: visibleCourses[course.key] ? 2 : 0,
-                  opacity: visibleCourses[course.key] ? 1 : 0.2, // Change opacity for strikethrough effect
+                  opacity: visibleCourses[course.key] ? 1 : 0.2,
                 }}
               />
             ))}
           </AreaChart>
         </ResponsiveContainer>
+      </Box>
+
+      {/* Table Section */}
+      <Box w="full" p={5} shadow="md" borderWidth="1px" rounded="md">
+        <Text fontSize="2xl" fontWeight="bold" mb={4}>
+          Monthly Course Earnings
+        </Text>
+        <TableContainer>
+          <Table variant="striped" colorScheme="gray">
+            <Thead>
+              <Tr>
+                <Th>Month</Th>
+                {courses.map((course) => (
+                  <Th key={course.key}>{course.label}</Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {data.map((month) => (
+                <Tr key={month.name}>
+                  <Td>{month.name}</Td>
+                  {courses.map((course) => (
+                    <Td key={`${month.name}-${course.key}`}>
+                      {formatVNDMoney(month[course.key])}
+                    </Td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
       </Box>
     </RoleBasedPageLayout>
   );
