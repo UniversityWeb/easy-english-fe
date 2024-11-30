@@ -28,7 +28,7 @@ const courses = [
   { key: 'course4', label: 'Course 4', color: '#83a6ed' },
 ];
 
-const CustomChart = () => {
+const CourseLineChartPage = () => {
   const [visibleCourses, setVisibleCourses] = useState({
     course1: true,
     course2: true,
@@ -121,4 +121,4 @@ const CustomChart = () => {
   );
 };
 
-export default CustomChart;
+export default CourseLineChartPage;

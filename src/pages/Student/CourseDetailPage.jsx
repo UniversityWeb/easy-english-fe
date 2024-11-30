@@ -33,50 +33,49 @@ import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 import WebsocketService from '~/services/websocketService';
 
+const CourseDetailBtnStat = {
+  START_COURSE: "START_COURSE",
+  CONTINUE_COURSE: "CONTINUE_COURSE",
+  IN_CART: "IN_CART",
+  ADD_TO_CART: "ADD_TO_CART",
+  LOADING: 'LOADING',
+}
+
 function CourseDetailsPage() {
   const navigate = useNavigate();
   const [courseData, setCourseData] = useState(null);
-  const [buttonState, setButtonState] = useState('loading'); // State to control the button text
+  const [buttonState, setButtonState] = useState(CourseDetailBtnStat.LOADING); // State to control the button text
   const { courseId } = useParams();
 
   const loadCourseData = async () => {
-    const response = await courseService.fetchMainCourse({ id: courseId });
-    if (response) setCourseData(response);
+    try {
+      const response = await courseService.fetchMainCourse({ id: courseId });
+      if (response) setCourseData(response);
+    } catch (e) {
+      console.error(e);
+    }
   };
+
+  const fetchButtonStat = async () => {
+    try {
+      const btnStat = await courseService.getCourseDetailButtonStatus(courseId);
+      console.log(`Button Stat: ${btnStat}`);
+      setButtonState(btnStat);
+    } catch (e) {
+      setButtonState(CourseDetailBtnStat.LOADING);
+    }
+  }
 
   useEffect(() => {
     loadCourseData();
+    fetchButtonStat();
 
     window.scrollTo(0, 0);
   }, [courseId]);
 
-  useEffect(() => {
-    const checkEnrollmentStatus = async () => {
-      try {
-        const canAdd = await cartService.canAddToCart(courseId);
-        if (canAdd) {
-          setButtonState('add-to-cart');
-        } else {
-          const enrollment = await enrollmentService.isEnrolled(courseId);
-          if (enrollment && enrollment.progress === 0) {
-            setButtonState('start-course');
-          } else if (enrollment && enrollment.progress > 0) {
-            setButtonState('continue-course');
-          }
-        }
-      } catch (error) {
-        setButtonState('in-cart');
-      }
-    };
-
-    if (courseData) {
-      checkEnrollmentStatus();
-    }
-  }, [courseData]);
-
   const handleButtonClick = async () => {
     switch (buttonState) {
-      case 'add-to-cart':
+      case CourseDetailBtnStat.ADD_TO_CART:
         try {
           await cartService.addItemToCart(courseId);
           const addRequest = {
@@ -84,16 +83,16 @@ function CourseDetailsPage() {
           };
           const wsService = await WebsocketService.getIns();
           wsService.send(websocketConstants.cartItemCountDestination, addRequest);
-          setButtonState('in-cart');
+          setButtonState(CourseDetailBtnStat.IN_CART);
         } catch (error) {
           console.error('Error adding to cart:', error);
         }
         break;
-      case 'start-course':
-      case 'continue-course':
+      case CourseDetailBtnStat.START_COURSE:
+      case CourseDetailBtnStat.CONTINUE_COURSE:
         navigate(config.routes.learn(courseId));
         break;
-      case 'in-cart':
+      case CourseDetailBtnStat.IN_CART:
         navigate(config.routes.cart);
         break;
       default:
@@ -257,13 +256,13 @@ function CourseDetailsPage() {
               size="lg"
               w="100%"
               onClick={handleButtonClick}
-              isDisabled={buttonState === 'loading'}
+              isDisabled={buttonState === CourseDetailBtnStat.LOADING}
             >
-              {buttonState === 'loading' && 'Loading...'}
-              {buttonState === 'add-to-cart' && 'Add to Cart'}
-              {buttonState === 'in-cart' && 'In Cart'}
-              {buttonState === 'start-course' && 'Start Course'}
-              {buttonState === 'continue-course' && 'Continue Course'}
+              {buttonState === CourseDetailBtnStat.LOADING && 'Loading...'}
+              {buttonState === CourseDetailBtnStat.ADD_TO_CART && 'Add to Cart'}
+              {buttonState === CourseDetailBtnStat.IN_CART && 'In Cart'}
+              {buttonState === CourseDetailBtnStat.START_COURSE && 'Start Course'}
+              {buttonState === CourseDetailBtnStat.CONTINUE_COURSE && 'Continue Course'}
             </Button>
 
             <Box mt={6}>
