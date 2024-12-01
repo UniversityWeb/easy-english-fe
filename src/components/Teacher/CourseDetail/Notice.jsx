@@ -42,7 +42,6 @@ const Notice = ({ courseId }) => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-
       const courseRequest = {
         id: courseId,
         notice: content,
@@ -64,12 +63,12 @@ const Notice = ({ courseId }) => {
           <Box
             sx={{
               '.quill': {
-                height: '270px',
+                height: '370px',
                 display: 'flex',
                 flexDirection: 'column',
               },
               '.ql-container': {
-                height: '220px',
+                height: '320px',
                 marginBottom: '20px',
               },
             }}

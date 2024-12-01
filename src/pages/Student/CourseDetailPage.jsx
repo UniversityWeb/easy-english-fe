@@ -123,7 +123,7 @@ function CourseDetailsPage() {
         break;
       case CourseDetailBtnStat.START_COURSE:
       case CourseDetailBtnStat.CONTINUE_COURSE:
-        navigate(config.routes.learn(courseId));
+        navigate(config.routes.learn(courseId, courseData?.title));
         break;
       case CourseDetailBtnStat.IN_CART:
         navigate(config.routes.cart);

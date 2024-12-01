@@ -148,7 +148,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
   };
 
   return (
-    <Box p={5} shadow="md" borderWidth="1px" width="100%">
+    <Box p={8} pb={0} shadow="md" borderWidth="1px" width="100%">
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -294,7 +294,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
             </FormLabel>
           </FormControl>
 
-          <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+          <Grid templateColumns="repeat(2, 1fr)" gap={6} display="none">
             <GridItem>
               <FormControl>
                 <FormLabel>Start Date</FormLabel>

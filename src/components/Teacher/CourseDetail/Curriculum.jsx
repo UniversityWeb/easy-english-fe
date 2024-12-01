@@ -657,7 +657,7 @@ const Curriculum = ({ courseId }) => {
         )}
       </Box>
 
-      <Box w="70%" textAlign="center" maxHeight="80vh" overflow="auto">
+      <Box w="70%" textAlign="center" h="100%" overflow="auto">
         {selectedSectionItemType ? (
           renderLessonComponent()
         ) : (

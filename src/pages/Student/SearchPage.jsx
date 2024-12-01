@@ -15,6 +15,7 @@ import {
   Skeleton,
   SkeletonText,
   SkeletonCircle,
+  IconButton,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
@@ -28,6 +29,7 @@ import courseService from '~/services/courseService';
 import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import { FiFilter } from 'react-icons/fi';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -55,14 +57,13 @@ const CourseListSkeleton = ({ itemsPerPage }) => {
             borderRadius="lg"
             overflow="hidden"
             boxShadow="md"
-            height="380px"
+            height="300px"
             position="relative"
             p={6}
           >
-            <Skeleton height="180px" width="100%" />
+            <Skeleton height="120px" width="100%" />
             <VStack align="start" spacing={3} mt={4}>
               <SkeletonText noOfLines={1} width="50%" />
-              <SkeletonText noOfLines={2} width="80%" />
               <SkeletonText noOfLines={1} width="60%" />
               <SkeletonCircle size="10" />
               <SkeletonText noOfLines={1} width="90%" />
@@ -208,7 +209,7 @@ const CourseList = ({
                     onClick={async () => {
                       const courseId = course.id;
                       try {
-                        await courseService.countView(courseId)
+                        await courseService.countView(courseId);
                       } catch (e) {
                         console.error(e);
                       }
@@ -260,6 +261,9 @@ const SearchPage = () => {
     rating: null,
   });
   const [likedCourses, setLikedCourses] = useState([]);
+
+  // State quản lý việc hiển thị Filter
+  const [showFilter, setShowFilter] = useState(false);
 
   const fetchCourses = async () => {
     setLoading(true); // Set loading to true when fetching starts
@@ -332,7 +336,7 @@ const SearchPage = () => {
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
-        <Flex mb={5} justify="space-between">
+        <Flex mb={5} justify="space-between" align="center">
           <Input
             placeholder="Search for courses..."
             value={searchTerm}
@@ -342,14 +346,31 @@ const SearchPage = () => {
           <Button colorScheme="blue" onClick={handleSearch}>
             Search
           </Button>
+          <IconButton
+            icon={<FiFilter />}
+            aria-label="Toggle Filter"
+            colorScheme="gray"
+            variant="outline"
+            onClick={() => setShowFilter(!showFilter)}
+            ml={2}
+          />
         </Flex>
 
-        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6}>
-          <GridItem>
-            <Filter onFilterChange={setFilterOptions} />
-          </GridItem>
+        <Grid
+          templateColumns={{ base: '1fr', md: showFilter ? '1fr 4fr' : '1fr' }}
+          gap={6}
+        >
+          {showFilter && (
+            <GridItem>
+              <Filter onFilterChange={setFilterOptions} />
+            </GridItem>
+          )}
 
-          <GridItem>
+          <GridItem
+            mx={showFilter ? 0 : { base: 0, md: 'auto' }}
+            maxWidth={showFilter ? 'none' : { md: '85%' }}
+            flex="1"
+          >
             <Flex direction="column" justify="space-between" height="100%">
               {loading ? (
                 <CourseListSkeleton itemsPerPage={itemsPerPage} />

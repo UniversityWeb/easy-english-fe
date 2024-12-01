@@ -22,7 +22,7 @@ const routes = {
   test: '/test',
   orders: '/orders',
   order_detail: '/order-detail/:orderId',
-  learn: (courseId) => `/learn/${courseId}`,
+  learn: (courseId, courseTitle) => `/learn/${courseId}/${courseTitle}`,
   category_for_admin: '/admin/category',
   topic_level_for_admin: '/admin/topic-vs-level',
   test_result: (testResultId) => `/test-result/${testResultId}`,
