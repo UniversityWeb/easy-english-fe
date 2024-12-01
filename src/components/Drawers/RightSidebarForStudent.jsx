@@ -111,7 +111,7 @@ const RightSidebarForStudent = (props) => {
             <SidebarItem
               icon={MdNotificationsNone}
               text="Notifications"
-              handleClick={() => navigate(config.routes.notifications_for_student)}
+              handleClick={() => navigate(config.routes.notifications)}
             />
 
             <SidebarItem

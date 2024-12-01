@@ -74,7 +74,6 @@ const TestResultTable = ({ testId, courseId }) => {
     return () => {
       if (wsService) {
         wsService.unsubscribe(websocketConstants.testResultNotificationTopic(testId));
-        wsService.disconnect();
       }
     }
   }, []);

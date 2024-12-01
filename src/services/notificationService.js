@@ -1,4 +1,4 @@
-import { get, post, put } from '~/utils/httpRequest';
+import { get, handleResponse, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_NOTIFICATION_API_URL = '/notifications';
 
@@ -40,9 +40,16 @@ const markNotificationAsRead = async (notificationId) => {
   return response.data;
 };
 
+const countUnreadNotifications = async () => {
+  const path = `${SUFFIX_NOTIFICATION_API_URL}/count-unread-notifications`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const notificationService = {
   getNotificationsByUsername,
-  markNotificationAsRead
+  markNotificationAsRead,
+  countUnreadNotifications,
 };
 
 export default notificationService;

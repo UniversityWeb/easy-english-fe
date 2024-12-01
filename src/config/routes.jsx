@@ -6,7 +6,7 @@ const routes = {
   user_profile_edit: '/profile',
   otp_validation: '/otp-validation',
   course_management_for_student: '/course-management-for-student',
-  notifications_for_student: '/notifications-for-student',
+  notifications: '/notifications',
   preview_test: '/preview-test',
   take_test: (testId) => `/take-test/${testId}`,
   cart: '/cart',

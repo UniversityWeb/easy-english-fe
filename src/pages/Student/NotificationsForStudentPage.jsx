@@ -52,7 +52,6 @@ const NotificationsForStudentPage = () => {
     return () => {
       if (wsService) {
         wsService.unsubscribe(websocketConstants.notificationTopic(username));
-        wsService.disconnect();
       }
     }
   }, []);

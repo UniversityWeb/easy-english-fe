@@ -18,6 +18,8 @@ const recentChatsTopic = (recipientUsername) => `/topic/recent-chats/${recipient
 
 const onlineUsersTopic = `/topic/online-users`;
 
+const notificationCountTopic = (username) => `/topic/notifications-count/${username}`;
+
 export const websocketConstants = {
   notificationTopic,
   notificationDestination,
@@ -32,4 +34,6 @@ export const websocketConstants = {
   recentChatsTopic,
 
   onlineUsersTopic,
+
+  notificationCountTopic,
 };

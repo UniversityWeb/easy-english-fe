@@ -82,7 +82,6 @@ const Chat = ({ recipient, courseData }) => {
     return () => {
       if (wsService) {
         wsService.unsubscribe(websocketConstants.messageTopic(curUsername));
-        wsService.disconnect();
       }
     }
   }, []);
