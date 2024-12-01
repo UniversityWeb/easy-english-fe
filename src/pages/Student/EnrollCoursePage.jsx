@@ -23,7 +23,7 @@ import {
   TabPanel,
 } from '@chakra-ui/react';
 import { TbClockHour4 } from 'react-icons/tb';
-import { FiFilter } from 'react-icons/fi';
+//import { FiFilter } from 'react-icons/fi';
 import Pagination from '~/components/Student/Search/Page';
 import Filter from '~/components/Student/Search/Filter';
 import { useNavigate } from 'react-router-dom';
@@ -63,7 +63,7 @@ const Enrollment = () => {
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFilter, setShowFilter] = useState(false);
+  //const [showFilter, setShowFilter] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     categoryIds: [],
     topicId: null,
@@ -128,46 +128,36 @@ const Enrollment = () => {
             Search
           </Button>
 
-          <IconButton
+          {/* <IconButton
             icon={<FiFilter />}
             aria-label="Toggle Filter"
             colorScheme="gray"
             variant="outline"
             onClick={() => setShowFilter(!showFilter)}
             ml={2}
-          />
+          /> */}
         </Flex>
 
         {/* Tabs for Status Filter */}
-        <Tabs
-          variant="enclosed"
-          onChange={
-            (index) => setStatusTab(index === 0 ? 'ACTIVE' : 'COMPLETED') // Update statusTab based on selected tab
-          }
-        >
-          <TabList>
-            <Tab>All</Tab>
-            <Tab>Completed</Tab>
-          </TabList>
-        </Tabs>
 
-        <Grid
-          templateColumns={{ base: '1fr', md: showFilter ? '1fr 4fr' : '1fr' }}
-          gap={6}
-          mt={4}
-        >
-          {showFilter && (
-            <GridItem>
-              <Filter onFilterChange={setFilterOptions} />
-            </GridItem>
-          )}
+        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6} mt={4}>
+          <GridItem>
+            <Filter onFilterChange={setFilterOptions} />
+          </GridItem>
 
-          <GridItem
-            mx={showFilter ? 0 : { base: 0, md: 'auto' }}
-            maxWidth={showFilter ? 'none' : { md: '90%' }}
-            flex="1"
-          >
+          <GridItem mx={0} maxWidth="none" flex="1">
             <Flex direction="column" justify="space-between" height="100%">
+              <Tabs
+                variant="enclosed"
+                onChange={
+                  (index) => setStatusTab(index === 0 ? 'ACTIVE' : 'COMPLETED') // Update statusTab based on selected tab
+                }
+              >
+                <TabList>
+                  <Tab>All</Tab>
+                  <Tab>Completed</Tab>
+                </TabList>
+              </Tabs>
               {loading ? (
                 <EnrollmentSkeleton itemsPerPage={itemsPerPage} />
               ) : (
@@ -226,7 +216,9 @@ const Enrollment = () => {
                               colorScheme="blue"
                               width="full"
                               onClick={() =>
-                                navigate(config.routes.learn(course.id))
+                                navigate(
+                                  config.routes.learn(course.id, course.title),
+                                )
                               }
                             >
                               Start Course

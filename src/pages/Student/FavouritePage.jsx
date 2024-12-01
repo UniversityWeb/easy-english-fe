@@ -74,7 +74,7 @@ const Wishlist = () => {
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFilter, setShowFilter] = useState(false);
+  //const [showFilter, setShowFilter] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     categoryIds: [],
     topicId: null,
@@ -147,32 +147,14 @@ const Wishlist = () => {
           <Button colorScheme="blue" onClick={handleSearch}>
             Search
           </Button>
-
-          <IconButton
-            icon={<FiFilter />}
-            aria-label="Toggle Filter"
-            colorScheme="gray"
-            variant="outline"
-            onClick={() => setShowFilter(!showFilter)}
-            ml={2}
-          />
         </Flex>
 
-        <Grid
-          templateColumns={{ base: '1fr', md: showFilter ? '1fr 4fr' : '1fr' }}
-          gap={6}
-        >
-          {showFilter && (
-            <GridItem>
-              <Filter onFilterChange={setFilterOptions} />
-            </GridItem>
-          )}
+        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6} mt={4}>
+          <GridItem>
+            <Filter onFilterChange={setFilterOptions} />
+          </GridItem>
 
-          <GridItem
-            mx={showFilter ? 0 : { base: 0, md: 'auto' }}
-            maxWidth={showFilter ? 'none' : { md: '85%' }}
-            flex="1"
-          >
+          <GridItem mx={0} maxWidth="none" flex="1">
             <Flex direction="column" justify="space-between" height="100%">
               {loading ? (
                 <WishlistSkeleton itemsPerPage={itemsPerPage} />

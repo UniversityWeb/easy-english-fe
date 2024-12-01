@@ -50,7 +50,7 @@ const fetchAllCourseOfTeacher = async (courseRequest) => {
   if (response?.status !== 200) {
     return null;
   }
-  return response.data.content;
+  return response.data;
 };
 
 const getCourseByFilter = async (courseRequest) => {
