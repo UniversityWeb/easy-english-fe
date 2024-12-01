@@ -94,6 +94,20 @@ function CourseDetailsPage() {
     }
   };
 
+  const addToCart = async () => {
+    try {
+      await cartService.addItemToCart(courseId);
+      const addRequest = {
+        username: getUsername(),
+      };
+      const wsService = await WebsocketService.getIns();
+      wsService.send(websocketConstants.cartItemCountDestination, addRequest);
+      setButtonState(CourseDetailBtnStat.IN_CART);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  }
+
   useEffect(() => {
     loadCourseData();
     fetchButtonStat();
@@ -105,20 +119,7 @@ function CourseDetailsPage() {
   const handleButtonClick = async () => {
     switch (buttonState) {
       case CourseDetailBtnStat.ADD_TO_CART:
-        try {
-          await cartService.addItemToCart(courseId);
-          const addRequest = {
-            username: getUsername(),
-          };
-          const wsService = await WebsocketService.getIns();
-          wsService.send(
-            websocketConstants.cartItemCountDestination,
-            addRequest,
-          );
-          setButtonState(CourseDetailBtnStat.IN_CART);
-        } catch (error) {
-          console.error('Error adding to cart:', error);
-        }
+        await addToCart();
         break;
       case CourseDetailBtnStat.START_COURSE:
       case CourseDetailBtnStat.CONTINUE_COURSE:

@@ -104,7 +104,6 @@ const ChatPage = () => {
       if (wsService) {
         wsService.unsubscribe(websocketConstants.recentChatsTopic(username));
         wsService.unsubscribe(websocketConstants.onlineUsersTopic);
-        wsService.disconnect();
       }
     }
   }, []);

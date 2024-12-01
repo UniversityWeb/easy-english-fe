@@ -22,7 +22,7 @@ import NotificationService from '~/services/notificationService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import WebSocketService from '~/services/websocketService';
 
-const NavbarForStudent = React.memo((props) => {
+const NavbarForStudent = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -84,8 +84,7 @@ const NavbarForStudent = React.memo((props) => {
       }
     };
 
-    initializeWebsocket();
-
+  useEffect(() => {
     fetchUser();
     fetchCartItems();
     //fetchNotifications();
@@ -204,6 +203,6 @@ const NavbarForStudent = React.memo((props) => {
       </div>
     </div>
   );
-});
+};
 
 export default NavbarForStudent;
