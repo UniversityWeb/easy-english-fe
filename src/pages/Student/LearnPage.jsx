@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -15,7 +15,7 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
-import { FaCheckCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaLock } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import { MdArrowBack } from 'react-icons/md';
@@ -29,18 +29,21 @@ import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
 
 const LessonItem = ({
-  icon,
-  title,
-  duration,
-  iconColor,
-  onClick,
-  typeLesson,
-  complete,
-  isTest = false,
-  isSelected = false,
-}) => (
+                      icon,
+                      title,
+                      duration,
+                      iconColor,
+                      onClick,
+                      typeLesson,
+                      complete,
+                      isLocked,
+                      isTest = false,
+                      isSelected = false,
+                      itemRef,
+                    }) => (
   <HStack
     w="100%"
+    ref={itemRef}
     p={2}
     justifyContent="space-between"
     borderRadius={8}
@@ -51,7 +54,7 @@ const LessonItem = ({
     onClick={onClick}
   >
     <VStack align="start" spacing={2} w="100%">
-      <Text fontSize="sm" fontWeight="medium">
+      <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
         {title}
       </Text>
       <HStack spacing={1}>
@@ -66,11 +69,19 @@ const LessonItem = ({
         )}
       </HStack>
     </VStack>
-    <Icon
-      as={complete ? FaCheckCircle : ImRadioUnchecked}
-      boxSize={5}
-      color={complete ? 'blue.500' : 'gray.500'}
-    />
+    {isLocked ? (
+      <Icon
+        as={FaLock }
+        boxSize={5}
+        color="gray.500"
+      />
+    ) : (
+      <Icon
+        as={complete ? FaCheckCircle : ImRadioUnchecked}
+        boxSize={5}
+        color={complete ? 'blue.500' : 'gray.500'}
+      />
+    )}
   </HStack>
 );
 
@@ -79,9 +90,10 @@ const LearnPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { courseId } = useParams();
+  const { courseId, courseTitle } = useParams();
   const username = getUsername();
   const navigate = useNavigate();
+  const itemRefs = useRef({});
 
   const Navbar = () => {
     const handleBackClick = () => {
@@ -137,7 +149,7 @@ const LearnPage = () => {
               ...test,
               icon: FiHelpCircle,
               iconColor: 'orange.500',
-              complete: test.completed,
+              complete: test.isDone,
               isTest: true,
               type: 'test',
             }));
@@ -185,7 +197,18 @@ const LearnPage = () => {
     };
 
     fetchCurriculumData();
-  }, [courseId, searchParams]);
+  }, [courseId]);
+
+  useEffect(() => {
+    // Tự động cuộn đến item được chọn
+    if (selectedItem && itemRefs.current[selectedItem.id]) {
+      itemRefs.current[selectedItem.id].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }, [selectedItem]);
 
   const updateSearchParams = (item) => {
     const type = item.isTest ? 'test' : item.type;
@@ -297,10 +320,15 @@ const LearnPage = () => {
         )}
         {type === SEC_ITEM_TYPES.VIDEO && (
           <>
-            <Box mt={4} w="100%">
+            <Box mt={4} w="100%" maxWidth="800px" mx="auto">
               <video
                 controls
-                style={{ width: '100%', height: 'auto' }}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  maxWidth: '800px',
+                  maxHeight: '450px',
+                }}
                 src={contentUrl}
               >
                 Your browser does not support the video tag.
@@ -313,12 +341,17 @@ const LearnPage = () => {
         )}
         {type === SEC_ITEM_TYPES.AUDIO && (
           <>
-            <Box mt={4} w="100%">
-              <audio
-                controls
-                style={{ width: '100%', height: 'auto' }}
-                src={contentUrl}
-              >
+            <Box
+              position="relative"
+              width="100%"
+              height="100%"
+              cursor="pointer"
+              overflow="hidden"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <audio src={contentUrl} controls style={{ width: '50%' }}>
                 Your browser does not support the audio tag.
               </audio>
             </Box>
@@ -342,7 +375,7 @@ const LearnPage = () => {
   return (
     <Flex direction="column" h="100vh">
       <Navbar />
-      <Flex h="full">
+      <Flex h="100vh" overflow="hidden">
         <Box
           w="30%"
           bg="gray.100"
@@ -351,9 +384,10 @@ const LearnPage = () => {
           display="flex"
           flexDirection="column"
           h="100%"
+          overflowY="auto"
         >
           <Text fontSize="xl" fontWeight="bold" mb={4}>
-            Let's paint Van Gogh's Starry Night
+            {courseTitle}
           </Text>
           <Box flex="1" overflowY="auto" pr={2}>
             <Accordion
@@ -385,9 +419,11 @@ const LearnPage = () => {
                           title={item.title}
                           duration={item.duration}
                           complete={item.complete}
+                          isLocked={item?.isLocked}
                           isTest={item.isTest}
                           onClick={() => handleItemSelect(item)}
                           isSelected={selectedItem?.id === item.id}
+                          itemRef={(el) => (itemRefs.current[item.id] = el)}
                         />
                       ))}
                     </VStack>
@@ -398,21 +434,32 @@ const LearnPage = () => {
           </Box>
         </Box>
 
-        <Box flex="1" p={8}>
-          <VStack align="start" spacing={4}>
+        <Box flex="1" p={8} pb={0} overflow="auto" h="100%">
+          <VStack align="start" spacing={4} minHeight="89%">
             {renderContent()}
           </VStack>
-
-          {!selectedItem?.isTest && (
-            <Button
-              colorScheme="blue"
-              mt={8}
-              alignSelf="flex-end"
-              onClick={handleCompleteAndNext}
-            >
-              {selectedItem?.complete ? 'Next' : 'Complete & Next'}
-            </Button>
-          )}
+          <Box
+            position="sticky"
+            bottom="0"
+            bg="white"
+            p={0}
+            zIndex={10}
+            display="flex"
+            justifyContent="flex-end"
+            alignItems="center"
+            paddingBottom={3}
+            paddingTop={3}
+          >
+            {!selectedItem?.isTest && (
+              <Button
+                colorScheme="blue"
+                alignSelf="flex-end"
+                onClick={handleCompleteAndNext}
+              >
+                {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+              </Button>
+            )}
+          </Box>
         </Box>
       </Flex>
     </Flex>
