@@ -62,7 +62,7 @@ const publicRoutes = [
     component: CourseManagementForStudentPage,
   },
   {
-    path: config.routes.notifications_for_student,
+    path: config.routes.notifications,
     component: NotificationsForStudentPage,
   },
   { path: config.routes.preview_test, component: PreviewTestPage },

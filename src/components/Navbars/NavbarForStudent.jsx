@@ -47,56 +47,52 @@ const NavbarForStudent = () => {
     }
   };
 
-  // const fetchNotifications = async () => {
-  //   try {
-  //     const count = await NotificationService.countNotifications();
-  //     setNotificationCount(count);
-  //   } catch (e) {
-  //     console.error('Failed to fetch notifications:', e.message);
-  //   }
-  // };
+  const fetchNotifications = async () => {
+    try {
+      const count = await NotificationService.countUnreadNotifications();
+      setNotificationCount(count);
+    } catch (e) {
+      console.error('Failed to fetch notifications:', e.message);
+    }
+  };
 
-  useEffect(() => {
+  const initializeWebsocket = async () => {
     const username = getUsername();
-    let wsService;
+    try {
+      const wsService = await WebSocketService.getIns();
 
-    const initializeWebsocket = async () => {
-      try {
-        wsService = await WebSocketService.getIns();
+      // Subscribe to cart item updates
+      wsService.subscribe(
+        websocketConstants.cartItemCountTopic(username),
+        async (numberOfCartItems) => {
+          setCountedCartItems(numberOfCartItems);
+        },
+      );
 
-        // Subscribe to cart item updates
-        wsService.subscribe(
-          websocketConstants.cartItemCountTopic(username),
-          async () => {
-            await fetchCartItems();
-          },
-        );
-
-        // Subscribe to notification updates
-        // wsService.subscribe(
-        //   websocketConstants.notificationCountTopic(username),
-        //   async () => {
-        //     await fetchNotifications();
-        //   },
-        // );
-      } catch (error) {
-        console.error('WebSocket initialization failed:', error);
-      }
-    };
+      // Subscribe to notification updates
+      wsService.subscribe(
+        websocketConstants.notificationCountTopic(username),
+        async (numberOfUnreadNotifications) => {
+          setNotificationCount(numberOfUnreadNotifications);
+        },
+      );
+    } catch (error) {
+      console.error('WebSocket initialization failed:', error);
+    }
+  };
 
   useEffect(() => {
     fetchUser();
     fetchCartItems();
-    //fetchNotifications();
+    fetchNotifications();
+    initializeWebsocket();
 
     return () => {
-      if (wsService) {
+      const username = getUsername();
+      WebSocketService.getIns().then((wsService) => {
         wsService.unsubscribe(websocketConstants.cartItemCountTopic(username));
-        // wsService.unsubscribe(
-        //   websocketConstants.notificationCountTopic(username),
-        // );
-        wsService.disconnect();
-      }
+        wsService.unsubscribe(websocketConstants.notificationCountTopic(username));
+      });
     };
   }, []);
 
@@ -118,32 +114,7 @@ const NavbarForStudent = () => {
             Courses
           </Button>
 
-          <Box display="flex" alignItems="center" gap={4}>
-            {/* Cart Icon */}
-            <Box
-              position="relative"
-              cursor="pointer"
-              onClick={() => navigate(config.routes.cart)}
-              _hover={{
-                transform: 'scale(1.1)',
-                transition: '0.2s ease-in-out',
-              }}
-            >
-              <Icon as={FiShoppingCart} boxSize={6} />
-              {countedCartItems > 0 && (
-                <Badge
-                  position="absolute"
-                  top="-4"
-                  right="-4"
-                  colorScheme="red"
-                  borderRadius="full"
-                  px={2}
-                >
-                  {countedCartItems}
-                </Badge>
-              )}
-            </Box>
-
+          <Box display="flex" alignItems="center" gap={10}>
             {/* Notification Icon */}
             <Box
               position="relative"
@@ -165,6 +136,31 @@ const NavbarForStudent = () => {
                   px={2}
                 >
                   {notificationCount}
+                </Badge>
+              )}
+            </Box>
+
+            {/* Cart Icon */}
+            <Box
+              position="relative"
+              cursor="pointer"
+              onClick={() => navigate(config.routes.cart)}
+              _hover={{
+                transform: 'scale(1.1)',
+                transition: '0.2s ease-in-out',
+              }}
+            >
+              <Icon as={FiShoppingCart} boxSize={6} />
+              {countedCartItems > 0 && (
+                <Badge
+                  position="absolute"
+                  top="-4"
+                  right="-4"
+                  colorScheme="red"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {countedCartItems}
                 </Badge>
               )}
             </Box>

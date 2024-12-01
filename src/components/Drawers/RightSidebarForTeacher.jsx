@@ -22,7 +22,7 @@ import AuthService from '~/services/authService';
 const menuItems = [
   { label: 'Dashboard', icon: MdDashboard, route: config.routes.course_management_for_teacher },
   { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
-  { label: 'Notifications', icon: MdAnnouncement, route: config.routes.notifications_for_student },
+  { label: 'Notifications', icon: MdAnnouncement, route: config.routes.notifications },
   { label: 'Chat', icon: MdChat, route: config.routes.chat },
 ];
 
