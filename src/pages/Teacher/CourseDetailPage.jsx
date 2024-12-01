@@ -10,7 +10,7 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 import { MdArrowBack } from 'react-icons/md';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';
 import Drip from '~/components/Teacher/CourseDetail/Drip';
 import Settings from '~/components/Teacher/CourseDetail/Setting';
@@ -22,7 +22,8 @@ import courseService from '~/services/courseService';
 
 function CourseDetailPage() {
   const { courseId } = useParams(); // Extract courseId from URL
-  const [activeComponent, setActiveComponent] = useState('Curriculum');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'Curriculum'; // Get active tab from query params
   const [courseTitle, setCourseTitle] = useState('');
   const navigate = useNavigate();
 
@@ -31,7 +32,7 @@ function CourseDetailPage() {
   };
 
   const renderComponent = () => {
-    switch (activeComponent) {
+    switch (activeTab) {
       case 'Curriculum':
         return <Curriculum courseId={courseId} />;
       case 'Drip':
@@ -56,7 +57,7 @@ function CourseDetailPage() {
           const courseRequest = { id: courseId };
           const data = await courseService.fetchMainCourse(courseRequest);
           if (data) {
-            setCourseTitle(data.title || 'Course Detail'); // Lưu tiêu đề từ API
+            setCourseTitle(data.title || 'Course Detail'); // Set course title from API
           }
         } catch (error) {
           console.error('Error fetching course data.', error);
@@ -66,6 +67,30 @@ function CourseDetailPage() {
       fetchCourseData();
     }
   }, [courseId]);
+
+  const handleTabChange = (index) => {
+    const tabNames = [
+      'Curriculum',
+      'Drip',
+      'Settings',
+      'Pricing',
+      'FAQ',
+      'Notice',
+    ];
+    setSearchParams({ tab: tabNames[index] });
+  };
+
+  const getTabIndex = () => {
+    const tabMapping = {
+      Curriculum: 0,
+      Drip: 1,
+      Settings: 2,
+      Pricing: 3,
+      FAQ: 4,
+      Notice: 5,
+    };
+    return tabMapping[activeTab] || 0;
+  };
 
   return (
     <VStack h="100vh" bg="gray.50">
@@ -92,17 +117,8 @@ function CourseDetailPage() {
         <Tabs
           variant="unstyled"
           ml="auto"
-          onChange={(index) => {
-            const tabNames = [
-              'Curriculum',
-              'Drip',
-              'Settings',
-              'Pricing',
-              'FAQ',
-              'Notice',
-            ];
-            setActiveComponent(tabNames[index]);
-          }}
+          index={getTabIndex()}
+          onChange={handleTabChange}
         >
           <TabList>
             <Tab _selected={{ color: 'blue.300', borderBottom: '2px solid' }}>
@@ -138,7 +154,14 @@ function CourseDetailPage() {
         </Button>
       </Flex>
 
-      <Box w="full" h="full" bg="white" p={8} rounded="md">
+      <Box
+        w="full"
+        h="full"
+        bg="white"
+        rounded="md"
+        minHeight="500px"
+        overflowY="auto"
+      >
         {renderComponent()}
       </Box>
     </VStack>

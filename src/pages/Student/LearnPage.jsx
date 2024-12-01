@@ -23,29 +23,31 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
 
 const LessonItem = ({
-                      icon,
-                      title,
-                      duration,
-                      iconColor,
-                      onClick,
-                      typeLesson,
-                      complete,
-                      isTest = false,
-                    }) => (
+  icon,
+  title,
+  duration,
+  iconColor,
+  onClick,
+  typeLesson,
+  complete,
+  isTest = false,
+  isSelected = false,
+}) => (
   <HStack
     w="100%"
     p={2}
     justifyContent="space-between"
     borderRadius={8}
-    bg="gray.50"
+    bg={isSelected ? 'blue.100' : 'gray.50'}
     cursor="pointer"
-    _hover={{ bg: 'gray.100' }}
+    _hover={{ bg: isSelected ? 'blue.200' : 'gray.100' }}
+    border={isSelected ? '2px solid blue.500' : 'none'}
     onClick={onClick}
   >
     <VStack align="start" spacing={2} w="100%">
@@ -76,12 +78,12 @@ const LearnPage = () => {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { courseId } = useParams();
   const username = getUsername();
+  const navigate = useNavigate();
 
   const Navbar = () => {
-    const navigate = useNavigate();
-
     const handleBackClick = () => {
       navigate(`/course-view-detail/${courseId}`);
     };
@@ -117,7 +119,6 @@ const LearnPage = () => {
 
         const sectionsWithContent = await Promise.all(
           fetchedSections.map(async (section) => {
-            // Fetch both lessons and tests concurrently
             const [lessons, tests] = await Promise.all([
               lessonService.fetchLessons({ sectionId: section.id }),
               testService.getTestsBySection(section.id),
@@ -129,6 +130,7 @@ const LearnPage = () => {
               iconColor: getLessonColor(lesson.type),
               complete: lesson.completed,
               isLesson: true,
+              type: lesson.type,
             }));
 
             const formattedTests = tests.map((test) => ({
@@ -137,6 +139,7 @@ const LearnPage = () => {
               iconColor: 'orange.500',
               complete: test.completed,
               isTest: true,
+              type: 'test',
             }));
 
             return {
@@ -148,9 +151,31 @@ const LearnPage = () => {
 
         setSections(sectionsWithContent);
 
-        // Set first item as selected (could be either lesson or test)
+        // Check if there's a selected item in the URL
+        const selectedType = searchParams.get('type');
+        const selectedId = searchParams.get('id');
+
+        // Find the selected item based on URL params
+        if (selectedType && selectedId) {
+          const foundItem = sectionsWithContent
+            .flatMap((section) => section.items)
+            .find(
+              (item) =>
+                (item.isTest ? 'test' : item.type) === selectedType &&
+                item.id.toString() === selectedId,
+            );
+
+          if (foundItem) {
+            setSelectedItem(foundItem);
+            return;
+          }
+        }
+
+        // If no URL params or item not found, set first item
         if (sectionsWithContent[0]?.items[0]) {
-          setSelectedItem(sectionsWithContent[0].items[0]);
+          const firstItem = sectionsWithContent[0].items[0];
+          setSelectedItem(firstItem);
+          updateSearchParams(firstItem);
         }
       } catch (error) {
         console.error('Error fetching curriculum data:', error);
@@ -160,7 +185,17 @@ const LearnPage = () => {
     };
 
     fetchCurriculumData();
-  }, [courseId]);
+  }, [courseId, searchParams]);
+
+  const updateSearchParams = (item) => {
+    const type = item.isTest ? 'test' : item.type;
+    setSearchParams({ type, id: item.id.toString() });
+  };
+
+  const handleItemSelect = (item) => {
+    setSelectedItem(item);
+    updateSearchParams(item);
+  };
 
   const handleCompleteAndNext = async () => {
     if (!selectedItem) return;
@@ -175,7 +210,6 @@ const LearnPage = () => {
             completedAt: new Date().toISOString(),
           });
         }
-        // Add test completion logic here if needed
       } catch (error) {
         console.error('Error completing the item:', error);
         return;
@@ -210,6 +244,7 @@ const LearnPage = () => {
 
     if (nextItem) {
       setSelectedItem(nextItem);
+      updateSearchParams(nextItem);
     } else {
       alert('You have completed all items!');
     }
@@ -308,46 +343,61 @@ const LearnPage = () => {
     <Flex direction="column" h="100vh">
       <Navbar />
       <Flex h="full">
-        <Box w="30%" bg="gray.100" p={4}>
+        <Box
+          w="30%"
+          bg="gray.100"
+          p={5}
+          rounded="md"
+          display="flex"
+          flexDirection="column"
+          h="100%"
+        >
           <Text fontSize="xl" fontWeight="bold" mb={4}>
             Let's paint Van Gogh's Starry Night
           </Text>
-          <Accordion allowMultiple>
-            {sections.map((section) => (
-              <AccordionItem key={section.id}>
-                <h2>
-                  <AccordionButton>
-                    <Box flex="1" textAlign="left" fontWeight="bold">
-                      {section.title}
-                    </Box>
-                    <HStack spacing={1}>
-                      <Text fontSize="sm" color="gray.500">
-                        {section.items.length}
-                      </Text>
-                      <AccordionIcon />
-                    </HStack>
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  <VStack spacing={2}>
-                    {section.items.map((item) => (
-                      <LessonItem
-                        key={item.id}
-                        icon={item.icon}
-                        iconColor={item.iconColor}
-                        title={item.title}
-                        duration={item.duration}
-                        complete={item.complete}
-                        isTest={item.isTest}
-                        onClick={() => setSelectedItem(item)}
-                      />
-                    ))}
-                  </VStack>
-                </AccordionPanel>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <Box flex="1" overflowY="auto" pr={2}>
+            <Accordion
+              allowMultiple
+              defaultIndex={sections.map((_, index) => index)}
+            >
+              {sections.map((section) => (
+                <AccordionItem key={section.id}>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left" fontWeight="bold">
+                        {section.title}
+                      </Box>
+                      <HStack spacing={1}>
+                        <Text fontSize="sm" color="gray.500">
+                          {section.items.length}
+                        </Text>
+                        <AccordionIcon />
+                      </HStack>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <VStack spacing={2}>
+                      {section.items.map((item) => (
+                        <LessonItem
+                          key={item.id}
+                          icon={item.icon}
+                          iconColor={item.iconColor}
+                          title={item.title}
+                          duration={item.duration}
+                          complete={item.complete}
+                          isTest={item.isTest}
+                          onClick={() => handleItemSelect(item)}
+                          isSelected={selectedItem?.id === item.id}
+                        />
+                      ))}
+                    </VStack>
+                  </AccordionPanel>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </Box>
         </Box>
+
         <Box flex="1" p={8}>
           <VStack align="start" spacing={4}>
             {renderContent()}
