@@ -86,7 +86,10 @@ const publicRoutes = [
 
   { path: config.routes.orders, component: OrdersPage },
   { path: config.routes.order_detail, component: OrderDetailPage },
-  { path: config.routes.learn(':courseId'), component: LearnPage },
+  {
+    path: config.routes.learn(':courseId', ':courseTitle'),
+    component: LearnPage,
+  },
   { path: config.routes.category_for_admin, component: CategoryPage },
   { path: config.routes.topic_level_for_admin, component: TopicAndLevelPage },
   {

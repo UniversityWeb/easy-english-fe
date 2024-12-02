@@ -14,6 +14,7 @@ import {
   Skeleton,
   SkeletonText,
   SkeletonCircle,
+  IconButton,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
@@ -25,6 +26,7 @@ import Filter from '~/components/Student/Search/Filter';
 import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import { FiFilter } from 'react-icons/fi';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -51,16 +53,14 @@ const WishlistSkeleton = ({ itemsPerPage }) => (
           borderRadius="lg"
           overflow="hidden"
           boxShadow="md"
-          height="380px"
+          height="300px"
           position="relative"
           p={6}
         >
           <Skeleton height="180px" width="100%" />
           <VStack align="start" spacing={3} mt={4}>
-            <SkeletonText noOfLines={1} width="50%" />
             <SkeletonText noOfLines={2} width="80%" />
-            <SkeletonText noOfLines={2} width="60%" />
-            <SkeletonText noOfLines={1} width="90%" />
+            <SkeletonText noOfLines={1} width="60%" />
           </VStack>
         </Box>
       ))}
@@ -74,6 +74,7 @@ const Wishlist = () => {
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  //const [showFilter, setShowFilter] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     categoryIds: [],
     topicId: null,
@@ -148,20 +149,17 @@ const Wishlist = () => {
           </Button>
         </Flex>
 
-        {/* Main Grid Layout */}
-        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6}>
-          {/* Filter Section */}
+        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6} mt={4}>
           <GridItem>
             <Filter onFilterChange={setFilterOptions} />
           </GridItem>
 
-          {/* Wishlist Courses Section */}
-          <GridItem>
+          <GridItem mx={0} maxWidth="none" flex="1">
             <Flex direction="column" justify="space-between" height="100%">
               {loading ? (
                 <WishlistSkeleton itemsPerPage={itemsPerPage} />
               ) : (
-                <HStack spacing={5} wrap="wrap" justify="flex-start">
+                <Grid templateColumns="repeat(4, 1fr)" gap={6}>
                   {courses.map((course) => (
                     <Box
                       key={course.id}
@@ -342,7 +340,7 @@ const Wishlist = () => {
                       </Box>
                     </Box>
                   ))}
-                </HStack>
+                </Grid>
               )}
 
               {/* Pagination */}

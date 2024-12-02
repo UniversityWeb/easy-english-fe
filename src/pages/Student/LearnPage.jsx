@@ -29,18 +29,18 @@ import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
 
 const LessonItem = ({
-                      icon,
-                      title,
-                      duration,
-                      iconColor,
-                      onClick,
-                      typeLesson,
-                      complete,
-                      isLocked,
-                      isTest = false,
-                      isSelected = false,
-                      itemRef,
-                    }) => (
+  icon,
+  title,
+  duration,
+  iconColor,
+  onClick,
+  typeLesson,
+  complete,
+  isLocked,
+  isTest = false,
+  isSelected = false,
+  itemRef,
+}) => (
   <HStack
     w="100%"
     ref={itemRef}
@@ -70,11 +70,7 @@ const LessonItem = ({
       </HStack>
     </VStack>
     {isLocked ? (
-      <Icon
-        as={FaLock }
-        boxSize={5}
-        color="gray.500"
-      />
+      <Icon as={FaLock} boxSize={5} color="gray.500" />
     ) : (
       <Icon
         as={complete ? FaCheckCircle : ImRadioUnchecked}
@@ -363,7 +359,16 @@ const LearnPage = () => {
       </>
     );
   };
+  const handleItemClick = (id, type) => {
+    const foundItem = sections
+      .flatMap((section) => section.items)
+      .find((item) => item.id === id && item.type === type);
 
+    if (foundItem) {
+      setSelectedItem(foundItem);
+      updateSearchParams(foundItem);
+    }
+  };
   if (loading) {
     return (
       <Flex justify="center" align="center" h="100vh">
@@ -435,31 +440,53 @@ const LearnPage = () => {
         </Box>
 
         <Box flex="1" p={8} pb={0} overflow="auto" h="100%">
-          <VStack align="start" spacing={4} minHeight="89%">
-            {renderContent()}
-          </VStack>
-          <Box
-            position="sticky"
-            bottom="0"
-            bg="white"
-            p={0}
-            zIndex={10}
-            display="flex"
-            justifyContent="flex-end"
-            alignItems="center"
-            paddingBottom={3}
-            paddingTop={3}
-          >
-            {!selectedItem?.isTest && (
-              <Button
-                colorScheme="blue"
-                alignSelf="flex-end"
-                onClick={handleCompleteAndNext}
+          {selectedItem.isLocked ? (
+            selectedItem.prevDrips.map((prevDrip) => (
+              <HStack
+                key={prevDrip.id}
+                spacing={4}
+                align="center"
+                _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }} // Hover effect
+                onClick={() => handleItemClick(prevDrip.id, prevDrip.type)} // Click event handler
               >
-                {selectedItem?.complete ? 'Next' : 'Complete & Next'}
-              </Button>
-            )}
-          </Box>
+                <Icon
+                  as={getLessonIcon(prevDrip.type)}
+                  color={getLessonColor(prevDrip.type)}
+                />
+                <VStack align="start" spacing={0}>
+                  <Text>{prevDrip.title}</Text>
+                </VStack>
+              </HStack>
+            ))
+          ) : (
+            <>
+              <VStack align="start" spacing={4} minHeight="89%">
+                {renderContent()}
+              </VStack>
+              <Box
+                position="sticky"
+                bottom="0"
+                bg="white"
+                p={0}
+                zIndex={10}
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                paddingBottom={3}
+                paddingTop={3}
+              >
+                {!selectedItem?.isTest && (
+                  <Button
+                    colorScheme="blue"
+                    alignSelf="flex-end"
+                    onClick={handleCompleteAndNext}
+                  >
+                    {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+                  </Button>
+                )}
+              </Box>
+            </>
+          )}
         </Box>
       </Flex>
     </Flex>
