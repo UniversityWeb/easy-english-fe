@@ -150,8 +150,6 @@ const TopicAndLevelPage = () => {
     const newLevel = {
       ...currentLevel,
       description: 'Predefined description',
-      courses: 100,
-      earnings: '$500',
     };
 
     if (isEditingLevel) {
@@ -272,9 +270,9 @@ const TopicAndLevelPage = () => {
                         <Table variant="simple" size="sm">
                           <Thead>
                             <Tr>
-                              <Th>LEVELS</Th>
-                              <Th isNumeric>COURSES</Th>
-                              <Th isNumeric>EARNINGS</Th>
+                              <Th>Title</Th>
+                              <Th>From</Th>
+                              <Th>To</Th>
                               <Th>ACTIONS</Th>
                             </Tr>
                           </Thead>
@@ -282,8 +280,8 @@ const TopicAndLevelPage = () => {
                             {levelsByTopic[topic.id]?.map((level) => (
                               <Tr key={level.id}>
                                 <Td>{level.name}</Td>
-                                <Td isNumeric>100</Td> {/* Hardcoded */}
-                                <Td isNumeric>$500</Td> {/* Hardcoded */}
+                                <Td>{level.from || "Default"}</Td>
+                                <Td>{level.to || "Default"}</Td>
                                 <Td>
                                   <HStack spacing={2}>
                                     <IconButton

@@ -12,7 +12,7 @@ const TestPreview = ({ test }) => {
     durationInMilis,
     passingGrade,
     createdAt,
-    locked,
+    isLocked,
     parts,
     isDone,
   } = test;
@@ -37,51 +37,40 @@ const TestPreview = ({ test }) => {
 
   return (
     <Box p={4}>
-      {locked ? (
-        <Box display="flex" alignItems="center" mt={4} color="red.500">
-          <Icon as={FaLock} mr={2} />
-          <Text fontSize="sm" fontWeight="bold">
-            Test is locked
+      <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+        {title || "Test Title"}
+      </Text>
+      {/* Rich Text Description */}
+      <Box
+        mt={2}
+        color="gray.600"
+        fontSize="sm"
+        dangerouslySetInnerHTML={{
+          __html: description || "<p>No description provided</p>",
+        }}
+      />
+      <Stack spacing={2} mt={4}>
+        {[
+          { label: "Created At", value: formattedDate },
+          { label: "Duration", value: formatDuration(durationInMilis || 0) },
+          { label: "Passing Grade", value: `${passingGrade}%` },
+          { label: "Total Questions", value: totalQuestions },
+          {
+            label: "Status",
+            value: isDone ? "Completed" : "Not Completed",
+            color: isDone ? "green.500" : "orange.500"
+          },
+        ].map((field, index) => (
+          <Text key={index} fontSize="sm" color={field.color || "gray.600"}>
+            <strong>{field.label}:</strong> {field.value}
           </Text>
-        </Box>
-      ) : (
-        <>
-          <Text fontSize="2xl" fontWeight="bold" color="gray.700">
-            {title || "Test Title"}
-          </Text>
-          {/* Rich Text Description */}
-          <Box
-            mt={2}
-            color="gray.600"
-            fontSize="sm"
-            dangerouslySetInnerHTML={{
-              __html: description || "<p>No description provided</p>",
-            }}
-          />
-          <Stack spacing={2} mt={4}>
-            {[
-              { label: "Created At", value: formattedDate },
-              { label: "Duration", value: formatDuration(durationInMilis || 0) },
-              { label: "Passing Grade", value: `${passingGrade}%` },
-              { label: "Total Questions", value: totalQuestions },
-              {
-                label: "Status",
-                value: isDone ? "Completed" : "Not Completed",
-                color: isDone ? "green.500" : "orange.500"
-              },
-            ].map((field, index) => (
-              <Text key={index} fontSize="sm" color={field.color || "gray.600"}>
-                <strong>{field.label}:</strong> {field.value}
-              </Text>
-            ))}
-          </Stack>
-          <Button colorScheme="blue" mt={6} onClick={() => {
-            navigate(config.routes.take_test(id))
-          }}>
-            Start Test
-          </Button>
-        </>
-      )}
+        ))}
+      </Stack>
+      <Button colorScheme="blue" mt={6} onClick={() => {
+        navigate(config.routes.take_test(id))
+      }}>
+        Start Test
+      </Button>
     </Box>
   );
 };

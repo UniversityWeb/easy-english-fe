@@ -15,8 +15,8 @@ const OtpValidationPage = lazy(
 const CourseManagementForStudentPage = lazy(
   () => import('~/pages/Student/CourseManagementForStudentPage'),
 );
-const NotificationsForStudentPage = lazy(
-  () => import('~/pages/Student/NotificationsForStudentPage'),
+const Notifications = lazy(
+  () => import('~/pages/Student/Notifications'),
 );
 const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
 const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
@@ -63,7 +63,7 @@ const publicRoutes = [
   },
   {
     path: config.routes.notifications,
-    component: NotificationsForStudentPage,
+    component: Notifications,
   },
   { path: config.routes.preview_test, component: PreviewTestPage },
   { path: config.routes.take_test(':testId'), component: TakeTestPage },
