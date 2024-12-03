@@ -91,7 +91,6 @@ const LoginPage = () => {
         return;
       }
 
-      debugger;
       if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
         navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.username } });
         return;
