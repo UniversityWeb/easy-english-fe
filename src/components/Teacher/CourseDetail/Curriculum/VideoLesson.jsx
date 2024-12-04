@@ -17,6 +17,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
+import VideoPicker from '~/components/VideoPicker';
 
 const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
   const [loading, setLoading] = useState(false);
@@ -100,24 +101,6 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
     };
   }, []);
 
-  const handleVideoChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      setVideo(selectedFile);
-      // Create a preview URL for the video
-      const previewUrl = URL.createObjectURL(selectedFile);
-      setLesson({ ...lesson, contentUrl: previewUrl });
-    }
-  };
-
-  const handleRemoveVideo = () => {
-    if (lesson.contentUrl && lesson.contentUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(lesson.contentUrl);
-    }
-    setLesson({ ...lesson, contentUrl: '' });
-    setVideo(null);
-  };
-
   const handleSubmit = async () => {
     setLoading(true);
 
@@ -185,88 +168,12 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
               />
             </FormControl>
           ) : (
-            <FormControl mb={4}>
-              <FormLabel>Upload Video (MP4)</FormLabel>
-              <Box position="relative" width="100%" height="300px" mx="auto">
-                {lesson.contentUrl ? (
-                  <Box
-                    position="relative"
-                    width="100%"
-                    height="100%"
-                    cursor="pointer"
-                    overflow="hidden"
-                    _hover={{
-                      '.overlay': { opacity: 1 },
-                      '.remove-btn': { opacity: 1 },
-                    }}
-                  >
-                    <video
-                      src={lesson.contentUrl}
-                      controls
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                    <Box
-                      className="overlay"
-                      position="absolute"
-                      top="0"
-                      left="0"
-                      width="100%"
-                      height="100%"
-                      backgroundColor="rgba(0, 0, 0, 0.5)"
-                      opacity="0"
-                      transition="opacity 0.3s ease"
-                    />
-                    <Flex
-                      className="remove-btn"
-                      position="absolute"
-                      top="50%"
-                      left="50%"
-                      transform="translate(-50%, -50%)"
-                      opacity="0"
-                      transition="opacity 0.3s ease"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Button onClick={handleRemoveVideo} colorScheme="blue">
-                        Remove
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Flex
-                    border="2px dashed gray"
-                    p="4"
-                    textAlign="center"
-                    cursor="pointer"
-                    height="100%"
-                    onClick={() =>
-                      document.getElementById('videoUpload').click()
-                    }
-                    justifyContent="center"
-                    alignItems="center"
-                    flexDirection="column"
-                  >
-                    <Text>
-                      Drag and drop a video or upload it from your computer
-                    </Text>
-                    <Button mt="2" colorScheme="blue">
-                      Upload a video
-                    </Button>
-                    <Input
-                      id="videoUpload"
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoChange}
-                      display="none"
-                    />
-                  </Flex>
-                )}
-              </Box>
-            </FormControl>
+            <VideoPicker
+              title={'Upload Video (MP4)'}
+              videoPreview={lesson?.contentUrl}
+              setVideoPreview={videoPreview => setLesson({ ...lesson, contentUrl: videoPreview })}
+              setVideoFile={setVideo}
+            />
           )}
 
           <FormControl mb={4}>

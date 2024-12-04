@@ -22,7 +22,6 @@ import AuthService from '~/services/authService';
 const menuItems = [
   { label: 'Dashboard', icon: MdDashboard, route: config.routes.course_management_for_teacher },
   { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
-  { label: 'Notifications', icon: MdAnnouncement, route: config.routes.notifications },
   { label: 'Chat', icon: MdChat, route: config.routes.chat },
 ];
 
@@ -113,4 +112,4 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
   );
 }
 
-export default RightSidebarForTeacher;
+export default React.memo(RightSidebarForTeacher);

@@ -124,7 +124,7 @@ const CourseManagement = () => {
         <Flex mb={4} gap={4}>
           <Box>
             <Input
-              placeholder="Search by teacher"
+              placeholder="Search by username"
               name="ownerUsername"
               value={filters.ownerUsername}
               onChange={handleFilterChange}

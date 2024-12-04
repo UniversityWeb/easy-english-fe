@@ -11,38 +11,70 @@ import {
   Box,
 } from '@chakra-ui/react';
 import AuthService from '~/services/authService';
-import { isLoggedIn } from '~/utils/authUtils';
+import { getUsername, isLoggedIn } from '~/utils/authUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import RightSidebarForTeacher from '~/components/Drawers/RightSidebarForTeacher';
 import { FiShoppingCart, FiBell } from 'react-icons/fi';
 import { Icon } from '@chakra-ui/icons';
+import CartService from '~/services/cartService';
+import NotificationService from '~/services/notificationService';
+import WebSocketService from '~/services/websocketService';
+import { websocketConstants } from '~/utils/websocketConstants';
 
 const NavbarForTeacher = React.memo((props) => {
   const navigate = useNavigate();
-  const { errorToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [user, setUser] = useState(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [notificationCount, setNotificationCount] = useState(0);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      setIsUserLoading(true);
-      AuthService.getCurUser()
-        .then((user) => {
-          setUser(user);
-        })
-        .catch((e) => {
-          errorToast(e?.message);
-        })
-        .finally(() => {
-          setIsUserLoading(false);
-        });
-    };
+  const fetchUser = async () => {
+    try {
+      const user = await AuthService.getCurUser();
+      setUser(user);
+    } catch (e) {
+      console.log(e?.message);
+    }
+  };
 
+  const fetchNotifications = async () => {
+    try {
+      const count = await NotificationService.countUnreadNotifications();
+      setNotificationCount(count);
+    } catch (e) {
+      console.error('Failed to fetch notifications:', e.message);
+    }
+  };
+
+  const initializeWebsocket = async () => {
+    const username = getUsername();
+    try {
+      const wsService = await WebSocketService.getIns();
+      // Subscribe to notification updates
+      wsService.subscribe(
+        websocketConstants.notificationCountTopic(username),
+        async (numberOfUnreadNotifications) => {
+          setNotificationCount(numberOfUnreadNotifications);
+        },
+      );
+    } catch (error) {
+      console.error('WebSocket initialization failed:', error);
+    }
+  };
+
+  useEffect(() => {
     fetchUser();
+    fetchNotifications();
+    initializeWebsocket();
+
+    return () => {
+      const username = getUsername();
+      WebSocketService.getIns().then((wsService) => {
+        wsService.unsubscribe(websocketConstants.notificationCountTopic(username));
+      });
+    };
   }, []);
 
   return (

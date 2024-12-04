@@ -8,6 +8,7 @@ import {
   Flex,
   Badge,
   Container,
+  Image,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion'; // Import motion
 import notificationService from '~/services/notificationService';
@@ -18,16 +19,18 @@ import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { websocketConstants } from '~/utils/websocketConstants';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import WebSocketService from '~/services/websocketService';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-const NotificationsForStudentPage = () => {
+const Notifications = () => {
   const username = getUsername();
   const { successToast, errorToast, infoToast } = useCustomToast();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let wsService;
@@ -41,11 +44,10 @@ const NotificationsForStudentPage = () => {
           setNotifications((prev) => [notification, ...prev]);
           infoToast("You have a new message");
         });
-
       } catch (error) {
         console.error('WebSocket initialization failed:', error);
       }
-    }
+    };
 
     initializeWebsocket();
 
@@ -53,7 +55,7 @@ const NotificationsForStudentPage = () => {
       if (wsService) {
         wsService.unsubscribe(websocketConstants.notificationTopic(username));
       }
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -90,16 +92,25 @@ const NotificationsForStudentPage = () => {
     if (page > 0) setPage((prevPage) => prevPage - 1);
   };
 
-  const handleNotificationClick = async (notificationId, read) => {
-    if (!read) {
+  const handleNotificationClick = async (url) => {
+    if (url) {
       try {
-        await notificationService.markNotificationAsRead(notificationId);
-        successToast('Notification marked as read');
-        await fetchNotifications(page);
+          navigate(url);
       } catch (error) {
         console.log(error?.message);
         errorToast('Error marking notification as read');
       }
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await notificationService.markNotificationAsRead(notificationId);
+      successToast('Notification marked as read');
+      await fetchNotifications(page);
+    } catch (error) {
+      console.log(error?.message);
+      errorToast('Error marking notification as read');
     }
   };
 
@@ -133,9 +144,6 @@ const NotificationsForStudentPage = () => {
                   justifyContent="space-between"
                   alignItems="center"
                   cursor="pointer"
-                  onClick={() =>
-                    handleNotificationClick(notification.id, notification.read)
-                  }
                   _hover={{
                     backgroundColor: notification.read ? 'white' : 'blue.50',
                     boxShadow: notification.read ? 'none' : 'lg',
@@ -144,18 +152,41 @@ const NotificationsForStudentPage = () => {
                   animate={{ opacity: 1, x: 0 }} // Animate to this state (visible, no offset)
                   transition={{ duration: 0.5 }} // Animation duration
                 >
-                  <Box flex="1">
+                  <Flex flex="1" direction="column" onClick={() => handleNotificationClick(notification.url)}>
+                    {notification.previewImage && (
+                      <Image
+                        src={notification.previewImage}
+                        alt="Notification"
+                        boxSize="100px"
+                        objectFit="cover"
+                        borderRadius="md"
+                        mb={2}
+                      />
+                    )}
                     <Text>{notification.message}</Text>
                     <Text fontSize="sm" color="gray.500">
                       {formatDate(notification.createdDate)}
                     </Text>
-                  </Box>
-                  <Badge
-                    ml={2}
-                    colorScheme={notification.read ? 'green' : 'red'}
-                  >
-                    {notification.read ? 'READ' : 'UNREAD'}
-                  </Badge>
+                  </Flex>
+                  <Flex alignItems="center" gap={4}>
+                    <Badge
+                      colorScheme={notification.read ? 'green' : 'red'}
+                    >
+                      {notification.read ? 'READ' : 'UNREAD'}
+                    </Badge>
+                    {!notification.read && (
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering the main notification click
+                          handleMarkAsRead(notification.id);
+                        }}
+                      >
+                        Mark as Read
+                      </Button>
+                    )}
+                  </Flex>
                 </MotionBox>
               ))
             )}
@@ -201,4 +232,4 @@ const NotificationsForStudentPage = () => {
   );
 };
 
-export default NotificationsForStudentPage;
+export default Notifications;

@@ -79,13 +79,7 @@ const UserManagement = () => {
       setFilteredUsers(response.content || []);
       setTotalPages(response.totalPages);
     } catch (error) {
-      toast({
-        title: 'Error fetching users',
-        description: error.message,
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
+      errorToast(error.message);
     }
   };
 
@@ -113,7 +107,7 @@ const UserManagement = () => {
 
       successToast(`User ${username} has been deleted successfully.`);
     } catch (error) {
-      errorToast(`Error deleting user ${username}`);
+      errorToast(error?.message);
     }
   };
 

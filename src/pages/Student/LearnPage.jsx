@@ -310,9 +310,11 @@ const LearnPage = () => {
           {description}
         </Text>
         {type === SEC_ITEM_TYPES.TEXT && (
-          <Text fontSize="lg" color="gray.700" mt={4}>
-            {content}
-          </Text>
+          <Box
+            color="gray.700"
+            mt={4}
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
         )}
         {type === SEC_ITEM_TYPES.VIDEO && (
           <>
@@ -440,8 +442,16 @@ const LearnPage = () => {
         </Box>
 
         <Box flex="1" p={8} pb={0} overflow="auto" h="100%">
-          {selectedItem.isLocked ? (
-            selectedItem.prevDrips.map((prevDrip) => (
+          {selectedItem?.isLocked ? (
+            <>
+              <HStack mb={4} align="center" spacing={2} mb={50}>
+                <Icon as={FaLock} color="red.500" boxSize={5} /> {/* Replace `YourLockIconComponent` with the lock icon component you're using */}
+                <Text color="gray.600">
+                  The current content is locked. Please complete the list below to unlock and proceed.
+                </Text>
+              </HStack>
+
+              {selectedItem.prevDrips.map((prevDrip) => (
               <HStack
                 key={prevDrip.id}
                 spacing={4}
@@ -457,7 +467,8 @@ const LearnPage = () => {
                   <Text>{prevDrip.title}</Text>
                 </VStack>
               </HStack>
-            ))
+              ))}
+            </>
           ) : (
             <>
               <VStack align="start" spacing={4} minHeight="89%">

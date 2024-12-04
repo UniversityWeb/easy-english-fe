@@ -1,6 +1,7 @@
 import React, { lazy } from 'react';
 import config from '~/config';
 
+const AddCoursePage = lazy(() => import('~/pages/Common/AddCoursePage'));
 const LoginPage = lazy(() => import('~/pages/Common/LoginPage'));
 const RegisterPage = lazy(() => import('~/pages/Common/RegisterPage'));
 const ForgotPasswordPage = lazy(
@@ -15,8 +16,8 @@ const OtpValidationPage = lazy(
 const CourseManagementForStudentPage = lazy(
   () => import('~/pages/Student/CourseManagementForStudentPage'),
 );
-const NotificationsForStudentPage = lazy(
-  () => import('~/pages/Student/NotificationsForStudentPage'),
+const Notifications = lazy(
+  () => import('~/pages/Student/Notifications'),
 );
 const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
 const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
@@ -63,13 +64,13 @@ const publicRoutes = [
   },
   {
     path: config.routes.notifications,
-    component: NotificationsForStudentPage,
+    component: Notifications,
   },
   { path: config.routes.preview_test, component: PreviewTestPage },
   { path: config.routes.take_test(':testId'), component: TakeTestPage },
   { path: config.routes.cart, component: CartPage },
   { path: config.routes.payment_result, component: PaymentResultPage },
-  { path: config.routes.maincourse, component: Setting },
+  { path: config.routes.maincourse, component: AddCoursePage },
   {
     path: config.routes.course_detail(':courseId'),
     component: CourseDetailPage,

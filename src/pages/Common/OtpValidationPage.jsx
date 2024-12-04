@@ -67,9 +67,8 @@ const OtpValidationPage = () => {
 
   const resendOtp = async () => {
     setIsLoading(true);
-    const activeAccountRequest = {username, otp};
     try {
-      await AuthService.resendOTPToActiveAccount(activeAccountRequest);
+      await AuthService.resendOTPToActiveAccount(username);
       setMessage('OTP sent successfully!');
       setError(false);
     } catch (e) {
