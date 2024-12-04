@@ -25,6 +25,8 @@ import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
+import ImagePicker from '~/components/ImagePicker';
+import VideoPicker from '~/components/VideoPicker';
 
 const Setting = React.memo(({ courseId }) => {
   const navigate = useNavigate();
@@ -291,162 +293,19 @@ const Setting = React.memo(({ courseId }) => {
         />
       </FormControl>
 
-      <FormControl mb="4">
-        <FormLabel>Video</FormLabel>
-        <Box position="relative" width="100%" height="250px" mx="auto">
-          {course.videoPreview ? (
-            <Box
-              position="relative"
-              width="100%"
-              height="100%"
-              cursor="pointer"
-              overflow="hidden"
-              _hover={{
-                '.overlay': { opacity: 1 },
-                '.remove-btn': { opacity: 1 },
-              }}
-            >
-              <video
-                src={course.videoPreview}
-                controls
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <Box
-                className="overlay"
-                position="absolute"
-                top="0"
-                left="0"
-                width="100%"
-                height="100%"
-                backgroundColor="rgba(0, 0, 0, 0.5)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-              />
-              <Flex
-                className="remove-btn"
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Button
-                  onClick={() => setCourse({ ...course, videoPreview: '' })}
-                  colorScheme="blue"
-                >
-                  Remove
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <Flex
-              border="2px dashed gray"
-              p="4"
-              textAlign="center"
-              cursor="pointer"
-              height="100%"
-              onClick={() => document.getElementById('videoUpload').click()}
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-            >
-              <Text>Drag and drop a video or upload it from your computer</Text>
-              <Button mt="2" colorScheme="blue">
-                Upload a video
-              </Button>
-              <Input
-                id="videoUpload"
-                type="file"
-                accept="video/*"
-                onChange={handleVideoChange}
-                display="none"
-              />
-            </Flex>
-          )}
-        </Box>
-      </FormControl>
+      <VideoPicker
+        title={'Video'}
+        videoPreview={course.videoPreview}
+        setVideoPreview={videoPreview => setCourse({ ...course, videoPreview: videoPreview })}
+        setVideoFile={setVideoFile}
+      />
 
-      <FormControl mb="4">
-        <FormLabel>Image</FormLabel>
-        <Box position="relative" width="100%" height="250px" mx="auto">
-          {course.imagePreview ? (
-            <Box
-              position="relative"
-              width="100%"
-              height="100%"
-              cursor="pointer"
-              overflow="hidden"
-              _hover={{
-                '.overlay': { opacity: 1 },
-                '.remove-btn': { opacity: 1 },
-              }}
-            >
-              <Image
-                src={course.imagePreview}
-                alt="Course Image"
-                width="100%"
-                height="100%"
-                objectFit="cover"
-              />
-              <Box
-                className="overlay"
-                position="absolute"
-                top="0"
-                left="0"
-                width="100%"
-                height="100%"
-                backgroundColor="rgba(0, 0, 0, 0.5)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-              />
-              <Flex
-                className="remove-btn"
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Button onClick={handleRemoveImage} colorScheme="blue">
-                  Remove
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <Flex
-              border="2px dashed gray"
-              p="4"
-              textAlign="center"
-              cursor="pointer"
-              height="100%"
-              onClick={() => document.getElementById('imageUpload').click()}
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-            >
-              <Text>
-                Drag and drop an image or upload it from your computer
-              </Text>
-              <Button mt="2" colorScheme="blue">
-                Upload an image
-              </Button>
-              <Input
-                id="imageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                display="none"
-              />
-            </Flex>
-          )}
-        </Box>
-      </FormControl>
+      <ImagePicker
+        title={'Image'}
+        imagePreview={course?.imagePreview}
+        setImagePreview={(imagePreview) => setCourse({ ...course, imagePreview: imagePreview })}
+        setImageFile={setImageFile}
+      />
 
       <FormControl mb="4">
         <FormLabel>Description preview</FormLabel>
