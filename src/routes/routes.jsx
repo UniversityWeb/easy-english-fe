@@ -1,6 +1,7 @@
 import React, { lazy } from 'react';
 import config from '~/config';
 
+const AddCoursePage = lazy(() => import('~/pages/Common/AddCoursePage'));
 const LoginPage = lazy(() => import('~/pages/Common/LoginPage'));
 const RegisterPage = lazy(() => import('~/pages/Common/RegisterPage'));
 const ForgotPasswordPage = lazy(
@@ -69,7 +70,7 @@ const publicRoutes = [
   { path: config.routes.take_test(':testId'), component: TakeTestPage },
   { path: config.routes.cart, component: CartPage },
   { path: config.routes.payment_result, component: PaymentResultPage },
-  { path: config.routes.maincourse, component: Setting },
+  { path: config.routes.maincourse, component: AddCoursePage },
   {
     path: config.routes.course_detail(':courseId'),
     component: CourseDetailPage,

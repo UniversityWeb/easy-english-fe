@@ -17,6 +17,7 @@ import 'react-quill/dist/quill.snow.css';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
 import CustomReactQuill from '~/components/CustomReactQuill';
+import AudioPicker from '~/components/AudioPicker';
 
 const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
   const [loading, setLoading] = useState(false);
@@ -187,88 +188,12 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               />
             </FormControl>
           ) : (
-            <FormControl mb={4}>
-              <FormLabel>Upload Audio (MP3)</FormLabel>
-              <Box position="relative" width="100%" height="150px" mx="auto">
-                {lesson.contentUrl ? (
-                  <Box
-                    position="relative"
-                    width="100%"
-                    height="100%"
-                    cursor="pointer"
-                    overflow="hidden"
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    _hover={{
-                      '.overlay': { opacity: 1 },
-                      '.remove-btn': { opacity: 1 },
-                    }}
-                  >
-                    <audio
-                      src={lesson.contentUrl}
-                      controls
-                      style={{ width: '100%', maxWidth: '400px' }}
-                    />
-                    <Box
-                      className="overlay"
-                      position="absolute"
-                      top="0"
-                      left="0"
-                      width="100%"
-                      height="100%"
-                      backgroundColor="rgba(0, 0, 0, 0.5)"
-                      opacity="0"
-                      transition="opacity 0.3s ease"
-                    />
-                    <Flex
-                      className="remove-btn"
-                      position="absolute"
-                      top="50%"
-                      left="50%"
-                      transform="translate(-50%, -50%)"
-                      opacity="0"
-                      transition="opacity 0.3s ease"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Button onClick={handleRemoveAudio} colorScheme="blue">
-                        Remove
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Flex
-                    border="2px dashed gray"
-                    p="4"
-                    textAlign="center"
-                    cursor="pointer"
-                    height="100%"
-                    onClick={() =>
-                      document.getElementById('audioUpload').click()
-                    }
-                    justifyContent="center"
-                    alignItems="center"
-                    flexDirection="column"
-                  >
-                    <Text>
-                      Drag and drop an audio file or upload it from your
-                      computer
-                    </Text>
-                    <Button mt="2" colorScheme="blue">
-                      Upload an audio file
-                    </Button>
-                    <Input
-                      id="audioUpload"
-                      type="file"
-                      accept="audio/*"
-                      onChange={handleAudioChange}
-                      display="none"
-                    />
-                  </Flex>
-                )}
-              </Box>
-            </FormControl>
+            <AudioPicker
+              title={'Upload Audio (MP3)'}
+              audioPreview={lesson?.contentUrl}
+              setAudioPreview={audioPreview => setLesson({ ...lesson, contentUrl: audioPreview })}
+              setAudioFile={setAudio}
+            />
           )}
 
           <FormControl mb={4}>

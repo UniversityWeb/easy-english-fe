@@ -7,11 +7,7 @@ import {
   FormLabel,
   Switch,
   Textarea,
-  Text,
-  Select as ChakraSelect,
-  Image,
-  Flex,
-  Heading,
+  Select as ChakraSelect, Heading, Center,
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
@@ -21,7 +17,6 @@ import categoryService from '~/services/categoryService';
 import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';
 import { getUsername } from '~/utils/authUtils';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
@@ -40,7 +35,7 @@ const Setting = React.memo(({ courseId }) => {
     descriptionPreview: '',
     duration: '',
     isPublish: true,
-    createdBy: 'admin',
+    ownerUsername: 'admin',
     imagePreview: '',
     videoPreview: '',
   });
@@ -50,6 +45,7 @@ const Setting = React.memo(({ courseId }) => {
   const [levels, setLevels] = useState([]);
   const [imageFile, setImageFile] = useState(null); // Store the actual image file
   const [videoFile, setVideoFile] = useState(null); // Store the actual video file
+  const [isSaving, setIsSaving] = useState(false); // Loading state for image processing
   const { successToast, errorToast } = useCustomToast();
 
   // Fetch categories and topics on mount
@@ -135,40 +131,9 @@ const Setting = React.memo(({ courseId }) => {
     }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imagePreview = URL.createObjectURL(file);
-      setCourse((prevCourse) => ({
-        ...prevCourse,
-        imagePreview: imagePreview,
-      }));
-      setImageFile(file); // Store the actual image file
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setCourse((prevCourse) => ({
-      ...prevCourse,
-      imagePreview: '',
-    }));
-    setImageFile(null); // Reset the image file
-  };
-
-  const handleVideoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const videoPreview = URL.createObjectURL(file);
-      setCourse((prevCourse) => ({
-        ...prevCourse,
-        videoPreview: videoPreview,
-      }));
-      setVideoFile(file); // Store the actual video file
-    }
-  };
-
   // Handle form submission (create or update)
   const handleSubmit = async () => {
+    setIsSaving(true);
     const formData = new FormData();
     formData.append('ownerUsername', username);
     formData.append('title', course.title);
@@ -210,11 +175,17 @@ const Setting = React.memo(({ courseId }) => {
     } catch (error) {
       errorToast('Error saving course.');
       console.error('Error saving course.', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <Box pb={10} maxW="600px" mx="auto">
+      <Center mt={10} mb={5}>
+        <Heading>{courseId ? 'Update Course' : 'Create Course'}</Heading>
+      </Center>
+
       <FormControl mb="4">
         <FormLabel>Course name</FormLabel>
         <Input
@@ -296,14 +267,18 @@ const Setting = React.memo(({ courseId }) => {
       <VideoPicker
         title={'Video'}
         videoPreview={course.videoPreview}
-        setVideoPreview={videoPreview => setCourse({ ...course, videoPreview: videoPreview })}
+        setVideoPreview={(videoPreview) =>
+          setCourse({ ...course, videoPreview: videoPreview })
+        }
         setVideoFile={setVideoFile}
       />
 
       <ImagePicker
         title={'Image'}
         imagePreview={course?.imagePreview}
-        setImagePreview={(imagePreview) => setCourse({ ...course, imagePreview: imagePreview })}
+        setImagePreview={(imagePreview) =>
+          setCourse({ ...course, imagePreview: imagePreview })
+        }
         setImageFile={setImageFile}
       />
 
@@ -343,7 +318,14 @@ const Setting = React.memo(({ courseId }) => {
         </Box>
       </FormControl>
 
-      <Button colorScheme="blue" width="100%" onClick={handleSubmit}>
+      <Button
+        colorScheme="blue"
+        width="100%"
+        onClick={handleSubmit}
+        isLoading={isSaving}
+        isDisabled={isSaving}
+        loadingText={"Saving..."}
+      >
         {courseId ? 'Update Course' : 'Create Course'}
       </Button>
     </Box>
