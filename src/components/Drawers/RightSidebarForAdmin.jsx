@@ -36,7 +36,7 @@ import { FaRegStar } from 'react-icons/fa';
 import AuthService from '~/services/authService';
 import { FaUserEdit } from 'react-icons/fa';
 
-const RightSidebarForAdmin = (props) => {
+const RightSidebarForAdmin = React.memo((props) => {
   const user = props.user;
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState();
@@ -175,6 +175,6 @@ const RightSidebarForAdmin = (props) => {
       </DrawerContent>
     </Drawer>
   );
-};
+});
 
 export default RightSidebarForAdmin;

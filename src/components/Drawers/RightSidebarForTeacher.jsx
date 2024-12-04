@@ -112,4 +112,4 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
   );
 }
 
-export default RightSidebarForTeacher;
+export default React.memo(RightSidebarForTeacher);
