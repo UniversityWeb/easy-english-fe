@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { FiFilter } from 'react-icons/fi';
 import useCustomToast from '~/hooks/useCustomToast';
+import { formatVNDMoney } from '~/utils/methods';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -153,7 +154,7 @@ const CourseList = ({
                 <Flex justify="space-between" align="center" width="100%">
                   <Rating rating={course.rating} />
                   <Text fontWeight="bold" fontSize="lg" color="gray.700">
-                    {course.price?.price ? `${course.price.price}đ` : 'Free'}
+                    {course.price?.price ? `${formatVNDMoney(course.price.price)}` : 'Free'}
                   </Text>
                 </Flex>
 
