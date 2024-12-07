@@ -16,6 +16,7 @@ import {
   SkeletonCircle,
   IconButton,
   Divider,
+  Heading,
   Tabs,
   TabList,
   TabPanels,
@@ -175,15 +176,29 @@ const Enrollment = () => {
                 <EnrollmentSkeleton itemsPerPage={itemsPerPage} />
               ) : (
                 <Grid templateColumns="repeat(4, 1fr)" gap={6}>
-                  {courses?.map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      course={course}
-                      onMakeFeatured={() =>
-                        navigate(config.routes.course_detail(course?.id))
-                      }
-                    />
-                  ))}
+                  {courses.length > 0 ? (
+                    courses?.map((course) => (
+                      <CourseCard
+                        key={course.id}
+                        course={course}
+                        onMakeFeatured={() =>
+                          navigate(config.routes.course_detail(course?.id))
+                        }
+                      />
+                    ))
+                  ) : (
+                    <GridItem
+                      colSpan={4}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      height="380px"
+                    >
+                      <Heading textAlign="center" size="md">
+                        No courses available
+                      </Heading>
+                    </GridItem>
+                  )}
                 </Grid>
               )}
 

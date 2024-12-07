@@ -56,6 +56,11 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
             startDate: data.startDate || '',
             startTime: data.startTime || '',
           });
+          if (data.contentUrl?.includes('youtube.com')) {
+            setSourceType('YouTube');
+          } else {
+            setSourceType('MP4');
+          }
           successToast('Lesson data fetched successfully');
         }
       } catch (error) {
@@ -171,7 +176,9 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
             <VideoPicker
               title={'Upload Video (MP4)'}
               videoPreview={lesson?.contentUrl}
-              setVideoPreview={videoPreview => setLesson({ ...lesson, contentUrl: videoPreview })}
+              setVideoPreview={(videoPreview) =>
+                setLesson({ ...lesson, contentUrl: videoPreview })
+              }
               setVideoFile={setVideo}
             />
           )}

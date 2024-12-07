@@ -33,12 +33,15 @@ import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 import WebsocketService from '~/services/websocketService';
 import favouriteService from '~/services/favouriteService';
+import useCustomToast from '~/hooks/useCustomToast';
+
 const CourseDetailBtnStat = {
   START_COURSE: 'START_COURSE',
   CONTINUE_COURSE: 'CONTINUE_COURSE',
   IN_CART: 'IN_CART',
   ADD_TO_CART: 'ADD_TO_CART',
   LOADING: 'LOADING',
+  COMPLETED: 'COMPLETED',
 };
 
 function CourseDetailsPage() {
@@ -48,6 +51,7 @@ function CourseDetailsPage() {
   const [buttonState, setButtonState] = useState(CourseDetailBtnStat.LOADING); // State to control the button text
   const { courseId } = useParams();
   const [isLiked, setIsLiked] = useState(false);
+  const { successToast, errorToast } = useCustomToast();
 
   // Determine the active tab based on the query parameter
   const activeTab = searchParams.get('tab') || 'description';
@@ -57,7 +61,7 @@ function CourseDetailsPage() {
       const response = await courseService.fetchMainCourse({ id: courseId });
       if (response) setCourseData(response);
     } catch (e) {
-      console.error(e);
+      errorToast('Error loading course data');
     }
   };
 
@@ -66,7 +70,7 @@ function CourseDetailsPage() {
       const response = await favouriteService.checkCourseInFavourite(courseId);
       if (response) setIsLiked(response);
     } catch (e) {
-      console.error(e);
+      errorToast('Error checking course in favourite');
     }
   };
 
@@ -85,18 +89,21 @@ function CourseDetailsPage() {
       if (isLiked) {
         await favouriteService.deleteFavourite(id);
         setIsLiked(false);
+        successToast('Removed from wishlist');
       } else {
         await favouriteService.addFavourite(id);
         setIsLiked(true);
+        successToast('Added to wishlist');
       }
     } catch (error) {
-      console.error('Error updating wishlist:', error);
+      errorToast('Error toggling wishlist');
     }
   };
 
   const addToCart = async () => {
     try {
       await cartService.addItemToCart(courseId);
+      successToast('Added to cart');
       const addRequest = {
         username: getUsername(),
       };
@@ -104,9 +111,9 @@ function CourseDetailsPage() {
       wsService.send(websocketConstants.cartItemCountDestination, addRequest);
       setButtonState(CourseDetailBtnStat.IN_CART);
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      errorToast('Error adding to cart');
     }
-  }
+  };
 
   useEffect(() => {
     loadCourseData();
@@ -123,6 +130,7 @@ function CourseDetailsPage() {
         break;
       case CourseDetailBtnStat.START_COURSE:
       case CourseDetailBtnStat.CONTINUE_COURSE:
+      case CourseDetailBtnStat.COMPLETED:
         navigate(config.routes.learn(courseId, courseData?.title));
         break;
       case CourseDetailBtnStat.IN_CART:
@@ -339,6 +347,7 @@ function CourseDetailsPage() {
                 'Start Course'}
               {buttonState === CourseDetailBtnStat.CONTINUE_COURSE &&
                 'Continue Course'}
+              {buttonState === CourseDetailBtnStat.COMPLETED && 'Completed'}
             </Button>
 
             <Box mt={6}>

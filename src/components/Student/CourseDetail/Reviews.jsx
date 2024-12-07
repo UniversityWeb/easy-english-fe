@@ -17,7 +17,7 @@ import { getUsername } from '~/utils/authUtils';
 
 const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
   const canWriteReview =
-    buttonState === 'start-course' || buttonState === 'continue-course';
+    buttonState === 'COMPLETED';
 
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);

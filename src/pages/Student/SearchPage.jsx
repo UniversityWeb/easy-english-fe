@@ -30,6 +30,7 @@ import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { FiFilter } from 'react-icons/fi';
+import useCustomToast from '~/hooks/useCustomToast';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -250,6 +251,7 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [hoveredCourseId, setHoveredCourseId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const { successToast, errorToast } = useCustomToast();
 
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
@@ -285,6 +287,9 @@ const SearchPage = () => {
 
       if (response) {
         const { content, totalPages } = response;
+        if (content.length === 0) {
+          successToast('No course found');
+        }
         setCourses(content);
         setTotalPages(totalPages);
 
@@ -300,7 +305,7 @@ const SearchPage = () => {
         setLikedCourses(likedCoursesStatus);
       }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      errorToast('Error fetching courses');
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
@@ -319,8 +324,10 @@ const SearchPage = () => {
     try {
       if (isLiked) {
         await favouriteService.deleteFavourite(id);
+        successToast('Removed from wishlist');
       } else {
         await favouriteService.addFavourite(id);
+        successToast('Added to wishlist');
       }
 
       setLikedCourses((prev) =>
