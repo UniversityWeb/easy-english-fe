@@ -116,6 +116,7 @@ const LoginPage = () => {
     try {
       const loginResponse = await AuthService.loginWithGoogle(response?.credential);
       if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
+        errorToast('The account has not confirmed OTP');
         navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.email } });
         return;
       }
