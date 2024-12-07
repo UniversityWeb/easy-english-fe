@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import orderService from '~/services/orderService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
-import { delayLoading, formatDate } from '~/utils/methods';
+import { delayLoading, formatDate, formatVNDMoney } from '~/utils/methods';
 import { DEFAULT_LIST_SIZE, getOrdersTabStatusByIndex, SAVED_ORDERS_TAB_INDEX_KEY } from '~/utils/constants';
 import config from '~/config';
 import StudentPageLayout from '~/components/StudentPageLayout';
@@ -172,7 +172,7 @@ const OrderList = ({ orders, loading }) => {
             {/* Order Information */}
             <Box flex="1" mb={4}>
               <Text fontSize="sm" color="gray.500">
-                Total Amount: {order.totalAmount} {order.currency}
+                Total Amount: {formatVNDMoney(order.totalAmount)}
               </Text>
               <Text fontSize="sm" color="gray.500">
                 Created At: {formatDate(order.createdAt)}
@@ -195,11 +195,12 @@ const OrderList = ({ orders, loading }) => {
                         objectFit="cover"
                         borderRadius="md"
                         mr={4}
-                      />
+                    />
                       <Box flex="1">
                         <Text fontWeight="bold">{item.course.title}</Text>
                         <Text fontSize="sm" color="gray.500">
-                          Price: {item.price} (Discount: {item.discountPercent}%)
+                          {item.price === 0 ? "Free" : `Price: ${formatVNDMoney(item.price)} `}
+                          {item.discountPercent > 0 && ` (Discount: ${item.discountPercent}%)`}
                         </Text>
                       </Box>
                     </Flex>

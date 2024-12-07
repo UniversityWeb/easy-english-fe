@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Text, Spinner, Badge, Container, Image, Flex } from '@chakra-ui/react';
 import orderService from '../../services/orderService';
-import { formatDate } from '~/utils/methods';
+import { formatDate, formatVNDMoney } from '~/utils/methods';
 import StudentPageLayout from '~/components/StudentPageLayout';
+import config from '~/config';
 
 const OrderDetailPage = () => {
   const { orderId } = useParams();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,7 +55,7 @@ const OrderDetailPage = () => {
         <OrderSummary order={order} />
 
         {/* Order Items Section */}
-        <OrderItems items={order.items} />
+        <OrderItems items={order.items} navigate={navigate}/>
       </Container>
     </StudentPageLayout>
   );
@@ -65,7 +67,7 @@ const OrderSummary = ({ order }) => (
       Order ID: {order.id}
     </Text>
     <Text mt={2}>
-      Total Amount: {order.totalAmount} {order.currency}
+      Total Amount: {formatVNDMoney(order.totalAmount)}
     </Text>
     <Text mt={2}>Created At: {formatDate(order.createdAt)}</Text>
     <Text mt={2}>Updated At: {formatDate(order.updatedAt)}</Text>
@@ -75,7 +77,7 @@ const OrderSummary = ({ order }) => (
   </Box>
 );
 
-const OrderItems = ({ items }) => {
+const OrderItems = ({ items, navigate }) => {
   if (items.length === 0) {
     return <Text color="gray.500" mt={6}>No items in this order.</Text>;
   }
@@ -92,14 +94,18 @@ const OrderItems = ({ items }) => {
           py={4}
           justifyContent="space-between"
           _last={{ borderBottomWidth: 0 }}
+          _hover={{ bg: 'gray.100', cursor: 'pointer' }}
+          onClick={() => navigate(config.routes.course_view_detail.replace(':courseId', item?.course?.id))}
         >
           {/* Left side: Item details */}
           <Box flex="1">
             <Text fontWeight="bold">Course: {item.course.title}</Text>
-            <Text mt={1}>Price: {item.price} {item.course.currency}</Text>
-            {item.discountPercent && (
+            <Text mt={1}>
+              {item.price === 0 ? "Free" : `Price: ${formatVNDMoney(item.price)} `}
+            </Text>
+            {item.discountPercent > 0 && (
               <Text mt={1} color="orange.500">
-                Discount: {item.discountPercent}%
+                Discount: ${item.discountPercent}%
               </Text>
             )}
           </Box>

@@ -35,7 +35,6 @@ const CourseViewDetailPage = lazy(
   () => import('~/pages/Student/CourseDetailPage'),
 );
 const CourseDetailPage = lazy(() => import('~/pages/Teacher/CourseDetailPage'));
-const Setting = lazy(() => import('~/components/Teacher/CourseDetail/Setting'));
 const OrdersPage = lazy(() => import('~/pages/Student/OrdersPage'));
 const OrderDetailPage = lazy(() => import('~/pages/Student/OrderDetailPage'));
 const LearnPage = lazy(() => import('~/pages/Student/LearnPage'));
