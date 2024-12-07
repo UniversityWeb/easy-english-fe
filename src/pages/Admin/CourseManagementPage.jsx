@@ -189,15 +189,20 @@ const CourseManagement = () => {
                   <Td>{course.descriptionPreview}</Td>
                   <Td>{course.duration}</Td>
                   <Td>{course.countView}</Td>
-                  <Td>{course.duration}</Td>
                   <Td>
                     {new Intl.DateTimeFormat('en-US', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
                     }).format(new Date(course.createdAt))}
+                  </Td>{' '}
+                  <Td>
+                    {new Intl.DateTimeFormat('en-US', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    }).format(new Date(course.updateAt))}
                   </Td>
-
                   <Td>
                     <Select
                       placeholder="Select status"

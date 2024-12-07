@@ -41,11 +41,11 @@ const menuItems = [
     icon: IoBarChartOutline,
     route: config.routes.analytics_courses,
   },
-  {
-    label: 'Analyst Reviews',
-    icon: FaRegStar,
-    route: config.routes.analytics_reviews,
-  },
+  // {
+  //   label: 'Analyst Reviews',
+  //   icon: FaRegStar,
+  //   route: config.routes.analytics_reviews,
+  // },
 ];
 
 function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
