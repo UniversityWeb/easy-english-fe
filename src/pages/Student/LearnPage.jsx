@@ -60,7 +60,7 @@ const LessonItem = ({
       <HStack spacing={1}>
         <Icon as={icon} boxSize={5} color={iconColor} />
         <Text fontSize="sm" fontWeight="bold">
-          {isTest ? 'Test' : typeLesson}
+          {isTest ? 'TEST' : typeLesson}
         </Text>
         {!isTest && (
           <Text fontSize="sm" color="gray.500">
@@ -147,7 +147,7 @@ const LearnPage = () => {
               iconColor: 'orange.500',
               complete: test.isDone,
               isTest: true,
-              type: 'test',
+              type: 'TEST',
             }));
 
             return {
@@ -159,31 +159,47 @@ const LearnPage = () => {
 
         setSections(sectionsWithContent);
 
-        // Check if there's a selected item in the URL
         const selectedType = searchParams.get('type');
         const selectedId = searchParams.get('id');
 
-        // Find the selected item based on URL params
+        // First, try to get the first unlearned lesson
+        const firstUnlearnedLesson =
+          await lessonTrackerService.getFirstUnlearnedLesson(courseId);
+
+        // Find the selected item
+        let foundItem = null;
+
+        // First, check URL params
         if (selectedType && selectedId) {
-          const foundItem = sectionsWithContent
+          foundItem = sectionsWithContent
             .flatMap((section) => section.items)
             .find(
               (item) =>
-                (item.isTest ? 'test' : item.type) === selectedType &&
+                (item.isTest ? 'TEST' : item.type) === selectedType &&
                 item.id.toString() === selectedId,
             );
-
-          if (foundItem) {
-            setSelectedItem(foundItem);
-            return;
-          }
         }
 
-        // If no URL params or item not found, set first item
-        if (sectionsWithContent[0]?.items[0]) {
-          const firstItem = sectionsWithContent[0].items[0];
-          setSelectedItem(firstItem);
-          updateSearchParams(firstItem);
+        // If no URL params match, try the first unlearned lesson
+        if (!foundItem && firstUnlearnedLesson) {
+          foundItem = sectionsWithContent
+            .flatMap((section) => section.items)
+            .find(
+              (item) =>
+                (item.isTest ? 'TEST' : item.type) ===
+                  firstUnlearnedLesson.type &&
+                item.id.toString() === firstUnlearnedLesson.id.toString(),
+            );
+        }
+
+        // If still no item found, default to the first item
+        if (!foundItem && sectionsWithContent[0]?.items[0]) {
+          foundItem = sectionsWithContent[0].items[0];
+        }
+
+        if (foundItem) {
+          setSelectedItem(foundItem);
+          updateSearchParams(foundItem);
         }
       } catch (error) {
         console.error('Error fetching curriculum data:', error);
@@ -196,18 +212,20 @@ const LearnPage = () => {
   }, [courseId]);
 
   useEffect(() => {
-    // Tự động cuộn đến item được chọn
     if (selectedItem && itemRefs.current[selectedItem.id]) {
-      itemRefs.current[selectedItem.id].scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest',
-      });
+      // Đảm bảo phần tử xuất hiện trước khi scroll
+      setTimeout(() => {
+        itemRefs.current[selectedItem.id]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
+      }, 100); // Delay 100ms để đảm bảo refs đã được cập nhật
     }
   }, [selectedItem]);
 
   const updateSearchParams = (item) => {
-    const type = item.isTest ? 'test' : item.type;
+    const type = item.isTest ? 'TEST' : item.type;
     setSearchParams({ type, id: item.id.toString() });
   };
 
@@ -295,6 +313,13 @@ const LearnPage = () => {
     }
   };
 
+  function extractYouTubeId(url) {
+    const regex =
+      /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : '';
+  }
+
   const renderContent = () => {
     if (!selectedItem) return null;
 
@@ -319,22 +344,40 @@ const LearnPage = () => {
         {type === SEC_ITEM_TYPES.VIDEO && (
           <>
             <Box mt={4} w="100%" maxWidth="800px" mx="auto">
-              <video
-                controls
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  maxWidth: '800px',
-                  maxHeight: '450px',
-                }}
-                src={contentUrl}
-              >
-                Your browser does not support the video tag.
-              </video>
+              {contentUrl.includes('youtube.com') ||
+              contentUrl.includes('youtu.be') ? (
+                // Video YouTube
+                <iframe
+                  width="100%"
+                  height="450"
+                  src={`https://www.youtube.com/embed/${extractYouTubeId(contentUrl)}`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="YouTube video"
+                />
+              ) : (
+                // Video file từ cloud
+                <video
+                  controls
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    maxWidth: '800px',
+                    maxHeight: '450px',
+                  }}
+                  src={contentUrl}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
             </Box>
-            <Text fontSize="lg" color="gray.700" mt={4}>
-              {content}
-            </Text>
+
+            <Box
+              color="gray.700"
+              mt={4}
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
           </>
         )}
         {type === SEC_ITEM_TYPES.AUDIO && (
@@ -353,9 +396,11 @@ const LearnPage = () => {
                 Your browser does not support the audio tag.
               </audio>
             </Box>
-            <Text fontSize="lg" color="gray.700" mt={4}>
-              {content}
-            </Text>
+            <Box
+              color="gray.700"
+              mt={4}
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
           </>
         )}
       </>
@@ -444,29 +489,31 @@ const LearnPage = () => {
         <Box flex="1" p={8} pb={0} overflow="auto" h="100%">
           {selectedItem?.isLocked ? (
             <>
-              <HStack mb={4} align="center" spacing={2} mb={50}>
-                <Icon as={FaLock} color="red.500" boxSize={5} /> {/* Replace `YourLockIconComponent` with the lock icon component you're using */}
+              <HStack mb={4} align="center" spacing={2}>
+                <Icon as={FaLock} color="red.500" boxSize={5} />{' '}
+                {/* Replace `YourLockIconComponent` with the lock icon component you're using */}
                 <Text color="gray.600">
-                  The current content is locked. Please complete the list below to unlock and proceed.
+                  The current content is locked. Please complete the list below
+                  to unlock and proceed.
                 </Text>
               </HStack>
 
               {selectedItem.prevDrips.map((prevDrip) => (
-              <HStack
-                key={prevDrip.id}
-                spacing={4}
-                align="center"
-                _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }} // Hover effect
-                onClick={() => handleItemClick(prevDrip.id, prevDrip.type)} // Click event handler
-              >
-                <Icon
-                  as={getLessonIcon(prevDrip.type)}
-                  color={getLessonColor(prevDrip.type)}
-                />
-                <VStack align="start" spacing={0}>
-                  <Text>{prevDrip.title}</Text>
-                </VStack>
-              </HStack>
+                <HStack
+                  key={prevDrip.id}
+                  spacing={4}
+                  align="center"
+                  _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }} // Hover effect
+                  onClick={() => handleItemClick(prevDrip.id, prevDrip.type)} // Click event handler
+                >
+                  <Icon
+                    as={getLessonIcon(prevDrip.type)}
+                    color={getLessonColor(prevDrip.type)}
+                  />
+                  <VStack align="start" spacing={0}>
+                    <Text>{prevDrip.title}</Text>
+                  </VStack>
+                </HStack>
               ))}
             </>
           ) : (

@@ -178,7 +178,9 @@ const CourseManagement = () => {
                 <Tr
                   key={course.id}
                   _hover={{ bg: 'gray.100', cursor: 'pointer' }}
-                  onClick={() => navigate(config.routes.course_detail(course?.id))}
+                  onClick={() =>
+                    navigate(config.routes.course_detail(course?.id))
+                  }
                 >
                   <Td>
                     <Avatar src={course.imagePreview} name={course.title} />
@@ -200,6 +202,7 @@ const CourseManagement = () => {
                     <Select
                       placeholder="Select status"
                       value={statusUpdates[course.id] || course.status}
+                      onClick={(e) => e.stopPropagation()}
                       onChange={(e) =>
                         handleStatusChange(course.id, e.target.value)
                       }
@@ -215,7 +218,10 @@ const CourseManagement = () => {
                   <Td>
                     <IconButton
                       icon={<PiPencilSimpleFill />}
-                      onClick={() => handleEditStatus(course.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditStatus(course.id);
+                      }}
                       color="gray.500"
                       mr={2}
                     />
