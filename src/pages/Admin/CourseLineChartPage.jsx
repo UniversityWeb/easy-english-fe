@@ -176,14 +176,14 @@ const CourseBarChartPage = () => {
           <Table variant="simple" colorScheme="whiteAlpha">
             <Thead bg="gray.100">
               <Tr>
+                <Th>Top</Th>
                 <Th>Image</Th>
                 <Th>Title</Th>
                 <Th>Total Revenue</Th>
-                <Th>Teacher</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {courses.map((course) => (
+              {courses.map((course, index) => (
                 <Tr
                   key={course.id}
                   _hover={{ bg: "gray.100", cursor: "pointer" }}
@@ -192,11 +192,13 @@ const CourseBarChartPage = () => {
                   }
                 >
                   <Td>
+                    {index + 1}
+                  </Td>
+                  <Td>
                     <Avatar src={course.imagePreview} name={course.title} />
                   </Td>
                   <Td>{course.title}</Td>
                   <Td>{formatVNDMoney(course.totalRevenue)}</Td>
-                  <Td>{course.ownerUsername}</Td>
                 </Tr>
               ))}
             </Tbody>
