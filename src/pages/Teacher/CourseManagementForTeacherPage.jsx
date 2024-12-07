@@ -180,7 +180,7 @@ const Enrollment = () => {
                       key={course.id}
                       course={course}
                       onMakeFeatured={() =>
-                        navigate(`/course-detail/${course.id}`)
+                        navigate(config.routes.course_detail(course?.id))
                       }
                     />
                   ))}

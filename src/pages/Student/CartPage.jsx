@@ -17,11 +17,14 @@ import { formatVNDMoney } from '~/utils/methods';
 import paymentService from '~/services/paymentService';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
+import { PAYMENT_STATUES } from '~/utils/constants';
+import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
   const { successToast, errorToast } = useCustomToast();
   const [cart, setCart] = useState(null); // Initialize as null to handle loading
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCart();
@@ -64,6 +67,15 @@ const CartPage = () => {
       const paymentResponse =
         await paymentService.createPaymentOrder(paymentRequest);
       successToast('Checkout successful! Redirecting to payment...');
+
+      if (paymentResponse?.status === PAYMENT_STATUES.SUCCESS) {
+        if (!paymentResponse?.orderId) {
+          return;
+        }
+
+        navigate(config.routes.order_detail.replace(':orderId', paymentResponse?.orderId));
+        return;
+      }
       window.location.href = paymentResponse?.paymentUrl;
     } catch (error) {
       console.error(error?.message);

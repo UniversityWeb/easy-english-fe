@@ -83,7 +83,6 @@ const publicRoutes = [
   { path: config.routes.favourite, component: FavouritePage },
   { path: config.routes.enroll_course, component: EnrollCoursePage },
   { path: config.routes.course_view_detail, component: CourseViewDetailPage },
-  { path: config.routes.test, component: CourseDetailPage },
 
   { path: config.routes.orders, component: OrdersPage },
   { path: config.routes.order_detail, component: OrderDetailPage },
