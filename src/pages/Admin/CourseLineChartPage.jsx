@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -11,55 +11,78 @@ import {
   TableContainer,
   Spinner,
   Avatar,
-} from '@chakra-ui/react';
+  Button,
+  Select,
+  Flex,
+} from "@chakra-ui/react";
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
-} from 'recharts';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import { formatVNDMoney } from '~/utils/methods';
-import courseStatisticsService from '~/services/courseStatisticsService';
+} from "recharts";
+import RoleBasedPageLayout from "~/components/RoleBasedPageLayout";
+import { formatVNDMoney } from "~/utils/methods";
+import courseStatisticsService from "~/services/courseStatisticsService";
+import config from "~/config";
+import { useNavigate } from "react-router-dom";
 
-const CourseLineChartPage = () => {
+const CourseBarChartPage = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCourses, setVisibleCourses] = useState({});
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10); // Ensure only the top 10 courses are shown
+  const [totalPages, setTotalPages] = useState(0);
 
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await courseStatisticsService.getRevenueByYear(2024);
-        setData(response.data);
-        setCourses(response.courses);
-        setVisibleCourses(
-          response.courses.reduce((acc, course) => {
-            acc[course.key] = true;
-            return acc;
-          }, {}),
+        const response = await courseStatisticsService.getRevenueByMonthAndYear(
+          month,
+          year,
+          page,
+          size
         );
+
+        // Sort the data by revenue in descending order and keep only the top 10 courses
+        const sortedData = response.content
+          .sort((a, b) => b.totalRevenue - a.totalRevenue)
+          .slice(0, 10);
+
+        setData(sortedData.map((item) => ({ name: item.title, ...item })));
+        setCourses(sortedData);
+        setTotalPages(response.totalPages);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [month, year, page, size]);
 
-  const handleLegendClick = (courseKey) => {
-    setVisibleCourses((prev) => ({
-      ...prev,
-      [courseKey]: !prev[courseKey],
-    }));
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleMonthChange = (event) => {
+    setMonth(Number(event.target.value));
+    setPage(0); // Reset pagination when changing filters
+  };
+
+  const handleYearChange = (event) => {
+    setYear(Number(event.target.value));
+    setPage(0); // Reset pagination when changing filters
   };
 
   if (loading) {
@@ -77,93 +100,85 @@ const CourseLineChartPage = () => {
       {/* Chart Section */}
       <Box w="full" p={5} shadow="md" borderWidth="1px" rounded="md" mb={8}>
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={4}>
-          Earnings Overview (3 Courses)
+          Top 10 Courses by Revenue ({courses.length} Courses)
         </Text>
         <ResponsiveContainer width="100%" height={400}>
-          <AreaChart
+          <BarChart
             data={data}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            margin={{ top: 10, right: 50, left: 50, bottom: 50 }}
           >
-            <defs>
-              {courses.map((course, index) => (
-                <linearGradient
-                  key={course.key}
-                  id={`color${index + 1}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={course.color}
-                    stopOpacity={0.8}
-                  />
-                  <stop offset="95%" stopColor={course.color} stopOpacity={0} />
-                </linearGradient>
-              ))}
-            </defs>
-            <XAxis dataKey="name" />
-            <YAxis
-              tickFormatter={(value) => formatVNDMoney(value)} // Format Y-axis values as VND
-            />
             <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip
-              formatter={(value) => formatVNDMoney(value)} // Format tooltip values as VND
+            <XAxis
+              dataKey="name"
+              interval={0}
+              angle={-45}
+              textAnchor="end"
+              tick={{ fontSize: 12 }}
             />
-            <Legend
-              formatter={(value) => {
-                const course = courses.find((c) => c.key === value);
-                return (
-                  <span
-                    onClick={() => handleLegendClick(value)}
-                    style={{
-                      textDecoration: visibleCourses[value]
-                        ? 'none'
-                        : 'line-through',
-                      cursor: 'pointer',
-                      color: course?.color,
-                    }}
-                  >
-                    {course?.label}
-                  </span>
-                );
-              }}
+            <YAxis
+              tickFormatter={(value) => formatVNDMoney(value)}
+              tick={{ fontSize: 12 }} // Adjust font size for better readability
+              padding={{ top: 10, bottom: 10 }} // Add padding to avoid label clipping
+              width={100} // Increase width for longer labels
             />
-            {courses.map((course, index) => (
-              <Area
-                key={course.key}
-                type="monotone"
-                dataKey={course.key}
-                stroke={course.color}
-                fillOpacity={1}
-                fill={`url(#color${index + 1})`}
-                style={{
-                  strokeWidth: visibleCourses[course.key] ? 2 : 0,
-                  opacity: visibleCourses[course.key] ? 1 : 0.2,
-                }}
-              />
-            ))}
-          </AreaChart>
+            <Tooltip formatter={(value) => formatVNDMoney(value)} />
+            <Bar
+              dataKey="totalRevenue"
+              fill="#8884d8"
+              name="Total Revenue"
+              barSize={40}
+            />
+          </BarChart>
         </ResponsiveContainer>
+      </Box>
+
+      {/* Filter Section */}
+      <Box w="full" p={4} mb={2} shadow="md" borderWidth="1px" rounded="md">
+        <Flex justify="space-between" align="center">
+          <Text fontSize="xl" fontWeight="bold">
+            Filter by Month & Year
+          </Text>
+          <Flex gap={4}>
+            <Select
+              placeholder="Select Month"
+              value={month}
+              onChange={handleMonthChange}
+              maxWidth="150px"
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                </option>
+              ))}
+            </Select>
+            <Select
+              placeholder="Select Year"
+              value={year}
+              onChange={handleYearChange}
+              maxWidth="150px"
+            >
+              {Array.from({ length: 10 }, (_, i) => (
+                <option key={i} value={new Date().getFullYear() - i}>
+                  {new Date().getFullYear() - i}
+                </option>
+              ))}
+            </Select>
+          </Flex>
+        </Flex>
       </Box>
 
       {/* Table Section */}
       <Box w="full" p={5} shadow="md" borderWidth="1px" rounded="md">
         <Text fontSize="2xl" fontWeight="bold" mb={4}>
-          Monthly Course Earnings
+          Monthly Course Earnings (Top 10)
         </Text>
         <Box overflowX="auto">
-          <Table
-            variant="simple"
-            colorScheme="whiteAlpha"
-            className="resizable-table"
-          >
+          <Table variant="simple" colorScheme="whiteAlpha">
             <Thead bg="gray.100">
               <Tr>
                 <Th>Image</Th>
-                <Th width="400px">Title</Th>
-                <Th width="400px">Total Revenue</Th>
+                <Th>Title</Th>
+                <Th>Total Revenue</Th>
                 <Th>Teacher</Th>
               </Tr>
             </Thead>
@@ -171,29 +186,41 @@ const CourseLineChartPage = () => {
               {courses.map((course) => (
                 <Tr
                   key={course.id}
-                  _hover={{ bg: 'gray.100', cursor: 'pointer' }}
+                  _hover={{ bg: "gray.100", cursor: "pointer" }}
+                  onClick={() =>
+                    navigate(config.routes.course_detail(course?.id))
+                  }
                 >
                   <Td>
                     <Avatar src={course.imagePreview} name={course.title} />
                   </Td>
                   <Td>{course.title}</Td>
-                  <Td>{course.totalRevenue}</Td>
+                  <Td>{formatVNDMoney(course.totalRevenue)}</Td>
                   <Td>{course.ownerUsername}</Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
         </Box>
+        {/* Pagination Controls */}
+        <Box mt={4} textAlign="center">
+          <Button
+            onClick={() => handlePageChange(page - 1)}
+            isDisabled={page === 0}
+            mr={2}
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={() => handlePageChange(page + 1)}
+            isDisabled={page + 1 >= totalPages}
+          >
+            Next
+          </Button>
+        </Box>
       </Box>
-      <style>{`
-        .resizable-table th, .resizable-table td {
-          border-right: 1px solid #e2e8f0;
-
-        }
-
-      `}</style>
     </RoleBasedPageLayout>
   );
 };
 
-export default CourseLineChartPage;
+export default CourseBarChartPage;
