@@ -28,7 +28,7 @@ function CourseDetailPage() {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    navigate(config.routes.course_management_for_teacher);
+    navigate(-1);
   };
 
   const renderComponent = () => {

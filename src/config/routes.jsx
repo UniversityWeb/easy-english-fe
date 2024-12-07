@@ -19,7 +19,6 @@ const routes = {
   favourite: '/favourite',
   enroll_course: '/enroll-course',
   course_view_detail: '/course-view-detail/:courseId',
-  test: '/test',
   orders: '/orders',
   order_detail: '/order-detail/:orderId',
   learn: (courseId, courseTitle) => `/learn/${courseId}/${courseTitle}`,

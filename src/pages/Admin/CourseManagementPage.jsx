@@ -26,6 +26,8 @@ import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import courseService from '~/services/courseService'; // Import the service
 import Pagination from '~/components/Student/Search/Page';
 import useCustomToast from '~/hooks/useCustomToast';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 const STATUS_OPTIONS = {
   PUBLISHED: 'Published',
@@ -36,6 +38,7 @@ const STATUS_OPTIONS = {
 };
 
 const CourseManagement = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -172,7 +175,11 @@ const CourseManagement = () => {
             </Thead>
             <Tbody>
               {filteredCourses.map((course) => (
-                <Tr key={course.id}>
+                <Tr
+                  key={course.id}
+                  _hover={{ bg: 'gray.100', cursor: 'pointer' }}
+                  onClick={() => navigate(config.routes.course_detail(course?.id))}
+                >
                   <Td>
                     <Avatar src={course.imagePreview} name={course.title} />
                   </Td>
@@ -181,7 +188,6 @@ const CourseManagement = () => {
                   <Td>{course.duration}</Td>
                   <Td>{course.countView}</Td>
                   <Td>{course.duration}</Td>
-                  {/* <Td>{course.countView}</Td> */}
                   <Td>
                     {new Intl.DateTimeFormat('en-US', {
                       year: 'numeric',

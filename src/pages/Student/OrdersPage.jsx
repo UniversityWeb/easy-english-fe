@@ -91,7 +91,6 @@ const OrdersPage = () => {
             <Tab>Pending payment</Tab>
             <Tab>Paid</Tab>
             <Tab>Failed</Tab>
-            <Tab>Refund</Tab>
             <Tab>Expired</Tab>
           </TabList>
 

@@ -14,7 +14,7 @@ import {
   Skeleton,
   SkeletonText,
   SkeletonCircle,
-  IconButton,
+  IconButton, Heading,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
@@ -136,6 +136,11 @@ const Wishlist = () => {
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
+
+        <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={6}>
+          Wishlist
+        </Text>
+
         {/* Search Section */}
         <Flex mb={5} justify="space-between">
           <Input

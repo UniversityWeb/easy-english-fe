@@ -116,6 +116,10 @@ const Enrollment = () => {
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
+        <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={6}>
+          Enrolled Courses
+        </Text>
+
         {/* Search Section */}
         <Flex mb={5} justify="space-between">
           <Input
