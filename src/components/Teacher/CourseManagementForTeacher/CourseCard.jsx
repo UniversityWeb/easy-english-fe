@@ -76,7 +76,7 @@ const CourseCard = ({ course, onMakeFeatured }) => {
         </Flex>
 
         {/* Price Section */}
-        <Flex direction="column" align="flex-end">
+        <Flex direction="column" align="flex-end" minH="48px">
           {/* Original Price */}
           {course.price.price !== course.price?.salePrice && course.price.price <= 0 && (
             <Text as="s" color="gray.500">
@@ -86,7 +86,9 @@ const CourseCard = ({ course, onMakeFeatured }) => {
 
           {/* Sale Price or Free */}
           {course.price?.salePrice === 0 ? (
-            <Text fontWeight="bold" color="green.500">FREE</Text>
+            <Text fontWeight="bold" color="green.500">
+              FREE
+            </Text>
           ) : (
             <Text fontWeight="bold" color="red.500">
               {formatVNDMoney(course.price.salePrice)}

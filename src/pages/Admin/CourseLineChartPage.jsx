@@ -10,6 +10,7 @@ import {
   Td,
   TableContainer,
   Spinner,
+  Avatar,
 } from '@chakra-ui/react';
 import {
   AreaChart,
@@ -42,7 +43,7 @@ const CourseLineChartPage = () => {
           response.courses.reduce((acc, course) => {
             acc[course.key] = true;
             return acc;
-          }, {})
+          }, {}),
         );
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -93,7 +94,11 @@ const CourseLineChartPage = () => {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="5%" stopColor={course.color} stopOpacity={0.8} />
+                  <stop
+                    offset="5%"
+                    stopColor={course.color}
+                    stopOpacity={0.8}
+                  />
                   <stop offset="95%" stopColor={course.color} stopOpacity={0} />
                 </linearGradient>
               ))}
@@ -148,31 +153,45 @@ const CourseLineChartPage = () => {
         <Text fontSize="2xl" fontWeight="bold" mb={4}>
           Monthly Course Earnings
         </Text>
-        <TableContainer>
-          <Table variant="striped" colorScheme="gray">
-            <Thead>
+        <Box overflowX="auto">
+          <Table
+            variant="simple"
+            colorScheme="whiteAlpha"
+            className="resizable-table"
+          >
+            <Thead bg="gray.100">
               <Tr>
-                <Th>Month</Th>
-                {courses.map((course) => (
-                  <Th key={course.key}>{course.label}</Th>
-                ))}
+                <Th>Image</Th>
+                <Th width="400px">Title</Th>
+                <Th width="400px">Total Revenue</Th>
+                <Th>Teacher</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {data.map((month) => (
-                <Tr key={month.name}>
-                  <Td>{month.name}</Td>
-                  {courses.map((course) => (
-                    <Td key={`${month.name}-${course.key}`}>
-                      {formatVNDMoney(month[course.key])}
-                    </Td>
-                  ))}
+              {courses.map((course) => (
+                <Tr
+                  key={course.id}
+                  _hover={{ bg: 'gray.100', cursor: 'pointer' }}
+                >
+                  <Td>
+                    <Avatar src={course.imagePreview} name={course.title} />
+                  </Td>
+                  <Td>{course.title}</Td>
+                  <Td>{course.totalRevenue}</Td>
+                  <Td>{course.ownerUsername}</Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
-        </TableContainer>
+        </Box>
       </Box>
+      <style>{`
+        .resizable-table th, .resizable-table td {
+          border-right: 1px solid #e2e8f0;
+
+        }
+
+      `}</style>
     </RoleBasedPageLayout>
   );
 };
