@@ -1,6 +1,7 @@
 import React, { lazy } from 'react';
 import config from '~/config';
 
+const AddCoursePage = lazy(() => import('~/pages/Common/AddCoursePage'));
 const LoginPage = lazy(() => import('~/pages/Common/LoginPage'));
 const RegisterPage = lazy(() => import('~/pages/Common/RegisterPage'));
 const ForgotPasswordPage = lazy(
@@ -15,8 +16,8 @@ const OtpValidationPage = lazy(
 const CourseManagementForStudentPage = lazy(
   () => import('~/pages/Student/CourseManagementForStudentPage'),
 );
-const NotificationsForStudentPage = lazy(
-  () => import('~/pages/Student/NotificationsForStudentPage'),
+const Notifications = lazy(
+  () => import('~/pages/Student/Notifications'),
 );
 const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
 const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
@@ -34,7 +35,6 @@ const CourseViewDetailPage = lazy(
   () => import('~/pages/Student/CourseDetailPage'),
 );
 const CourseDetailPage = lazy(() => import('~/pages/Teacher/CourseDetailPage'));
-const Setting = lazy(() => import('~/components/Teacher/CourseDetail/Setting'));
 const OrdersPage = lazy(() => import('~/pages/Student/OrdersPage'));
 const OrderDetailPage = lazy(() => import('~/pages/Student/OrderDetailPage'));
 const LearnPage = lazy(() => import('~/pages/Student/LearnPage'));
@@ -62,14 +62,14 @@ const publicRoutes = [
     component: CourseManagementForStudentPage,
   },
   {
-    path: config.routes.notifications_for_student,
-    component: NotificationsForStudentPage,
+    path: config.routes.notifications,
+    component: Notifications,
   },
   { path: config.routes.preview_test, component: PreviewTestPage },
   { path: config.routes.take_test(':testId'), component: TakeTestPage },
   { path: config.routes.cart, component: CartPage },
   { path: config.routes.payment_result, component: PaymentResultPage },
-  { path: config.routes.maincourse, component: Setting },
+  { path: config.routes.maincourse, component: AddCoursePage },
   {
     path: config.routes.course_detail(':courseId'),
     component: CourseDetailPage,
@@ -82,11 +82,13 @@ const publicRoutes = [
   { path: config.routes.favourite, component: FavouritePage },
   { path: config.routes.enroll_course, component: EnrollCoursePage },
   { path: config.routes.course_view_detail, component: CourseViewDetailPage },
-  { path: config.routes.test, component: CourseDetailPage },
 
   { path: config.routes.orders, component: OrdersPage },
   { path: config.routes.order_detail, component: OrderDetailPage },
-  { path: config.routes.learn(':courseId'), component: LearnPage },
+  {
+    path: config.routes.learn(':courseId', ':courseTitle'),
+    component: LearnPage,
+  },
   { path: config.routes.category_for_admin, component: CategoryPage },
   { path: config.routes.topic_level_for_admin, component: TopicAndLevelPage },
   {

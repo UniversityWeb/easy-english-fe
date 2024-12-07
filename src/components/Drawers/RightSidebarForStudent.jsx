@@ -109,12 +109,6 @@ const RightSidebarForStudent = (props) => {
             />
 
             <SidebarItem
-              icon={MdNotificationsNone}
-              text="Notifications"
-              handleClick={() => navigate(config.routes.notifications_for_student)}
-            />
-
-            <SidebarItem
               icon={IoChatboxOutline}
               text="Chat"
               handleClick={() => navigate(config.routes.chat)}

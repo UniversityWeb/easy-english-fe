@@ -15,6 +15,7 @@ import {
   Skeleton,
   SkeletonText,
   SkeletonCircle,
+  IconButton,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
@@ -28,6 +29,9 @@ import courseService from '~/services/courseService';
 import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import { FiFilter } from 'react-icons/fi';
+import useCustomToast from '~/hooks/useCustomToast';
+import { formatVNDMoney } from '~/utils/methods';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -55,14 +59,13 @@ const CourseListSkeleton = ({ itemsPerPage }) => {
             borderRadius="lg"
             overflow="hidden"
             boxShadow="md"
-            height="380px"
+            height="300px"
             position="relative"
             p={6}
           >
-            <Skeleton height="180px" width="100%" />
+            <Skeleton height="120px" width="100%" />
             <VStack align="start" spacing={3} mt={4}>
               <SkeletonText noOfLines={1} width="50%" />
-              <SkeletonText noOfLines={2} width="80%" />
               <SkeletonText noOfLines={1} width="60%" />
               <SkeletonCircle size="10" />
               <SkeletonText noOfLines={1} width="90%" />
@@ -151,7 +154,7 @@ const CourseList = ({
                 <Flex justify="space-between" align="center" width="100%">
                   <Rating rating={course.rating} />
                   <Text fontWeight="bold" fontSize="lg" color="gray.700">
-                    {course.price?.price ? `${course.price.price}đ` : 'Free'}
+                    {course.price?.price ? `${formatVNDMoney(course.price.price)}` : 'Free'}
                   </Text>
                 </Flex>
 
@@ -205,7 +208,15 @@ const CourseList = ({
                     colorScheme="blue"
                     size="sm"
                     width="full"
-                    onClick={() => navigate(`/course-view-detail/${course.id}`)}
+                    onClick={async () => {
+                      const courseId = course.id;
+                      try {
+                        await courseService.countView(courseId);
+                      } catch (e) {
+                        console.error(e);
+                      }
+                      navigate(`/course-view-detail/${courseId}`);
+                    }}
                   >
                     PREVIEW THIS COURSE
                   </Button>
@@ -241,6 +252,7 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [hoveredCourseId, setHoveredCourseId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const { successToast, errorToast } = useCustomToast();
 
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
@@ -252,6 +264,9 @@ const SearchPage = () => {
     rating: null,
   });
   const [likedCourses, setLikedCourses] = useState([]);
+
+  // State quản lý việc hiển thị Filter
+  //const [showFilter, setShowFilter] = useState(false);
 
   const fetchCourses = async () => {
     setLoading(true); // Set loading to true when fetching starts
@@ -273,6 +288,9 @@ const SearchPage = () => {
 
       if (response) {
         const { content, totalPages } = response;
+        if (content.length === 0) {
+          successToast('No course found');
+        }
         setCourses(content);
         setTotalPages(totalPages);
 
@@ -288,7 +306,7 @@ const SearchPage = () => {
         setLikedCourses(likedCoursesStatus);
       }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      errorToast('Error fetching courses');
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
@@ -307,8 +325,10 @@ const SearchPage = () => {
     try {
       if (isLiked) {
         await favouriteService.deleteFavourite(id);
+        successToast('Removed from wishlist');
       } else {
         await favouriteService.addFavourite(id);
+        successToast('Added to wishlist');
       }
 
       setLikedCourses((prev) =>
@@ -324,7 +344,7 @@ const SearchPage = () => {
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
-        <Flex mb={5} justify="space-between">
+        <Flex mb={5} justify="space-between" align="center">
           <Input
             placeholder="Search for courses..."
             value={searchTerm}
@@ -336,12 +356,12 @@ const SearchPage = () => {
           </Button>
         </Flex>
 
-        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6}>
+        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6} mt={4}>
           <GridItem>
             <Filter onFilterChange={setFilterOptions} />
           </GridItem>
 
-          <GridItem>
+          <GridItem mx={0} maxWidth="none" flex="1">
             <Flex direction="column" justify="space-between" height="100%">
               {loading ? (
                 <CourseListSkeleton itemsPerPage={itemsPerPage} />

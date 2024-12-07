@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Navbar.scss';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
@@ -15,52 +15,86 @@ import { getUsername, isLoggedIn } from '~/utils/authUtils';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent';
-import { FiShoppingCart } from 'react-icons/fi';
+import { FiShoppingCart, FiBell } from 'react-icons/fi';
 import { Icon } from '@chakra-ui/icons';
 import CartService from '~/services/cartService';
-import websocketService from '~/services/websocketService';
+import NotificationService from '~/services/notificationService';
 import { websocketConstants } from '~/utils/websocketConstants';
+import WebSocketService from '~/services/websocketService';
 
-const NavbarForStudent = React.memo((props) => {
+const NavbarForStudent = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [countedCartItems, setCountedCartItems] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
 
-  useEffect(() => {
-    const username = getUsername();
-    websocketService.disconnect();
-    websocketService.connect(() => {
-      websocketService.subscribe(websocketConstants.cartItemCountTopic(username), async (notification) => {
-        await fetchCartItems();
-      });
-    });
-
-    // Cleanup function to unsubscribe and disconnect WebSocket on unmount
-    return () => {
-      websocketService.unsubscribe(websocketConstants.cartItemCountTopic(username));
-      websocketService.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await AuthService.getCurUser();
-        setUser(user);
-      } catch (e) {
-        console.log(e?.message);
-      }
-    };
-
-    fetchUser();
-    fetchCartItems();
-  }, []);
+  const fetchUser = async () => {
+    try {
+      const user = await AuthService.getCurUser();
+      setUser(user);
+    } catch (e) {
+      console.log(e?.message);
+    }
+  };
 
   const fetchCartItems = async () => {
-    const count = await CartService.countCartItems();
-    setCountedCartItems(count);
+    try {
+      const count = await CartService.countCartItems();
+      setCountedCartItems(count);
+    } catch (e) {
+      console.error('Failed to fetch cart items:', e.message);
+    }
   };
+
+  const fetchNotifications = async () => {
+    try {
+      const count = await NotificationService.countUnreadNotifications();
+      setNotificationCount(count);
+    } catch (e) {
+      console.error('Failed to fetch notifications:', e.message);
+    }
+  };
+
+  const initializeWebsocket = async () => {
+    const username = getUsername();
+    try {
+      const wsService = await WebSocketService.getIns();
+
+      // Subscribe to cart item updates
+      wsService.subscribe(
+        websocketConstants.cartItemCountTopic(username),
+        async (numberOfCartItems) => {
+          setCountedCartItems(numberOfCartItems);
+        },
+      );
+
+      // Subscribe to notification updates
+      wsService.subscribe(
+        websocketConstants.notificationCountTopic(username),
+        async (numberOfUnreadNotifications) => {
+          setNotificationCount(numberOfUnreadNotifications);
+        },
+      );
+    } catch (error) {
+      console.error('WebSocket initialization failed:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+    fetchCartItems();
+    fetchNotifications();
+    initializeWebsocket();
+
+    return () => {
+      const username = getUsername();
+      WebSocketService.getIns().then((wsService) => {
+        wsService.unsubscribe(websocketConstants.cartItemCountTopic(username));
+        wsService.unsubscribe(websocketConstants.notificationCountTopic(username));
+      });
+    };
+  }, []);
 
   return (
     <div className="navbar">
@@ -75,32 +109,61 @@ const NavbarForStudent = React.memo((props) => {
           <Button
             id="courses"
             light
-            onClick={() =>
-              navigate(config.routes.search)
-            }
+            onClick={() => navigate(config.routes.search)}
           >
             Courses
           </Button>
 
-          <Box
-            position="relative"
-            cursor="pointer"
-            onClick={() => navigate(config.routes.cart)}
-            _hover={{ transform: 'scale(1.1)', transition: '0.2s ease-in-out' }}
-          >
-            <Icon as={FiShoppingCart} boxSize={6} />
-            {countedCartItems > 0 && (
-              <Badge
-                position="absolute"
-                top="-4"
-                right="-4"
-                colorScheme="red"
-                borderRadius="full"
-                px={2}
-              >
-                {countedCartItems}
-              </Badge>
-            )}
+          <Box display="flex" alignItems="center" gap={10}>
+            {/* Notification Icon */}
+            <Box
+              position="relative"
+              cursor="pointer"
+              onClick={() => navigate(config.routes.notifications)}
+              _hover={{
+                transform: 'scale(1.1)',
+                transition: '0.2s ease-in-out',
+              }}
+            >
+              <Icon as={FiBell} boxSize={6} />
+              {notificationCount > 0 && (
+                <Badge
+                  position="absolute"
+                  top="-4"
+                  right="-4"
+                  colorScheme="red"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {notificationCount}
+                </Badge>
+              )}
+            </Box>
+
+            {/* Cart Icon */}
+            <Box
+              position="relative"
+              cursor="pointer"
+              onClick={() => navigate(config.routes.cart)}
+              _hover={{
+                transform: 'scale(1.1)',
+                transition: '0.2s ease-in-out',
+              }}
+            >
+              <Icon as={FiShoppingCart} boxSize={6} />
+              {countedCartItems > 0 && (
+                <Badge
+                  position="absolute"
+                  top="-4"
+                  right="-4"
+                  colorScheme="red"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {countedCartItems}
+                </Badge>
+              )}
+            </Box>
           </Box>
 
           <Spacer />
@@ -136,6 +199,6 @@ const NavbarForStudent = React.memo((props) => {
       </div>
     </div>
   );
-});
+};
 
 export default NavbarForStudent;

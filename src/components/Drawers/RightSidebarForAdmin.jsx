@@ -36,7 +36,7 @@ import { FaRegStar } from 'react-icons/fa';
 import AuthService from '~/services/authService';
 import { FaUserEdit } from 'react-icons/fa';
 
-const RightSidebarForAdmin = (props) => {
+const RightSidebarForAdmin = React.memo((props) => {
   const user = props.user;
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState();
@@ -123,29 +123,6 @@ const RightSidebarForAdmin = (props) => {
               handleClick={() => navigate(config.routes.user_management)}
             />
 
-            {/* Analytics Section */}
-            <Box paddingTop="10px" paddingBottom="5px">
-              <Text
-                fontWeight="bold"
-                fontSize="sm"
-                color="gray.500"
-                paddingLeft="10px"
-              >
-                Analytics
-              </Text>
-            </Box>
-
-            <SidebarItem
-              icon={IoBarChartOutline}
-              text="Courses"
-              handleClick={() => navigate(config.routes.analytics_courses)}
-            />
-            <SidebarItem
-              icon={FaRegStar}
-              text="Reviews"
-              handleClick={() => navigate(config.routes.analytics_reviews)}
-            />
-
             {/* Account Section */}
             <Box paddingTop="10px" paddingBottom="5px">
               <Text
@@ -175,6 +152,6 @@ const RightSidebarForAdmin = (props) => {
       </DrawerContent>
     </Drawer>
   );
-};
+});
 
 export default RightSidebarForAdmin;

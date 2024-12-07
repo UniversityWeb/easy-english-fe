@@ -10,20 +10,42 @@ import {
   DrawerBody,
   DrawerFooter,
   Avatar,
-  Skeleton, Image,
+  Skeleton,
+  Image,
 } from '@chakra-ui/react';
-import { MdDashboard, MdLogout, MdAdd, MdAnnouncement, MdChat } from 'react-icons/md';
+import {
+  MdDashboard,
+  MdLogout,
+  MdAdd,
+  MdAnnouncement,
+  MdChat,
+} from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import AuthService from '~/services/authService';
+import { IoBarChartOutline } from 'react-icons/io5';
+import { FaRegStar } from 'react-icons/fa';
 
 const menuItems = [
-  { label: 'Dashboard', icon: MdDashboard, route: config.routes.course_management_for_teacher },
+  {
+    label: 'Dashboard',
+    icon: MdDashboard,
+    route: config.routes.course_management_for_teacher,
+  },
   { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
-  { label: 'Notifications', icon: MdAnnouncement, route: config.routes.notifications_for_student },
   { label: 'Chat', icon: MdChat, route: config.routes.chat },
+  {
+    label: 'Analyst Courses',
+    icon: IoBarChartOutline,
+    route: config.routes.analytics_courses,
+  },
+  {
+    label: 'Analyst Reviews',
+    icon: FaRegStar,
+    route: config.routes.analytics_reviews,
+  },
 ];
 
 function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
@@ -43,18 +65,9 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
   };
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      placement="right"
-      onClose={onClose}
-      size="sm"
-    >
+    <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="sm">
       <DrawerOverlay />
-      <DrawerContent
-        backgroundColor="white"
-        maxWidth={"230px"}
-        width="auto"
-      >
+      <DrawerContent backgroundColor="white" maxWidth={'230px'} width="auto">
         <DrawerHeader borderBottomWidth="1px">
           <Box
             display="flex"
@@ -88,9 +101,9 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
             {menuItems.map((item, index) => (
               <SidebarItem
                 icon={item.icon}
-                  text={item.label}
-                  handleClick={() => navigate(item.route)}
-                />
+                text={item.label}
+                handleClick={() => navigate(item.route)}
+              />
             ))}
 
             <SidebarItem
@@ -113,4 +126,4 @@ function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {
   );
 }
 
-export default RightSidebarForTeacher;
+export default React.memo(RightSidebarForTeacher);

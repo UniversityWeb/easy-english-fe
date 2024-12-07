@@ -52,3 +52,7 @@ export const TEST_RESULT_STATUSES = {
   IN_PROGRESS: 'IN_PROGRESS',
   FAILED: 'FAILED'
 }
+
+export const PAYMENT_STATUES = {
+  SUCCESS: 'SUCCESS'
+}

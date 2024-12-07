@@ -1,113 +1,134 @@
-import { Box, Image, Text, Stack, Badge, HStack, Icon, VStack, SimpleGrid } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Image,
+  Text,
+  Stack,
+  Badge,
+  HStack,
+  VStack,
+  SimpleGrid,
+  Spinner,
+} from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
+import courseService from '~/services/courseService';
+import { formatVNDMoney } from '~/utils/methods';
+import { useNavigate } from 'react-router-dom';
 
-// Mock data for related courses
-const courses = [
-  {
-    title: "Basics of Masterstudy",
-    price: "Free",
-    rating: 5,
-    instructor: "Demo Teacher",
-    imageUrl: "https://res.cloudinary.com/dq7y35u7s/image/upload/v1729003825/cld-sample-3.jpg",
-    isHot: true,
-    isSpecial: false,
-  },
-  {
-    title: "How to be a DJ? Make Electronic Music",
-    price: "$49.99",
-    rating: 4,
-    instructor: "Demo Teacher",
-    imageUrl: "https://res.cloudinary.com/dq7y35u7s/image/upload/v1729003825/cld-sample-5.jpg",
-    isHot: false,
-    isSpecial: true,
-  },
-  {
-    title: "Real Things Art Painting by Jason Ni",
-    price: "Free",
-    rating: 4,
-    instructor: "Demo Teacher",
-    imageUrl: "https://res.cloudinary.com/dq7y35u7s/image/upload/v1729003825/cld-sample-3.jpg",
-    isHot: false,
-    isSpecial: false,
-  },
-];
+const RelateCourse = ({ courseId, numberOfCourses, type }) => {
+  const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const RelateCourse = () => {
+  const fetchRelatedCourses = async () => {
+    try {
+      const requestPayload = { courseId, numberOfCourses, type };
+      const response = await courseService.getRelatedCourses(requestPayload);
+      setCourses(response);
+    } catch (error) {
+      console.error('Failed to fetch related courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRelatedCourses();
+  }, [courseId, numberOfCourses, type]);
+
+  const formatCoursePrice = (price) => {
+    const now = new Date();
+    const isOnSale =
+      price.salePrice > 0 &&
+      new Date(price.startDate) <= now &&
+      now <= new Date(price.endDate);
+
+    return isOnSale
+      ? formatVNDMoney(price.salePrice)
+      : formatVNDMoney(price.price);
+  };
+
   return (
     <VStack spacing={5} align="stretch">
       <Text fontWeight="bold" fontSize="xl" mb={4}>
-        Related courses
+        Related Courses
       </Text>
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
-        {courses.map((course, index) => (
-          <Box
-            key={index}
-            borderWidth="1px"
-            borderRadius="lg"
-            overflow="hidden"
-            padding="4"
-            boxShadow="sm"
-          >
-            <Box position="relative">
-              <Image
-                w="100%"
-                h="150px"
-                objectFit="cover"
-                src={course.imageUrl}
-                alt={course.title}
-                borderRadius="md"
-              />
-              
-              {/* Badge for HOT */}
-              {course.isHot && (
-                <Badge
-                  position="absolute"
-                  top="2"
-                  right="2"
-                  colorScheme="red"
-                  fontSize="0.8em"
-                >
-                  HOT
-                </Badge>
-              )}
-              
-              {/* Badge for SPECIAL */}
-              {course.isSpecial && (
-                <Badge
-                  position="absolute"
-                  top="2"
-                  right="2"
-                  colorScheme="green"
-                  fontSize="0.8em"
-                >
-                  SPECIAL
-                </Badge>
-              )}
+      {loading ? (
+        <Spinner size="lg" />
+      ) : (
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
+          {courses.map((course, index) => (
+            <Box
+              key={index}
+              borderWidth="1px"
+              borderRadius="lg"
+              overflow="hidden"
+              padding="4"
+              boxShadow="sm"
+              cursor="pointer"
+              _hover={{
+                transform: 'scale(1.05)',
+                transition: 'transform 0.2s ease-in-out',
+              }}
+              _active={{
+                transform: 'scale(1)',
+                transition: 'transform 0.1s ease-in-out',
+              }}
+              onClick={async () => {
+                const courseId = course.id;
+                try {
+                  await courseService.countView(courseId)
+                } catch (e) {
+                  console.error(e);
+                }
+                navigate(`/course-view-detail/${courseId}`);
+              }}
+            >
+              <Box position="relative">
+                <Image
+                  w="100%"
+                  h="150px"
+                  objectFit="cover"
+                  src={course.imagePreview || course.imageUrl}
+                  alt={course.title}
+                  borderRadius="md"
+                />
+                {course.isHot && (
+                  <Badge position="absolute" top="2" right="2" colorScheme="red" fontSize="0.8em">
+                    HOT
+                  </Badge>
+                )}
+                {course.isSpecial && (
+                  <Badge position="absolute" top="2" right="2" colorScheme="green" fontSize="0.8em">
+                    SPECIAL
+                  </Badge>
+                )}
+              </Box>
+              <Stack spacing={2} pt={4}>
+                <Text fontWeight="bold" fontSize="lg">
+                  {course.title}
+                </Text>
+                <Text fontSize="md" color={course.price.salePrice > 0 ? 'green.500' : 'black'}>
+                  {formatCoursePrice(course.price)}
+                </Text>
+                <HStack spacing={1}>
+                  {Array(5)
+                    .fill('')
+                    .map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        color={i < course.rating ? 'yellow.400' : 'gray.300'}
+                      />
+                    ))}
+                </HStack>
+                <Text fontSize="sm" color="gray.500">
+                  By {course.owner?.fullName || 'Unknown Instructor'}
+                </Text>
+              </Stack>
             </Box>
-            <Stack spacing={2} pt={4}>
-              <Text fontWeight="bold" fontSize="lg">
-                {course.title}
-              </Text>
-              <Text fontSize="md" color={course.price === "Free" ? "green.500" : "black"}>
-                {course.price}
-              </Text>
-              <HStack spacing={1}>
-                {Array(5)
-                  .fill('')
-                  .map((_, i) => (
-                    <StarIcon
-                      key={i}
-                      color={i < course.rating ? 'yellow.400' : 'gray.300'}
-                    />
-                  ))}
-              </HStack>
-              <Text fontSize="sm" color="gray.500">
-                By {course.instructor}
-              </Text>
-            </Stack>
-          </Box>
-        ))}
-      </SimpleGrid>
+          ))}
+        </SimpleGrid>
+      )}
     </VStack>
   );
 };

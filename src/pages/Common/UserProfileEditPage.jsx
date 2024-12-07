@@ -82,6 +82,10 @@ const UpdatePassword = () => {
         newPassword: passwordData?.password,
       }
       await authService.updatePasswordWithOtp(updatePassReq);
+      setPasswordData({
+        password: "",
+        confirmPassword: "",
+      });
       successToast('Password updated successfully');
       setIsOpenVerifyOtpModel(false);
     } catch (error) {

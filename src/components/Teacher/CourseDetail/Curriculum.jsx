@@ -77,7 +77,8 @@ const Curriculum = ({ courseId }) => {
   const [hoveredTestId, setHoveredTestId] = useState(null);
   const { successToast, errorToast } = useCustomToast();
   const [isNewTest, setIsNewTest] = useState(false);
-
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState({ type: null, id: null });
   useEffect(() => {
     const isNewTest = !selectedTestId && selectedSectionId;
     setIsNewTest(isNewTest);
@@ -214,8 +215,8 @@ const Curriculum = ({ courseId }) => {
           ...sections,
           {
             ...createdSection,
-            lessons: [], 
-            tests: [], 
+            lessons: [],
+            tests: [],
           },
         ]);
 
@@ -356,207 +357,266 @@ const Curriculum = ({ courseId }) => {
     }
   };
 
+  const handleConfirmDelete = () => {
+    if (itemToDelete.type === 'section') {
+      handleDeleteSection(itemToDelete.id);
+    } else if (itemToDelete.type === 'lesson') {
+      handleDeleteLesson(itemToDelete.id);
+    } else if (itemToDelete.type === 'test') {
+      handleDeleteTest(itemToDelete.id);
+    }
+    setIsConfirmOpen(false);
+  };
+
+  const promptDelete = (type, id) => {
+    setItemToDelete({ type, id });
+    setIsConfirmOpen(true);
+  };
+
+  const DeleteConfirmationModal = () => (
+    <Modal
+      isOpen={isConfirmOpen}
+      onClose={() => setIsConfirmOpen(false)}
+      size="sm"
+    >
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader fontSize="lg" fontWeight="bold" color="red.600">
+          Confirm Deletion
+        </ModalHeader>
+        <ModalBody>
+          <Text fontSize="md" color="gray.700" mb={4}>
+            Are you sure you want to delete this {itemToDelete.type}?
+          </Text>
+          <HStack spacing={4} justify="flex-end" mb={2}>
+            <Button colorScheme="red" onClick={handleConfirmDelete} size="md">
+              Delete
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setIsConfirmOpen(false)}
+              size="md"
+            >
+              Cancel
+            </Button>
+          </HStack>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+
   return (
     <HStack spacing={5} align="start" h="full">
-      <Box w="30%" bg="gray.100" p={5} rounded="md">
+      <Box
+        w="30%"
+        bg="gray.100"
+        p={5}
+        rounded="md"
+        display="flex"
+        flexDirection="column"
+        h="100%"
+      >
         <Text fontSize="2xl" fontWeight="bold" mb={4}>
           Curriculum
         </Text>
-
-        <Accordion allowMultiple>
-          {sections.map((section) => (
-            <AccordionItem key={section.id}>
-              {({ isExpanded }) => (
-                <>
-                  <h2>
-                    <AccordionButton
-                      _hover={{ bg: 'gray.200' }}
-                      onMouseEnter={() => setShowIcons(section.id)}
-                      onMouseLeave={() => setShowIcons(null)}
-                    >
-                      <Icon
-                        as={RxDragHandleDots2}
-                        color="gray.500"
-                        marginRight="10px"
-                      />
-
-                      <Box
-                        flex="1"
-                        textAlign="left"
-                        fontWeight="bold"
-                        display="flex"
-                        alignItems="center"
+        <Box flex="1" overflowY="auto" pr={2}>
+          <Accordion allowMultiple>
+            {sections.map((section) => (
+              <AccordionItem key={section.id}>
+                {({ isExpanded }) => (
+                  <>
+                    <h2>
+                      <AccordionButton
+                        _hover={{ bg: 'gray.200' }}
+                        onMouseEnter={() => setShowIcons(section.id)}
+                        onMouseLeave={() => setShowIcons(null)}
                       >
-                        {editingSectionId === section.id ? (
-                          <Input
-                            value={section.title}
-                            onClick={(e) => e.stopPropagation()} // Prevent accordion toggle
-                            onChange={(e) =>
-                              setSections((prevState) =>
-                                prevState.map((s) =>
-                                  s.id === section.id
-                                    ? { ...s, title: e.target.value }
-                                    : s,
-                                ),
-                              )
-                            }
-                            onBlur={async () => {
-                              await handleUpdateSection(
-                                section.id,
-                                section.title,
-                              );
-                              setEditingSectionId(null);
-                            }}
-                            onKeyDown={async (e) => {
-                              e.stopPropagation(); // Prevent accordion toggle on keydown
-                              if (e.key === 'Enter') {
+                        <Icon
+                          as={RxDragHandleDots2}
+                          color="gray.500"
+                          marginRight="10px"
+                        />
+
+                        <Box
+                          flex="1"
+                          textAlign="left"
+                          fontWeight="bold"
+                          display="flex"
+                          alignItems="center"
+                        >
+                          {editingSectionId === section.id ? (
+                            <Input
+                              value={section.title}
+                              onClick={(e) => e.stopPropagation()} // Prevent accordion toggle
+                              onChange={(e) =>
+                                setSections((prevState) =>
+                                  prevState.map((s) =>
+                                    s.id === section.id
+                                      ? { ...s, title: e.target.value }
+                                      : s,
+                                  ),
+                                )
+                              }
+                              onBlur={async () => {
                                 await handleUpdateSection(
                                   section.id,
                                   section.title,
                                 );
                                 setEditingSectionId(null);
-                              }
-                            }}
-                            autoFocus
-                            size="sm"
-                            width="auto"
-                          />
-                        ) : (
-                          section.title
-                        )}
+                              }}
+                              onKeyDown={async (e) => {
+                                e.stopPropagation(); // Prevent accordion toggle on keydown
+                                if (e.key === 'Enter') {
+                                  await handleUpdateSection(
+                                    section.id,
+                                    section.title,
+                                  );
+                                  setEditingSectionId(null);
+                                }
+                              }}
+                              autoFocus
+                              size="sm"
+                              width="auto"
+                            />
+                          ) : (
+                            section.title
+                          )}
+
+                          {showIcons === section.id && (
+                            <Icon
+                              as={PiPencilSimpleFill}
+                              color="gray.500"
+                              marginLeft="10px"
+                              onClick={() => setEditingSectionId(section.id)}
+                              cursor="pointer"
+                            />
+                          )}
+                        </Box>
 
                         {showIcons === section.id && (
-                          <Icon
-                            as={PiPencilSimpleFill}
-                            color="gray.500"
-                            marginLeft="10px"
-                            onClick={() => setEditingSectionId(section.id)}
-                            cursor="pointer"
-                          />
+                          <Box marginRight="10px">
+                            <Icon
+                              as={RiDeleteBinFill}
+                              color="gray.500"
+                              cursor="pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                promptDelete('section', section.id);
+                              }}
+                            />
+                          </Box>
                         )}
-                      </Box>
 
-                      {showIcons === section.id && (
-                        <Box marginRight="10px">
-                          <Icon
-                            as={RiDeleteBinFill}
-                            color="gray.500"
-                            cursor="pointer"
-                            onClick={() => handleDeleteSection(section.id)}
-                          />
-                        </Box>
-                      )}
-
-                      {isExpanded ? <RxTriangleUp /> : <RxTriangleDown />}
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <List spacing={3}>
-                      {/* lessons */}
-                      {section.lessons.map((lesson) => {
-                        const { icon, color } = getSectionItemIcon(
-                          lesson?.type,
-                        );
-                        return (
-                          <ListItem
-                            onClick={() =>
-                              handleLessonClick({
-                                ...lesson,
-                                sectionId: section.id,
-                              })
-                            }
-                            key={lesson.id}
-                            cursor="pointer"
-                            onMouseEnter={() => setHoveredLessonId(lesson.id)}
-                            onMouseLeave={() => setHoveredLessonId(null)}
-                          >
-                            <HStack justify="space-between">
-                              <HStack>
-                                <ListIcon
-                                  as={RxDragHandleDots2}
-                                  color="gray.500"
-                                />
-                                <ListIcon as={icon} color={color} />
-                                <Text>{lesson.title}</Text>
+                        {isExpanded ? <RxTriangleUp /> : <RxTriangleDown />}
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4}>
+                      <List spacing={3}>
+                        {/* lessons */}
+                        {section.lessons.map((lesson) => {
+                          const { icon, color } = getSectionItemIcon(
+                            lesson?.type,
+                          );
+                          return (
+                            <ListItem
+                              onClick={() =>
+                                handleLessonClick({
+                                  ...lesson,
+                                  sectionId: section.id,
+                                })
+                              }
+                              key={lesson.id}
+                              cursor="pointer"
+                              onMouseEnter={() => setHoveredLessonId(lesson.id)}
+                              onMouseLeave={() => setHoveredLessonId(null)}
+                            >
+                              <HStack justify="space-between">
+                                <HStack>
+                                  <ListIcon
+                                    as={RxDragHandleDots2}
+                                    color="gray.500"
+                                  />
+                                  <ListIcon as={icon} color={color} />
+                                  <Text noOfLines={1}>{lesson.title}</Text>
+                                </HStack>
+                                {hoveredLessonId === lesson.id && (
+                                  <Icon
+                                    as={RiDeleteBinFill}
+                                    color="gray.500"
+                                    cursor="pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      promptDelete('lesson', lesson.id);
+                                    }}
+                                  />
+                                )}
                               </HStack>
-                              {hoveredLessonId === lesson.id && (
-                                <Icon
-                                  as={RiDeleteBinFill}
-                                  color="gray.500"
-                                  cursor="pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteLesson(lesson.id);
-                                  }}
-                                />
-                              )}
-                            </HStack>
-                          </ListItem>
-                        );
-                      })}
+                            </ListItem>
+                          );
+                        })}
 
-                      {/* tests */}
-                      {section.tests.map((test) => {
-                        const { icon, color } = getSectionItemIcon(
-                          SEC_ITEM_TYPES.TEST,
-                        );
-                        return (
-                          <ListItem
-                            onClick={() =>
-                              handleTestClick({
-                                ...test,
-                                sectionId: section.id,
-                              })
-                            }
-                            key={test.id}
-                            cursor="pointer"
-                            onMouseEnter={() => setHoveredTestId(test.id)}
-                            onMouseLeave={() => setHoveredTestId(null)}
-                          >
-                            <HStack justify="space-between">
-                              <HStack>
-                                <ListIcon
-                                  as={RxDragHandleDots2}
-                                  color="gray.500"
-                                />
-                                <ListIcon as={icon} color={color} />
-                                <Text>{test.title}</Text>
+                        {/* tests */}
+                        {section.tests.map((test) => {
+                          const { icon, color } = getSectionItemIcon(
+                            SEC_ITEM_TYPES.TEST,
+                          );
+                          return (
+                            <ListItem
+                              onClick={() =>
+                                handleTestClick({
+                                  ...test,
+                                  sectionId: section.id,
+                                })
+                              }
+                              key={test.id}
+                              cursor="pointer"
+                              onMouseEnter={() => setHoveredTestId(test.id)}
+                              onMouseLeave={() => setHoveredTestId(null)}
+                            >
+                              <HStack justify="space-between">
+                                <HStack>
+                                  <ListIcon
+                                    as={RxDragHandleDots2}
+                                    color="gray.500"
+                                  />
+                                  <ListIcon as={icon} color={color} />
+                                  <Text noOfLines={1}>{test.title}</Text>
+                                </HStack>
+                                {hoveredTestId === test.id && (
+                                  <Icon
+                                    as={RiDeleteBinFill}
+                                    color="gray.500"
+                                    cursor="pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      promptDelete('test', test.id);
+                                    }}
+                                  />
+                                )}
                               </HStack>
-                              {hoveredTestId === test.id && (
-                                <Icon
-                                  as={RiDeleteBinFill}
-                                  color="gray.500"
-                                  cursor="pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteTest(test.id);
-                                  }}
-                                />
-                              )}
-                            </HStack>
-                          </ListItem>
-                        );
-                      })}
-                    </List>
+                            </ListItem>
+                          );
+                        })}
+                      </List>
 
-                    <Button
-                      leftIcon={<AddIcon />}
-                      colorScheme="blue"
-                      mt={4}
-                      onClick={() => {
-                        onOpen();
-                        setSelectedSectionId(section.id);
-                      }}
-                    >
-                      Add a lesson
-                    </Button>
-                  </AccordionPanel>
-                </>
-              )}
-            </AccordionItem>
-          ))}
-        </Accordion>
-
+                      <Button
+                        leftIcon={<AddIcon />}
+                        colorScheme="blue"
+                        mt={4}
+                        onClick={() => {
+                          onOpen();
+                          setSelectedSectionId(section.id);
+                        }}
+                      >
+                        Add a lesson
+                      </Button>
+                    </AccordionPanel>
+                  </>
+                )}
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Box>
         {isAddingNewSection ? (
           <VStack mt={4} spacing={3}>
             <Input
@@ -597,7 +657,7 @@ const Curriculum = ({ courseId }) => {
         )}
       </Box>
 
-      <Box w="70%" textAlign="center" maxHeight="80vh" overflow="auto">
+      <Box w="70%" textAlign="center" h="100%" overflow="auto">
         {selectedSectionItemType ? (
           renderLessonComponent()
         ) : (
@@ -721,6 +781,7 @@ const Curriculum = ({ courseId }) => {
           </ModalBody>
         </ModalContent>
       </Modal>
+      <DeleteConfirmationModal />
     </HStack>
   );
 };

@@ -93,6 +93,7 @@ const LoginPage = () => {
 
       if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
         navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.username } });
+        return;
       }
 
       successToast(`Login successfully`);
@@ -115,7 +116,8 @@ const LoginPage = () => {
     try {
       const loginResponse = await AuthService.loginWithGoogle(response?.credential);
       if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
-        navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.username } });
+        navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.email } });
+        return;
       }
 
       successToast(`Login successfully`);

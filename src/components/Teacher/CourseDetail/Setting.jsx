@@ -7,11 +7,7 @@ import {
   FormLabel,
   Switch,
   Textarea,
-  Text,
-  Select as ChakraSelect,
-  Image,
-  Flex,
-  Heading,
+  Select as ChakraSelect, Heading, Center,
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
@@ -21,12 +17,13 @@ import categoryService from '~/services/categoryService';
 import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';
 import { getUsername } from '~/utils/authUtils';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
+import ImagePicker from '~/components/ImagePicker';
+import VideoPicker from '~/components/VideoPicker';
 
-const Setting = ({ courseId }) => {
+const Setting = React.memo(({ courseId }) => {
   const navigate = useNavigate();
   const username = getUsername();
   const [course, setCourse] = useState({
@@ -38,7 +35,7 @@ const Setting = ({ courseId }) => {
     descriptionPreview: '',
     duration: '',
     isPublish: true,
-    createdBy: 'admin',
+    ownerUsername: 'admin',
     imagePreview: '',
     videoPreview: '',
   });
@@ -48,6 +45,7 @@ const Setting = ({ courseId }) => {
   const [levels, setLevels] = useState([]);
   const [imageFile, setImageFile] = useState(null); // Store the actual image file
   const [videoFile, setVideoFile] = useState(null); // Store the actual video file
+  const [isSaving, setIsSaving] = useState(false); // Loading state for image processing
   const { successToast, errorToast } = useCustomToast();
 
   // Fetch categories and topics on mount
@@ -133,40 +131,9 @@ const Setting = ({ courseId }) => {
     }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imagePreview = URL.createObjectURL(file);
-      setCourse((prevCourse) => ({
-        ...prevCourse,
-        imagePreview: imagePreview,
-      }));
-      setImageFile(file); // Store the actual image file
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setCourse((prevCourse) => ({
-      ...prevCourse,
-      imagePreview: '',
-    }));
-    setImageFile(null); // Reset the image file
-  };
-
-  const handleVideoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const videoPreview = URL.createObjectURL(file);
-      setCourse((prevCourse) => ({
-        ...prevCourse,
-        videoPreview: videoPreview,
-      }));
-      setVideoFile(file); // Store the actual video file
-    }
-  };
-
   // Handle form submission (create or update)
   const handleSubmit = async () => {
+    setIsSaving(true);
     const formData = new FormData();
     formData.append('ownerUsername', username);
     formData.append('title', course.title);
@@ -174,6 +141,8 @@ const Setting = ({ courseId }) => {
     formData.append('descriptionPreview', course.descriptionPreview);
     formData.append('duration', course.duration);
     formData.append('isPublish', course.isPublish);
+    formData.append('imagePreview', course.imagePreview);
+    formData.append('videoPreview', course.videoPreview);
     course.categoryIds.forEach((id) => {
       formData.append('categoryIds', id); // Thêm từng categoryId vào FormData
     });
@@ -206,12 +175,16 @@ const Setting = ({ courseId }) => {
     } catch (error) {
       errorToast('Error saving course.');
       console.error('Error saving course.', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Box pt={10} pb={10} maxW="600px" mx="auto">
-      <Heading mb={4}>Add new course</Heading>
+    <Box pb={10} maxW="600px" mx="auto">
+      <Center mt={10} mb={5}>
+        <Heading>{courseId ? 'Update Course' : 'Create Course'}</Heading>
+      </Center>
 
       <FormControl mb="4">
         <FormLabel>Course name</FormLabel>
@@ -291,162 +264,23 @@ const Setting = ({ courseId }) => {
         />
       </FormControl>
 
-      <FormControl mb="4">
-        <FormLabel>Video</FormLabel>
-        <Box position="relative" width="100%" height="250px" mx="auto">
-          {course.videoPreview ? (
-            <Box
-              position="relative"
-              width="100%"
-              height="100%"
-              cursor="pointer"
-              overflow="hidden"
-              _hover={{
-                '.overlay': { opacity: 1 },
-                '.remove-btn': { opacity: 1 },
-              }}
-            >
-              <video
-                src={course.videoPreview}
-                controls
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <Box
-                className="overlay"
-                position="absolute"
-                top="0"
-                left="0"
-                width="100%"
-                height="100%"
-                backgroundColor="rgba(0, 0, 0, 0.5)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-              />
-              <Flex
-                className="remove-btn"
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Button
-                  onClick={() => setCourse({ ...course, videoPreview: '' })}
-                  colorScheme="blue"
-                >
-                  Remove
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <Flex
-              border="2px dashed gray"
-              p="4"
-              textAlign="center"
-              cursor="pointer"
-              height="100%"
-              onClick={() => document.getElementById('videoUpload').click()}
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-            >
-              <Text>Drag and drop a video or upload it from your computer</Text>
-              <Button mt="2" colorScheme="blue">
-                Upload a video
-              </Button>
-              <Input
-                id="videoUpload"
-                type="file"
-                accept="video/*"
-                onChange={handleVideoChange}
-                display="none"
-              />
-            </Flex>
-          )}
-        </Box>
-      </FormControl>
+      <VideoPicker
+        title={'Video'}
+        videoPreview={course.videoPreview}
+        setVideoPreview={(videoPreview) =>
+          setCourse({ ...course, videoPreview: videoPreview })
+        }
+        setVideoFile={setVideoFile}
+      />
 
-      <FormControl mb="4">
-        <FormLabel>Image</FormLabel>
-        <Box position="relative" width="100%" height="250px" mx="auto">
-          {course.imagePreview ? (
-            <Box
-              position="relative"
-              width="100%"
-              height="100%"
-              cursor="pointer"
-              overflow="hidden"
-              _hover={{
-                '.overlay': { opacity: 1 },
-                '.remove-btn': { opacity: 1 },
-              }}
-            >
-              <Image
-                src={course.imagePreview}
-                alt="Course Image"
-                width="100%"
-                height="100%"
-                objectFit="cover"
-              />
-              <Box
-                className="overlay"
-                position="absolute"
-                top="0"
-                left="0"
-                width="100%"
-                height="100%"
-                backgroundColor="rgba(0, 0, 0, 0.5)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-              />
-              <Flex
-                className="remove-btn"
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                opacity="0"
-                transition="opacity 0.3s ease"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Button onClick={handleRemoveImage} colorScheme="blue">
-                  Remove
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <Flex
-              border="2px dashed gray"
-              p="4"
-              textAlign="center"
-              cursor="pointer"
-              height="100%"
-              onClick={() => document.getElementById('imageUpload').click()}
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-            >
-              <Text>
-                Drag and drop an image or upload it from your computer
-              </Text>
-              <Button mt="2" colorScheme="blue">
-                Upload an image
-              </Button>
-              <Input
-                id="imageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                display="none"
-              />
-            </Flex>
-          )}
-        </Box>
-      </FormControl>
+      <ImagePicker
+        title={'Image'}
+        imagePreview={course?.imagePreview}
+        setImagePreview={(imagePreview) =>
+          setCourse({ ...course, imagePreview: imagePreview })
+        }
+        setImageFile={setImageFile}
+      />
 
       <FormControl mb="4">
         <FormLabel>Description preview</FormLabel>
@@ -484,11 +318,18 @@ const Setting = ({ courseId }) => {
         </Box>
       </FormControl>
 
-      <Button colorScheme="blue" width="100%" onClick={handleSubmit}>
+      <Button
+        colorScheme="blue"
+        width="100%"
+        onClick={handleSubmit}
+        isLoading={isSaving}
+        isDisabled={isSaving}
+        loadingText={"Saving..."}
+      >
         {courseId ? 'Update Course' : 'Create Course'}
       </Button>
     </Box>
   );
-};
+});
 
 export default Setting;

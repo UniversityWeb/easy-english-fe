@@ -3,42 +3,79 @@ import {
   Box,
   Image,
   Text,
-  VStack,
+  Flex,
   HStack,
+  VStack,
+  Input,
   Button,
   Icon,
-  Divider,
-  Flex,
-  Spinner,
-  Input,
   Grid,
   GridItem,
+  Skeleton,
+  SkeletonText,
+  SkeletonCircle,
+  IconButton,
+  Divider,
+  Tabs,
+  Heading,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from '@chakra-ui/react';
 import { TbClockHour4 } from 'react-icons/tb';
-import { ChakraProvider } from '@chakra-ui/react';
-import enrollmentService from '~/services/enrollmentService';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import Pagination from '~/components/Student/Search/Page'; // Assuming you have a Pagination component
-import Filter from '~/components/Student/Search/Filter'; // Assuming you have a Filter component
+//import { FiFilter } from 'react-icons/fi';
+import Pagination from '~/components/Student/Search/Page';
+import Filter from '~/components/Student/Search/Filter';
 import { useNavigate } from 'react-router-dom';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import enrollmentService from '~/services/enrollmentService';
 import config from '~/config';
 
-const EnrollCoursePage = () => {
-  const navigate = useNavigate();
+const EnrollmentSkeleton = ({ itemsPerPage }) => (
+  <Grid templateColumns="repeat(4, 1fr)" gap={6}>
+    {Array(itemsPerPage)
+      .fill('')
+      .map((_, index) => (
+        <Box
+          key={index}
+          width="100%"
+          borderWidth="1px"
+          borderRadius="lg"
+          overflow="hidden"
+          boxShadow="md"
+          height="300px"
+          position="relative"
+          p={6}
+        >
+          <Skeleton height="180px" width="100%" />
+          <VStack align="start" spacing={3} mt={4}>
+            <SkeletonText noOfLines={2} width="80%" />
+            <SkeletonText noOfLines={1} width="60%" />
+          </VStack>
+        </Box>
+      ))}
+  </Grid>
+);
+
+const Enrollment = () => {
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  //const [showFilter, setShowFilter] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     categoryIds: [],
     topicId: null,
     levelId: null,
     rating: null,
+    enrollmentStatus: null, // ACTIVE or COMPLETED
   });
+  const [loading, setLoading] = useState(true);
+  const [statusTab, setStatusTab] = useState('ACTIVE'); // New state for tabs
+  const navigate = useNavigate();
 
-  // Fetch courses with filters, search, and pagination
   const fetchCourses = async () => {
     setLoading(true);
     try {
@@ -53,49 +90,46 @@ const EnrollCoursePage = () => {
         rating: filterOptions.rating || null,
         topicId: filterOptions.topicId || null,
         levelId: filterOptions.levelId || null,
+        enrollmentStatus: statusTab === 'COMPLETED' ? null : statusTab,
+        ...(statusTab === 'COMPLETED' && { progress: 100 }),
       };
 
       const response = await enrollmentService.getEnrollByFilter(courseRequest);
       if (response) {
         setCourses(response.content);
         setTotalPages(response.totalPages);
-      } else {
-        console.log('Failed to fetch courses');
       }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error('Error fetching enroll courses:', error);
     } finally {
       setLoading(false);
     }
   };
-
+  const getButtonText = (progress) => {
+    if (progress === 0) return 'Start';
+    if (progress === 100) return 'Complete';
+    return 'Continue';
+  };
   useEffect(() => {
     fetchCourses();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, statusTab]);
 
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page on new search
     fetchCourses();
   };
 
-  if (loading) {
-    return (
-      <ChakraProvider>
-        <Box p={5} textAlign="center">
-          <Spinner size="xl" />
-          <Text mt={4}>Loading courses...</Text>
-        </Box>
-      </ChakraProvider>
-    );
-  }
-
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
+        <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={6}>
+          Enrolled Courses
+        </Text>
+
         {/* Search Section */}
         <Flex mb={5} justify="space-between">
           <Input
-            placeholder="Search for enrolled courses..."
+            placeholder="Search for courses..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             mr={2}
@@ -103,98 +137,151 @@ const EnrollCoursePage = () => {
           <Button colorScheme="blue" onClick={handleSearch}>
             Search
           </Button>
+
+          {/* <IconButton
+            icon={<FiFilter />}
+            aria-label="Toggle Filter"
+            colorScheme="gray"
+            variant="outline"
+            onClick={() => setShowFilter(!showFilter)}
+            ml={2}
+          /> */}
         </Flex>
 
-        {/* Main Grid Layout */}
-        <Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
-          {/* Filter Section */}
+        {/* Tabs for Status Filter */}
+
+        <Grid templateColumns={{ base: '1fr', md: '1fr 4fr' }} gap={6} mt={4}>
           <GridItem>
             <Filter onFilterChange={setFilterOptions} />
           </GridItem>
 
-          {/* Enrolled Courses Section */}
-          <GridItem>
+          <GridItem mx={0} maxWidth="none" flex="1">
             <Flex direction="column" justify="space-between" height="100%">
-              <HStack spacing={5} wrap="wrap" justify="start">
-                {courses.map((course) => (
-                  <Box
-                    style={{ zoom: 0.85 }}
-                    key={course.id}
-                    width="300px"
-                    borderWidth="1px"
-                    borderRadius="lg"
-                    overflow="hidden"
-                    boxShadow="md"
-                    maxW="sm"
-                    height="450px"
-                    display="flex"
-                    flexDirection="column"
-                  >
-                    <Box height="200px" overflow="hidden">
-                      <Image
-                        src={course.image || course.imagePreview}
-                        alt={course.title}
-                        objectFit="cover"
-                        width="100%"
-                        height="100%"
-                      />
-                    </Box>
-
-                    <Box p={6} flex="1" display="flex" flexDirection="column">
-                      <VStack align="start" spacing={2} flex="1">
-                        <VStack align="start" spacing={1} minHeight="80px">
-                          <Text fontSize="sm" color="gray.500">
-                            {course.topic?.name || 'Uncategorized'}
-                          </Text>
-                          <Text fontWeight="bold" fontSize="lg" noOfLines={2}>
-                            {course.title}
-                          </Text>
-                        </VStack>
-
-                        <HStack spacing={4} width="100%">
-                          <Flex justify="space-between" width="100%">
-                            <HStack>
-                              <Icon as={TbClockHour4} />
-                              <Text fontSize="sm">
-                                {course.duration || 'N/A'} hours
-                              </Text>
-                            </HStack>
-                            <Text fontSize="sm">
-                              {course.progress || 0}% Complete
-                            </Text>
-                          </Flex>
-                        </HStack>
-
-                        <Box mt="auto" width="100%">
-                          <Button
-                            colorScheme="blue"
-                            width="full"
-                            onClick={() =>
-                              navigate(config.routes.learn(course.id))
-                            }
-                          >
-                            Start Course
-                          </Button>
+              <Tabs
+                variant="enclosed"
+                onChange={
+                  (index) => setStatusTab(index === 0 ? 'ACTIVE' : 'COMPLETED') // Update statusTab based on selected tab
+                }
+              >
+                <TabList>
+                  <Tab>All</Tab>
+                  <Tab>Completed</Tab>
+                </TabList>
+              </Tabs>
+              {loading ? (
+                <EnrollmentSkeleton itemsPerPage={itemsPerPage} />
+              ) : (
+                <Grid templateColumns="repeat(4, 1fr)" gap={6}>
+                  {courses.length > 0 ? (
+                    courses.map((course) => (
+                      <Box
+                        style={{ zoom: 0.85 }}
+                        key={course.id}
+                        width="300px"
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        overflow="hidden"
+                        boxShadow="md"
+                        maxW="sm"
+                        height="450px"
+                        display="flex"
+                        flexDirection="column"
+                      >
+                        <Box height="200px" overflow="hidden">
+                          <Image
+                            src={course.image || course.imagePreview}
+                            alt={course.title}
+                            objectFit="cover"
+                            width="100%"
+                            height="100%"
+                          />
                         </Box>
 
-                        <Divider />
-
-                        <Text
-                          fontSize="sm"
-                          color="gray.500"
-                          textAlign="center"
-                          width="full"
+                        <Box
+                          p={6}
+                          flex="1"
+                          display="flex"
+                          flexDirection="column"
                         >
-                          Started{' '}
-                          {course.createdAt
-                            ? new Date(course.createdAt).toLocaleDateString()
-                            : 'N/A'}
-                        </Text>
-                      </VStack>
-                    </Box>
-                  </Box>
-                ))}
-              </HStack>
+                          <VStack align="start" spacing={2} flex="1">
+                            <VStack align="start" spacing={1} minHeight="80px">
+                              <Text fontSize="sm" color="gray.500">
+                                {course.topic?.name || 'Uncategorized'}
+                              </Text>
+                              <Text
+                                fontWeight="bold"
+                                fontSize="lg"
+                                noOfLines={2}
+                              >
+                                {course.title}
+                              </Text>
+                            </VStack>
+
+                            <HStack spacing={4} width="100%">
+                              <Flex justify="space-between" width="100%">
+                                <HStack>
+                                  <Icon as={TbClockHour4} />
+                                  <Text fontSize="sm">
+                                    {course.duration || 'N/A'} hours
+                                  </Text>
+                                </HStack>
+                                <Text fontSize="sm">
+                                  {course.progress || 0}% Complete
+                                </Text>
+                              </Flex>
+                            </HStack>
+
+                            <Box mt="auto" width="100%">
+                              <Button
+                                colorScheme="blue"
+                                width="full"
+                                onClick={() =>
+                                  navigate(
+                                    config.routes.learn(
+                                      course.id,
+                                      course.title,
+                                    ),
+                                  )
+                                }
+                              >
+                                {getButtonText(course.progress || 0)}
+                              </Button>
+                            </Box>
+
+                            <Divider />
+
+                            <Text
+                              fontSize="sm"
+                              color="gray.500"
+                              textAlign="center"
+                              width="full"
+                            >
+                              Started{' '}
+                              {course.createdAt
+                                ? new Date(
+                                    course.createdAt,
+                                  ).toLocaleDateString()
+                                : 'N/A'}
+                            </Text>
+                          </VStack>
+                        </Box>
+                      </Box>
+                    ))
+                  ) : (
+                    <GridItem
+                      colSpan={4}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      height="380px"
+                    >
+                      <Heading textAlign="center" size="md">
+                        No enrollments available
+                      </Heading>
+                    </GridItem>
+                  )}
+                </Grid>
+              )}
 
               {/* Pagination */}
               <Box mt={8}>
@@ -214,4 +301,4 @@ const EnrollCoursePage = () => {
   );
 };
 
-export default EnrollCoursePage;
+export default Enrollment;

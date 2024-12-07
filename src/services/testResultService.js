@@ -32,11 +32,18 @@ const remove = async (testResultId) => {
   return handleResponse(response, 200);
 }
 
+const getByCurUser = async () => {
+  const path = `${SUFFIX_TEST_RESULT_API_URL}`;
+  const response = await get(path);
+  return handleResponse(response, 200);
+};
+
 const testResultService = {
   getById,
   submit,
   getTestHistory,
   remove,
+  getByCurUser,
 };
 
 export default testResultService;

@@ -3,6 +3,7 @@ import { FaEye } from 'react-icons/fa';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';
 import StarRating from './StarRating';
+import { formatVNDMoney } from '~/utils/methods';
 
 const CourseCard = ({ course, onMakeFeatured }) => {
   const averageRating = useMemo(() => {
@@ -77,9 +78,9 @@ const CourseCard = ({ course, onMakeFeatured }) => {
         {/* Price Section */}
         <Flex direction="column" align="flex-end">
           {/* Original Price */}
-          {course.price?.price && course.price.price !== course.price?.salePrice && course.price.price !== 0 && (
+          {course.price.price !== course.price?.salePrice && course.price.price <= 0 && (
             <Text as="s" color="gray.500">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price.price)}
+              {formatVNDMoney(course.price.price)}
             </Text>
           )}
 
@@ -88,7 +89,7 @@ const CourseCard = ({ course, onMakeFeatured }) => {
             <Text fontWeight="bold" color="green.500">FREE</Text>
           ) : (
             <Text fontWeight="bold" color="red.500">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price.salePrice)}
+              {formatVNDMoney(course.price.salePrice)}
             </Text>
           )}
         </Flex>

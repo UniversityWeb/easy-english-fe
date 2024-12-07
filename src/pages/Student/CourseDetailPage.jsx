@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ChakraProvider,
   Box,
   Text,
   Flex,
@@ -16,96 +15,154 @@ import {
   TabPanel,
 } from '@chakra-ui/react';
 import { FaClock, FaBook, FaHeart, FaStar } from 'react-icons/fa';
-import { IoChatbox } from "react-icons/io5";
-import FAQ from '../../components/Student/CourseDetail/FAQ';
-import Reviews from '../../components/Student/CourseDetail/Reviews';
-import Curriculum from '../../components/Student/CourseDetail/Curriculum';
-import Announcement from '../../components/Student/CourseDetail/Announcement';
-import Description from '../../components/Student/CourseDetail/Description';
-import CourseRandom from '../../components/Student/CourseDetail/CourseRandom';
-import RelateCourse from '../../components/Student/CourseDetail/RelateCourse';
-import { useNavigate, useParams } from 'react-router-dom';
+import { IoChatbox } from 'react-icons/io5';
+import FAQ from '~/components/Student/CourseDetail/FAQ';
+import Reviews from '~/components/Student/CourseDetail/Reviews';
+import Curriculum from '~/components/Student/CourseDetail/Curriculum';
+import Announcement from '~/components/Student/CourseDetail/Announcement';
+import Description from '~/components/Student/CourseDetail/Description';
+import CourseRandom from '~/components/Student/CourseDetail/CourseRandom';
+import RelateCourse from '~/components/Student/CourseDetail/RelateCourse';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
 import enrollmentService from '~/services/enrollmentService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import websocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
-import authService from '~/services/authService';
 import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
+import WebsocketService from '~/services/websocketService';
+import favouriteService from '~/services/favouriteService';
+import useCustomToast from '~/hooks/useCustomToast';
+
+const CourseDetailBtnStat = {
+  START_COURSE: 'START_COURSE',
+  CONTINUE_COURSE: 'CONTINUE_COURSE',
+  IN_CART: 'IN_CART',
+  ADD_TO_CART: 'ADD_TO_CART',
+  LOADING: 'LOADING',
+  COMPLETED: 'COMPLETED',
+};
 
 function CourseDetailsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [courseData, setCourseData] = useState(null);
-  const [buttonState, setButtonState] = useState('loading'); // State to control the button text
+  const [buttonState, setButtonState] = useState(CourseDetailBtnStat.LOADING); // State to control the button text
   const { courseId } = useParams();
+  const [isLiked, setIsLiked] = useState(false);
+  const { successToast, errorToast } = useCustomToast();
+
+  // Determine the active tab based on the query parameter
+  const activeTab = searchParams.get('tab') || 'description';
 
   const loadCourseData = async () => {
-    const response = await courseService.fetchMainCourse({ id: courseId });
-    if (response) setCourseData(response);
+    try {
+      const response = await courseService.fetchMainCourse({ id: courseId });
+      if (response) setCourseData(response);
+    } catch (e) {
+      errorToast('Error loading course data');
+    }
+  };
+
+  const checkCourseInFavourite = async () => {
+    try {
+      const response = await favouriteService.checkCourseInFavourite(courseId);
+      if (response) setIsLiked(response);
+    } catch (e) {
+      errorToast('Error checking course in favourite');
+    }
+  };
+
+  const fetchButtonStat = async () => {
+    try {
+      const btnStat = await courseService.getCourseDetailButtonStatus(courseId);
+      console.log(`Button Stat: ${btnStat}`);
+      setButtonState(btnStat);
+    } catch (e) {
+      setButtonState(CourseDetailBtnStat.LOADING);
+    }
+  };
+
+  const toggleWishlist = async (id, isLiked) => {
+    try {
+      if (isLiked) {
+        await favouriteService.deleteFavourite(id);
+        setIsLiked(false);
+        successToast('Removed from wishlist');
+      } else {
+        await favouriteService.addFavourite(id);
+        setIsLiked(true);
+        successToast('Added to wishlist');
+      }
+    } catch (error) {
+      errorToast('Error toggling wishlist');
+    }
+  };
+
+  const addToCart = async () => {
+    try {
+      await cartService.addItemToCart(courseId);
+      successToast('Added to cart');
+      const addRequest = {
+        username: getUsername(),
+      };
+      const wsService = await WebsocketService.getIns();
+      wsService.send(websocketConstants.cartItemCountDestination, addRequest);
+      setButtonState(CourseDetailBtnStat.IN_CART);
+    } catch (error) {
+      errorToast('Error adding to cart');
+    }
   };
 
   useEffect(() => {
-    websocketService.disconnect();
-    websocketService.connect(() => {});
-    return () => {
-      websocketService.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
     loadCourseData();
+    fetchButtonStat();
+    checkCourseInFavourite();
+
+    window.scrollTo(0, 0);
   }, [courseId]);
-
-  useEffect(() => {
-    const checkEnrollmentStatus = async () => {
-      try {
-        const canAdd = await cartService.canAddToCart(courseId);
-        if (canAdd) {
-          setButtonState('add-to-cart');
-        } else {
-          const enrollment = await enrollmentService.isEnrolled(courseId);
-          if (enrollment && enrollment.progress === 0) {
-            setButtonState('start-course');
-          } else if (enrollment && enrollment.progress > 0) {
-            setButtonState('continue-course');
-          }
-        }
-      } catch (error) {
-        setButtonState('in-cart');
-      }
-    };
-
-    if (courseData) {
-      checkEnrollmentStatus();
-    }
-  }, [courseData]);
 
   const handleButtonClick = async () => {
     switch (buttonState) {
-      case 'add-to-cart':
-        try {
-          await cartService.addItemToCart(courseId);
-          const addRequest = {
-            username: getUsername(),
-          };
-          websocketService.send(websocketConstants.cartItemCountDestination, addRequest);
-          setButtonState('in-cart');
-        } catch (error) {
-          console.error('Error adding to cart:', error);
-        }
+      case CourseDetailBtnStat.ADD_TO_CART:
+        await addToCart();
         break;
-      case 'start-course':
-      case 'continue-course':
-        navigate(config.routes.learn(courseId));
+      case CourseDetailBtnStat.START_COURSE:
+      case CourseDetailBtnStat.CONTINUE_COURSE:
+      case CourseDetailBtnStat.COMPLETED:
+        navigate(config.routes.learn(courseId, courseData?.title));
         break;
-      case 'in-cart':
+      case CourseDetailBtnStat.IN_CART:
         navigate(config.routes.cart);
         break;
       default:
         break;
     }
+  };
+
+  const handleTabChange = (index) => {
+    // Map tab indices to query parameter values
+    const tabMapping = [
+      'description',
+      'curriculum',
+      'faq',
+      'announcement',
+      'reviews',
+    ];
+    setSearchParams({ tab: tabMapping[index] });
+  };
+
+  const getTabIndex = () => {
+    // Map query parameter values to tab indices
+    const tabMapping = {
+      description: 0,
+      curriculum: 1,
+      faq: 2,
+      announcement: 3,
+      reviews: 4,
+    };
+    return tabMapping[activeTab] || 0;
   };
 
   if (!courseData) return <Text>Loading...</Text>;
@@ -150,9 +207,11 @@ function CourseDetailsPage() {
                   {[...Array(Math.round(courseData?.rating))].map((_, i) => (
                     <Icon key={i} as={FaStar} color="orange.400" />
                   ))}
-                  {[...Array(5 - Math.round(courseData?.rating))].map((_, i) => (
-                    <Icon key={i + 5} as={FaStar} color="gray.300" />
-                  ))}
+                  {[...Array(5 - Math.round(courseData?.rating))].map(
+                    (_, i) => (
+                      <Icon key={i + 5} as={FaStar} color="gray.300" />
+                    ),
+                  )}
                   <Text ml={2}>
                     {courseData?.ratingCount} review
                     {courseData?.ratingCount !== 1 ? 's' : ''}
@@ -162,7 +221,11 @@ function CourseDetailsPage() {
             </Flex>
 
             <Box mt={10}>
-              <Tabs variant="unstyled">
+              <Tabs
+                variant="unstyled"
+                index={getTabIndex()}
+                onChange={handleTabChange}
+              >
                 <TabList>
                   <Tab
                     _selected={{
@@ -234,14 +297,25 @@ function CourseDetailsPage() {
               </Tabs>
             </Box>
             <Box mt={10}>
-              <RelateCourse />
+              <RelateCourse
+                courseId={courseId}
+                numberOfCourses={3}
+                type={'LEVEL'}
+              />
             </Box>
           </Box>
 
           <Box flex="1" mt={[8, 8, 0]} pl={[0, 0, 10]}>
             <Flex justify="space-between" mb={4}>
-              <Button leftIcon={<FaHeart />} variant="ghost" colorScheme="gray">
-                Add to wishlist
+              <Button
+                variant="ghost"
+                colorScheme={isLiked ? 'red' : 'gray'}
+                onClick={() => toggleWishlist(courseId, isLiked)}
+                leftIcon={
+                  <Icon as={FaHeart} color={isLiked ? 'red.500' : 'gray.500'} />
+                }
+              >
+                {isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
               </Button>
               <Button
                 leftIcon={<IoChatbox />}
@@ -250,8 +324,8 @@ function CourseDetailsPage() {
                 onClick={() => {
                   navigate(config.routes.chat, {
                     state: {
-                      course: courseData
-                    }
+                      course: courseData,
+                    },
                   });
                 }}
               >
@@ -264,13 +338,16 @@ function CourseDetailsPage() {
               size="lg"
               w="100%"
               onClick={handleButtonClick}
-              isDisabled={buttonState === 'loading'}
+              isDisabled={buttonState === CourseDetailBtnStat.LOADING}
             >
-              {buttonState === 'loading' && 'Loading...'}
-              {buttonState === 'add-to-cart' && 'Add to Cart'}
-              {buttonState === 'in-cart' && 'In Cart'}
-              {buttonState === 'start-course' && 'Start Course'}
-              {buttonState === 'continue-course' && 'Continue Course'}
+              {buttonState === CourseDetailBtnStat.LOADING && 'Loading...'}
+              {buttonState === CourseDetailBtnStat.ADD_TO_CART && 'Add to Cart'}
+              {buttonState === CourseDetailBtnStat.IN_CART && 'In Cart'}
+              {buttonState === CourseDetailBtnStat.START_COURSE &&
+                'Start Course'}
+              {buttonState === CourseDetailBtnStat.CONTINUE_COURSE &&
+                'Continue Course'}
+              {buttonState === CourseDetailBtnStat.COMPLETED && 'Completed'}
             </Button>
 
             <Box mt={6}>
@@ -306,7 +383,11 @@ function CourseDetailsPage() {
               <Text fontWeight="bold" fontSize="lg" mb={4}>
                 Related Courses
               </Text>
-              <CourseRandom />
+              <CourseRandom
+                courseId={courseId}
+                numberOfCourses={4}
+                type={'TOPIC'}
+              />
             </Box>
           </Box>
         </Flex>

@@ -14,11 +14,17 @@ import useCustomToast from "~/hooks/useCustomToast";
 import cartService from "~/services/cartService";
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { formatVNDMoney } from '~/utils/methods';
+import paymentService from '~/services/paymentService';
+import { getUsername } from '~/utils/authUtils';
+import config from '~/config';
+import { PAYMENT_STATUES } from '~/utils/constants';
+import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
   const { successToast, errorToast } = useCustomToast();
   const [cart, setCart] = useState(null); // Initialize as null to handle loading
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCart();
@@ -49,12 +55,31 @@ const CartPage = () => {
   };
 
   const handleCheckout = async () => {
+    const username = getUsername();
     try {
-      // Implement checkout logic as per your requirements
-      successToast("Proceeding to checkout...");
+      const urlReturn = `${window.location.protocol}//${window.location.host}${config.routes.payment_result}`;
+      const paymentRequest = {
+        username: username,
+        method: 'VN_PAY',
+        urlReturn: urlReturn,
+      };
+
+      const paymentResponse =
+        await paymentService.createPaymentOrder(paymentRequest);
+      successToast('Checkout successful! Redirecting to payment...');
+
+      if (paymentResponse?.status === PAYMENT_STATUES.SUCCESS) {
+        if (!paymentResponse?.orderId) {
+          return;
+        }
+
+        navigate(config.routes.order_detail.replace(':orderId', paymentResponse?.orderId));
+        return;
+      }
+      window.location.href = paymentResponse?.paymentUrl;
     } catch (error) {
-      console.error(error.message);
-      errorToast("Error during checkout.");
+      console.error(error?.message);
+      errorToast('Error during checkout. Please try again.');
     }
   };
 
