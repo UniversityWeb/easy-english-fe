@@ -50,20 +50,20 @@ const LoginPage = () => {
           }
         })
         .catch((err) => {
-          console.error("Failed to fetch user:", err);
+          console.error('Failed to fetch user:', err);
         });
     }
   }, [navigate]);
 
   const navigateByRole = (role) => {
     if (role === USER_ROLES.STUDENT) {
-      navigate(config.routes.search);
+      navigate(config.routes.homepage);
     } else if (role === USER_ROLES.TEACHER) {
       navigate(config.routes.course_management_for_teacher);
     } else if (role === USER_ROLES.ADMIN) {
       navigate(config.routes.course_management_for_admin);
     } else {
-      console.log("Role not found");
+      console.log('Role not found');
     }
   };
 
@@ -92,7 +92,9 @@ const LoginPage = () => {
       }
 
       if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
-        navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.username } });
+        navigate(config.routes.otp_validation, {
+          state: { username: loginResponse?.user?.username },
+        });
         return;
       }
 
@@ -104,7 +106,7 @@ const LoginPage = () => {
     } finally {
       setIsLogging(false);
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -112,12 +114,16 @@ const LoginPage = () => {
 
   const handleGoogleSuccess = async (response) => {
     // Send the response token to your Spring Boot backend for validation
-    setIsLogging(true)
+    setIsLogging(true);
     try {
-      const loginResponse = await AuthService.loginWithGoogle(response?.credential);
+      const loginResponse = await AuthService.loginWithGoogle(
+        response?.credential,
+      );
       if (loginResponse?.accountStatus === USER_STATUSES.INACTIVE) {
         errorToast('The account has not confirmed OTP');
-        navigate(config.routes.otp_validation, { state: { username: loginResponse?.user?.email } });
+        navigate(config.routes.otp_validation, {
+          state: { username: loginResponse?.user?.email },
+        });
         return;
       }
 
@@ -197,14 +203,22 @@ const LoginPage = () => {
                       onClick={togglePasswordVisibility}
                       cursor="pointer"
                     >
-                      {showPassword ? <ViewIcon color="cyan.700" /> : <ViewOffIcon color="cyan.700" />}
+                      {showPassword ? (
+                        <ViewIcon color="cyan.700" />
+                      ) : (
+                        <ViewOffIcon color="cyan.700" />
+                      )}
                     </Button>
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
 
               <Stack spacing={10} mt={4}>
-                <Stack direction={{ base: 'column', sm: 'row' }} align={'end'} justify={'end'}>
+                <Stack
+                  direction={{ base: 'column', sm: 'row' }}
+                  align={'end'}
+                  justify={'end'}
+                >
                   <Link color="cyan.400" href={config.routes.forgot_password}>
                     Forgot password?
                   </Link>
@@ -250,7 +264,13 @@ const LoginPage = () => {
                       borderRadius="md"
                       isLoading={isLogging}
                       isDisabled={isLogging}
-                      leftIcon={<Image src={GoogleIcon} alt="Google Icon" boxSize="20px" />}
+                      leftIcon={
+                        <Image
+                          src={GoogleIcon}
+                          alt="Google Icon"
+                          boxSize="20px"
+                        />
+                      }
                       _hover={{
                         bg: 'google.500',
                         boxShadow: 'xl',

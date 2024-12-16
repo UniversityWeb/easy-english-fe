@@ -16,9 +16,7 @@ const OtpValidationPage = lazy(
 const CourseManagementForStudentPage = lazy(
   () => import('~/pages/Student/CourseManagementForStudentPage'),
 );
-const Notifications = lazy(
-  () => import('~/pages/Student/Notifications'),
-);
+const Notifications = lazy(() => import('~/pages/Student/Notifications'));
 const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
 const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
 const CartPage = lazy(() => import('~/pages/Student/CartPage'));
@@ -28,6 +26,7 @@ const PaymentResultPage = lazy(
 const CourseManagementForTeacherPage = lazy(
   () => import('~/pages/Teacher/CourseManagementForTeacherPage'),
 );
+const HomePage = lazy(() => import('~/pages/Common/HomePage'));
 const SearchPage = lazy(() => import('~/pages/Student/SearchPage'));
 const FavouritePage = lazy(() => import('~/pages/Student/FavouritePage'));
 const EnrollCoursePage = lazy(() => import('~/pages/Student/EnrollCoursePage'));
@@ -104,6 +103,7 @@ const publicRoutes = [
     path: config.routes.course_management_for_admin,
     component: CourseManagementForAdminPage,
   },
+  { path: config.routes.homepage, component: HomePage },
 ];
 
 const privateRoutes = [];
