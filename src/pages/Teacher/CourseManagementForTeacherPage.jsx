@@ -21,7 +21,7 @@ import {
   TabList,
   TabPanels,
   Tab,
-  TabPanel,
+  TabPanel, Badge,
 } from '@chakra-ui/react';
 import { TbClockHour4 } from 'react-icons/tb';
 //import { FiFilter } from 'react-icons/fi';
@@ -65,6 +65,7 @@ const Enrollment = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCourses, setTotalCourses] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   //const [showFilter, setShowFilter] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
@@ -100,6 +101,7 @@ const Enrollment = () => {
       if (response) {
         setCourses(response.content);
         setTotalPages(response.totalPages);
+        setTotalCourses(response.totalElements);
       }
     } catch (error) {
       console.error('Error fetching enroll courses:', error);
@@ -165,11 +167,46 @@ const Enrollment = () => {
                 }}
               >
                 <TabList>
-                  <Tab>All</Tab>
-                  <Tab>PUBLISHED</Tab>
-                  <Tab>PENDING_APPROVAL</Tab>
-                  <Tab>REJECTED</Tab>
-                  <Tab>DRAFT</Tab>
+                  <Tab>
+                    All{' '}
+                    {statusTab === 'All' || !statusTab && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    PUBLISHED{' '}
+                    {statusTab === 'PUBLISHED' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    PENDING_APPROVAL{' '}
+                    {statusTab === 'PENDING_APPROVAL' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    REJECTED{' '}
+                    {statusTab === 'REJECTED' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    DRAFT{' '}
+                    {statusTab === 'DRAFT' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
                 </TabList>
               </Tabs>
               {loading ? (

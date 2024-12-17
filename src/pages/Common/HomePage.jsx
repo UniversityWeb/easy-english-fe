@@ -144,47 +144,47 @@ const Home = () => {
             </Button>
           </Box>
         </Flex>
-        <Box bg="gray.50" py={20} px={4} textAlign="center" marginTop={5}>
-          <VStack spacing={4} maxW="800px" mx="auto">
-            <Icon as={FaQuoteRight} color="blue.500" boxSize={12} mb={2} />
-            <Heading fontSize="3xl" fontWeight="bold" color="gray.800">
-              What Students Say
-            </Heading>
-            <HStack spacing={1} justifyContent="center">
-              {[...Array(5)].map((_, index) => (
-                <Icon key={index} as={FaStar} color="yellow.400" boxSize={6} />
-              ))}
-            </HStack>
-            <Text
-              fontSize="lg"
-              color="gray.600"
-              lineHeight="tall"
-              maxWidth="700px"
-            >
-              "Learning with EasyEnglish has truly transformed my language skills! The courses are engaging,
-              and the instructors are incredibly knowledgeable. Since joining,
-              I've gained so much confidence in speaking and understanding English.
-              I’ve already recommended EasyEnglish to my friends and colleagues,
-              and the feedback has been overwhelmingly positive.
-              This is truly the best place to learn English
-              and improve your communication for both professional and personal growth."
-            </Text>
-            <HStack spacing={6} mt={6}>
-              <Avatar
-                src="https://randomuser.me/api/portraits/men/1.jpg"
-                name="Student 1"
-              />
-              <Avatar
-                src="https://randomuser.me/api/portraits/men/2.jpg"
-                name="Student 2"
-              />
-              <Avatar
-                src="https://randomuser.me/api/portraits/women/1.jpg"
-                name="Student 3"
-              />
-            </HStack>
-          </VStack>
-        </Box>
+        {/*<Box bg="gray.50" py={20} px={4} textAlign="center" marginTop={5}>*/}
+        {/*  <VStack spacing={4} maxW="800px" mx="auto">*/}
+        {/*    <Icon as={FaQuoteRight} color="blue.500" boxSize={12} mb={2} />*/}
+        {/*    <Heading fontSize="3xl" fontWeight="bold" color="gray.800">*/}
+        {/*      What Students Say*/}
+        {/*    </Heading>*/}
+        {/*    <HStack spacing={1} justifyContent="center">*/}
+        {/*      {[...Array(5)].map((_, index) => (*/}
+        {/*        <Icon key={index} as={FaStar} color="yellow.400" boxSize={6} />*/}
+        {/*      ))}*/}
+        {/*    </HStack>*/}
+        {/*    <Text*/}
+        {/*      fontSize="lg"*/}
+        {/*      color="gray.600"*/}
+        {/*      lineHeight="tall"*/}
+        {/*      maxWidth="700px"*/}
+        {/*    >*/}
+        {/*      "Learning with EasyEnglish has truly transformed my language skills! The courses are engaging,*/}
+        {/*      and the instructors are incredibly knowledgeable. Since joining,*/}
+        {/*      I've gained so much confidence in speaking and understanding English.*/}
+        {/*      I’ve already recommended EasyEnglish to my friends and colleagues,*/}
+        {/*      and the feedback has been overwhelmingly positive.*/}
+        {/*      This is truly the best place to learn English*/}
+        {/*      and improve your communication for both professional and personal growth."*/}
+        {/*    </Text>*/}
+        {/*    <HStack spacing={6} mt={6}>*/}
+        {/*      <Avatar*/}
+        {/*        src="https://randomuser.me/api/portraits/men/1.jpg"*/}
+        {/*        name="Student 1"*/}
+        {/*      />*/}
+        {/*      <Avatar*/}
+        {/*        src="https://randomuser.me/api/portraits/men/2.jpg"*/}
+        {/*        name="Student 2"*/}
+        {/*      />*/}
+        {/*      <Avatar*/}
+        {/*        src="https://randomuser.me/api/portraits/women/1.jpg"*/}
+        {/*        name="Student 3"*/}
+        {/*      />*/}
+        {/*    </HStack>*/}
+        {/*  </VStack>*/}
+        {/*</Box>*/}
         {/* Why Choose Us Section */}
         <Box p={10} bg="white">
           <Flex

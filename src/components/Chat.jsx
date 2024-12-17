@@ -6,12 +6,11 @@ import {
   Flex,
   HStack,
   Icon,
-  IconButton,
   Image,
   Input,
   Text,
 } from '@chakra-ui/react';
-import { FiImage, FiSend } from 'react-icons/fi';
+import { FiSend } from 'react-icons/fi';
 import messageService from '~/services/messageService';
 import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
@@ -241,16 +240,19 @@ const Chat = ({ recipient, courseData }) => {
             }
           }}
         />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          style={{ display: 'none' }}
-          id="image-upload"
-        />
-        <label htmlFor="image-upload">
-          <IconButton as="span" icon={<FiImage />} colorScheme="teal" />
-        </label>
+
+        {/* Images Button */}
+        {/*<input*/}
+        {/*  type="file"*/}
+        {/*  accept="image/*"*/}
+        {/*  onChange={handleImageChange}*/}
+        {/*  style={{ display: 'none' }}*/}
+        {/*  id="image-upload"*/}
+        {/*/>*/}
+        {/*<label htmlFor="image-upload">*/}
+        {/*  <IconButton as="span" icon={<FiImage />} colorScheme="teal" />*/}
+        {/*</label>*/}
+
         <Button
           colorScheme="blue"
           onClick={() => sendMessage(MESSAGE_TYPES.TEXT)}
