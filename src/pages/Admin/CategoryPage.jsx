@@ -33,7 +33,7 @@ import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Import th
 
 // Hardcoded details for categories (to be used in API response)
 const defaultCategoryDetails = {
-  description: 'CategoryPage detail',
+  description: 'Category detail',
   courses: 10,
   earnings: '$1000',
   image: 'http://10.147.20.214:9000/easy-english/image/course2.jpg',
@@ -67,7 +67,6 @@ const CategoryPage = () => {
       if (fetchedCategories) {
         const enrichedCategories = fetchedCategories.map((category) => ({
           ...category,
-          ...defaultCategoryDetails,
         }));
         setCategories(enrichedCategories);
         setSearchResults(enrichedCategories); // Initialize search results
@@ -169,7 +168,7 @@ const CategoryPage = () => {
               onOpen();
             }}
           >
-            Add CategoryPage
+            Add Category
           </Button>
           <HStack>
             <Input
@@ -206,12 +205,6 @@ const CategoryPage = () => {
                   </Td>
                   <Td>
                     <HStack spacing={4}>
-                      <Image
-                        boxSize="40px"
-                        borderRadius="md"
-                        src={category.image}
-                        alt={category.name}
-                      />
                       <Box>
                         <Text fontWeight="bold">{category.name}</Text>
                         <Text fontSize="sm" color="gray.500">
@@ -269,9 +262,9 @@ const CategoryPage = () => {
             <ModalCloseButton />
             <ModalBody>
               <FormControl id="categoryName" isRequired>
-                <FormLabel>CategoryPage Name</FormLabel>
+                <FormLabel>Category Name</FormLabel>
                 <Input
-                  placeholder="CategoryPage Name"
+                  placeholder="Category Name"
                   value={categoryData.name}
                   onChange={(e) =>
                     setCategoryData({ ...categoryData, name: e.target.value })
@@ -279,9 +272,9 @@ const CategoryPage = () => {
                 />
               </FormControl>
               <FormControl id="categoryDescription" mt={4}>
-                <FormLabel>CategoryPage Description</FormLabel>
+                <FormLabel>Category Description</FormLabel>
                 <Input
-                  placeholder="CategoryPage Description"
+                  placeholder="Category Description"
                   value={categoryData.description}
                   onChange={(e) =>
                     setCategoryData({
