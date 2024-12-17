@@ -181,9 +181,13 @@ const Enrollment = () => {
                       <CourseCard
                         key={course.id}
                         course={course}
-                        onMakeFeatured={() =>
-                          navigate(config.routes.course_detail(course?.id))
-                        }
+                        onMakeFeatured={() => {
+                          navigate(config.routes.course_detail(course?.id), {
+                            state: {
+                              returnUrl: config.routes.course_management_for_teacher
+                            }
+                          });
+                        }}
                       />
                     ))
                   ) : (

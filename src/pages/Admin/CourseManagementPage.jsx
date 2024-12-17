@@ -179,7 +179,11 @@ const CourseManagement = () => {
                   key={course.id}
                   _hover={{ bg: 'gray.100', cursor: 'pointer' }}
                   onClick={() =>
-                    navigate(config.routes.course_detail(course?.id))
+                    navigate(config.routes.course_detail(course?.id), {
+                      state: {
+                        returnUrl: config.routes.course_management_for_admin
+                      }
+                    })
                   }
                 >
                   <Td>

@@ -65,8 +65,8 @@ const Home = () => {
               Start Investing in Your Future Today
             </Heading>
             <Text fontSize="xl" mb={6}>
-              Unlock knowledge and skills with over 1300 courses in 25 subjects
-              taught by the world's leading universities and brands.
+              Explore over 1300 English courses, from beginner to advanced levels, taught by top experts and prestigious universities.
+              Enhance your communication skills to excel in your career, studies abroad, and daily life.
             </Text>
           </Box>
         </Flex>
@@ -161,12 +161,13 @@ const Home = () => {
               lineHeight="tall"
               maxWidth="700px"
             >
-              The response to your MasterStudy has been really overwhelming!
-              Those who participated in the workshop are spreading the word here
-              on campus and the “buzz” is on. The VP of Instruction wants you to
-              come back! Her goal is to have more faculty trained. She also
-              wants to attend a workshop herself. Our President told me
-              Masterstudy needs to be the cornerstone of our success program.
+              "Learning with EasyEnglish has truly transformed my language skills! The courses are engaging,
+              and the instructors are incredibly knowledgeable. Since joining,
+              I've gained so much confidence in speaking and understanding English.
+              I’ve already recommended EasyEnglish to my friends and colleagues,
+              and the feedback has been overwhelmingly positive.
+              This is truly the best place to learn English
+              and improve your communication for both professional and personal growth."
             </Text>
             <HStack spacing={6} mt={6}>
               <Avatar
