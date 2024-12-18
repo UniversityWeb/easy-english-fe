@@ -324,7 +324,8 @@ function CourseDetailsPage() {
                 onClick={() => {
                   navigate(config.routes.chat, {
                     state: {
-                      course: courseData,
+                      returnUrl: config.routes.course_view_detail.replace(':courseId', courseData?.id),
+                      targetCourse: courseData,
                     },
                   });
                 }}

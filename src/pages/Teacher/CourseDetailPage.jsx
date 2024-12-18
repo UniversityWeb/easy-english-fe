@@ -10,7 +10,7 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 import { MdArrowBack } from 'react-icons/md';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';
 import Drip from '~/components/Teacher/CourseDetail/Drip';
 import Settings from '~/components/Teacher/CourseDetail/Setting';
@@ -25,13 +25,19 @@ function CourseDetailPage() {
   const { successToast, errorToast } = useCustomToast();
 
   const { courseId } = useParams(); // Extract courseId from URL
+  const { state } = useLocation();
+  const returnUrl = state?.returnUrl || config.routes.home[0];
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'Curriculum'; // Get active tab from query params
   const [courseTitle, setCourseTitle] = useState('');
   const navigate = useNavigate();
   const [courseStatus, setCourseStatus] = useState('');
   const handleBackClick = () => {
-    navigate(-1);
+    if (returnUrl) {
+      navigate(returnUrl);
+    } else {
+      navigate(-1);
+    }
   };
 
   const renderComponent = () => {

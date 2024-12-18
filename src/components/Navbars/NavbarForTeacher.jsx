@@ -31,11 +31,14 @@ const NavbarForTeacher = React.memo((props) => {
   const [notificationCount, setNotificationCount] = useState(0);
 
   const fetchUser = async () => {
+    setIsUserLoading(true);
     try {
       const user = await AuthService.getCurUser();
       setUser(user);
     } catch (e) {
       console.log(e?.message);
+    } finally {
+      setIsUserLoading(false);
     }
   };
 

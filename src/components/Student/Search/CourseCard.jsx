@@ -16,6 +16,7 @@ import { IoBookOutline } from 'react-icons/io5';
 import { PiStudent } from 'react-icons/pi';
 import { LuBarChart } from 'react-icons/lu';
 import { TbClockHour4 } from 'react-icons/tb';
+import { formatVNDMoney } from '~/utils/methods';
 const Rating = ({ rating }) => (
   <HStack spacing="1">
     {Array(5)
@@ -24,7 +25,7 @@ const Rating = ({ rating }) => (
         <StarIcon key={i} color={i < rating ? 'yellow.400' : 'gray.300'} />
       ))}
     <Text fontSize="sm" ml="2">
-      {rating || 'N/A'}
+      {rating || ''}
     </Text>
   </HStack>
 );
@@ -106,7 +107,7 @@ const CourseCard = ({
           <Flex justify="space-between" align="center" width="100%">
             <Rating rating={rating} />
             <Text fontWeight="bold" fontSize="lg" color="gray.700">
-              {price?.price ? `${price.price} VND` : 'Free'}
+              {price?.price ? `${formatVNDMoney(price.price)}` : 'Free'}
             </Text>
           </Flex>
 
