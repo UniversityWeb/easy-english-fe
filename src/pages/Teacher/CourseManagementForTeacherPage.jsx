@@ -159,7 +159,7 @@ const Enrollment = () => {
                 <TabList>
                   <Tab>
                     All{' '}
-                    {statusTab === 'All' || !statusTab && (
+                    {(statusTab === 'All' || (!statusTab)) && (
                       <Badge ml={2} colorScheme="blue">
                         {totalCourses}
                       </Badge>
