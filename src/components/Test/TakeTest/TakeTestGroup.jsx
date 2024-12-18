@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Image, List, ListItem, Text, VStack } from '@chakra-ui/react';
+import { Box, List, ListItem, Text, VStack } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import QuestionItem from '~/components/Test/Question/QuestionItem';
 

@@ -1,21 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  Input,
-  Flex,
-  FormControl,
-  FormLabel,
-  IconButton,
-  Switch,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, IconButton, Input, Switch } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import EditableQuestionGroup from '~/components/Test/EditableQuestionGroup';
 import questionGroupService from '~/services/questionGroupService';
 import useCustomToast from '~/hooks/useCustomToast';
 import testPartService from '~/services/testPartService';
 import CustomReactQuill from '~/components/CustomReactQuill';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [questionGroups, setQuestionGroups] = useState([]);

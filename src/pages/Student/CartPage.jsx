@@ -1,15 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Flex,
-  Image,
-  Text,
-  Button,
-  Heading,
-  Badge,
-  HStack,
-  Spinner,
-} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Badge, Box, Button, Flex, Heading, HStack, Image, Spinner, Text } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import cartService from '~/services/cartService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';

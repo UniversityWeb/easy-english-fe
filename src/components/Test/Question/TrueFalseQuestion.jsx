@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, RadioGroup, Radio, Text, VStack } from "@chakra-ui/react";
+import React, { useState } from 'react';
+import { Radio, RadioGroup, VStack } from '@chakra-ui/react';
 
 const TrueFalseQuestion = ({ question, onQuestionAnswered }) => {
   const [selectedOption, setSelectedOption] = useState('');

@@ -8,7 +8,7 @@ import {
   FormLabel,
   Heading,
   Image,
-  Input, Link,
+  Input,
   Stack,
   Text,
   VStack,
@@ -17,7 +17,7 @@ import { useState } from 'react';
 import config from '~/config';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import AuthService from '~/services/authService';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useCustomToast from '~/hooks/useCustomToast';
 import { OTP_LENGTH } from '~/utils/constants';
 

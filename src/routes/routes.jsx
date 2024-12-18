@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import { lazy } from 'react';
 import config from '~/config';
 
 const AddCoursePage = lazy(() => import('~/pages/Common/AddCoursePage'));

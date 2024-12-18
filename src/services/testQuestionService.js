@@ -1,4 +1,4 @@
-import { get, post, put, del, handleResponse } from '~/utils/httpRequest';
+import { del, get, handleResponse, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_TEST_QUESTION_API_URL = '/test-questions';
 

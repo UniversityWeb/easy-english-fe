@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Text, Checkbox, CheckboxGroup, Stack, Heading } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Checkbox, CheckboxGroup, Stack } from '@chakra-ui/react';
 
 const MultipleChoiceQuestion = ({ question, onQuestionAnswered }) => {
   const [selectedOptions, setSelectedOptions] = useState([]);

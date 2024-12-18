@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Flex,
-  RadioGroup,
-  Radio,
-  Button,
-  Input,
-  IconButton,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Input, Radio, RadioGroup, Text } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 
 const EditableSingleChoice = React.memo(({ question, onUpdateQuestionField }) => {

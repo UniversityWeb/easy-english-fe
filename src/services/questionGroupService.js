@@ -1,4 +1,4 @@
-import { get, post, put, del, handleResponse } from '~/utils/httpRequest';
+import { del, get, handleResponse, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_QUESTION_GROUP_API_URL = '/question-groups';
 

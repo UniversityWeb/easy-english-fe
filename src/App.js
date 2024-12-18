@@ -1,5 +1,5 @@
 import { Fragment, Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { publicRoutes } from '~/routes';
 import DefaultLayout from '~/layouts/DefaultLayout';
 import { ChakraProvider } from '@chakra-ui/react';

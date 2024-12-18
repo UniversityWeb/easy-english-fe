@@ -1,24 +1,7 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  Text,
-  Flex,
-  Grid,
-  Badge,
-  VStack,
-  Image,
-  Divider,
-  Container,
-} from '@chakra-ui/react';
+import { Badge, Box, Button, Container, Divider, Flex, Grid, Image, Text, VStack } from '@chakra-ui/react';
 import { Icon } from '@chakra-ui/icons';
-import {
-  FaLayerGroup,
-  FaUsers,
-  FaStar,
-  FaCertificate,
-  FaTrophy,
-} from 'react-icons/fa';
+import { FaCertificate, FaLayerGroup, FaStar, FaTrophy, FaUsers } from 'react-icons/fa';
 import Footer from '~/components/Footer';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 

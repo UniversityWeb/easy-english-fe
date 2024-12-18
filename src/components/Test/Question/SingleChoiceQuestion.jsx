@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Text, Radio, RadioGroup, Stack, Heading } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
 
 const SingleChoiceQuestion = ({ question, onQuestionAnswered }) => {
   const [selectedOption, setSelectedOption] = useState(null);

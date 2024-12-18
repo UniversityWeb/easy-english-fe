@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Flex,
-  Editable,
-  EditableInput,
-  EditablePreview,
-  RadioGroup,
-  Radio, Textarea, Input,
-} from '@chakra-ui/react';
+import { Box, Flex, Input, Radio, RadioGroup } from '@chakra-ui/react';
 
 const EditableTrueFalse = React.memo(({ question, onUpdateQuestionField }) => {
   const [correctAnswer, setCorrectAnswer] = useState("");

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Box, Input, VStack, HStack, Text } from "@chakra-ui/react";
+import React, { useState } from 'react';
+import { HStack, Input, Text, VStack } from '@chakra-ui/react';
 
 const FillBlankQuestion = ({ question, onQuestionAnswered }) => {
   // Extract parts using "___" as the delimiter

@@ -1,4 +1,4 @@
-import { getToken, isLoggedIn, removeLoginResponse, saveLoginResponse } from '~/utils/authUtils';
+import { getToken, isLoggedIn, saveLoginResponse } from '~/utils/authUtils';
 import { get, handleResponse, post, put } from '~/utils/httpRequest';
 import { USER_STATUSES } from '~/utils/constants';
 

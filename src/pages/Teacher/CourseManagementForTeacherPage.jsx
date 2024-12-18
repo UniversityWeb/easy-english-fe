@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Badge,
   Box,
-  Image,
-  Text,
-  Flex,
-  HStack,
-  VStack,
-  Input,
   Button,
-  Icon,
+  Flex,
   Grid,
   GridItem,
+  Heading,
+  Input,
   Skeleton,
   SkeletonText,
-  SkeletonCircle,
-  IconButton,
-  Divider,
-  Heading,
-  Tabs,
-  TabList,
-  TabPanels,
   Tab,
-  TabPanel, Badge,
+  TabList,
+  Tabs,
+  VStack,
 } from '@chakra-ui/react';
-import { TbClockHour4 } from 'react-icons/tb';
 //import { FiFilter } from 'react-icons/fi';
 import Pagination from '~/components/Student/Search/Page';
 import Filter from '~/components/Student/Search/Filter';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import enrollmentService from '~/services/enrollmentService';
 import config from '~/config';
 import courseService from '~/services/courseService';
 import CourseCard from '~/components/Teacher/CourseManagementForTeacher/CourseCard';

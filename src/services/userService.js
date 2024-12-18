@@ -1,4 +1,4 @@
-import { handleResponse, put, post, get } from '~/utils/httpRequest';
+import { handleResponse, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_USER_API_URL = '/users';
 

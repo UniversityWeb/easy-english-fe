@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Input, Grid, Text, IconButton, Button, Flex, Center } from '@chakra-ui/react';
-import { EditIcon, DeleteIcon, AddIcon, CheckIcon } from '@chakra-ui/icons';
-import { VerticalAlignCenter } from '@mui/icons-material';
+import { Box, Button, Flex, Grid, IconButton, Input, Text } from '@chakra-ui/react';
+import { AddIcon, CheckIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 const EditableMatching = ({ question, onUpdateQuestionField }) => {
   const [options, setOptions] = useState(question?.options || []);

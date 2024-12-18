@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  VStack,
-  Text,
-  HStack,
-  Icon,
-  Avatar,
-  Flex,
-} from '@chakra-ui/react';
-import { IoArrowBack } from "react-icons/io5";
-import servicesService from "~/services/messageService";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Avatar, Box, Flex, HStack, Icon, Text, VStack } from '@chakra-ui/react';
+import { IoArrowBack } from 'react-icons/io5';
+import servicesService from '~/services/messageService';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Chat from '~/components/Chat';
 import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';

@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Box,
+  Button,
   Flex,
-  Text,
-  VStack,
   HStack,
   Icon,
-  Button,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Spinner,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
-import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
+import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { FaCheckCircle, FaLock } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';

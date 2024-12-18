@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Flex,
-  CheckboxGroup,
-  Checkbox,
-  Button,
-  Input,
-  IconButton,
-  Text,
-  Textarea,
-} from '@chakra-ui/react';
-import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import { Box, Button, Checkbox, CheckboxGroup, Flex, IconButton, Input, Text, Textarea } from '@chakra-ui/react';
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 
 const EditableMultipleChoice = React.memo(({ question, onUpdateQuestionField }) => {
   const [options, setOptions] = useState([]);

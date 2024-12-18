@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  HStack,
-  VStack,
-  Text,
-  useDisclosure,
-  Collapse,
-} from '@chakra-ui/react';
+import { Box, Button, Collapse, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import { getParts, getQuestionRange } from '~/utils/testUtils';
 
 // PartSection Component

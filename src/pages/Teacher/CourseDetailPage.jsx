@@ -1,14 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  VStack,
-  Button,
-  Flex,
-  Heading,
-  Tab,
-  TabList,
-  Tabs,
-} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Flex, Heading, Tab, TabList, Tabs, VStack } from '@chakra-ui/react';
 import { MdArrowBack } from 'react-icons/md';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';

@@ -1,19 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  IconButton,
-  Icon,
-  Text,
-  VStack,
-  ChakraProvider,
-  HStack,
-  Container,
-} from '@chakra-ui/react';
+import { Box, Container, Flex, Heading, Icon, IconButton, VStack } from '@chakra-ui/react';
 import { BsEraserFill } from 'react-icons/bs';
-import { FaHighlighter, FaColumns, FaExpand } from 'react-icons/fa';
+import { FaHighlighter } from 'react-icons/fa';
 import TakeTestGroup from '~/components/Test/TakeTest/TakeTestGroup';
 import { getPart } from '~/utils/testUtils';
 import ReactQuill from 'react-quill';

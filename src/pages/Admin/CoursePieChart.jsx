@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Text } from '@chakra-ui/react';
-import {
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  Legend,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { Cell, Legend, Pie, PieChart as RechartsPieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 // Dữ liệu cho biểu đồ hình tròn
 const pieData = [

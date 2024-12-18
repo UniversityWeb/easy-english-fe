@@ -1,26 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
   FormControl,
   FormLabel,
-  Input,
-  Textarea,
-  RadioGroup,
-  Radio,
-  Stack,
   Grid,
   GridItem,
   Heading,
+  HStack,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Radio,
+  RadioGroup,
+  Spinner,
+  Stack,
   Text,
-  Spinner, InputGroup, InputRightElement, HStack,
+  Textarea,
 } from '@chakra-ui/react';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import userService from '~/services/userService';
 import UploadAvatar from '~/components/User/UploadAvatar';
 import AuthService from '~/services/authService';
-import useCustomToast from '~/hooks/useCustomToast';
 import authService from '~/services/authService';
+import useCustomToast from '~/hooks/useCustomToast';
 import VerifyOtpModal from '~/components/VerifyOtpModal';
 import { validatePassword } from '~/utils/methods';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';

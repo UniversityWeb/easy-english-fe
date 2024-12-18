@@ -1,15 +1,6 @@
-import React, { useState } from "react";
-import { Box, Text } from "@chakra-ui/react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import React, { useState } from 'react';
+import { Box, Text } from '@chakra-ui/react';
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const data = [
   { name: "May", course1: 50, course2: 20, course3: 10, course4: 40 },
