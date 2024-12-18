@@ -245,12 +245,11 @@ const Enrollment = () => {
                                 colorScheme="blue"
                                 width="full"
                                 onClick={() =>
-                                  navigate(
-                                    config.routes.learn(
-                                      course.id,
-                                      course.title,
-                                    ),
-                                  )
+                                  navigate(config.routes.learn(course.id, course.title), {
+                                    state: {
+                                      returnUrl: config.routes.enroll_course
+                                    }
+                                  })
                                 }
                               >
                                 {getButtonText(course.progress || 0)}

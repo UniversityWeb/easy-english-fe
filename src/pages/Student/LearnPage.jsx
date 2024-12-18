@@ -23,7 +23,7 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
@@ -82,6 +82,7 @@ const LessonItem = ({
 );
 
 const LearnPage = () => {
+  const { state } = useLocation();
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -91,9 +92,13 @@ const LearnPage = () => {
   const navigate = useNavigate();
   const itemRefs = useRef({});
 
-  const Navbar = () => {
+  const Navbar = ({state}) => {
     const handleBackClick = () => {
-      navigate(`/course-view-detail/${courseId}`);
+      if (state?.returnUrl) {
+        navigate(state?.returnUrl);
+      } else {
+        navigate(-1);
+      }
     };
 
     return (
@@ -426,7 +431,7 @@ const LearnPage = () => {
 
   return (
     <Flex direction="column" h="100vh">
-      <Navbar />
+      <Navbar state={state} />
       <Flex h="100vh" overflow="hidden">
         <Box
           w="30%"

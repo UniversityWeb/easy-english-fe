@@ -41,19 +41,24 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       setLoading(true);
-      const response = await reviewService.fetchReviewByCourse({
-        courseId: courseId,
-      });
-      if (response) {
-        setReviews(response);
-        if (response.length > 0) {
-          calculateAverageRating(response);
-        } else {
-          setAverageRating(0);
-          setRatingsCount({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+      try {
+        const response = await reviewService.fetchReviewByCourse({
+          courseId: courseId,
+        });
+        if (response) {
+          setReviews(response);
+          if (response.length > 0) {
+            calculateAverageRating(response);
+          } else {
+            setAverageRating(0);
+            setRatingsCount({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+          }
         }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchReviews();
   }, [courseId]);
@@ -81,28 +86,32 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
       user: username,
     };
 
-    const response = await reviewService.createReviewToCourse(reviewRequest);
+    try {
+      const response = await reviewService.createReviewToCourse(reviewRequest);
 
-    if (response) {
-      const updatedReviews = [
-        ...reviews,
-        {
-          ...newReview,
-          id: reviews.length + 1,
-          response: '',
-          showResponseInput: false,
-        },
-      ];
-      setReviews(updatedReviews);
-      setNewReview({ rating: 0, comment: '', owner: username });
-      setIsWritingReview(false);
+      if (response) {
+        const updatedReviews = [
+          ...reviews,
+          {
+            ...newReview,
+            id: reviews.length + 1,
+            response: '',
+            showResponseInput: false,
+          },
+        ];
+        setReviews(updatedReviews);
+        setNewReview({ rating: 0, comment: '', owner: username });
+        setIsWritingReview(false);
 
-      calculateAverageRating(updatedReviews);
-      if (onReviewUpdate) {
-        await onReviewUpdate();
+        calculateAverageRating(updatedReviews);
+        if (onReviewUpdate) {
+          await onReviewUpdate();
+        }
+      } else {
+        alert('Failed to submit the review. Please try again.');
       }
-    } else {
-      alert('Failed to submit the review. Please try again.');
+    } catch (e) {
+      console.error(e);
     }
   };
 
