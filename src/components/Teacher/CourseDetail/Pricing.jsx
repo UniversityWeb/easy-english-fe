@@ -13,7 +13,7 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import priceService from '~/services/priceService';
-import {formatVNDMoney} from '~/utils/methods';
+import { formatVNDMoney } from '~/utils/methods';
 import useCustomToast from '~/hooks/useCustomToast';
 
 const Price = React.memo(({ courseId }) => {
@@ -43,7 +43,6 @@ const Price = React.memo(({ courseId }) => {
             setForm({
               ...priceData,
             });
-            successToast('Price data loaded successfully.');
           }
         } catch (error) {
           errorToast('Error fetching price data.');
@@ -82,6 +81,11 @@ const Price = React.memo(({ courseId }) => {
 
     if (salePrice !== 0 && salePrice < 10000) {
       newErrors.salePrice = 'Sale price must be 0 or at least 10,000 VND.';
+    }
+
+    if (salePrice > price) {
+      newErrors.salePrice =
+        'Sale price cannot be greater than the regular price.';
     }
 
     setErrors(newErrors);

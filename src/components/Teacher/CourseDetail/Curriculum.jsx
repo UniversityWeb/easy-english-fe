@@ -351,6 +351,9 @@ const Curriculum = ({ courseId }) => {
           tests: section.tests.filter((test) => test.id !== testId),
         })),
       );
+      setSelectedLessonId(null);
+      setSelectedSectionItemType(null);
+      setSelectedSectionId(null);
       successToast('Test deleted');
     } catch (error) {
       errorToast('Error deleting test');
