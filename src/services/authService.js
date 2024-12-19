@@ -40,9 +40,14 @@ const register = async (registerRequest) => {
 };
 
 const logout = async () => {
-  const path = `${SUFFIX_AUTH_API_URL}/logout`;
-  const response = await post(path);
-  return handleResponse(response, 200);
+  try {
+    const path = `${SUFFIX_AUTH_API_URL}/logout`;
+    const response = await post(path);
+    return handleResponse(response, 200);
+  } catch (e) {
+    console.error(e);
+    return {};
+  }
 };
 
 const activeAccount = async (activeAccountRequest) => {
