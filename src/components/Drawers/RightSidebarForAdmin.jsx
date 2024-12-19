@@ -93,16 +93,16 @@ const RightSidebarForAdmin = React.memo((props) => {
               }
             />
 
-            <SidebarItem
-              icon={IoListOutline}
-              text="Categories"
-              handleClick={() => navigate(config.routes.category_for_admin)}
-            />
-            <SidebarItem
-              icon={IoBarChartOutline}
-              text="Topics And Levels"
-              handleClick={() => navigate(config.routes.topic_level_for_admin)}
-            />
+            {/*<SidebarItem*/}
+            {/*  icon={IoListOutline}*/}
+            {/*  text="Categories"*/}
+            {/*  handleClick={() => navigate(config.routes.category_for_admin)}*/}
+            {/*/>*/}
+            {/*<SidebarItem*/}
+            {/*  icon={IoBarChartOutline}*/}
+            {/*  text="Topics And Levels"*/}
+            {/*  handleClick={() => navigate(config.routes.topic_level_for_admin)}*/}
+            {/*/>*/}
 
             <SidebarItem
               icon={FaUserEdit}
