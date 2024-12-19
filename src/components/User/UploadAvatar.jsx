@@ -1,24 +1,24 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
-  Box,
-  Text,
-  Spinner,
   Avatar,
+  Box,
   Button,
   Modal,
-  ModalOverlay,
-  Image,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spinner,
+  Text,
 } from '@chakra-ui/react';
 import userService from '~/services/userService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { motion } from 'framer-motion';
 import ImagePreview from '~/components/ImagePreview';
+
 const MotionAvatar = motion(Avatar);
 
 const UploadAvatar = ({ user, setUser }) => {

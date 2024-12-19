@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Text, Spinner, Badge, Container, Image, Flex } from '@chakra-ui/react';
+import { Badge, Box, Container, Flex, Image, Spinner, Text } from '@chakra-ui/react';
 import orderService from '../../services/orderService';
 import { formatDate, formatVNDMoney } from '~/utils/methods';
 import StudentPageLayout from '~/components/StudentPageLayout';

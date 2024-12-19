@@ -1,27 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Image,
-  Text,
-  Flex,
-  HStack,
-  VStack,
-  Input,
   Button,
-  Icon,
+  Divider,
+  Flex,
   Grid,
   GridItem,
+  Heading,
+  HStack,
+  Icon,
+  Image,
+  Input,
   Skeleton,
   SkeletonText,
-  SkeletonCircle,
-  IconButton,
-  Divider,
-  Tabs,
-  Heading,
-  TabList,
-  TabPanels,
   Tab,
-  TabPanel,
+  TabList,
+  Tabs,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import { TbClockHour4 } from 'react-icons/tb';
 //import { FiFilter } from 'react-icons/fi';
@@ -90,13 +86,23 @@ const Enrollment = () => {
         rating: filterOptions.rating || null,
         topicId: filterOptions.topicId || null,
         levelId: filterOptions.levelId || null,
-        enrollmentStatus: statusTab === 'COMPLETED' ? null : statusTab,
-        ...(statusTab === 'COMPLETED' && { progress: 100 }),
       };
 
       const response = await enrollmentService.getEnrollByFilter(courseRequest);
       if (response) {
-        setCourses(response.content);
+        let filteredCourses = response.content;
+
+        if (statusTab === 'CONTINUE') {
+          filteredCourses = filteredCourses.filter(
+            (course) => course.progress > 0 && course.progress < 100,
+          );
+        } else if (statusTab === 'COMPLETED') {
+          filteredCourses = filteredCourses.filter(
+            (course) => course.progress === 100,
+          );
+        }
+
+        setCourses(filteredCourses);
         setTotalPages(response.totalPages);
       }
     } catch (error) {
@@ -159,12 +165,15 @@ const Enrollment = () => {
             <Flex direction="column" justify="space-between" height="100%">
               <Tabs
                 variant="enclosed"
-                onChange={
-                  (index) => setStatusTab(index === 0 ? 'ACTIVE' : 'COMPLETED') // Update statusTab based on selected tab
-                }
+                onChange={(index) => {
+                  if (index === 0) setStatusTab('ALL');
+                  else if (index === 1) setStatusTab('CONTINUE');
+                  else if (index === 2) setStatusTab('COMPLETED');
+                }}
               >
                 <TabList>
                   <Tab>All</Tab>
+                  <Tab>Continue</Tab>
                   <Tab>Completed</Tab>
                 </TabList>
               </Tabs>
@@ -236,12 +245,11 @@ const Enrollment = () => {
                                 colorScheme="blue"
                                 width="full"
                                 onClick={() =>
-                                  navigate(
-                                    config.routes.learn(
-                                      course.id,
-                                      course.title,
-                                    ),
-                                  )
+                                  navigate(config.routes.learn(course.id, course.title), {
+                                    state: {
+                                      returnUrl: config.routes.enroll_course
+                                    }
+                                  })
                                 }
                               >
                                 {getButtonText(course.progress || 0)}

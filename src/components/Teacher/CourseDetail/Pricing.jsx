@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  ChakraProvider,
   Box,
   Button,
-  Input,
   FormControl,
+  FormErrorMessage,
   FormLabel,
-  Switch,
   Grid,
   GridItem,
-  Text,
-  FormErrorMessage,
   HStack,
+  Input,
+  Text,
 } from '@chakra-ui/react';
 import priceService from '~/services/priceService';
+import { formatVNDMoney } from '~/utils/methods';
 import useCustomToast from '~/hooks/useCustomToast';
 
 const Price = React.memo(({ courseId }) => {
   const [form, setForm] = useState({
     id: '',
-    isActive: false,
+    isActive: true,
     price: '',
     salePrice: '',
     startDate: '',
@@ -43,7 +42,6 @@ const Price = React.memo(({ courseId }) => {
             setForm({
               ...priceData,
             });
-            successToast('Price data loaded successfully.');
           }
         } catch (error) {
           errorToast('Error fetching price data.');
@@ -84,6 +82,11 @@ const Price = React.memo(({ courseId }) => {
       newErrors.salePrice = 'Sale price must be 0 or at least 10,000 VND.';
     }
 
+    if (salePrice > price) {
+      newErrors.salePrice =
+        'Sale price cannot be greater than the regular price.';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Returns true if no errors
   };
@@ -110,13 +113,6 @@ const Price = React.memo(({ courseId }) => {
     }
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(value || 0);
-  };
-
   return (
     <HStack spacing={5} align="start" h="full" justify="center">
       <Box p="8" maxW="600px" mx="auto">
@@ -124,17 +120,6 @@ const Price = React.memo(({ courseId }) => {
           <Text>Loading...</Text>
         ) : (
           <>
-            <FormControl display="flex" alignItems="center" mb={4}>
-              <Switch
-                id="active-switch"
-                isChecked={form.isActive}
-                onChange={handleSwitchChange}
-              />
-              <FormLabel htmlFor="active-switch" ml={2}>
-                Active
-              </FormLabel>
-            </FormControl>
-
             <FormControl mb="4" isInvalid={!!errors.price}>
               <FormLabel>Price</FormLabel>
               <Input
@@ -146,7 +131,7 @@ const Price = React.memo(({ courseId }) => {
               />
               {form.price && (
                 <Text mt={1} fontSize="sm" color="gray.500">
-                  {formatCurrency(form.price)}
+                  {formatVNDMoney(form.price)}
                 </Text>
               )}
               <FormErrorMessage>{errors.price}</FormErrorMessage>
@@ -163,7 +148,7 @@ const Price = React.memo(({ courseId }) => {
               />
               {form.salePrice && (
                 <Text mt={1} fontSize="sm" color="gray.500">
-                  {formatCurrency(form.salePrice)}
+                  {formatVNDMoney(form.salePrice)}
                 </Text>
               )}
               <FormErrorMessage>{errors.salePrice}</FormErrorMessage>

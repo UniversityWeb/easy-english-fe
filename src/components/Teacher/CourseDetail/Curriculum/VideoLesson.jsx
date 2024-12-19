@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Input,
   FormControl,
   FormLabel,
-  Textarea,
-  Switch,
   Grid,
   GridItem,
-  Flex,
-  Text,
+  Input,
   Select,
+  Switch,
+  Textarea,
 } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -195,7 +193,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
             />
           </FormControl>
 
-          <FormControl display="flex" alignItems="center" mb={4}>
+          <FormControl display="none" alignItems="center" mb={4}>
             <Switch
               id="preview-switch"
               isChecked={lesson.isPreview}

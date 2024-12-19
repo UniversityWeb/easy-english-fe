@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Input,
+  Center,
   FormControl,
   FormLabel,
+  Heading,
+  Input,
+  Select as ChakraSelect,
   Switch,
   Textarea,
-  Select as ChakraSelect, Heading, Center,
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
@@ -195,7 +197,7 @@ const Setting = React.memo(({ courseId }) => {
         />
       </FormControl>
 
-      <FormControl mb="4">
+      <FormControl mb="4" display="none">
         <FormLabel>Course publish</FormLabel>
         <Switch
           isChecked={course.isPublish}
@@ -256,7 +258,7 @@ const Setting = React.memo(({ courseId }) => {
       </FormControl>
 
       <FormControl mb="4">
-        <FormLabel>Course duration</FormLabel>
+        <FormLabel>Course duration (minutes)</FormLabel>
         <Input
           placeholder="Enter course duration"
           value={course.duration}
@@ -265,6 +267,7 @@ const Setting = React.memo(({ courseId }) => {
       </FormControl>
 
       <VideoPicker
+    
         title={'Video'}
         videoPreview={course.videoPreview}
         setVideoPreview={(videoPreview) =>
@@ -324,7 +327,7 @@ const Setting = React.memo(({ courseId }) => {
         onClick={handleSubmit}
         isLoading={isSaving}
         isDisabled={isSaving}
-        loadingText={"Saving..."}
+        loadingText={'Saving...'}
       >
         {courseId ? 'Update Course' : 'Create Course'}
       </Button>

@@ -1,18 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  VStack,
-  Text,
-  HStack,
-  Icon,
-  Avatar,
-  Flex,
-  AvatarBadge,
-} from '@chakra-ui/react';
-import { IoArrowBack } from "react-icons/io5";
-import servicesService from "~/services/messageService";
-import { useNavigate, useLocation } from "react-router-dom";
-import config from "~/config";
+import React, { useEffect, useState } from 'react';
+import { Avatar, Box, Flex, HStack, Icon, Text, VStack } from '@chakra-ui/react';
+import { IoArrowBack } from 'react-icons/io5';
+import servicesService from '~/services/messageService';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Chat from '~/components/Chat';
 import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
@@ -22,7 +12,7 @@ import { getUsername } from '~/utils/authUtils';
 const ChatPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { courseData } = location.state || {}; // Retrieve course data from state
+  const { returnUrl, targetCourse } = location.state || {}; // Retrieve course data from state
   const [recentUsers, setRecentUsers] = useState([]);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
 
@@ -92,6 +82,8 @@ const ChatPage = () => {
       try {
         const response = await servicesService.getRecentChats(0, 10);
         setRecentUsers(response.content || []);
+
+        pickTargetTeacher();
       } catch (error) {
         console.error("Failed to fetch recent chats:", error);
       }
@@ -113,19 +105,22 @@ const ChatPage = () => {
     setSelectedRecipient(recipient);
   };
 
-  // Automatically open a chat with the course owner if `courseData` is provided
-  useEffect(() => {
-    if (courseData?.ownerUsername) {
-      handleRecipientSelect({
-        username: courseData.ownerUsername,
-        fullName: courseData.ownerUsername, // Update based on your data structure
-      });
+  const pickTargetTeacher = async () => {
+    if (targetCourse?.ownerUsername) {
+      setSelectedRecipient({
+        username: targetCourse.owner?.username,
+        fullName: targetCourse.owner?.fullName,
+      })
     }
-  }, [courseData]);
+  }
 
   const handleBack = () => {
     setSelectedRecipient(null);
-    navigate(config.routes.home[0]);
+    if (returnUrl) {
+      navigate(returnUrl);
+    } else {
+      navigate(-1);
+    }
   };
 
   return (
@@ -195,7 +190,7 @@ const ChatPage = () => {
       {/* Chat Window */}
       <Flex flex="1" direction="column" bg="gray.50">
         {selectedRecipient ? (
-          <Chat recipient={selectedRecipient} courseData={courseData} />
+          <Chat recipient={selectedRecipient} targetCourse={targetCourse} />
         ) : (
           <Flex
             flex="1"

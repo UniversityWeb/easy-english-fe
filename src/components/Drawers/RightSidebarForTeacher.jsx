@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import {
+  Avatar,
   Box,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  Image,
+  Skeleton,
   Text,
   VStack,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  DrawerFooter,
-  Avatar,
-  Skeleton,
-  Image,
 } from '@chakra-ui/react';
-import {
-  MdDashboard,
-  MdLogout,
-  MdAdd,
-  MdAnnouncement,
-  MdChat,
-} from 'react-icons/md';
+import { MdAdd, MdChat, MdDashboard, MdLogout } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import AuthService from '~/services/authService';
 import { IoBarChartOutline } from 'react-icons/io5';
-import { FaRegStar } from 'react-icons/fa';
 
 const menuItems = [
   {
@@ -41,11 +34,11 @@ const menuItems = [
     icon: IoBarChartOutline,
     route: config.routes.analytics_courses,
   },
-  {
-    label: 'Analyst Reviews',
-    icon: FaRegStar,
-    route: config.routes.analytics_reviews,
-  },
+  // {
+  //   label: 'Analyst Reviews',
+  //   icon: FaRegStar,
+  //   route: config.routes.analytics_reviews,
+  // },
 ];
 
 function RightSidebarForTeacher({ isOpen, onClose, user, isUserLoading }) {

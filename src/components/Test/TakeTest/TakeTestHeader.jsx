@@ -1,49 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
-  SimpleGrid,
-  IconButton,
   Button,
+  HStack,
+  IconButton,
+  SimpleGrid,
   Slider,
-  SliderTrack,
   SliderFilledTrack,
   SliderThumb,
-  Text,
-  HStack,
-  AlertDialog,
-  AlertDialogOverlay,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogBody,
-  AlertDialogFooter,
+  SliderTrack,
   Spinner,
+  Text,
 } from '@chakra-ui/react';
-import {
-  FaColumns,
-  FaCompress,
-  FaExpand,
-  FaPause,
-  FaPlay,
-} from 'react-icons/fa';
-import {
-  MdFullscreen,
-  MdFullscreenExit,
-  MdViewHeadline,
-  MdVolumeUp,
-} from 'react-icons/md';
+import { FaPause, FaPlay } from 'react-icons/fa';
+import { MdFullscreen, MdFullscreenExit, MdViewHeadline, MdVolumeUp } from 'react-icons/md';
 import { CiPaperplane } from 'react-icons/ci';
-import {
-  TbPlayerTrackPrevFilled,
-  TbPlayerTrackNextFilled,
-  TbLayoutColumns,
-} from 'react-icons/tb';
+import { TbLayoutColumns, TbPlayerTrackNextFilled, TbPlayerTrackPrevFilled } from 'react-icons/tb';
 import testResultService from '~/services/testResultService';
-import {
-  generateSubmitTestRequest,
-  getTest,
-  getCourseId,
-  clearSavedTest,
-} from '~/utils/testUtils';
+import { clearSavedTest, generateSubmitTestRequest, getCourseId, getTest } from '~/utils/testUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';

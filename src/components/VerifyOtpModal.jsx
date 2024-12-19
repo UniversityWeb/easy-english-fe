@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import {
   Button,
-  FormControl, FormLabel, Input,
+  FormControl,
+  FormLabel,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
-  ModalContent, ModalFooter,
+  ModalContent,
+  ModalFooter,
   ModalHeader,
-  ModalOverlay, Spinner,
+  ModalOverlay,
+  Spinner,
 } from '@chakra-ui/react';
 
 const VerifyOtpModal = ({ isOpen, onClose, isSubmitLoading, onOtpSubmitted }) => {

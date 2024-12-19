@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
-  VStack,
-  HStack,
   Button,
-  Textarea,
-  Input,
-  IconButton,
-  Text,
-  Heading,
   Collapse,
-  Spinner,
+  HStack,
+  IconButton,
+  Input,
   Modal,
-  ModalOverlay,
+  ModalBody,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  ModalOverlay,
+  Spinner,
+  Text,
+  Textarea,
+  VStack,
 } from '@chakra-ui/react';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
@@ -56,21 +54,28 @@ function Faq({ courseId }) {
 
   const handleAddQuestion = async () => {
     try {
-      if (newQuestion.trim() && newAnswer.trim()) {
-        const newFaq = await faqService.createFAQ({
-          question: newQuestion,
-          answer: newAnswer,
-          courseId,
-        });
-        if (newFaq) {
-          setQuestions((prevQuestions) => [
-            ...prevQuestions,
-            { ...newFaq, isOpen: false, isEditing: false, isHovered: false },
-          ]);
-          setNewQuestion('');
-          setNewAnswer('');
-          setIsAdding(false);
-        }
+      if (!newQuestion.trim()) {
+        errorToast('Question cannot be empty');
+        return;
+      }
+      if (!newAnswer.trim()) {
+        errorToast('Answer cannot be empty');
+        return;
+      }
+
+      const newFaq = await faqService.createFAQ({
+        question: newQuestion,
+        answer: newAnswer,
+        courseId,
+      });
+      if (newFaq) {
+        setQuestions((prevQuestions) => [
+          ...prevQuestions,
+          { ...newFaq, isOpen: false, isEditing: false, isHovered: false },
+        ]);
+        setNewQuestion('');
+        setNewAnswer('');
+        setIsAdding(false);
         successToast('Question added successfully');
       }
     } catch (error) {
@@ -115,6 +120,15 @@ function Faq({ courseId }) {
     updatedAnswer,
   ) => {
     try {
+      if (!updatedQuestion.trim()) {
+        errorToast('Question cannot be empty');
+        return;
+      }
+      if (!updatedAnswer.trim()) {
+        errorToast('Answer cannot be empty');
+        return;
+      }
+
       const faqToUpdate = questions[index];
       const updatedFaq = await faqService.updateFAQ({
         id: faqToUpdate.id,
@@ -135,8 +149,8 @@ function Faq({ courseId }) {
               : item,
           ),
         );
+        successToast('Question updated successfully');
       }
-      successToast('Question updated successfully');
     } catch (error) {
       errorToast('Error updating question');
     }

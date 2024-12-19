@@ -1,13 +1,5 @@
-import React, { useState } from 'react';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-  ModalBody,
-  Image,
-  Box,
-} from '@chakra-ui/react';
+import React from 'react';
+import { Box, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
 
 const ImagePreview = ({ isOpen, onClose, imageUrl }) => {
   return (

@@ -1,40 +1,27 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  VStack,
-  Text,
-  Image,
   Avatar,
+  Box,
   Drawer,
   DrawerBody,
+  DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  DrawerContent,
+  Image,
   Skeleton,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import styles from './Drawer.module.scss';
 import { useNavigate } from 'react-router-dom';
-import {
-  MdOutlineAssignment,
-  MdOutlineShoppingBag,
-  MdNotificationsNone,
-  MdLogout,
-  MdOutlineShoppingCart,
-} from 'react-icons/md';
-import { PiCertificate } from 'react-icons/pi';
-import {
-  IoBarChartOutline,
-  IoBookOutline,
-  IoChatbubbleEllipsesOutline,
-  IoListOutline,
-} from 'react-icons/io5';
+import { MdLogout } from 'react-icons/md';
+import { IoBarChartOutline, IoBookOutline, IoListOutline } from 'react-icons/io5';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
-import { FaRegStar } from 'react-icons/fa';
-import AuthService from '~/services/authService';
 import { FaUserEdit } from 'react-icons/fa';
+import AuthService from '~/services/authService';
 
 const RightSidebarForAdmin = React.memo((props) => {
   const user = props.user;
@@ -106,16 +93,16 @@ const RightSidebarForAdmin = React.memo((props) => {
               }
             />
 
-            <SidebarItem
-              icon={IoListOutline}
-              text="Categories"
-              handleClick={() => navigate(config.routes.category_for_admin)}
-            />
-            <SidebarItem
-              icon={IoBarChartOutline}
-              text="Topics And Levels"
-              handleClick={() => navigate(config.routes.topic_level_for_admin)}
-            />
+            {/*<SidebarItem*/}
+            {/*  icon={IoListOutline}*/}
+            {/*  text="Categories"*/}
+            {/*  handleClick={() => navigate(config.routes.category_for_admin)}*/}
+            {/*/>*/}
+            {/*<SidebarItem*/}
+            {/*  icon={IoBarChartOutline}*/}
+            {/*  text="Topics And Levels"*/}
+            {/*  handleClick={() => navigate(config.routes.topic_level_for_admin)}*/}
+            {/*/>*/}
 
             <SidebarItem
               icon={FaUserEdit}

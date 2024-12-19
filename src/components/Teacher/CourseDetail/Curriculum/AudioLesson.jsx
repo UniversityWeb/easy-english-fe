@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Input,
   FormControl,
   FormLabel,
-  Textarea,
-  Switch,
   Grid,
   GridItem,
-  Flex,
-  Text,
+  Input,
   Select,
+  Switch,
+  Textarea,
 } from '@chakra-ui/react';
 import 'react-quill/dist/quill.snow.css';
 import lessonService from '~/services/lessonService';
@@ -208,7 +206,7 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
             />
           </FormControl>
 
-          <FormControl display="flex" alignItems="center" mb={4}>
+          <FormControl  display="none" alignItems="center" mb={4} >
             <Switch
               id="preview-switch"
               isChecked={lesson.isPreview}
@@ -216,7 +214,7 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
                 setLesson({ ...lesson, isPreview: e.target.checked })
               }
             />
-            <FormLabel htmlFor="preview-switch" ml={2}>
+            <FormLabel htmlFor="preview-switch" ml={2} >
               Enable Preview
             </FormLabel>
           </FormControl>

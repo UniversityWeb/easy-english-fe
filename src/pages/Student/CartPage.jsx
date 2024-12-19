@@ -1,17 +1,7 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Flex,
-  Image,
-  Text,
-  Button,
-  Heading,
-  Badge,
-  HStack,
-  Spinner,
-} from "@chakra-ui/react";
-import useCustomToast from "~/hooks/useCustomToast";
-import cartService from "~/services/cartService";
+import React, { useEffect, useState } from 'react';
+import { Badge, Box, Button, Flex, Heading, HStack, Image, Spinner, Text } from '@chakra-ui/react';
+import useCustomToast from '~/hooks/useCustomToast';
+import cartService from '~/services/cartService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { formatVNDMoney } from '~/utils/methods';
 import paymentService from '~/services/paymentService';
@@ -37,7 +27,7 @@ const CartPage = () => {
       setCart(data);
     } catch (error) {
       console.error(error.message);
-      errorToast("Failed to fetch cart data.");
+      errorToast('Failed to fetch cart data.');
     } finally {
       setLoading(false);
     }
@@ -46,11 +36,11 @@ const CartPage = () => {
   const handleRemoveItem = async (courseId) => {
     try {
       await cartService.removeItemFromCart(courseId);
-      successToast("Course removed from cart.");
+      successToast('Course removed from cart.');
       fetchCart(); // Refresh cart data
     } catch (error) {
       console.error(error.message);
-      errorToast("Error removing course from cart.");
+      errorToast('Error removing course from cart.');
     }
   };
 
@@ -73,7 +63,12 @@ const CartPage = () => {
           return;
         }
 
-        navigate(config.routes.order_detail.replace(':orderId', paymentResponse?.orderId));
+        navigate(
+          config.routes.order_detail.replace(
+            ':orderId',
+            paymentResponse?.orderId,
+          ),
+        );
         return;
       }
       window.location.href = paymentResponse?.paymentUrl;
@@ -117,8 +112,8 @@ const CartPage = () => {
               {/* Left Side - Course Cards */}
               <Box flex="1" pr={8}>
                 <Text fontSize="lg" mb={4}>
-                  {cart.items.length} {cart.items.length > 1 ? "Courses" : "Course"} in
-                  Cart
+                  {cart.items.length}{' '}
+                  {cart.items.length > 1 ? 'Courses' : 'Course'} in Cart
                 </Text>
 
                 {cart.items.map((item) => {
@@ -137,13 +132,24 @@ const CartPage = () => {
                     discountPercent,
                   } = item;
 
-                  const discountedPrice = calculateDiscountedPrice(price, discountPercent);
+                  const discountedPrice = calculateDiscountedPrice(
+                    price,
+                    discountPercent,
+                  );
 
                   return (
-                    <Box key={id} borderWidth="1px" borderRadius="md" p={4} mb={4}>
+                    <Box
+                      key={id}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      p={4}
+                      mb={4}
+                    >
                       <Flex align="center" mb={4}>
                         <Image
-                          src={imagePreview || "https://via.placeholder.com/150"}
+                          src={
+                            imagePreview || 'https://via.placeholder.com/150'
+                          }
                           alt={title}
                           boxSize="100px"
                           objectFit="cover"
@@ -151,25 +157,37 @@ const CartPage = () => {
                           mr={4}
                         />
                         <Box>
-                          <Text fontWeight="bold" fontSize="lg">
+                          <Text
+                            fontWeight="bold"
+                            fontSize="lg"
+                            minWidth="370px"
+                          >
                             {title}
                           </Text>
                           <Text fontSize="sm" color="gray.500">
                             By {ownerUsername}
                           </Text>
-                          <Badge colorScheme="green" mt={2} visibility={countStudent || countStudent === 0}>
+                          <Badge
+                            colorScheme="green"
+                            mt={2}
+                            visibility={countStudent || countStudent === 0}
+                          >
                             {countStudent} Students
                           </Badge>
                           <Text mt={1}>
-                            <strong>{rating.toFixed(1)}</strong> ⭐️ ({ratingCount}{" "}
-                            ratings)
+                            <strong>{rating.toFixed(1)}</strong> ⭐️ (
+                            {ratingCount} ratings)
                           </Text>
                           <Text fontSize="sm" color="gray.500">
                             {duration} total hours
                           </Text>
                         </Box>
                         <Box ml="auto" textAlign="right">
-                          <Text color="purple.600" fontWeight="bold" fontSize="lg">
+                          <Text
+                            color="purple.600"
+                            fontWeight="bold"
+                            fontSize="lg"
+                          >
                             đ{discountedPrice.toLocaleString()}
                           </Text>
                           {discountPercent > 0 && (
@@ -201,14 +219,18 @@ const CartPage = () => {
                 <Text fontSize="3xl" color="purple.600" fontWeight="bold">
                   {formatVNDMoney(cart?.totalAmount || 0)}
                 </Text>
-                <Button colorScheme="purple" w="full" mt={4} onClick={handleCheckout}>
+                <Button
+                  colorScheme="purple"
+                  w="full"
+                  mt={4}
+                  onClick={handleCheckout}
+                >
                   Checkout
                 </Button>
               </Box>
             </Flex>
           </>
         )}
-
       </Box>
     </RoleBasedPageLayout>
   );

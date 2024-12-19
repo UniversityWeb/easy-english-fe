@@ -11,8 +11,6 @@ import {
   FormLabel,
   Heading,
   IconButton,
-  Input,
-  Switch,
   Tab,
   TabList,
   TabPanel,
@@ -27,7 +25,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import questionGroupService from '~/services/questionGroupService';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 import CustomReactQuill from '~/components/CustomReactQuill';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 const EditableQuestionGroup = React.memo(
   ({ index, group, onRemoveGroup, onReloadGroups }) => {

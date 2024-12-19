@@ -1,15 +1,31 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Box, Button, Table, Thead, Tbody, Tr, Th, Td, Input, VStack, HStack, Text, Skeleton, Icon, Flex, InputGroup, InputLeftElement
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Skeleton,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  VStack,
 } from '@chakra-ui/react';
-import { FaSearch, FaFilter, FaBan, FaRedo } from 'react-icons/fa';
+import { FaBan, FaFilter, FaRedo, FaSearch } from 'react-icons/fa';
 import { websocketConstants } from '~/utils/websocketConstants';
 import testResultService from '~/services/testResultService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { TEST_RESULT_STATUSES } from '~/utils/constants';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
 import WebSocketService from '~/services/websocketService';
 
 const TestResultTable = ({ testId, courseId }) => {

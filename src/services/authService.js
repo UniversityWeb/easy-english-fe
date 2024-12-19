@@ -1,4 +1,4 @@
-import { getToken, isLoggedIn, removeLoginResponse, saveLoginResponse } from '~/utils/authUtils';
+import { getToken, isLoggedIn, saveLoginResponse } from '~/utils/authUtils';
 import { get, handleResponse, post, put } from '~/utils/httpRequest';
 import { USER_STATUSES } from '~/utils/constants';
 
@@ -40,9 +40,14 @@ const register = async (registerRequest) => {
 };
 
 const logout = async () => {
-  const path = `${SUFFIX_AUTH_API_URL}/logout`;
-  const response = await post(path);
-  return handleResponse(response, 200);
+  try {
+    const path = `${SUFFIX_AUTH_API_URL}/logout`;
+    const response = await post(path);
+    return handleResponse(response, 200);
+  } catch (e) {
+    console.error(e);
+    return {};
+  }
 };
 
 const activeAccount = async (activeAccountRequest) => {

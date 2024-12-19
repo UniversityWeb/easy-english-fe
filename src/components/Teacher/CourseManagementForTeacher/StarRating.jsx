@@ -1,5 +1,5 @@
 import { Box, Icon } from '@chakra-ui/react';
-import { FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa';
+import { FaRegStar, FaStar, FaStarHalfAlt } from 'react-icons/fa';
 
 const StarRating = ({ rating }) => {
   const stars = [];

@@ -5,13 +5,13 @@ import {
   Button,
   Container,
   Flex,
+  Image,
   Skeleton,
   Stack,
   Tab,
   TabList,
   Tabs,
   Text,
-  Image,
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';

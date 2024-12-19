@@ -1,16 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  VStack,
-  Button,
-  Flex,
-  Heading,
-  Tab,
-  TabList,
-  Tabs,
-} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Flex, Heading, Tab, TabList, Tabs, VStack } from '@chakra-ui/react';
 import { MdArrowBack } from 'react-icons/md';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';
 import Drip from '~/components/Teacher/CourseDetail/Drip';
 import Settings from '~/components/Teacher/CourseDetail/Setting';
@@ -19,16 +10,25 @@ import FAQ from '~/components/Teacher/CourseDetail/Faq';
 import Notice from '~/components/Teacher/CourseDetail/Notice';
 import config from '~/config';
 import courseService from '~/services/courseService';
+import useCustomToast from '~/hooks/useCustomToast';
 
 function CourseDetailPage() {
+  const { successToast, errorToast } = useCustomToast();
+
   const { courseId } = useParams(); // Extract courseId from URL
+  const { state } = useLocation();
+  const returnUrl = state?.returnUrl || config.routes.home[0];
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'Curriculum'; // Get active tab from query params
   const [courseTitle, setCourseTitle] = useState('');
   const navigate = useNavigate();
-
+  const [courseStatus, setCourseStatus] = useState('');
   const handleBackClick = () => {
-    navigate(-1);
+    if (returnUrl) {
+      navigate(returnUrl);
+    } else {
+      navigate(-1);
+    }
   };
 
   const renderComponent = () => {
@@ -58,6 +58,7 @@ function CourseDetailPage() {
           const data = await courseService.fetchMainCourse(courseRequest);
           if (data) {
             setCourseTitle(data.title || 'Course Detail'); // Set course title from API
+            setCourseStatus(data.status);
           }
         } catch (error) {
           console.error('Error fetching course data.', error);
@@ -142,13 +143,45 @@ function CourseDetailPage() {
           </TabList>
         </Tabs>
 
-        <Button colorScheme="blue" variant="solid" mr="4">
-          Published
+        <Button
+          colorScheme="blue"
+          variant="solid"
+          mr="4"
+          ml="4"
+          isDisabled={courseStatus !== 'DRAFT' && courseStatus !== 'PUBLISHED'}
+          onClick={async () => {
+            try {
+              if (courseStatus === 'DRAFT') {
+                await courseService.updateCourseStatus(
+                  courseId,
+                  'PENDING_APPROVAL',
+                );
+                successToast('Send for request publish course successfully.');
+                setCourseStatus('PENDING_APPROVAL');
+              } else if (courseStatus === 'PUBLISHED') {
+                await courseService.updateCourseStatus(courseId, 'DRAFT');
+                successToast('Unpublish course successfully.');
+                setCourseStatus('DRAFT');
+              }
+            } catch (error) {
+              console.error('Error updating course status:', error);
+            }
+          }}
+        >
+          {courseStatus === 'PUBLISHED'
+            ? 'UnPublish'
+            : courseStatus === 'DRAFT'
+              ? 'Request Publish'
+              : courseStatus === 'PENDING_APPROVAL'
+                ? 'Pending Approval'
+                : courseStatus === 'REJECTED'
+                  ? 'Rejected'
+                  : 'Unknown Status'}
         </Button>
         <Button
           colorScheme="blue"
           variant="solid"
-          onClick={() => navigate(`/course/view/${courseId}`)}
+          onClick={() => navigate(`/course-view-detail/${courseId}`)}
         >
           View
         </Button>

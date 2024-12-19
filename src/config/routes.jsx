@@ -30,6 +30,7 @@ const routes = {
   user_management: '/admin/user-management',
   chat: '/chat',
   course_management_for_admin: '/admin/course-management',
+  homepage: '/homepage/',
 };
 
 export default routes;

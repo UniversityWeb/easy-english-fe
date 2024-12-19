@@ -1,26 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Heading,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Avatar,
-  Select,
+  Box,
   Button,
+  Flex,
+  Heading,
   IconButton,
   Input,
+  Select,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
   useToast,
-  Flex,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
 } from '@chakra-ui/react';
-import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import courseService from '~/services/courseService'; // Import the service
@@ -179,7 +174,11 @@ const CourseManagement = () => {
                   key={course.id}
                   _hover={{ bg: 'gray.100', cursor: 'pointer' }}
                   onClick={() =>
-                    navigate(config.routes.course_detail(course?.id))
+                    navigate(config.routes.course_detail(course?.id), {
+                      state: {
+                        returnUrl: config.routes.course_management_for_admin
+                      }
+                    })
                   }
                 >
                   <Td>
@@ -189,15 +188,20 @@ const CourseManagement = () => {
                   <Td>{course.descriptionPreview}</Td>
                   <Td>{course.duration}</Td>
                   <Td>{course.countView}</Td>
-                  <Td>{course.duration}</Td>
                   <Td>
                     {new Intl.DateTimeFormat('en-US', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
                     }).format(new Date(course.createdAt))}
+                  </Td>{' '}
+                  <Td>
+                    {new Intl.DateTimeFormat('en-US', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    }).format(new Date(course.updateAt))}
                   </Td>
-
                   <Td>
                     <Select
                       placeholder="Select status"

@@ -1,4 +1,4 @@
-import { handleResponse, get, post, put } from '~/utils/httpRequest'; // Removed unused imports
+import { get, handleResponse, post, put } from '~/utils/httpRequest'; // Removed unused imports
 
 const SUFFIX_COURSE_API_URL = '/course';
 

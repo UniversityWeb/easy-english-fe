@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack, Text } from '@chakra-ui/react';
+import { Box, Text, VStack } from '@chakra-ui/react';
 import QuestionItem from '~/components/Test/Question/QuestionItem';
 
 class TestPart {

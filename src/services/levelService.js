@@ -1,4 +1,5 @@
-import { get, post, put, del } from '~/utils/httpRequest';
+import { del, get, post, put } from '~/utils/httpRequest';
+
 const SUFFIX_LEVEL_API_URL = '/levels';
 
 const fetchAllLevelByTopic = async (levelRequest) => {

@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  VStack,
-  Text,
-  Button,
-  useToast,
-  Stack,
-  FormControl,
-  FormLabel,
-} from '@chakra-ui/react';
+import { Box, Button, FormControl, useToast, VStack } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import courseService from '~/services/courseService';

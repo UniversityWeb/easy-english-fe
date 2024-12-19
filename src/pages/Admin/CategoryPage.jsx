@@ -1,39 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Checkbox,
-  IconButton,
   Box,
-  Text,
-  Image,
-  HStack,
-  Input,
-  VStack,
   Button,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Checkbox,
   FormControl,
   FormLabel,
+  HStack,
+  IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import Pagination from '~/components/Student/Search/Page'; // Import the Pagination component
 import categoryService from '~/services/categoryService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Import the category service
 
 // Hardcoded details for categories (to be used in API response)
 const defaultCategoryDetails = {
-  description: 'CategoryPage detail',
+  description: 'Category detail',
   courses: 10,
   earnings: '$1000',
   image: 'http://10.147.20.214:9000/easy-english/image/course2.jpg',
@@ -67,7 +65,6 @@ const CategoryPage = () => {
       if (fetchedCategories) {
         const enrichedCategories = fetchedCategories.map((category) => ({
           ...category,
-          ...defaultCategoryDetails,
         }));
         setCategories(enrichedCategories);
         setSearchResults(enrichedCategories); // Initialize search results
@@ -169,7 +166,7 @@ const CategoryPage = () => {
               onOpen();
             }}
           >
-            Add CategoryPage
+            Add Category
           </Button>
           <HStack>
             <Input
@@ -206,12 +203,6 @@ const CategoryPage = () => {
                   </Td>
                   <Td>
                     <HStack spacing={4}>
-                      <Image
-                        boxSize="40px"
-                        borderRadius="md"
-                        src={category.image}
-                        alt={category.name}
-                      />
                       <Box>
                         <Text fontWeight="bold">{category.name}</Text>
                         <Text fontSize="sm" color="gray.500">
@@ -269,9 +260,9 @@ const CategoryPage = () => {
             <ModalCloseButton />
             <ModalBody>
               <FormControl id="categoryName" isRequired>
-                <FormLabel>CategoryPage Name</FormLabel>
+                <FormLabel>Category Name</FormLabel>
                 <Input
-                  placeholder="CategoryPage Name"
+                  placeholder="Category Name"
                   value={categoryData.name}
                   onChange={(e) =>
                     setCategoryData({ ...categoryData, name: e.target.value })
@@ -279,9 +270,9 @@ const CategoryPage = () => {
                 />
               </FormControl>
               <FormControl id="categoryDescription" mt={4}>
-                <FormLabel>CategoryPage Description</FormLabel>
+                <FormLabel>Category Description</FormLabel>
                 <Input
-                  placeholder="CategoryPage Description"
+                  placeholder="Category Description"
                   value={categoryData.description}
                   onChange={(e) =>
                     setCategoryData({

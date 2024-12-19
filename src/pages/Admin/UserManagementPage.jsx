@@ -1,31 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Box,
-  Heading,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Avatar,
-  Select,
+  Box,
   Button,
+  Flex,
+  Heading,
   IconButton,
   Input,
-  useToast,
-  Flex,
   Modal,
-  ModalOverlay,
   ModalContent,
-  ModalCloseButton,
+  Select,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useToast,
 } from '@chakra-ui/react';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
 import ProfileEdit from '~/components/Admin/UserManagement/UserDetail';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import userService from '~/services/userService'; // Import the service
-import { size } from 'lodash';
 import Pagination from '~/components/Student/Search/Page';
 import useCustomToast from '~/hooks/useCustomToast';
 

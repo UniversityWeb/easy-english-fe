@@ -1,23 +1,11 @@
-import React, { useState } from "react";
-import {
-    Box,
-    Image,
-    Text,
-    Flex,
-    HStack,
-    Button,
-    Icon,
-    VStack,
-    Divider,
-} from "@chakra-ui/react";
-import { StarIcon } from "@chakra-ui/icons";
-import { ChakraProvider } from '@chakra-ui/react';
-import { IoBookOutline } from "react-icons/io5";
-import { FaHeart } from "react-icons/fa";
-import { LuBarChart } from "react-icons/lu";
-import { TbClockHour4 } from "react-icons/tb";
-import { LuEye } from "react-icons/lu";
-import { PiStudent } from "react-icons/pi";
+import React, { useState } from 'react';
+import { Box, Button, ChakraProvider, Divider, Flex, HStack, Icon, Image, Text, VStack } from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
+import { IoBookOutline } from 'react-icons/io5';
+import { FaHeart } from 'react-icons/fa';
+import { LuBarChart, LuEye } from 'react-icons/lu';
+import { TbClockHour4 } from 'react-icons/tb';
+import { PiStudent } from 'react-icons/pi';
 
 const courses = [
     {

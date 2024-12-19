@@ -1,27 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Text,
-  Heading,
-  VStack,
-  HStack,
-  Badge,
+  Button,
+  Container,
   Divider,
+  Flex,
+  Heading,
+  HStack,
+  Icon,
   List,
   ListItem,
   Spinner,
-  Button,
-  Icon,
-  Flex, Container,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
-import { FaCheckCircle, FaTimesCircle, FaRedoAlt } from 'react-icons/fa';
-import {
-  HiOutlineQuestionMarkCircle,
-  HiOutlineCheckCircle,
-  HiOutlineTrophy,
-  HiOutlineClock,
-} from 'react-icons/hi2';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FaRedoAlt, FaTimesCircle } from 'react-icons/fa';
+import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineQuestionMarkCircle, HiOutlineTrophy } from 'react-icons/hi2';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import testResultService from '~/services/testResultService';
 import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
 import config from '~/config';

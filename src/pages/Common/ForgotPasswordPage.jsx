@@ -3,14 +3,16 @@ import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Button,
+  FormControl,
+  FormLabel,
   Heading,
-  Input,
-  Text,
-  Link,
   HStack,
   IconButton,
-  FormControl,
-  FormLabel, InputGroup, InputRightElement,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Link,
+  Text,
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import authService from '~/services/authService';

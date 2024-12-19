@@ -1,12 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Box,
-  Input,
-  Flex,
-  Text,
-} from '@chakra-ui/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Flex, Input, Text } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
-import { Editor, EditorState, convertToRaw, ContentState } from 'draft-js';
+import { ContentState, convertToRaw, Editor, EditorState } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 
 const EditableFillBlank = ({ question, onUpdateQuestionField }) => {

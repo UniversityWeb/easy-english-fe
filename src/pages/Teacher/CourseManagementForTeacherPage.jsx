@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Badge,
   Box,
-  Image,
-  Text,
-  Flex,
-  HStack,
-  VStack,
-  Input,
   Button,
-  Icon,
+  Flex,
   Grid,
   GridItem,
+  Heading,
+  Input,
   Skeleton,
   SkeletonText,
-  SkeletonCircle,
-  IconButton,
-  Divider,
-  Heading,
-  Tabs,
-  TabList,
-  TabPanels,
   Tab,
-  TabPanel,
+  TabList,
+  Tabs,
+  VStack,
 } from '@chakra-ui/react';
-import { TbClockHour4 } from 'react-icons/tb';
 //import { FiFilter } from 'react-icons/fi';
 import Pagination from '~/components/Student/Search/Page';
 import Filter from '~/components/Student/Search/Filter';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import enrollmentService from '~/services/enrollmentService';
 import config from '~/config';
 import courseService from '~/services/courseService';
 import CourseCard from '~/components/Teacher/CourseManagementForTeacher/CourseCard';
@@ -65,6 +55,7 @@ const Enrollment = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCourses, setTotalCourses] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   //const [showFilter, setShowFilter] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
@@ -100,6 +91,7 @@ const Enrollment = () => {
       if (response) {
         setCourses(response.content);
         setTotalPages(response.totalPages);
+        setTotalCourses(response.totalElements);
       }
     } catch (error) {
       console.error('Error fetching enroll courses:', error);
@@ -165,11 +157,46 @@ const Enrollment = () => {
                 }}
               >
                 <TabList>
-                  <Tab>All</Tab>
-                  <Tab>PUBLISHED</Tab>
-                  <Tab>PENDING_APPROVAL</Tab>
-                  <Tab>REJECTED</Tab>
-                  <Tab>DRAFT</Tab>
+                  <Tab>
+                    All{' '}
+                    {(statusTab === 'All' || (!statusTab)) && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    PUBLISHED{' '}
+                    {statusTab === 'PUBLISHED' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    PENDING_APPROVAL{' '}
+                    {statusTab === 'PENDING_APPROVAL' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    REJECTED{' '}
+                    {statusTab === 'REJECTED' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
+                  <Tab>
+                    DRAFT{' '}
+                    {statusTab === 'DRAFT' && (
+                      <Badge ml={2} colorScheme="blue">
+                        {totalCourses}
+                      </Badge>
+                    )}
+                  </Tab>
                 </TabList>
               </Tabs>
               {loading ? (
@@ -181,9 +208,13 @@ const Enrollment = () => {
                       <CourseCard
                         key={course.id}
                         course={course}
-                        onMakeFeatured={() =>
-                          navigate(config.routes.course_detail(course?.id))
-                        }
+                        onMakeFeatured={() => {
+                          navigate(config.routes.course_detail(course?.id), {
+                            state: {
+                              returnUrl: config.routes.course_management_for_teacher
+                            }
+                          });
+                        }}
                       />
                     ))
                   ) : (

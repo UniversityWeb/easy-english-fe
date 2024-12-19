@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavbarForTeacher from './NavbarForTeacher';
 import AuthService from '~/services/authService';
 import { useNavigate } from 'react-router-dom';

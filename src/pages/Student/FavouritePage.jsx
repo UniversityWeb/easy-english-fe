@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Image,
-  Text,
-  Flex,
-  HStack,
-  VStack,
-  Input,
   Button,
-  Icon,
+  Flex,
   Grid,
   GridItem,
+  Heading,
+  HStack,
+  Icon,
+  Image,
+  Input,
   Skeleton,
   SkeletonText,
-  SkeletonCircle,
-  IconButton,
-  Heading,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
@@ -27,8 +25,8 @@ import Filter from '~/components/Student/Search/Filter';
 import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import { FiFilter } from 'react-icons/fi';
 import useCustomToast from '~/hooks/useCustomToast';
+import { formatVNDMoney } from '~/utils/methods';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -233,8 +231,8 @@ const Wishlist = () => {
                                 color="gray.700"
                               >
                                 {course.price?.salePrice > 0
-                                  ? `${course.price.salePrice} VND`
-                                  : `${course.price.price} VND`}
+                                  ? `${formatVNDMoney(course.price.salePrice)}`
+                                  : `${formatVNDMoney(course.price.price)}`}
                               </Text>
                             </Flex>
 

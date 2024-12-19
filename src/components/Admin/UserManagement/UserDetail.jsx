@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Flex,
   Avatar,
-  Text,
-  Heading,
+  Box,
   Button,
-  Input,
+  Flex,
   FormControl,
   FormLabel,
-  Select,
   Grid,
   GridItem,
+  Heading,
   IconButton,
+  Input,
+  Select,
+  Text,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import userService from '~/services/userService';
