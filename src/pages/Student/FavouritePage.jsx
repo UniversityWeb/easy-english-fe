@@ -26,6 +26,7 @@ import favouriteService from '~/services/favouriteService';
 import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import useCustomToast from '~/hooks/useCustomToast';
+import { formatVNDMoney } from '~/utils/methods';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -230,8 +231,8 @@ const Wishlist = () => {
                                 color="gray.700"
                               >
                                 {course.price?.salePrice > 0
-                                  ? `${course.price.salePrice} VND`
-                                  : `${course.price.price} VND`}
+                                  ? `${formatVNDMoney(course.price.salePrice)}`
+                                  : `${formatVNDMoney(course.price.price)}`}
                               </Text>
                             </Flex>
 
