@@ -6,7 +6,7 @@ import { AddIcon } from '@chakra-ui/icons';
 import testQuestionService from '~/services/testQuestionService';
 import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 import { TEST_TYPES } from '~/utils/constants';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 const EditableQuestionsOfQuiz = ({ test }) => {
   const [questions, setQuestions] = useState([]);

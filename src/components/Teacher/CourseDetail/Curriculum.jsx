@@ -1,40 +1,36 @@
 import {
+  Accordion,
+  AccordionButton,
+  AccordionItem,
+  AccordionPanel,
   Box,
   Button,
-  VStack,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  List,
-  ListItem,
-  ListIcon,
   HStack,
-  Text,
   Icon,
   Input,
+  List,
+  ListIcon,
+  ListItem,
   Modal,
-  ModalOverlay,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  ModalOverlay,
   SimpleGrid,
-  useDisclosure,
   Spinner,
+  Text,
+  useDisclosure,
   useToast,
+  VStack,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
+import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import {
-  RxTriangleDown,
-  RxTriangleUp,
-  RxDragHandleDots2,
-} from 'react-icons/rx';
+import { RxDragHandleDots2, RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TextLesson from '~/components/Teacher/CourseDetail/Curriculum/TextLesson';
 import VideoLesson from '~/components/Teacher/CourseDetail/Curriculum/VideoLesson';
 import AudioLesson from '~/components/Teacher/CourseDetail/Curriculum/AudioLesson';

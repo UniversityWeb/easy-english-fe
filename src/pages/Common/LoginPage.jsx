@@ -21,12 +21,12 @@ import {
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import AuthService from '~/services/authService';
 import { USER_ROLES, USER_STATUSES } from '~/utils/constants';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import useCustomToast from '~/hooks/useCustomToast';
 import { isLoggedIn } from '~/utils/authUtils';
 

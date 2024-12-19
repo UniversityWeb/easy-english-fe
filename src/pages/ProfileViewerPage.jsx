@@ -1,28 +1,28 @@
-import React from "react";
+import React from 'react';
 import {
-  ChakraProvider,
-  Box,
-  Flex,
   Avatar,
-  Text,
-  Heading,
+  Box,
+  Button,
+  ChakraProvider,
+  Flex,
   Grid,
   GridItem,
-  VStack,
-  Tooltip,
+  Heading,
   IconButton,
-  useDisclosure,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalFooter,
-  Button,
-} from "@chakra-ui/react";
-import { ViewIcon } from "@chakra-ui/icons";
-import dayjs from "dayjs";
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  Tooltip,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react';
+import { ViewIcon } from '@chakra-ui/icons';
+import dayjs from 'dayjs';
 
 const userInfo = {
   username: "john",

@@ -1,22 +1,13 @@
 // src/components/CourseCard.js
 import React from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Flex,
-  Image,
-  Icon,
-  Divider,
-  Button,
-} from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, HStack, Icon, Image, Text, VStack } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { IoBookOutline } from 'react-icons/io5';
 import { PiStudent } from 'react-icons/pi';
 import { LuBarChart } from 'react-icons/lu';
 import { TbClockHour4 } from 'react-icons/tb';
 import { formatVNDMoney } from '~/utils/methods';
+
 const Rating = ({ rating }) => (
   <HStack spacing="1">
     {Array(5)

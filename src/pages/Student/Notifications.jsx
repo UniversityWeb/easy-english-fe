@@ -1,21 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Text,
-  Button,
-  Stack,
-  Spinner,
-  Flex,
-  Badge,
-  Container,
-  Image,
-} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Badge, Box, Button, Container, Flex, Image, Spinner, Stack, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion'; // Import motion
 import notificationService from '~/services/notificationService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
 import { formatDate } from '~/utils/methods';
-import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { websocketConstants } from '~/utils/websocketConstants';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import WebSocketService from '~/services/websocketService';

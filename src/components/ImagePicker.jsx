@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import {
   Box,
   Button,
-  Input,
+  Flex,
   FormControl,
   FormLabel,
   Image,
-  Flex,
-  Text,
+  Input,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
   ModalBody,
-  useDisclosure,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Spinner,
+  Text,
+  useDisclosure,
 } from '@chakra-ui/react';
 
 const ImagePicker = ({ title, imagePreview, setImagePreview, setImageFile, mb = 4 }) => {

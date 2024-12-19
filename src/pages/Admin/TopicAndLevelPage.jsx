@@ -1,36 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Checkbox,
-  IconButton,
   Box,
-  Text,
   Button,
-  HStack,
-  Input,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Checkbox,
+  Collapse,
   FormControl,
   FormLabel,
-  Collapse,
+  HStack,
+  IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
 } from '@chakra-ui/react';
-import {
-  EditIcon,
-  DeleteIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronUpIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import Pagination from '~/components/Student/Search/Page';
 import topicService from '~/services/topicService';
 import levelService from '~/services/levelService';

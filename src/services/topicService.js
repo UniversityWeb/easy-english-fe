@@ -1,4 +1,4 @@
-import { get, post, put, del } from '~/utils/httpRequest'; // Removed unused imports
+import { del, get, post, put } from '~/utils/httpRequest'; // Removed unused imports
 
 const SUFFIX_TOPIC_API_URL = '/topics';
 

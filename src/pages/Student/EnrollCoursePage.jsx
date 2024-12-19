@@ -1,27 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Image,
-  Text,
-  Flex,
-  HStack,
-  VStack,
-  Input,
   Button,
-  Icon,
+  Divider,
+  Flex,
   Grid,
   GridItem,
+  Heading,
+  HStack,
+  Icon,
+  Image,
+  Input,
   Skeleton,
   SkeletonText,
-  SkeletonCircle,
-  IconButton,
-  Divider,
-  Tabs,
-  Heading,
-  TabList,
-  TabPanels,
   Tab,
-  TabPanel,
+  TabList,
+  Tabs,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import { TbClockHour4 } from 'react-icons/tb';
 //import { FiFilter } from 'react-icons/fi';
@@ -249,12 +245,11 @@ const Enrollment = () => {
                                 colorScheme="blue"
                                 width="full"
                                 onClick={() =>
-                                  navigate(
-                                    config.routes.learn(
-                                      course.id,
-                                      course.title,
-                                    ),
-                                  )
+                                  navigate(config.routes.learn(course.id, course.title), {
+                                    state: {
+                                      returnUrl: config.routes.enroll_course
+                                    }
+                                  })
                                 }
                               >
                                 {getButtonText(course.progress || 0)}

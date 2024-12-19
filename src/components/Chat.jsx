@@ -1,15 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Image,
-  Input,
-  Text,
-} from '@chakra-ui/react';
+import { useEffect, useRef, useState } from 'react';
+import { Avatar, Box, Button, Flex, HStack, Icon, Image, Input, Text } from '@chakra-ui/react';
 import { FiSend } from 'react-icons/fi';
 import messageService from '~/services/messageService';
 import WebSocketService from '~/services/websocketService';

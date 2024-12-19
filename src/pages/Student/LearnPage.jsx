@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Box,
+  Button,
   Flex,
-  Text,
-  VStack,
   HStack,
   Icon,
-  Button,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Spinner,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
-import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
+import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { FaCheckCircle, FaLock } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
@@ -23,7 +23,7 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
@@ -82,6 +82,7 @@ const LessonItem = ({
 );
 
 const LearnPage = () => {
+  const { state } = useLocation();
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -91,9 +92,13 @@ const LearnPage = () => {
   const navigate = useNavigate();
   const itemRefs = useRef({});
 
-  const Navbar = () => {
+  const Navbar = ({state}) => {
     const handleBackClick = () => {
-      navigate(`/course-view-detail/${courseId}`);
+      if (state?.returnUrl) {
+        navigate(state?.returnUrl);
+      } else {
+        navigate(-1);
+      }
     };
 
     return (
@@ -426,7 +431,7 @@ const LearnPage = () => {
 
   return (
     <Flex direction="column" h="100vh">
-      <Navbar />
+      <Navbar state={state} />
       <Flex h="100vh" overflow="hidden">
         <Box
           w="30%"

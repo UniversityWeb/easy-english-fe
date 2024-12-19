@@ -1,5 +1,5 @@
-import React from "react";
-import { Text, Checkbox, CheckboxGroup, Stack, Box, Icon } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Checkbox, CheckboxGroup, Icon, Stack, Text } from '@chakra-ui/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 
 const MultipleChoiceQuestion = ({ question, userAnswer }) => {

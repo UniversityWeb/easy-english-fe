@@ -1,4 +1,4 @@
-import { get, handleResponse, post, put } from '~/utils/httpRequest';
+import { get, handleResponse, post } from '~/utils/httpRequest';
 
 const SUFFIX_ENROLLMENT_API_URL = '/enrollments';
 

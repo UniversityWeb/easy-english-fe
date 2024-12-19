@@ -1,18 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Text,
-  Icon,
-  Collapse,
-  VStack,
-  HStack,
-  Spinner,
-} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Collapse, HStack, Icon, Spinner, Text, VStack } from '@chakra-ui/react';
 import { RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
-import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
+import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 

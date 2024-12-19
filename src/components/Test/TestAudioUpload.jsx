@@ -1,19 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
+  Flex,
+  HStack,
+  IconButton,
   Input,
   Slider,
-  SliderTrack,
   SliderFilledTrack,
   SliderThumb,
+  SliderTrack,
   Text,
-  IconButton,
-  Flex,
   VStack,
-  HStack,
 } from '@chakra-ui/react';
-import { FaPlay, FaPause, FaFileAudio, FaTrash, FaUpload, FaRedo } from 'react-icons/fa';
+import { FaFileAudio, FaPause, FaPlay, FaRedo, FaTrash, FaUpload } from 'react-icons/fa';
 import { MdFileUpload } from 'react-icons/md';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';

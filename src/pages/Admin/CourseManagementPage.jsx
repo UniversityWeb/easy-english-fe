@@ -1,26 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Heading,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Avatar,
-  Select,
+  Box,
   Button,
+  Flex,
+  Heading,
   IconButton,
   Input,
+  Select,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
   useToast,
-  Flex,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
 } from '@chakra-ui/react';
-import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import courseService from '~/services/courseService'; // Import the service

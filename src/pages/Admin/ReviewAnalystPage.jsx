@@ -1,31 +1,31 @@
 import React from 'react';
 import {
   Box,
+  Button,
+  Divider,
   Grid,
   GridItem,
   HStack,
-  Text,
-  Divider,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   IconButton,
-  Button,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { Line } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
   LinearScale,
-  PointElement,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
 } from 'chart.js';
 import { FiCalendar, FiSettings } from 'react-icons/fi';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';

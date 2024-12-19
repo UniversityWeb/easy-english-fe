@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Container } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import Footer from '~/components/Footer';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack, Text, Button, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
+import { Box, Button, Tab, TabList, TabPanel, TabPanels, Tabs, Text, VStack } from '@chakra-ui/react';
 import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
 import Footer from '~/components/Footer';
 

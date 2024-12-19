@@ -1,5 +1,5 @@
-import React from "react";
-import { Text, Radio, RadioGroup, Stack, Heading, Box, Icon } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Heading, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 
 const SingleChoiceQuestion = ({ question, userAnswers }) => {

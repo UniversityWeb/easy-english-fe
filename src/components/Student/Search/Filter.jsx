@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Checkbox,
-  VStack,
-  Text,
   Accordion,
-  AccordionItem,
   AccordionButton,
+  AccordionItem,
   AccordionPanel,
-  IconButton,
+  Box,
+  ChakraProvider,
+  Checkbox,
   HStack,
+  IconButton,
   Radio,
   RadioGroup,
-  ChakraProvider,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
-import { StarIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
+import { AddIcon, MinusIcon, StarIcon } from '@chakra-ui/icons';
 import topicService from '~/services/topicService';
 import categoryService from '~/services/categoryService';
 import levelService from '~/services/levelService';

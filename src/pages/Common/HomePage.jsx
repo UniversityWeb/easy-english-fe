@@ -1,27 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Text,
-  Image,
-  VStack,
-  HStack,
-  SimpleGrid,
-  Badge,
-  Avatar,
-  Icon,
-} from '@chakra-ui/react';
-import {
-  FaUser,
-  FaEye,
-  FaStar,
-  FaQuoteRight,
-  FaClock,
-  FaGlobe,
-  FaBook,
-} from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Flex, Heading, HStack, Icon, Image, SimpleGrid, Text, VStack } from '@chakra-ui/react';
+import { FaBook, FaClock, FaGlobe } from 'react-icons/fa';
 import CourseCard from '~/components/Student/Search/CourseCard';
 import courseStatisticsService from '~/services/courseStatisticsService';
 import { useNavigate } from 'react-router-dom';

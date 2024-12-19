@@ -1,5 +1,4 @@
-import { Text, Button, Box, Icon, Stack } from "@chakra-ui/react";
-import { FaLock } from "react-icons/fa";
+import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 

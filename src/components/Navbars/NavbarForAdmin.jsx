@@ -1,24 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Navbar.scss';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
-import {
-  useDisclosure,
-  Avatar,
-  Spacer,
-  Image,
-  Badge,
-  Box,
-} from '@chakra-ui/react';
+import { Avatar, Badge, Box, Image, Spacer, useDisclosure } from '@chakra-ui/react';
 import AuthService from '~/services/authService';
 import { getUsername, isLoggedIn } from '~/utils/authUtils';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent';
 import RightSidebarForAdmin from '~/components/Drawers/RightSidebarForAdmin';
-import { FiShoppingCart, FiBell } from 'react-icons/fi';
+import { FiBell } from 'react-icons/fi';
 import { Icon } from '@chakra-ui/icons';
-import CartService from '~/services/cartService';
 import NotificationService from '~/services/notificationService';
 import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';

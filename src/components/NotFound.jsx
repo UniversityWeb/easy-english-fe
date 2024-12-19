@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, Heading, Text, Button, VStack } from '@chakra-ui/react';
+import { Box, Button, Heading, Text, VStack } from '@chakra-ui/react';
 
 const NotFound = () => {
   return (

@@ -1,38 +1,31 @@
 import {
-  Box,
-  VStack,
   Accordion,
-  AccordionItem,
   AccordionButton,
+  AccordionItem,
   AccordionPanel,
-  List,
-  ListItem,
-  ListIcon,
-  HStack,
-  Text,
-  Icon,
+  Box,
   Button,
+  HStack,
+  Icon,
   IconButton,
-  Spinner,
-  useToast,
+  List,
+  ListIcon,
+  ListItem,
   Modal,
-  ModalOverlay,
+  ModalBody,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  ModalOverlay,
+  Text,
+  useToast,
 } from '@chakra-ui/react';
-import { FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
+import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import {
-  RxTriangleDown,
-  RxTriangleUp,
-  RxDragHandleDots2,
-} from 'react-icons/rx';
+import { RxDragHandleDots2, RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { MdSubdirectoryArrowRight } from 'react-icons/md';
-import { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useEffect, useState } from 'react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import dripService from '~/services/dripService';

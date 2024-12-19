@@ -1,4 +1,4 @@
-import {post } from '~/utils/httpRequest';
+import { post } from '~/utils/httpRequest';
 
 const SUFFIX_SECTION_API_URL = '/price';
 

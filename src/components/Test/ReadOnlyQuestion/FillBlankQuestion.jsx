@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Input, VStack, HStack, Text, Heading } from '@chakra-ui/react';
+import React from 'react';
+import { Heading, HStack, Input, Text, VStack } from '@chakra-ui/react';
 
 const FillBlankQuestion = ({ question, userAnswers }) => {
   const correctAnswers = question?.correctAnswers || [];

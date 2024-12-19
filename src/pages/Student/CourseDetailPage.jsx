@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Text,
-  Flex,
-  Button,
-  Icon,
   Avatar,
-  Stack,
+  Box,
+  Button,
+  Flex,
   HStack,
-  Tabs,
-  TabList,
+  Icon,
+  Stack,
   Tab,
-  TabPanels,
+  TabList,
   TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from '@chakra-ui/react';
-import { FaClock, FaBook, FaHeart, FaStar } from 'react-icons/fa';
+import { FaBook, FaClock, FaHeart, FaStar } from 'react-icons/fa';
 import { IoChatbox } from 'react-icons/io5';
 import FAQ from '~/components/Student/CourseDetail/FAQ';
 import Reviews from '~/components/Student/CourseDetail/Reviews';
@@ -26,7 +26,6 @@ import RelateCourse from '~/components/Student/CourseDetail/RelateCourse';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import courseService from '~/services/courseService';
 import cartService from '~/services/cartService';
-import enrollmentService from '~/services/enrollmentService';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { websocketConstants } from '~/utils/websocketConstants';
 import { getUsername } from '~/utils/authUtils';

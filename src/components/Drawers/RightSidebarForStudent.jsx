@@ -1,28 +1,22 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  VStack,
-  Text,
-  Image,
   Avatar,
+  Box,
   Drawer,
   DrawerBody,
+  DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  DrawerContent,
+  Image,
   Skeleton,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import styles from './Drawer.module.scss';
 import { useNavigate } from 'react-router-dom';
-import {
-  MdOutlineShoppingBag,
-  MdNotificationsNone,
-  MdLogout,
-  MdOutlineShoppingCart,
-} from 'react-icons/md';
-import { IoChatboxOutline } from "react-icons/io5";
-import { IoBookOutline } from "react-icons/io5";
+import { MdLogout, MdOutlineShoppingBag, MdOutlineShoppingCart } from 'react-icons/md';
+import { IoBookOutline, IoChatboxOutline } from 'react-icons/io5';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';

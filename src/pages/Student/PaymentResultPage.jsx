@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
-  Text,
-  Spinner,
+  Button,
+  Container,
   Flex,
   Heading,
-  Button,
-  Alert,
-  AlertIcon,
   HStack,
-  Progress,
-  VStack,
-  AlertTitle,
-  AlertDescription,
   Image,
-  Container,
+  Progress,
+  Spinner,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import paymentService from '~/services/paymentService';

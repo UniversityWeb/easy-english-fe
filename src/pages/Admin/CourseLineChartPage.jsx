@@ -1,34 +1,11 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Text,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Spinner,
-  Avatar,
-  Button,
-  Select,
-  Flex,
-} from "@chakra-ui/react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import RoleBasedPageLayout from "~/components/RoleBasedPageLayout";
-import { formatVNDMoney } from "~/utils/methods";
-import courseStatisticsService from "~/services/courseStatisticsService";
-import config from "~/config";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Avatar, Box, Button, Flex, Select, Spinner, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import { formatVNDMoney } from '~/utils/methods';
+import courseStatisticsService from '~/services/courseStatisticsService';
+import config from '~/config';
+import { useNavigate } from 'react-router-dom';
 
 const CourseBarChartPage = () => {
   const navigate = useNavigate();
