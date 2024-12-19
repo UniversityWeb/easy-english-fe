@@ -195,7 +195,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
             />
           </FormControl>
 
-          <FormControl display="flex" alignItems="center" mb={4}>
+          <FormControl display="none" alignItems="center" mb={4}>
             <Switch
               id="preview-switch"
               isChecked={lesson.isPreview}

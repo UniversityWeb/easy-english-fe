@@ -65,7 +65,7 @@ const VideoPicker = ({ videoPreview, setVideoPreview, setVideoFile }) => {
                 height="auto"
                 style={{ objectFit: 'contain' }}
                 controls
-                autoPlay
+                //autoPlay
               />
             </Box>
             <Button
@@ -91,7 +91,9 @@ const VideoPicker = ({ videoPreview, setVideoPreview, setVideoFile }) => {
           >
             {!loading ? (
               <>
-                <Text>Drag and drop a video or upload it from your computer</Text>
+                <Text>
+                  Drag and drop a video or upload it from your computer
+                </Text>
                 <Button mt="2" colorScheme="blue">
                   Upload a video
                 </Button>
