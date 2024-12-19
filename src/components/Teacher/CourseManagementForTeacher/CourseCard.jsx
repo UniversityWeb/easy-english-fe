@@ -1,4 +1,4 @@
-import { Box, Image, Badge, Text, Flex, Button, Stack } from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, Image, Stack, Text } from '@chakra-ui/react';
 import { FaEye } from 'react-icons/fa';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';

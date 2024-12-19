@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, Icon, Collapse, VStack, HStack, Spinner } from '@chakra-ui/react';
-import { RxTriangleUp, RxTriangleDown } from 'react-icons/rx';
+import React, { useEffect, useState } from 'react';
+import { Box, Collapse, HStack, Icon, Spinner, Text, VStack } from '@chakra-ui/react';
+import { RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
 import faqService from '~/services/faqService';
 
 const FAQ = ({ courseId }) => {

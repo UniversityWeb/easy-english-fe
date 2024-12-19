@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
-  VStack,
-  HStack,
   Button,
-  Textarea,
-  Input,
-  IconButton,
-  Text,
-  Heading,
   Collapse,
-  Spinner,
+  HStack,
+  IconButton,
+  Input,
   Modal,
-  ModalOverlay,
+  ModalBody,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  ModalOverlay,
+  Spinner,
+  Text,
+  Textarea,
+  VStack,
 } from '@chakra-ui/react';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { RxTriangleDown, RxTriangleUp } from 'react-icons/rx';

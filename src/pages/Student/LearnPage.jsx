@@ -23,7 +23,7 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
-import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';

@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import {
   Box,
   Button,
-  Input,
-  FormControl,
-  FormLabel,
-  Flex,
-  Text,
   CircularProgress,
   CircularProgressLabel,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+  Text,
 } from '@chakra-ui/react';
 
 const VideoPicker = ({ videoPreview, setVideoPreview, setVideoFile }) => {

@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Text,
-  HStack,
-  VStack,
-  Progress,
-  Button,
-  Icon,
-  Spinner,
-  Textarea,
-  Divider,
-} from '@chakra-ui/react';
+import { Box, Button, Divider, HStack, Icon, Progress, Spinner, Text, Textarea, VStack } from '@chakra-ui/react';
 import { FaStar } from 'react-icons/fa';
 import reviewService from '~/services/reviewService';
 import { getUsername } from '~/utils/authUtils';

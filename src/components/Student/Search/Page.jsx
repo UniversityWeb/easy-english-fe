@@ -1,20 +1,16 @@
 import React from 'react';
 import {
-  HStack,
   Button,
+  ChakraProvider,
+  HStack,
   IconButton,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
+  MenuList,
   Text,
-  ChakraProvider,
 } from '@chakra-ui/react';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-} from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 const Pagination = ({
   currentPage,

@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Image,
-  Text,
-  Stack,
-  Badge,
-  HStack,
-  VStack,
-  SimpleGrid,
-  Spinner,
-} from '@chakra-ui/react';
+import { Badge, Box, HStack, Image, SimpleGrid, Spinner, Stack, Text, VStack } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import courseService from '~/services/courseService';
 import { formatVNDMoney } from '~/utils/methods';

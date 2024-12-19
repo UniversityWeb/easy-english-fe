@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Spinner, Center, Text, VStack, Fade, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Center, Fade, Spinner, Text, useBreakpointValue, VStack } from '@chakra-ui/react';
 
 const LoaderPage = () => {
   const fontSize = useBreakpointValue({ base: 'lg', md: '2xl' });

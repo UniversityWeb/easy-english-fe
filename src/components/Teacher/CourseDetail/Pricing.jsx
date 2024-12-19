@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Input,
   FormControl,
+  FormErrorMessage,
   FormLabel,
-  Switch,
   Grid,
   GridItem,
-  Text,
-  FormErrorMessage,
   HStack,
+  Input,
+  Text,
 } from '@chakra-ui/react';
 import priceService from '~/services/priceService';
 import { formatVNDMoney } from '~/utils/methods';
