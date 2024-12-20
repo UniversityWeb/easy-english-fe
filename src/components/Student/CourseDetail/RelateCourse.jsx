@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Box, HStack, Image, SimpleGrid, Spinner, Stack, Text, VStack } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  HStack,
+  Image,
+  SimpleGrid,
+  Spinner,
+  Stack,
+  Text,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import courseService from '~/services/courseService';
 import { formatVNDMoney } from '~/utils/methods';
 import { useNavigate } from 'react-router-dom';
+import PriceDisplay from '~/components/PriceDisplay';
 
 const RelateCourse = ({ courseId, numberOfCourses, type }) => {
   const navigate = useNavigate();
@@ -67,7 +79,7 @@ const RelateCourse = ({ courseId, numberOfCourses, type }) => {
               onClick={async () => {
                 const courseId = course.id;
                 try {
-                  await courseService.countView(courseId)
+                  await courseService.countView(courseId);
                 } catch (e) {
                   console.error(e);
                 }
@@ -84,23 +96,45 @@ const RelateCourse = ({ courseId, numberOfCourses, type }) => {
                   borderRadius="md"
                 />
                 {course.isHot && (
-                  <Badge position="absolute" top="2" right="2" colorScheme="red" fontSize="0.8em">
+                  <Badge
+                    position="absolute"
+                    top="2"
+                    right="2"
+                    colorScheme="red"
+                    fontSize="0.8em"
+                  >
                     HOT
                   </Badge>
                 )}
                 {course.isSpecial && (
-                  <Badge position="absolute" top="2" right="2" colorScheme="green" fontSize="0.8em">
+                  <Badge
+                    position="absolute"
+                    top="2"
+                    right="2"
+                    colorScheme="green"
+                    fontSize="0.8em"
+                  >
                     SPECIAL
                   </Badge>
                 )}
               </Box>
               <Stack spacing={2} pt={4}>
-                <Text fontWeight="bold" fontSize="lg">
-                  {course.title}
-                </Text>
-                <Text fontSize="md" color={course.price.salePrice > 0 ? 'green.500' : 'black'}>
-                  {formatCoursePrice(course.price)}
-                </Text>
+                <Tooltip
+                  label={course.title}
+                  aria-label="Course Title"
+                  hasArrow
+                >
+                  <Text fontWeight="bold" fontSize="lg" noOfLines={2}>
+                    {course.title}
+                  </Text>
+                </Tooltip>
+
+                <PriceDisplay
+                  priceResponse={course?.price}
+                  primaryColor={'green.500'}
+                  fontWeight={'regular'}
+                />
+
                 <HStack spacing={1}>
                   {Array(5)
                     .fill('')

@@ -5,7 +5,6 @@ const routes = {
   forgot_password: '/forgot-password',
   user_profile_edit: '/profile',
   otp_validation: '/otp-validation',
-  course_management_for_student: '/course-management-for-student',
   notifications: '/notifications',
   preview_test: '/preview-test',
   take_test: (testId) => `/take-test/${testId}`,

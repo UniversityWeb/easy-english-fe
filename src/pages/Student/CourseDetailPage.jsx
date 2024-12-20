@@ -12,9 +12,9 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
+  Text, Tooltip,
 } from '@chakra-ui/react';
-import { FaBook, FaClock, FaHeart, FaStar } from 'react-icons/fa';
+import { FaBook, FaClock, FaHeart, FaMoneyBillAlt, FaStar } from 'react-icons/fa';
 import { IoChatbox } from 'react-icons/io5';
 import FAQ from '~/components/Student/CourseDetail/FAQ';
 import Reviews from '~/components/Student/CourseDetail/Reviews';
@@ -33,6 +33,7 @@ import config from '~/config';
 import WebsocketService from '~/services/websocketService';
 import favouriteService from '~/services/favouriteService';
 import useCustomToast from '~/hooks/useCustomToast';
+import PriceDisplay from '~/components/PriceDisplay';
 
 const CourseDetailBtnStat = {
   START_COURSE: 'START_COURSE',
@@ -174,27 +175,26 @@ function CourseDetailsPage() {
             <Text color="gray.500" fontSize="sm">
               {courseData?.topic.name}
             </Text>
-            <Text fontSize="3xl" fontWeight="bold" mt={2}>
-              {courseData?.title}
-            </Text>
+            <Tooltip label={<PriceDisplay primaryColor={'white'} priceResponse={courseData?.price}/>} aria-label="Course Price" hasArrow>
+              <Text fontSize="3xl" fontWeight="bold" mt={2}>
+                {courseData?.title}
+              </Text>
+            </Tooltip>
+
             <Text fontSize="md" mt={4} color="gray.600">
               {courseData?.descriptionPreview}
             </Text>
 
-            <Text color="blue.500" mt={2} cursor="pointer">
-              Show less
-            </Text>
-
             <Flex align="center" mt={5}>
               <Avatar
-                name={courseData?.ownerUsername || 'Teacher Name'}
-                src={courseData?.ownerUsername}
+                name={courseData?.owner?.fullName || 'Teacher Name'}
+                src={courseData?.owner?.avatarPath}
                 size="lg"
               />
               <Box ml={4}>
                 <Text fontWeight="bold">Teacher</Text>
                 <Text color="blue.500">
-                  {courseData?.ownerUsername || 'Teacher Name'}
+                  {courseData?.owner?.fullName || 'Teacher Name'}
                 </Text>
               </Box>
               <Box ml={10}>
@@ -323,7 +323,10 @@ function CourseDetailsPage() {
                 onClick={() => {
                   navigate(config.routes.chat, {
                     state: {
-                      returnUrl: config.routes.course_view_detail.replace(':courseId', courseData?.id),
+                      returnUrl: config.routes.course_view_detail.replace(
+                        ':courseId',
+                        courseData?.id,
+                      ),
                       targetCourse: courseData,
                     },
                   });

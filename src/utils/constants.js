@@ -1,3 +1,5 @@
+import { CheckCircleIcon, DeleteIcon, EditIcon, TimeIcon, WarningIcon } from '@chakra-ui/icons';
+
 export const MIN_USERNAME_LENGTH = 3;
 export const MIN_PASSWORD_LENGTH = 8;
 export const OTP_LENGTH = 6;
@@ -56,3 +58,36 @@ export const TEST_RESULT_STATUSES = {
 export const PAYMENT_STATUES = {
   SUCCESS: 'SUCCESS'
 }
+
+export const COURSE_STATUS = {
+  PUBLISHED: {
+    value: 'PUBLISHED',
+    label: 'Published',
+    color: 'green.500',
+    icon: CheckCircleIcon,
+  },
+  REJECTED: {
+    value: 'REJECTED',
+    label: 'Rejected',
+    color: 'red.500',
+    icon: WarningIcon,
+  },
+  PENDING_APPROVAL: {
+    value: 'PENDING_APPROVAL',
+    label: 'Pending Approval',
+    color: 'orange.500',
+    icon: TimeIcon,
+  },
+  DRAFT: {
+    value: 'DRAFT',
+    label: 'Draft',
+    color: 'blue.500',
+    icon: EditIcon,
+  },
+  DELETED: {
+    value: 'DELETED',
+    label: 'Deleted',
+    color: 'gray.500',
+    icon: DeleteIcon,
+  },
+};

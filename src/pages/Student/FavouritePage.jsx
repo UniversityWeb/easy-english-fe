@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import useCustomToast from '~/hooks/useCustomToast';
 import { formatVNDMoney } from '~/utils/methods';
+import PriceDisplay from '~/components/PriceDisplay';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -225,15 +226,8 @@ const Wishlist = () => {
                               width="100%"
                             >
                               <Rating rating={course.rating} />
-                              <Text
-                                fontWeight="bold"
-                                fontSize="lg"
-                                color="gray.700"
-                              >
-                                {course.price?.salePrice > 0
-                                  ? `${formatVNDMoney(course.price.salePrice)}`
-                                  : `${formatVNDMoney(course.price.price)}`}
-                              </Text>
+
+                              <PriceDisplay priceResponse={course?.price} primaryColor={'gray.700'}/>
                             </Flex>
 
                             {/* Hovered View */}
