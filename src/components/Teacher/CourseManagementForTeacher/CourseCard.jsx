@@ -4,11 +4,13 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';
 import StarRating from './StarRating';
 import { formatVNDMoney } from '~/utils/methods';
+import { COURSE_STATUS } from '~/utils/constants';
 
 const CourseCard = ({ course, onMakeFeatured }) => {
   const averageRating = useMemo(() => {
     return course.rating ? course.rating.toFixed(1) : 'N/A';
   }, [course.rating]);
+  const status = COURSE_STATUS[course.status];
 
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4} w="100%">
@@ -70,9 +72,9 @@ const CourseCard = ({ course, onMakeFeatured }) => {
         </Flex>
       </Box>
       <Stack mt={4} direction="row" align="center" justify="space-between">
-        <Flex align="center" color="green.500">
-          <CheckCircleIcon mr={1} />
-          <Text>{course.isPublish ? 'Published' : 'Unpublished'}</Text>
+        <Flex align="center" color={status?.color || 'black'}>
+          {status?.icon && <status.icon mr={1} />}
+          <Text>{status?.label || 'Unknown Status'}</Text>
         </Flex>
 
         {/* Price Section */}
