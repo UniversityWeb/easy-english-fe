@@ -13,9 +13,6 @@ const UserProfileEditPage = lazy(
 const OtpValidationPage = lazy(
   () => import('~/pages/Common/OtpValidationPage'),
 );
-const CourseManagementForStudentPage = lazy(
-  () => import('~/pages/Student/CourseManagementForStudentPage'),
-);
 const Notifications = lazy(() => import('~/pages/Student/Notifications'));
 const TakeTestPage = lazy(() => import('~/pages/Student/TakeTestPage'));
 const PreviewTestPage = lazy(() => import('~/pages/Student/PreviewTestPage'));
@@ -56,10 +53,6 @@ const publicRoutes = [
   { path: config.routes.forgot_password, component: ForgotPasswordPage },
   { path: config.routes.user_profile_edit, component: UserProfileEditPage },
   { path: config.routes.otp_validation, component: OtpValidationPage },
-  {
-    path: config.routes.course_management_for_student,
-    component: CourseManagementForStudentPage,
-  },
   {
     path: config.routes.notifications,
     component: Notifications,
