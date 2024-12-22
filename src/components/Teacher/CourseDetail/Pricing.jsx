@@ -74,17 +74,33 @@ const Price = React.memo(({ courseId }) => {
     const price = parseFloat(form.price);
     const salePrice = parseFloat(form.salePrice);
 
-    if (price !== 0 && price < 10000) {
-      newErrors.price = 'Price must be 0 or at least 10,000 VND.';
+    if (!form.price) {
+      newErrors.price = 'Price is required.';
     }
 
-    if (salePrice !== 0 && salePrice < 10000) {
-      newErrors.salePrice = 'Sale price must be 0 or at least 10,000 VND.';
+    if (!form.salePrice) {
+      newErrors.salePrice = 'Sale price is required.';
+    }
+    if (price < 10000) {
+      newErrors.price = 'Price at least 10,000 VND.';
+    }
+
+    if (salePrice < 10000) {
+      newErrors.salePrice = 'Sale price at least 10,000 VND.';
     }
 
     if (salePrice > price) {
       newErrors.salePrice =
         'Sale price cannot be greater than the regular price.';
+    }
+    if (form.startDate && form.endDate) {
+      const startDate = new Date(form.startDate);
+      const endDate = new Date(form.endDate);
+
+      if (startDate > endDate) {
+        newErrors.startDate = 'Start date cannot be later than end date.';
+        newErrors.endDate = 'End date cannot be earlier than start date.';
+      }
     }
 
     setErrors(newErrors);
@@ -156,7 +172,7 @@ const Price = React.memo(({ courseId }) => {
 
             <Grid templateColumns="repeat(2, 1fr)" gap={6} mt={4}>
               <GridItem>
-                <FormControl>
+                <FormControl isInvalid={!!errors.startDate}>
                   <FormLabel>Sale Start Date</FormLabel>
                   <Input
                     type="date"
@@ -164,11 +180,12 @@ const Price = React.memo(({ courseId }) => {
                     value={form.startDate}
                     onChange={handleInputChange}
                   />
+                  <FormErrorMessage>{errors.startDate}</FormErrorMessage>
                 </FormControl>
               </GridItem>
 
               <GridItem>
-                <FormControl>
+                <FormControl isInvalid={!!errors.endDate}>
                   <FormLabel>Sale End Date</FormLabel>
                   <Input
                     type="date"
@@ -176,6 +193,7 @@ const Price = React.memo(({ courseId }) => {
                     value={form.endDate}
                     onChange={handleInputChange}
                   />
+                  <FormErrorMessage>{errors.endDate}</FormErrorMessage>
                 </FormControl>
               </GridItem>
             </Grid>

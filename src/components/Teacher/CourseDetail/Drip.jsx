@@ -21,7 +21,11 @@ import {
 } from '@chakra-ui/react';
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import { RxDragHandleDots2, RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
+import {
+  RxDragHandleDots2,
+  RxTriangleDown,
+  RxTriangleUp,
+} from 'react-icons/rx';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { MdSubdirectoryArrowRight } from 'react-icons/md';
 import { useEffect, useState } from 'react';
@@ -161,7 +165,13 @@ const Drip = ({ courseId }) => {
 
   const onSaveDrips = async () => {
     setIsConfirmOpen(false);
-
+    const invalidDrips = dripContents.filter(
+      (drip) => drip.lessons.length <= 1,
+    );
+    if (invalidDrips.length > 0) {
+      errorToast('Each drip content must have more than one item.');
+      return;
+    }
     setLoading(true); // Start loading
     const dripsUpdateRequest = prepareDripsUpdateRequest(dripContents);
 
