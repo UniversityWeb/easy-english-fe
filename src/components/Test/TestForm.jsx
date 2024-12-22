@@ -22,10 +22,10 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
     e.preventDefault();
     setLoading(true);
     try {
-      const testId = testState?.id;
+      const testId = testState?.id || 0;
       const newTest = {
         ...testState,
-        id: testId || 0,
+        id: testId,
         sectionId,
         ordinalNumber,
       };

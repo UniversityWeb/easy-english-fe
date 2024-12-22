@@ -18,7 +18,7 @@ import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { FaCheckCircle, FaLock } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import { MdArrowBack } from 'react-icons/md';
+import { MdRateReview } from 'react-icons/md';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
@@ -27,6 +27,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
+import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 
 const LessonItem = ({
   icon,
@@ -82,6 +83,7 @@ const LessonItem = ({
 );
 
 const LearnPage = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,38 +91,7 @@ const LearnPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { courseId, courseTitle } = useParams();
   const username = getUsername();
-  const navigate = useNavigate();
   const itemRefs = useRef({});
-
-  const Navbar = ({state}) => {
-    const handleBackClick = () => {
-      if (state?.returnUrl) {
-        navigate(state?.returnUrl);
-      } else {
-        navigate(-1);
-      }
-    };
-
-    return (
-      <Flex
-        bg="gray.800"
-        color="white"
-        px="8"
-        py="4"
-        alignItems="center"
-        w="full"
-      >
-        <Button
-          leftIcon={<MdArrowBack />}
-          variant="ghost"
-          colorScheme="whiteAlpha"
-          onClick={handleBackClick}
-        >
-          Back to courses
-        </Button>
-      </Flex>
-    );
-  };
 
   useEffect(() => {
     const fetchCurriculumData = async () => {
@@ -231,7 +202,7 @@ const LearnPage = () => {
 
   const updateSearchParams = (item) => {
     const type = item.isTest ? 'TEST' : item.type;
-    setSearchParams({ type, id: item.id.toString() });
+    setSearchParams({ type, id: item.id.toString() }, { replace: true });
   };
 
   const handleItemSelect = (item) => {
@@ -325,13 +296,13 @@ const LearnPage = () => {
     return match ? match[1] : '';
   }
 
-  const renderContent = () => {
+  const renderContent = (courseTitle) => {
     if (!selectedItem) return null;
 
     const { content, contentUrl, description, type, isTest } = selectedItem;
 
     if (isTest) {
-      return <TestPreview test={selectedItem} />;
+      return <TestPreview courseTitle={courseTitle || 'Default'} test={selectedItem} />;
     }
 
     return (
@@ -421,6 +392,18 @@ const LearnPage = () => {
       updateSearchParams(foundItem);
     }
   };
+
+  const isLastItem = () => {
+    if (!selectedItem) return false;
+
+    // Flatten the list of items in sections and find the selected item
+    const allItems = sections.flatMap((section) => section.items);
+    const currentIndex = allItems.findIndex((item) => item.id === selectedItem.id);
+
+    // Check if the current item is the last one
+    return currentIndex === allItems.length - 1;
+  };
+
   if (loading) {
     return (
       <Flex justify="center" align="center" h="100vh">
@@ -431,7 +414,7 @@ const LearnPage = () => {
 
   return (
     <Flex direction="column" h="100vh">
-      <Navbar state={state} />
+      <NavbarWithBackBtn returnUrl={state?.returnUrl} backBtnTitle={'Back to courses'}/>
       <Flex h="100vh" overflow="hidden">
         <Box
           w="30%"
@@ -524,7 +507,7 @@ const LearnPage = () => {
           ) : (
             <>
               <VStack align="start" spacing={4} minHeight="89%">
-                {renderContent()}
+                {renderContent(courseTitle)}
               </VStack>
               <Box
                 position="sticky"
@@ -538,14 +521,25 @@ const LearnPage = () => {
                 paddingBottom={3}
                 paddingTop={3}
               >
-                {!selectedItem?.isTest && (
+                {isLastItem() ? (
                   <Button
-                    colorScheme="blue"
+                    colorScheme="teal"
                     alignSelf="flex-end"
-                    onClick={handleCompleteAndNext}
+                    leftIcon={<MdRateReview />}
+                    onClick={() => navigate(`/course-view-detail/${courseId}?tab=reviews`)}
                   >
-                    {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+                    Review Course
                   </Button>
+                ) : (
+                  !selectedItem?.isTest && (
+                    <Button
+                      colorScheme="blue"
+                      alignSelf="flex-end"
+                      onClick={handleCompleteAndNext}
+                    >
+                      {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+                    </Button>
+                  )
                 )}
               </Box>
             </>
