@@ -10,6 +10,7 @@ import {
   Select as ChakraSelect,
   Switch,
   Textarea,
+  Text,
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
@@ -26,6 +27,8 @@ import ImagePicker from '~/components/ImagePicker';
 import VideoPicker from '~/components/VideoPicker';
 
 const Setting = React.memo(({ courseId }) => {
+  const [errors, setErrors] = useState({});
+
   const navigate = useNavigate();
   const username = getUsername();
   const [course, setCourse] = useState({
@@ -133,8 +136,49 @@ const Setting = React.memo(({ courseId }) => {
     }));
   };
 
+  const validate = () => {
+    const newErrors = {};
+
+    if (!course.title) {
+      newErrors.title = 'Course name is required';
+    }
+    if (!course.duration) {
+      newErrors.duration = 'Duration is required';
+    }
+    if (!course.descriptionPreview) {
+      newErrors.descriptionPreview = 'Description preview is required';
+    }
+    const isContentEmpty = (content) => {
+      return !content || content.trim() === '' || content === '<p><br></p>';
+    };
+    if (isContentEmpty(course.description)) {
+      newErrors.description = 'Description is required';
+    }
+    if (!course.topicId) {
+      newErrors.topicId = 'Topic is required';
+    }
+    if (!course.levelId) {
+      newErrors.levelId = 'Level is required';
+    }
+    if (!course.categoryIds || course.categoryIds.length === 0) {
+      newErrors.categoryIds = 'At least one category is required';
+    }
+    if (!imageFile && !course.imagePreview) {
+      newErrors.imageFile = 'An image is required';
+    }
+    if (!videoFile && !course.videoPreview) {
+      newErrors.videoFile = 'A video is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   // Handle form submission (create or update)
   const handleSubmit = async () => {
+    if (!validate()) {
+      errorToast('Please fill in all required fields');
+      return;
+    }
     setIsSaving(true);
     const formData = new FormData();
     formData.append('ownerUsername', username);
@@ -195,6 +239,7 @@ const Setting = React.memo(({ courseId }) => {
           onChange={(e) => setCourse({ ...course, title: e.target.value })}
           placeholder="Enter course name"
         />
+        {errors.title && <Text color="red.500">{errors.title}</Text>}
       </FormControl>
 
       <FormControl mb="4" display="none">
@@ -224,6 +269,9 @@ const Setting = React.memo(({ courseId }) => {
           onChange={handleCategoryChange}
           placeholder="Select categories"
         />
+        {errors.categoryIds && (
+          <Text color="red.500">{errors.categoryIds}</Text>
+        )}
       </FormControl>
 
       <FormControl mb="4">
@@ -239,6 +287,7 @@ const Setting = React.memo(({ courseId }) => {
             </option>
           ))}
         </ChakraSelect>
+        {errors.topicId && <Text color="red.500">{errors.topicId}</Text>}
       </FormControl>
 
       <FormControl mb="4">
@@ -255,19 +304,21 @@ const Setting = React.memo(({ courseId }) => {
             </option>
           ))}
         </ChakraSelect>
+        {errors.levelId && <Text color="red.500">{errors.levelId}</Text>}
       </FormControl>
 
       <FormControl mb="4">
-        <FormLabel>Course duration (minutes)</FormLabel>
+        <FormLabel>Course duration (hours)</FormLabel>
         <Input
+          type="number"
           placeholder="Enter course duration"
           value={course.duration}
           onChange={(e) => setCourse({ ...course, duration: e.target.value })}
         />
+        {errors.duration && <Text color="red.500">{errors.duration}</Text>}
       </FormControl>
 
       <VideoPicker
-    
         title={'Video'}
         videoPreview={course.videoPreview}
         setVideoPreview={(videoPreview) =>
@@ -275,6 +326,7 @@ const Setting = React.memo(({ courseId }) => {
         }
         setVideoFile={setVideoFile}
       />
+      {errors.videoFile && <Text color="red.500">{errors.videoFile}</Text>}
 
       <ImagePicker
         title={'Image'}
@@ -284,6 +336,7 @@ const Setting = React.memo(({ courseId }) => {
         }
         setImageFile={setImageFile}
       />
+      {errors.imageFile && <Text color="red.500">{errors.imageFile}</Text>}
 
       <FormControl mb="4">
         <FormLabel>Description preview</FormLabel>
@@ -295,6 +348,9 @@ const Setting = React.memo(({ courseId }) => {
             setCourse({ ...course, descriptionPreview: e.target.value })
           }
         />
+        {errors.descriptionPreview && (
+          <Text color="red.500">{errors.descriptionPreview}</Text>
+        )}
       </FormControl>
 
       <FormControl mb="4">
@@ -318,6 +374,9 @@ const Setting = React.memo(({ courseId }) => {
             theme="snow"
             placeholder="Enter your description here..."
           />
+          {errors.description && (
+            <Text color="red.500">{errors.description}</Text>
+          )}
         </Box>
       </FormControl>
 

@@ -10,6 +10,7 @@ import {
   Select,
   Switch,
   Textarea,
+  Text,
 } from '@chakra-ui/react';
 import 'react-quill/dist/quill.snow.css';
 import lessonService from '~/services/lessonService';
@@ -19,6 +20,8 @@ import AudioPicker from '~/components/AudioPicker';
 
 const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
   const [lesson, setLesson] = useState({
     title: '',
     content: '',
@@ -54,7 +57,7 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
             startDate: data.startDate || '',
             startTime: data.startTime || '',
           });
-          successToast('Lesson data fetched successfully');
+          //successToast('Lesson data fetched successfully');
         }
       } catch (error) {
         if (isMounted) {
@@ -99,6 +102,43 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
     };
   }, [lesson.contentUrl]);
 
+  const validate = () => {
+    const newErrors = {};
+
+    if (!lesson.title) {
+      newErrors.title = 'Title is required';
+    }
+
+    if (!lesson.duration) {
+      newErrors.duration = 'Duration is required';
+    }
+
+    if (!lesson.description) {
+      newErrors.description = 'Description is required';
+    }
+
+    const isContentEmpty = (content) => {
+      return !content || content.trim() === '' || content === '<p><br></p>';
+    };
+
+    if (isContentEmpty(lesson.content)) {
+      newErrors.content = 'Content is required';
+    }
+
+    if (sourceType === 'MP3') {
+      if (!audio) {
+        newErrors.audio = 'Audio file is required when MP3 is selected';
+      }
+    } else if (sourceType === 'URL') {
+      if (!lesson.contentUrl) {
+        newErrors.contentUrl = 'Audio URL is required when URL is selected';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleAudioChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
@@ -118,6 +158,11 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
   };
 
   const handleSubmit = async () => {
+    if (!validate()) {
+      errorToast('Please fill in all required fields');
+      return;
+    }
+
     setLoading(true);
 
     // Construct the formData object
@@ -161,6 +206,7 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               onChange={(e) => setLesson({ ...lesson, title: e.target.value })}
               placeholder="Enter lesson title"
             />
+            {errors.title && <Text color="red.500">{errors.title}</Text>}
           </FormControl>
 
           <FormControl mb={4}>
@@ -170,11 +216,11 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               onChange={(e) => setSourceType(e.target.value)}
             >
               <option value="MP3">MP3</option>
-              <option value="YouTube">URL</option>
+              <option value="URL">URL</option>
             </Select>
           </FormControl>
 
-          {sourceType === 'YouTube' ? (
+          {sourceType === 'URL' ? (
             <FormControl mb={4}>
               <FormLabel>Audio URL</FormLabel>
               <Input
@@ -184,15 +230,21 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
                 }
                 placeholder="Enter audio URL"
               />
+              {errors.contentUrl && (
+                <Text color="red.500">{errors.contentUrl}</Text>
+              )}
             </FormControl>
           ) : (
             <AudioPicker
               title={'Upload Audio (MP3)'}
               audioPreview={lesson?.contentUrl}
-              setAudioPreview={audioPreview => setLesson({ ...lesson, contentUrl: audioPreview })}
+              setAudioPreview={(audioPreview) =>
+                setLesson({ ...lesson, contentUrl: audioPreview })
+              }
               setAudioFile={setAudio}
             />
           )}
+          {errors.audio && <Text color="red.500">{errors.audio}</Text>}
 
           <FormControl mb={4}>
             <FormLabel>Duration (minutes)</FormLabel>
@@ -204,9 +256,10 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               }
               placeholder="Enter lesson duration"
             />
+            {errors.duration && <Text color="red.500">{errors.duration}</Text>}
           </FormControl>
 
-          <FormControl  display="none" alignItems="center" mb={4} >
+          <FormControl display="none" alignItems="center" mb={4}>
             <Switch
               id="preview-switch"
               isChecked={lesson.isPreview}
@@ -214,7 +267,7 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
                 setLesson({ ...lesson, isPreview: e.target.checked })
               }
             />
-            <FormLabel htmlFor="preview-switch" ml={2} >
+            <FormLabel htmlFor="preview-switch" ml={2}>
               Enable Preview
             </FormLabel>
           </FormControl>
@@ -256,6 +309,9 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               }
               placeholder="Enter lesson description"
             />
+            {errors.description && (
+              <Text color="red.500">{errors.description}</Text>
+            )}
           </FormControl>
 
           <FormControl mb={10}>
@@ -265,6 +321,7 @@ const AudioLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               onChange={(content) => setLesson({ ...lesson, content })}
               height={'320px'}
             />
+            {errors.content && <Text color="red.500">{errors.content}</Text>}
           </FormControl>
           <Box position="sticky" bottom={0} bg="white" p={4} zIndex={5}>
             <Box display="flex" justifyContent="flex-end">

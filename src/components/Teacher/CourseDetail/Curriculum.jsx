@@ -27,7 +27,11 @@ import {
 import { AddIcon } from '@chakra-ui/icons';
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import { RxDragHandleDots2, RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
+import {
+  RxDragHandleDots2,
+  RxTriangleDown,
+  RxTriangleUp,
+} from 'react-icons/rx';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
 import { useEffect, useState } from 'react';
@@ -151,10 +155,8 @@ const Curriculum = ({ courseId }) => {
 
   const handleSectionItemTypeClick = (sectionItemType) => {
     setSelectedSectionItemType(sectionItemType);
-    console.log('selectedSectionId : ', selectedSectionId);
     setSelectedLessonId(null);
     setSelectedTestId(null);
-    console.log('selectedSectionId : ', selectedSectionId);
     onClose();
   };
 
@@ -222,6 +224,8 @@ const Curriculum = ({ courseId }) => {
       } catch (error) {
         errorToast('Error adding section');
       }
+    } else {
+      errorToast('Section title cannot be empty');
     }
   };
 
@@ -232,12 +236,12 @@ const Curriculum = ({ courseId }) => {
   };
 
   const renderLessonComponent = () => {
-    const isNewLesson = !selectedLessonId && selectedSectionId;
-
+    const isNewLesson = Boolean(!selectedLessonId && selectedSectionId);
     switch (selectedSectionItemType) {
       case SEC_ITEM_TYPES.TEXT:
         return (
           <TextLesson
+            key={`${selectedSectionId}-${selectedLessonId}`}
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}
@@ -247,6 +251,7 @@ const Curriculum = ({ courseId }) => {
       case SEC_ITEM_TYPES.VIDEO:
         return (
           <VideoLesson
+            key={`${selectedSectionId}-${selectedLessonId}`}
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}
@@ -256,6 +261,7 @@ const Curriculum = ({ courseId }) => {
       case SEC_ITEM_TYPES.AUDIO:
         return (
           <AudioLesson
+            key={`${selectedSectionId}-${selectedLessonId}`}
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}
