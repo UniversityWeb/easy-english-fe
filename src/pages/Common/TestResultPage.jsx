@@ -21,6 +21,7 @@ import testResultService from '~/services/testResultService';
 import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
 import config from '~/config';
 import { MdArrowBack } from 'react-icons/md';
+import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 
 const TestResultPage = () => {
   const { testResultId } = useParams();
@@ -108,37 +109,9 @@ const TestResultPage = () => {
 
   const isPassed = correctPercent >= test?.passingGrade;
 
-  const Navbar = ({ returnUrl }) => {
-    const navigate = useNavigate();
-
-    const handleBackClick = () => {
-      navigate(returnUrl);
-    };
-
-    return (
-      <Flex
-        bg="gray.800"
-        color="white"
-        px="8"
-        py="4"
-        alignItems="center"
-        w="full"
-      >
-        <Button
-          leftIcon={<MdArrowBack />}
-          variant="ghost"
-          colorScheme="whiteAlpha"
-          onClick={handleBackClick}
-        >
-          Back to course
-        </Button>
-      </Flex>
-    );
-  };
-
   return (
     <Box>
-      <Navbar returnUrl={returnUrl} />
+      <NavbarWithBackBtn returnUrl={returnUrl} />
       <Container maxW="800px" mx="auto" p={5}>
         {/* Quiz Title */}
         <Heading as="h2" size="lg" mb={4}>
