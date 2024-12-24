@@ -85,7 +85,8 @@ const Notifications = () => {
     if (page > 0) setPage((prevPage) => prevPage - 1);
   };
 
-  const handleNotificationClick = async (url) => {
+  const handleNotificationClick = async (id, url) => {
+    handleMarkAsRead(id);
     if (url) {
       try {
         navigate(url);
@@ -150,7 +151,7 @@ const Notifications = () => {
                   <Flex
                     flex="1"
                     direction="row"
-                    onClick={() => handleNotificationClick(notification?.url)}
+                    onClick={() => handleNotificationClick(notification?.id, notification?.url)}
                     mr={5}
                   >
                     <Image
