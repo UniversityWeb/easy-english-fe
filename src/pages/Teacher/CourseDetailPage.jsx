@@ -1,7 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, Tab, TabList, Tabs, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Tab,
+  TabList,
+  Tabs,
+  VStack,
+} from '@chakra-ui/react';
 import { MdArrowBack } from 'react-icons/md';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';
 import Drip from '~/components/Teacher/CourseDetail/Drip';
 import Settings from '~/components/Teacher/CourseDetail/Setting';
@@ -148,7 +162,11 @@ function CourseDetailPage() {
           variant="solid"
           mr="4"
           ml="4"
-          isDisabled={courseStatus !== 'DRAFT' && courseStatus !== 'PUBLISHED'}
+          isDisabled={
+            courseStatus !== 'DRAFT' &&
+            courseStatus !== 'PUBLISHED' &&
+            courseStatus !== 'REJECTED'
+          }
           onClick={async () => {
             try {
               if (courseStatus === 'DRAFT') {
@@ -175,8 +193,8 @@ function CourseDetailPage() {
               : courseStatus === 'PENDING_APPROVAL'
                 ? 'Pending Approval'
                 : courseStatus === 'REJECTED'
-                  ? 'Rejected'
-                  : 'Unknown Status'}
+                  ? 'Request Publish'
+                  : 'Deleted'}
         </Button>
         <Button
           colorScheme="blue"

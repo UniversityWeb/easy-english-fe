@@ -104,8 +104,8 @@ function ProfileEdit({ user, mode, onSuccess, onError }) {
     // Define required fields based on mode
     const requiredFields =
       mode === 'edit'
-        ? ['fullName', 'email', 'role', 'status'] // Update mode: username and password not required
-        : ['username', 'password', 'fullName', 'email', 'role', 'status']; // Create mode: all fields required
+        ? ['fullName', 'email'] // Update mode: username and password not required
+        : ['username', 'password', 'fullName', 'email']; // Create mode: all fields required
 
     return requiredFields.every((field) => tempData[field]);
   };
