@@ -19,15 +19,30 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { FaPause, FaPlay } from 'react-icons/fa';
-import { MdFullscreen, MdFullscreenExit, MdViewHeadline, MdVolumeUp } from 'react-icons/md';
+import {
+  MdFullscreen,
+  MdFullscreenExit,
+  MdViewHeadline,
+  MdVolumeUp,
+} from 'react-icons/md';
 import { CiPaperplane } from 'react-icons/ci';
-import { TbLayoutColumns, TbPlayerTrackNextFilled, TbPlayerTrackPrevFilled } from 'react-icons/tb';
+import {
+  TbLayoutColumns,
+  TbPlayerTrackNextFilled,
+  TbPlayerTrackPrevFilled,
+} from 'react-icons/tb';
 import testResultService from '~/services/testResultService';
-import { clearSavedTest, generateSubmitTestRequest, getCourseId, getTest } from '~/utils/testUtils';
+import {
+  clearSavedTest,
+  generateSubmitTestRequest,
+  getCourseId,
+  getTest,
+} from '~/utils/testUtils';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
+import { get } from 'lodash';
 
 const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   const navigate = useNavigate();
@@ -195,7 +210,7 @@ function TakeTestHeader({
   const handleSubmit = async () => {
     const answers = getTest(testId)?.userAnswers;
     if (!Array.isArray(answers) || answers.length === 0) {
-      errorToast("You have not answered any questions");
+      errorToast('You have not answered any questions');
       return;
     }
 
@@ -208,7 +223,7 @@ function TakeTestHeader({
       clearSavedTest(testId);
       if (testResultResponse?.id) {
         navigate(config.routes.test_result(testResultResponse?.id), {
-          state: { returnUrl: config.routes.learn(courseId) }
+          state: { returnUrl: config.routes.learn(courseId) },
         });
       } else {
         handleBackClick();
