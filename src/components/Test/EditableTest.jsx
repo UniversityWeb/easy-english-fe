@@ -68,6 +68,7 @@ const EditableTest = ({
           audioPath: data?.audioPath,
           createdAt: data.createdAt || new Date().toISOString().slice(0, 16),
           sectionId: data.sectionId || 0,
+          passingGrade: data?.passingGrade || 0,
         });
         successToast('Test data fetched successfully');
       }
