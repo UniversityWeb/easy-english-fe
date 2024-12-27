@@ -23,7 +23,12 @@ import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
@@ -92,6 +97,7 @@ const LearnPage = () => {
   const { courseId, courseTitle } = useParams();
   const username = getUsername();
   const itemRefs = useRef({});
+  const returnURL = localStorage.getItem('previousPageMain');
 
   useEffect(() => {
     const fetchCurriculumData = async () => {
@@ -302,7 +308,12 @@ const LearnPage = () => {
     const { content, contentUrl, description, type, isTest } = selectedItem;
 
     if (isTest) {
-      return <TestPreview courseTitle={courseTitle || 'Default'} test={selectedItem} />;
+      return (
+        <TestPreview
+          courseTitle={courseTitle || 'Default'}
+          test={selectedItem}
+        />
+      );
     }
 
     return (
@@ -392,16 +403,19 @@ const LearnPage = () => {
       updateSearchParams(foundItem);
     }
   };
-
   const isLastItem = () => {
     if (!selectedItem) return false;
 
-    // Flatten the list of items in sections and find the selected item
+    // Flatten the list of items in sections
     const allItems = sections.flatMap((section) => section.items);
-    const currentIndex = allItems.findIndex((item) => item.id === selectedItem.id);
 
-    // Check if the current item is the last one
-    return currentIndex === allItems.length - 1;
+    // Get the last item in the list
+    const lastItem = allItems[allItems.length - 1];
+
+    // Check if the selected item is the last one *and* if it is complete
+    return (
+      selectedItem.id === lastItem.id && lastItem.complete // Ensure the last item is completed
+    );
   };
 
   if (loading) {
@@ -414,7 +428,10 @@ const LearnPage = () => {
 
   return (
     <Flex direction="column" h="100vh">
-      <NavbarWithBackBtn returnUrl={state?.returnUrl} backBtnTitle={'Back to courses'}/>
+      <NavbarWithBackBtn
+        returnUrl={returnURL}
+        backBtnTitle={'Back to courses'}
+      />
       <Flex h="100vh" overflow="hidden">
         <Box
           w="30%"
@@ -526,7 +543,9 @@ const LearnPage = () => {
                     colorScheme="teal"
                     alignSelf="flex-end"
                     leftIcon={<MdRateReview />}
-                    onClick={() => navigate(`/course-view-detail/${courseId}?tab=reviews`)}
+                    onClick={() =>
+                      navigate(`/course-view-detail/${courseId}?tab=reviews`)
+                    }
                   >
                     Review Course
                   </Button>

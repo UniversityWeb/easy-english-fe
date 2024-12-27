@@ -244,13 +244,23 @@ const Enrollment = () => {
                               <Button
                                 colorScheme="blue"
                                 width="full"
-                                onClick={() =>
-                                  navigate(config.routes.learn(course.id, course.title), {
-                                    state: {
-                                      returnUrl: config.routes.enroll_course
-                                    }
-                                  })
-                                }
+                                onClick={() => {
+                                  localStorage.setItem(
+                                    'previousPageMain',
+                                    window.location.href,
+                                  );
+                                  navigate(
+                                    config.routes.learn(
+                                      course.id,
+                                      course.title,
+                                    ),
+                                    {
+                                      state: {
+                                        returnUrl: config.routes.enroll_course,
+                                      },
+                                    },
+                                  );
+                                }}
                               >
                                 {getButtonText(course.progress || 0)}
                               </Button>

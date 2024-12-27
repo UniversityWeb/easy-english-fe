@@ -66,6 +66,7 @@ const TestPreview = ({ courseTitle, test }) => {
         ))}
       </Stack>
       <Button colorScheme="blue" mt={6} onClick={() => {
+        localStorage.setItem("previousPage", window.location.href);
         navigate(config.routes.take_test(id), {
           state: {
             returnUrl: config.routes.learn(test?.courseId, courseTitle) + `?type=TEST&id=${id}`

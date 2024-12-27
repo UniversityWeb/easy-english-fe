@@ -12,9 +12,16 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text, Tooltip,
+  Text,
+  Tooltip,
 } from '@chakra-ui/react';
-import { FaBook, FaClock, FaHeart, FaMoneyBillAlt, FaStar } from 'react-icons/fa';
+import {
+  FaBook,
+  FaClock,
+  FaHeart,
+  FaMoneyBillAlt,
+  FaStar,
+} from 'react-icons/fa';
 import { IoChatbox } from 'react-icons/io5';
 import FAQ from '~/components/Student/CourseDetail/FAQ';
 import Reviews from '~/components/Student/CourseDetail/Reviews';
@@ -131,6 +138,7 @@ function CourseDetailsPage() {
       case CourseDetailBtnStat.START_COURSE:
       case CourseDetailBtnStat.CONTINUE_COURSE:
       case CourseDetailBtnStat.COMPLETED:
+        localStorage.setItem('previousPageMain', window.location.href);
         navigate(config.routes.learn(courseId, courseData?.title));
         break;
       case CourseDetailBtnStat.IN_CART:
@@ -175,7 +183,16 @@ function CourseDetailsPage() {
             <Text color="gray.500" fontSize="sm">
               {courseData?.topic.name}
             </Text>
-            <Tooltip label={<PriceDisplay primaryColor={'white'} priceResponse={courseData?.price}/>} aria-label="Course Price" hasArrow>
+            <Tooltip
+              label={
+                <PriceDisplay
+                  primaryColor={'white'}
+                  priceResponse={courseData?.price}
+                />
+              }
+              aria-label="Course Price"
+              hasArrow
+            >
               <Text fontSize="3xl" fontWeight="bold" mt={2}>
                 {courseData?.title}
               </Text>

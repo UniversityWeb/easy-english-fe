@@ -105,7 +105,7 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
         setReviews(updatedReviews);
         setNewReview({ rating: 0, comment: '', owner: username });
         setIsWritingReview(false);
-
+        setHasReviewed(true);
         calculateAverageRating(updatedReviews);
         if (onReviewUpdate) {
           await onReviewUpdate();
@@ -170,17 +170,23 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
         </Text>
         <VStack align="flex-start">
           <HStack>
-            {[...Array(Math.floor(averageRating))].map((_, i) => (
-              <Icon key={i} as={FaStar} color="orange.400" />
+            {[...Array(5)].map((_, i) => (
+              <Icon
+                key={i}
+                as={FaStar}
+                color={
+                  i < Math.floor(averageRating)
+                    ? 'orange.400'
+                    : i < averageRating
+                      ? 'gray.300'
+                      : 'gray.300'
+                }
+              />
             ))}
-            {averageRating % 1 !== 0 && <Icon as={FaStar} color="gray.300" />}
-            {averageRating === 0 &&
-              [...Array(5)].map((_, i) => (
-                <Icon key={i} as={FaStar} color="gray.300" />
-              ))}
           </HStack>
           <Text fontSize="sm">{reviews.length} review(s)</Text>
         </VStack>
+
         {canWriteReview && !hasReviewed && (
           <Button
             colorScheme="blue"
