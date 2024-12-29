@@ -69,6 +69,8 @@ const LoginPage = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    localStorage.clear();
+
     setUsernameOrEmail(usernameOrEmail?.trim());
     setPassword(password?.trim());
 
@@ -113,6 +115,8 @@ const LoginPage = () => {
   };
 
   const handleGoogleSuccess = async (response) => {
+    localStorage.clear();
+
     // Send the response token to your Spring Boot backend for validation
     setIsLogging(true);
     try {

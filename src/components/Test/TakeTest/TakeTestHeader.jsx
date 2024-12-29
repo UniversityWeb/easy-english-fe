@@ -221,6 +221,7 @@ function TakeTestHeader({
       successToast('Test submitted successfully');
       const courseId = getCourseId(testId);
       clearSavedTest(testId);
+      localStorage.removeItem(`audioCurrentTime/${testId}`);
       if (testResultResponse?.id) {
         navigate(config.routes.test_result(testResultResponse?.id), {
           state: { returnUrl: config.routes.learn(courseId) },
