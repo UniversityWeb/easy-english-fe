@@ -13,10 +13,18 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { FaFileAudio, FaPause, FaPlay, FaRedo, FaTrash, FaUpload } from 'react-icons/fa';
+import {
+  FaFileAudio,
+  FaPause,
+  FaPlay,
+  FaRedo,
+  FaTrash,
+  FaUpload,
+} from 'react-icons/fa';
 import { MdFileUpload } from 'react-icons/md';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
+import axios from 'axios';
 
 const TestAudioUpload = ({ testState, setTestState }) => {
   const [audioFile, setAudioFile] = useState(null);
@@ -30,13 +38,48 @@ const TestAudioUpload = ({ testState, setTestState }) => {
 
   // Update audio URL either from uploaded file or testState.audioPath
   useEffect(() => {
-    if (audioFile) {
-      const url = URL.createObjectURL(audioFile);
-      setAudioUrl(url);
-    } else if (testState?.audioPath) {
-      setAudioUrl(testState.audioPath); // Use audioPath from testState on initial load
+    const fetchAudio = async () => {
+      try {
+        const audioPath = testState?.audioPath;
+
+        if (!audioPath && audioFile) {
+          // Handle locally uploaded file
+          const url = URL.createObjectURL(audioFile);
+          setAudioUrl(url);
+          setAudioFile(audioFile);
+        }
+
+        if (audioPath) {
+          // Fetch audio from server
+          const response = await axios.get(audioPath, {
+            responseType: 'blob', // To handle binary data
+          });
+
+          const file = new Blob([response.data], {
+            type: response.headers['content-type'],
+          });
+          const url = URL.createObjectURL(file);
+          setAudioUrl(url);
+
+          // Simulate a file object to display metadata
+          const simulatedFile = new File([file], audioPath.split('/').pop(), {
+            type: file.type,
+          });
+          setAudioFile(simulatedFile);
+        }
+      } catch (error) {
+        console.error('Error fetching audio:', error);
+      }
+    };
+
+    fetchAudio();
+  }, [testState?.audioPath]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume; // Set initial volume
     }
-  }, [audioFile, testState?.audioPath]);
+  }, [volume]);
 
   // Play/pause the audio
   const handlePlayPause = () => {
@@ -171,7 +214,13 @@ const TestAudioUpload = ({ testState, setTestState }) => {
             <Text fontSize="sm" color="gray.600">
               Drag & drop an audio file here, or click to select a file
             </Text>
-            <Button fontSize="sm" size="sm" colorScheme="blue" as="label" htmlFor="audio-upload">
+            <Button
+              fontSize="sm"
+              size="sm"
+              colorScheme="blue"
+              as="label"
+              htmlFor="audio-upload"
+            >
               Select File
             </Button>
             <Input
@@ -189,14 +238,17 @@ const TestAudioUpload = ({ testState, setTestState }) => {
       {audioUrl && audioFile && (
         <Box bg="gray.50" p={4} borderRadius="md" boxShadow="md">
           <audio
-            ref={audioRef}
-            src={audioUrl}
-            onTimeUpdate={updateCurrentTime}
-            onLoadedMetadata={() => setAudioDuration(audioRef.current.duration)}
-            onEnded={() => setIsPlaying(false)}
             controls
+            ref={audioRef}
+            onTimeUpdate={updateCurrentTime}
+            onEnded={() => setIsPlaying(false)}
+            onLoadedMetadata={() =>
+              setAudioDuration(audioRef.current.duration)
+            }
             hidden
-          />
+          >
+            <source src={audioUrl} type={audioFile?.type || 'audio/mpeg'} />
+          </audio>
 
           {/* Audio Player Controls */}
           <Flex direction={{ base: 'column', md: 'row' }} align="center" mt={4}>
