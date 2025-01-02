@@ -28,6 +28,8 @@ const TestForm = ({ sectionId, ordinalNumber, testState, setTestState, onTestSav
         id: testId,
         sectionId,
         ordinalNumber,
+        type: testState?.type || TEST_TYPES.CUSTOM,
+        passingGrade: Number(testState.passingGrade),
       };
 
       let testResponse;

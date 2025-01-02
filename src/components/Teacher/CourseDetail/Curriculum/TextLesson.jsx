@@ -33,7 +33,6 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
 
   // Fetch lesson data if ID is provided
   useEffect(() => {
-    // debugger;
     if (!isNew && id) {
       // Fetch existing lesson data
       let isMounted = true; // Mounted flag for component cleanup

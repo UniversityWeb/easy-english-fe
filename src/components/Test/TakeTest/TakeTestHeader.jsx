@@ -42,7 +42,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
-import { get } from 'lodash';
+import axios from 'axios';
 
 const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   const navigate = useNavigate();
@@ -101,14 +101,17 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
 function TakeTestHeader({
   resetCountDown,
   testId,
+  audioPath,
   isSplitLayout,
   onToggleLayout,
 }) {
-  const [audioSource, setAudioSource] = useState('');
-  const audioRef = useRef(new Audio(audioSource));
+  const [audioUrl, setAudioUrl] = useState('');
+  const [audioFile, setAudioFile] = useState(null);
+  const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
+  const [audioDuration, setAudioDuration] = useState(0);
   const [showRemainingTime, setShowRemainingTime] = useState(false);
   const { successToast, errorToast } = useCustomToast();
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
@@ -120,16 +123,40 @@ function TakeTestHeader({
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
-    const audioPath = getTest(testId)?.audioPath;
-    setAudioSource(audioPath);
-  }, [testId]);
+    const fetchAudio = async () => {
+      try {
+        if (audioPath) {
+          const response = await axios.get(audioPath, {
+            responseType: 'blob', // Fetch binary data
+          });
+
+          const file = new Blob([response.data], {
+            type: response.headers['content-type'],
+          });
+          const url = URL.createObjectURL(file);
+          setAudioUrl(url); // Set the blob URL
+
+          // Simulate a file object to display metadata
+          const simulatedFile = new File([file], audioPath.split('/').pop(), {
+            type: file.type,
+          });
+          setAudioFile(simulatedFile);
+        }
+      } catch (error) {
+        console.error('Error fetching audio:', error);
+        setAudioUrl(null); // Set to null if fetch fails
+      }
+    };
+
+    fetchAudio();
+  }, [audioPath]);
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.src = audioSource;
-      audioRef.current.load();
+      audioRef.current.src = audioUrl; // Use `audioUrl` instead of `audioFile`
+      audioRef.current.load(); // Ensure the audio file is loaded
     }
-  }, [audioSource]);
+  }, [audioUrl]);
 
   useEffect(() => {
     setResetTimeCountDown((prev) => prev + 1);
@@ -148,7 +175,10 @@ function TakeTestHeader({
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
-      audioRef.current.currentTime = getCurrentTime();
+      const savedTime = getCurrentTime();
+      if (savedTime && savedTime < audioRef.current.duration) {
+        audioRef.current.currentTime = savedTime;
+      }
 
       const updateCurrentTime = () => {
         setCurrentTime(audioRef.current.currentTime);
@@ -164,6 +194,7 @@ function TakeTestHeader({
   }, [volume]);
 
   const togglePlayPause = () => {
+    if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -175,7 +206,7 @@ function TakeTestHeader({
   const handleNext = () => {
     if (audioRef.current) {
       audioRef.current.currentTime = Math.min(
-        audioRef.current.duration,
+        audioRef.current.duration || 0,
         audioRef.current.currentTime + 5,
       );
     }
@@ -191,9 +222,10 @@ function TakeTestHeader({
   };
 
   const handleVolumeChange = (value) => {
-    setVolume(value / 100);
+    const newVolume = value / 100;
+    setVolume(newVolume);
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      audioRef.current.volume = newVolume;
     }
   };
 
@@ -221,6 +253,7 @@ function TakeTestHeader({
       successToast('Test submitted successfully');
       const courseId = getCourseId(testId);
       clearSavedTest(testId);
+      localStorage.removeItem(`audioCurrentTime/${testId}`);
       if (testResultResponse?.id) {
         navigate(config.routes.test_result(testResultResponse?.id), {
           state: { returnUrl: config.routes.learn(courseId) },
@@ -260,6 +293,13 @@ function TakeTestHeader({
         .catch((err) => {
           console.error('Error attempting to exit full-screen mode:', err);
         });
+    }
+  };
+
+  // Update the current time of the audio when it is playing
+  const updateCurrentTime = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
     }
   };
 
@@ -310,9 +350,28 @@ function TakeTestHeader({
         </HStack>
       </SimpleGrid>
 
-      {audioSource && audioSource !== '' && (
+      {audioFile && audioFile !== '' && (
         <HStack mt={6} spacing={4} alignItems="center">
           {/* Control buttons */}
+          {audioUrl ? (
+            <audio
+              controls
+              ref={audioRef}
+              onTimeUpdate={updateCurrentTime}
+              onEnded={() => setIsPlaying(false)}
+              onLoadedMetadata={() => {
+                if (audioRef.current) {
+                  setAudioDuration(audioRef.current.duration);
+                }
+              }}
+              hidden
+            >
+              <source src={audioUrl} type={audioFile?.type || 'audio/mpeg'} />
+            </audio>
+          ) : (
+            <Text color="red.500">Error loading audio file</Text>
+          )}
+
           <IconButton
             size={'sm'}
             aria-label="Rewind"
@@ -342,7 +401,7 @@ function TakeTestHeader({
           <Slider
             aria-label="time-slider"
             value={currentTime}
-            max={audioRef.current.duration || 0}
+            max={audioDuration}
             onChange={(value) => {
               audioRef.current.currentTime = value;
               setCurrentTime(value);
