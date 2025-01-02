@@ -7,7 +7,6 @@ const NavbarWithBackBtn = ({ returnUrl, backBtnTitle }) => {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    debugger;
     if (returnUrl) {
       // Kiểm tra nếu returnUrl là URL tuyệt đối
       if (returnUrl.startsWith('http://') || returnUrl.startsWith('https://')) {
