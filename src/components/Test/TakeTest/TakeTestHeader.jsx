@@ -185,10 +185,13 @@ function TakeTestHeader({
         saveCurrentTime(audioRef.current.currentTime);
       };
 
+      const currentAudio = audioRef.current;
       audioRef.current.addEventListener('timeupdate', updateCurrentTime);
 
       return () => {
-        audioRef.current.removeEventListener('timeupdate', updateCurrentTime);
+        if (currentAudio) {
+          audioRef.current.removeEventListener('timeupdate', updateCurrentTime);
+        }
       };
     }
   }, [volume]);
