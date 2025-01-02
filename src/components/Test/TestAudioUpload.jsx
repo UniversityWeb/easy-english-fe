@@ -36,42 +36,45 @@ const TestAudioUpload = ({ testState, setTestState }) => {
   const audioRef = useRef(null);
   const { successToast, errorToast } = useCustomToast();
 
+  const fetchAudio = async () => {
+    try {
+      const audioPath = testState?.audioPath;
+
+      if (!audioPath && audioFile) {
+        // Handle locally uploaded file
+        const url = URL.createObjectURL(audioFile);
+        setAudioUrl(url);
+        setAudioFile(audioFile);
+      }
+
+      if (audioPath) {
+        // Fetch audio from server
+        const response = await axios.get(audioPath, {
+          responseType: 'blob', // To handle binary data
+        });
+
+        const file = new Blob([response.data], {
+          type: response.headers['content-type'],
+        });
+        const url = URL.createObjectURL(file);
+        if (audioRef.current) {
+          audioRef.current.src = url;
+        }
+        setAudioUrl(url);
+
+        // Simulate a file object to display metadata
+        const simulatedFile = new File([file], audioPath.split('/').pop(), {
+          type: file.type,
+        });
+        setAudioFile(simulatedFile);
+      }
+    } catch (error) {
+      console.error('Error fetching audio:', error);
+    }
+  };
+
   // Update audio URL either from uploaded file or testState.audioPath
   useEffect(() => {
-    const fetchAudio = async () => {
-      try {
-        const audioPath = testState?.audioPath;
-
-        if (!audioPath && audioFile) {
-          // Handle locally uploaded file
-          const url = URL.createObjectURL(audioFile);
-          setAudioUrl(url);
-          setAudioFile(audioFile);
-        }
-
-        if (audioPath) {
-          // Fetch audio from server
-          const response = await axios.get(audioPath, {
-            responseType: 'blob', // To handle binary data
-          });
-
-          const file = new Blob([response.data], {
-            type: response.headers['content-type'],
-          });
-          const url = URL.createObjectURL(file);
-          setAudioUrl(url);
-
-          // Simulate a file object to display metadata
-          const simulatedFile = new File([file], audioPath.split('/').pop(), {
-            type: file.type,
-          });
-          setAudioFile(simulatedFile);
-        }
-      } catch (error) {
-        console.error('Error fetching audio:', error);
-      }
-    };
-
     fetchAudio();
   }, [testState?.audioPath]);
 
@@ -101,6 +104,7 @@ const TestAudioUpload = ({ testState, setTestState }) => {
       const audioPath = await testService.uploadAudio(testState.id, file);
       setAudioFile(file);
       setTestState({ ...testState, audioPath }); // Update testState with the new audioPath
+      await fetchAudio();
       successToast('Audio uploaded successfully!');
     } catch (error) {
       console.error('Error uploading audio:', error);
