@@ -1,11 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import { Avatar, Box, Button, Flex, HStack, Icon, Image, Input, Text } from '@chakra-ui/react';
-import { FiSend } from 'react-icons/fi';
+import {
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  IconButton,
+  Image,
+  Input,
+  Text,
+} from '@chakra-ui/react';
+import { FiImage, FiSend } from 'react-icons/fi';
 import messageService from '~/services/messageService';
 import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
+import ImagePreview from '~/components/ImagePreview';
 
 // Define message types as constants
 const MESSAGE_TYPES = {
@@ -20,6 +32,8 @@ const Chat = ({ recipient, courseData }) => {
   const [messageContent, setMessageContent] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [isViewerImageOpen, setViewerImageOpen] = useState(false);
+  const [imageViewerUrl, setImageViewerUrl] = useState(false);
 
   const { infoToast } = useCustomToast();
   const scrollRef = useRef(null);
@@ -55,16 +69,22 @@ const Chat = ({ recipient, courseData }) => {
       try {
         wsService = await WebSocketService.getIns();
 
-        wsService.subscribe(websocketConstants.messageTopic(curUsername), message => {
-          const recipientUsername = recipient?.username;
-          if (recipientUsername === message?.recipientUsername || recipientUsername === message?.senderUsername) {
-            setMessages((prevMessages) => [...prevMessages, message]);
-          }
-        });
+        wsService.subscribe(
+          websocketConstants.messageTopic(curUsername),
+          (message) => {
+            const recipientUsername = recipient?.username;
+            if (
+              recipientUsername === message?.recipientUsername ||
+              recipientUsername === message?.senderUsername
+            ) {
+              setMessages((prevMessages) => [...prevMessages, message]);
+            }
+          },
+        );
       } catch (error) {
         console.error('WebSocket initialization failed:', error);
       }
-    }
+    };
 
     initializeWebsocket();
 
@@ -72,30 +92,27 @@ const Chat = ({ recipient, courseData }) => {
       if (wsService) {
         wsService.unsubscribe(websocketConstants.messageTopic(curUsername));
       }
-    }
+    };
   }, []);
 
   const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = '') => {
-    if (
-      type === MESSAGE_TYPES.TEXT &&
-      messageContent.trim() === '' &&
-      !selectedImage
-    )
+    if (type === MESSAGE_TYPES.TEXT && content.trim() === '' && !selectedImage)
       return;
+
+    if (type === MESSAGE_TYPES.IMAGE) {
+      content = await convertToBase64(selectedImage);
+      console.log(`image base64 Str: ${content}`);
+    }
 
     const message = {
       type,
-      content:
-        type === MESSAGE_TYPES.IMAGE
-          ? await convertToBase64(selectedImage)
-          : content || messageContent,
+      content: content,
       senderUsername: curUsername,
       recipientUsername: recipient?.username,
       sendingTime: new Date().toISOString(),
     };
 
-    const wsService = await WebSocketService.getIns();
-    wsService.send(websocketConstants.messageDestination, message);
+    messageService.send(message);
     setMessages((prevMessages) => [...prevMessages, message]);
     setMessageContent('');
     setSelectedImage(null);
@@ -141,6 +158,11 @@ const Chat = ({ recipient, courseData }) => {
     return `${day}-${month}-${year} ${time}`;
   };
 
+  const showPreviewImage = (imageUrl) => {
+    setViewerImageOpen(true);
+    setImageViewerUrl(imageUrl);
+  };
+
   return (
     <Flex h="100%" direction="column">
       <HStack
@@ -182,8 +204,13 @@ const Chat = ({ recipient, courseData }) => {
               borderRadius="md"
               maxWidth="70%"
             >
-              {msg.type === MESSAGE_TYPES.IMAGE && msg.file ? (
-                <Image src={msg.file} alt="Image" maxH="200px" />
+              {msg.type === MESSAGE_TYPES.IMAGE && msg.content ? (
+                <Image
+                  src={msg.content}
+                  alt="Image"
+                  maxH="400px"
+                  onClick={() => showPreviewImage(msg.content)}
+                />
               ) : msg.type === MESSAGE_TYPES.COURSE_INFO ? (
                 <Box>
                   <Text fontWeight="bold">{JSON.parse(msg.content).title}</Text>
@@ -221,34 +248,53 @@ const Chat = ({ recipient, courseData }) => {
 
       <HStack p={4} bg="white" borderTop="1px solid" borderColor="gray.200">
         <Input
+          disabled={selectedImage}
           placeholder="Type a message"
           value={messageContent}
           onChange={(e) => setMessageContent(e.target.value)}
           onKeyDown={async (e) => {
             if (e.key === 'Enter') {
-              await sendMessage(MESSAGE_TYPES.TEXT);
+              setMessageContent(messageContent.trim());
+              if (selectedImage) {
+                await sendMessage(MESSAGE_TYPES.IMAGE);
+              } else {
+                await sendMessage(MESSAGE_TYPES.TEXT, messageContent);
+              }
             }
           }}
         />
 
         {/* Images Button */}
-        {/*<input*/}
-        {/*  type="file"*/}
-        {/*  accept="image/*"*/}
-        {/*  onChange={handleImageChange}*/}
-        {/*  style={{ display: 'none' }}*/}
-        {/*  id="image-upload"*/}
-        {/*/>*/}
-        {/*<label htmlFor="image-upload">*/}
-        {/*  <IconButton as="span" icon={<FiImage />} colorScheme="teal" />*/}
-        {/*</label>*/}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          style={{ display: 'none' }}
+          id="image-upload"
+        />
+        <label htmlFor="image-upload">
+          <IconButton as="span" icon={<FiImage />} colorScheme="teal" />
+        </label>
 
         <Button
           colorScheme="blue"
-          onClick={() => sendMessage(MESSAGE_TYPES.TEXT)}
+          onClick={async () => {
+            setMessageContent(messageContent.trim());
+            if (selectedImage) {
+              await sendMessage(MESSAGE_TYPES.IMAGE);
+            } else {
+              await sendMessage(MESSAGE_TYPES.TEXT, messageContent);
+            }
+          }}
         >
           <Icon as={FiSend} />
         </Button>
+
+        <ImagePreview
+          isOpen={isViewerImageOpen}
+          onClose={setViewerImageOpen}
+          imageUrl={imageViewerUrl}
+        />
       </HStack>
     </Flex>
   );
