@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import {
   Avatar,
@@ -18,12 +19,72 @@ import { websocketConstants } from '~/utils/websocketConstants';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
 import ImagePreview from '~/components/ImagePreview';
+import PriceDisplay from '~/components/PriceDisplay';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 // Define message types as constants
 const MESSAGE_TYPES = {
   TEXT: 'TEXT',
   IMAGE: 'IMAGE',
   COURSE_INFO: 'COURSE_INFO',
+};
+
+const CourseCard = ({ courseData }) => {
+  const navigate = useNavigate();
+  return (
+    <Flex justify="center" mt={4}>
+      <Box
+        border="1px solid"
+        borderColor="gray.200"
+        borderRadius="md"
+        p={4}
+        maxW="fit-content"
+        bg="white"
+        boxShadow="sm"
+        width="100%"
+        _hover={{
+          transform: 'scale(1.05)',
+          transition: 'transform 0.2s ease',
+          backgroundColor: '#f8f8f8',
+          cursor: 'pointer',
+        }}
+        onClick={() =>
+          navigate(
+            config.routes.course_view_detail.replace(
+              ':courseId',
+              courseData?.id,
+            ),
+          )
+        }
+      >
+        <Text fontSize="sm" color="gray.600" mb={3} textAlign="center">
+          Are you discussing this product with the seller?
+        </Text>
+
+        <Flex align="center" flexWrap="wrap">
+          <Image
+            src={courseData.imagePreview}
+            alt={courseData.title}
+            borderRadius="md"
+            mr={3}
+            maxW="80px"
+            maxH="80px"
+          />
+          <Box flex="1" minW="200px">
+            <Text fontSize="sm" fontWeight="bold">
+              {courseData.title}
+            </Text>
+            <PriceDisplay
+              priceResponse={courseData?.price}
+              primaryColor={'red.500'}
+              fontWeight={'regular'}
+            />
+          </Box>
+        </Flex>
+      </Box>
+    </Flex>
+  );
 };
 
 const Chat = ({ recipient, courseData }) => {
@@ -112,6 +173,35 @@ const Chat = ({ recipient, courseData }) => {
       sendingTime: new Date().toISOString(),
     };
 
+    if (courseData) {
+      const course = {
+        id: courseData.id,
+        title: courseData.title,
+        imagePreview: courseData.imagePreview,
+        price: courseData.price,
+        owner: courseData.owner,
+        createdAt: courseData.createdAt,
+        updatedAt: courseData.updatedAt,
+        status: courseData.status,
+        countStudent: courseData.countStudent,
+        rating: courseData.rating,
+        ratingCount: courseData.ratingCount,
+        topic: courseData.topic,
+        level: courseData.level,
+        categories: courseData.categories,
+      };
+
+      const courseInfo = {
+        type: MESSAGE_TYPES.COURSE_INFO,
+        content: JSON.stringify(course),
+        senderUsername: curUsername,
+        recipientUsername: recipient?.username,
+        sendingTime: new Date().toISOString(),
+      };
+      messageService.send(courseInfo);
+      courseData = undefined;
+    }
+
     messageService.send(message);
     setMessages((prevMessages) => [...prevMessages, message]);
     setMessageContent('');
@@ -126,10 +216,6 @@ const Chat = ({ recipient, courseData }) => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
-
-  const sendCourseInfo = async () => {
-    await sendMessage(MESSAGE_TYPES.COURSE_INFO, JSON.stringify(courseData));
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -163,6 +249,72 @@ const Chat = ({ recipient, courseData }) => {
     setImageViewerUrl(imageUrl);
   };
 
+  const SENSITIVE_WORDS = [
+    // English
+    'fuck',
+    'shit',
+    'bitch',
+    'asshole',
+    'bastard',
+    'damn',
+    'crap',
+    'dumb',
+    'stupid',
+    'hell',
+    'slut',
+    'whore',
+    'nigger',
+    'faggot',
+    'cunt',
+    'dick',
+    'cock',
+    'pussy',
+    'motherfucker',
+    'son of a bitch',
+    'bullshit',
+    'retard',
+    'idiot',
+    'moron',
+
+    // Vietnamese
+    'cấm',
+    'chửi',
+    'địt',
+    'cặc',
+    'lồn',
+    'buồi',
+    'đụ',
+    'chó',
+    'mẹ kiếp',
+    'con mẹ mày',
+    'đĩ',
+    'đểu',
+    'ngu',
+    'đần',
+    'dốt',
+    'khốn nạn',
+    'chó chết',
+    'vãi',
+    'vl',
+    'bố láo',
+    'vkl',
+    'cc',
+    'dm',
+    'đm',
+    'đjt',
+    'dkm',
+    'mẹ mày',
+    'ngu như bò',
+    'ngu như chó',
+    'mặt lồn',
+  ];
+
+  const filterSensitiveContent = (text) => {
+    if (!text || typeof text !== 'string') return text;
+    const regex = new RegExp(SENSITIVE_WORDS.join('|'), 'gi');
+    return text.replace(regex, '***');
+  };
+
   return (
     <Flex h="100%" direction="column">
       <HStack
@@ -179,52 +331,77 @@ const Chat = ({ recipient, courseData }) => {
             {recipient?.fullName || recipient?.username}
           </Text>
         </HStack>
-        {courseData && (
-          <Button colorScheme="teal" size="sm" onClick={sendCourseInfo}>
-            Send Course Info
-          </Button>
-        )}
       </HStack>
 
       <Box flex="1" overflowY="auto" p={4} bg="white" ref={scrollRef}>
-        {messages.map((msg, index) => (
-          <HStack
-            key={index}
-            justify={
-              msg.senderUsername === curUsername ? 'flex-end' : 'flex-start'
-            }
-            mb={2}
-          >
-            {msg.senderUsername !== curUsername && (
-              <Avatar size="sm" name={msg.senderUsername || 'User'} />
-            )}
-            <Box
-              p={3}
-              bg={msg.senderUsername === curUsername ? 'blue.100' : 'gray.200'}
-              borderRadius="md"
-              maxWidth="70%"
-            >
-              {msg.type === MESSAGE_TYPES.IMAGE && msg.content ? (
-                <Image
-                  src={msg.content}
-                  alt="Image"
-                  maxH="400px"
-                  onClick={() => showPreviewImage(msg.content)}
-                />
-              ) : msg.type === MESSAGE_TYPES.COURSE_INFO ? (
-                <Box>
-                  <Text fontWeight="bold">{JSON.parse(msg.content).title}</Text>
-                  <Text>{JSON.parse(msg.content).description}</Text>
-                </Box>
-              ) : (
-                <Text>{msg.content}</Text>
-              )}
-              <Text fontSize="xs" color="gray.500" mt={1}>
-                {formatDateTime(msg?.sendingTime)}
-              </Text>
-            </Box>
-          </HStack>
-        ))}
+        <>
+          {messages.map((msg, index) => {
+            const prevMsg = messages[index - 1];
+            const showTimeGap =
+              prevMsg &&
+              new Date(msg.sendingTime) - new Date(prevMsg.sendingTime) >
+                24 * 60 * 60 * 1000; // 1 day in milliseconds
+
+            return (
+              <React.Fragment key={index}>
+                {showTimeGap && (
+                  <Text
+                    textAlign="center"
+                    color="gray.500"
+                    my={4}
+                    fontSize="sm"
+                  >
+                    {formatDateTime(msg.sendingTime)}
+                  </Text>
+                )}
+
+                <HStack
+                  justify={
+                    msg.senderUsername === curUsername
+                      ? 'flex-end'
+                      : 'flex-start'
+                  }
+                  mb={2}
+                >
+                  {msg.senderUsername !== curUsername && (
+                    <Avatar size="sm" name={msg.senderUsername || 'User'} />
+                  )}
+
+                  {msg.type === MESSAGE_TYPES.COURSE_INFO ? (
+                    <CourseCard courseData={JSON.parse(msg.content)} />
+                  ) : (
+                    <Box
+                      p={3}
+                      bg={
+                        msg.senderUsername === curUsername
+                          ? 'blue.100'
+                          : 'gray.200'
+                      }
+                      borderRadius="md"
+                      maxWidth="70%"
+                    >
+                      {msg.type === MESSAGE_TYPES.IMAGE && msg.content ? (
+                        <Image
+                          src={msg.content}
+                          alt="Image"
+                          maxH="400px"
+                          onClick={() => showPreviewImage(msg.content)}
+                        />
+                      ) : (
+                        <Text>{filterSensitiveContent(msg.content)}</Text>
+                      )}
+                      <Text fontSize="xs" color="gray.500" mt={1}>
+                        {formatDateTime(msg?.sendingTime)}
+                      </Text>
+                    </Box>
+                  )}
+                </HStack>
+              </React.Fragment>
+            );
+          })}
+
+          {courseData && <CourseCard courseData={courseData} />}
+        </>
       </Box>
 
       {imagePreview && (
