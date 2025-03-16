@@ -46,7 +46,10 @@ const ChatPage = lazy(() => import('~/pages/Common/ChatPage'));
 const CourseManagementForAdminPage = lazy(
   () => import('~/pages/Admin/CourseManagementPage'),
 );
-
+const Bundle = lazy(() => import('~/pages/Teacher/Bundle'));
+const BundleDetail = lazy(
+  () => import('~/components/Teacher/Bundle/BundleDetail'),
+);
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
   { path: config.routes.register, component: RegisterPage },
@@ -97,6 +100,8 @@ const publicRoutes = [
     component: CourseManagementForAdminPage,
   },
   { path: config.routes.homepage, component: HomePage },
+  { path: config.routes.bundle, component: Bundle },
+  { path: config.routes.bundle_detail(':bundleId'), component: BundleDetail },
 ];
 
 const privateRoutes = [];
