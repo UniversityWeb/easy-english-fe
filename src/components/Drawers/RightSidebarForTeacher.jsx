@@ -14,6 +14,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { MdAdd, MdChat, MdDashboard, MdLogout } from 'react-icons/md';
+import { BsGraphUpArrow } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
@@ -33,6 +34,11 @@ const menuItems = [
     label: 'Analyst Courses',
     icon: IoBarChartOutline,
     route: config.routes.analytics_courses,
+  },
+  {
+    label: 'Gradebook',
+    icon: BsGraphUpArrow,
+    route: config.routes.gradebook,
   },
   // {
   //   label: 'Analyst Reviews',

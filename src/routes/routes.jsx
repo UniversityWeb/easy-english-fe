@@ -41,6 +41,7 @@ const CourseLineChartPage = lazy(
   () => import('~/pages/Admin/CourseLineChartPage'),
 );
 const ReviewAnalystPage = lazy(() => import('~/pages/Admin/ReviewAnalystPage'));
+const Gradebook = lazy(() => import('~/pages/Teacher/Gradebook'));
 const UserManagement = lazy(() => import('~/pages/Admin/UserManagementPage'));
 const ChatPage = lazy(() => import('~/pages/Common/ChatPage'));
 const CourseManagementForAdminPage = lazy(
@@ -92,6 +93,7 @@ const publicRoutes = [
     component: TestResultPage,
   },
   { path: config.routes.analytics_courses, component: CourseLineChartPage },
+  { path: config.routes.gradebook, component: Gradebook },
   { path: config.routes.analytics_reviews, component: ReviewAnalystPage },
   { path: config.routes.user_management, component: UserManagement },
 

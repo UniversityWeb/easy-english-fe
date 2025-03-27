@@ -33,6 +33,7 @@ const routes = {
   bundle: '/bundle',
   bundle_detail: (bundleId) => `/bundle-detail/${bundleId}`,
   bundle_add: '/new-bundle',
+  gradebook: '/teacher/gradebook',
 };
 
 export default routes;
