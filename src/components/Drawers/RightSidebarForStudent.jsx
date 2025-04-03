@@ -15,13 +15,33 @@ import {
 } from '@chakra-ui/react';
 import styles from './Drawer.module.scss';
 import { useNavigate } from 'react-router-dom';
-import { MdLogout, MdOutlineShoppingBag, MdOutlineShoppingCart } from 'react-icons/md';
+import {
+  MdLogout,
+  MdOutlineShoppingBag,
+  MdOutlineShoppingCart,
+} from 'react-icons/md';
 import { IoBookOutline, IoChatboxOutline } from 'react-icons/io5';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import { FaRegStar } from 'react-icons/fa';
 import AuthService from '~/services/authService';
+
+const menuItems = [
+  {
+    label: 'Enrolled Courses',
+    icon: IoBookOutline,
+    route: config.routes.enroll_course,
+  },
+  { label: 'My Cart', icon: MdOutlineShoppingCart, route: config.routes.cart },
+  {
+    label: 'My Orders',
+    icon: MdOutlineShoppingBag,
+    route: config.routes.orders,
+  },
+  { label: 'Wishlist', icon: FaRegStar, route: config.routes.favourite },
+  { label: 'Chat', icon: IoChatboxOutline, route: config.routes.chat },
+];
 
 const RightSidebarForStudent = (props) => {
   const user = props.user;
@@ -50,7 +70,7 @@ const RightSidebarForStudent = (props) => {
       <DrawerOverlay />
       <DrawerContent
         backgroundColor={'var(--white)'}
-        maxWidth={"230px"}
+        maxWidth={'230px'}
         width="auto"
       >
         <DrawerHeader borderBottomWidth="1px">
@@ -78,35 +98,14 @@ const RightSidebarForStudent = (props) => {
 
         <DrawerBody padding={0}>
           <VStack ps="10px">
-            <SidebarItem
-              icon={IoBookOutline}
-              text="Enrolled Courses"
-              handleClick={() => navigate(config.routes.enroll_course)}
-            />
-
-            <SidebarItem
-              icon={MdOutlineShoppingCart}
-              text="My Cart"
-              handleClick={() => navigate(config.routes.cart)}
-            />
-
-            <SidebarItem
-              icon={MdOutlineShoppingBag}
-              text="My Orders"
-              handleClick={() => navigate(config.routes.orders)}
-            />
-
-            <SidebarItem
-              icon={FaRegStar}
-              text="Wishlist"
-              handleClick={() => navigate(config.routes.favourite)}
-            />
-
-            <SidebarItem
-              icon={IoChatboxOutline}
-              text="Chat"
-              handleClick={() => navigate(config.routes.chat)}
-            />
+            {menuItems.map((item, index) => (
+              <SidebarItem
+                key={index}
+                icon={item.icon}
+                text={item.label}
+                handleClick={() => navigate(item.route)}
+              />
+            ))}
 
             <SidebarItem
               icon={MdLogout}
@@ -126,6 +125,6 @@ const RightSidebarForStudent = (props) => {
       </DrawerContent>
     </Drawer>
   );
-}
+};
 
 export default RightSidebarForStudent;
