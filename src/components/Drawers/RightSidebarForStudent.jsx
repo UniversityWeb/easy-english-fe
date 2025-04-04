@@ -41,6 +41,7 @@ const menuItems = [
   },
   { label: 'Wishlist', icon: FaRegStar, route: config.routes.favourite },
   { label: 'Chat', icon: IoChatboxOutline, route: config.routes.chat },
+  { label: 'Writing Tasks', icon: IoChatboxOutline, route: config.routes.chat },
 ];
 
 const RightSidebarForStudent = (props) => {
