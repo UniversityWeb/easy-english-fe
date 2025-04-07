@@ -32,6 +32,7 @@ const routes = {
   homepage: '/homepage/',
   bundle: '/bundle',
   bundle_detail: (bundleId) => `/bundle-detail/${bundleId}`,
+  bundle_add: '/new-bundle',
 };
 
 export default routes;

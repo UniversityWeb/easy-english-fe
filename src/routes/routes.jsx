@@ -50,6 +50,7 @@ const Bundle = lazy(() => import('~/pages/Teacher/Bundle'));
 const BundleDetail = lazy(
   () => import('~/components/Teacher/Bundle/BundleDetail'),
 );
+const NewBundle = lazy(() => import('~/components/Teacher/Bundle/NewBundle'));
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
   { path: config.routes.register, component: RegisterPage },
@@ -102,6 +103,7 @@ const publicRoutes = [
   { path: config.routes.homepage, component: HomePage },
   { path: config.routes.bundle, component: Bundle },
   { path: config.routes.bundle_detail(':bundleId'), component: BundleDetail },
+  { path: config.routes.bundle_add, component: NewBundle },
 ];
 
 const privateRoutes = [];

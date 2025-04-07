@@ -84,13 +84,7 @@ const EditingForm = forwardRef(({ data = {} }, ref) => {
           disable={false}
           className="col-xs-12 col-md-12" // chỉnh độ dài
         />
-        <UploadFileFiled
-          fieldName="imagePreview"
-          control={control}
-          errors={errors}
-          label="Bundle price"
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
+
         <TextAreaField
           fieldName="desc"
           control={control}
@@ -118,30 +112,13 @@ const EditingForm = forwardRef(({ data = {} }, ref) => {
   );
 });
 
-const BundleDetail = () => {
-  const [data, setData] = useState(null);
+const NewBundle = () => {
   const formRef = useRef(null);
-  const { bundleId } = useParams();
   const { successToast, errorToast } = useCustomToast();
-
-  useEffect(() => {
-    fetchBundle();
-  }, []);
-
-  const fetchBundle = async () => {
-    try {
-      const response = await bundleService.getBundleById(bundleId);
-      if (response) {
-        setData(response);
-      }
-    } catch (error) {
-      console.error('Error fetching enroll bundles:', error);
-    }
-  };
 
   const handleSave = useCallback(() => {
     formRef.current?.submitForm(async (data) => {
-      const updateBundle = await bundleService.updateBundle(data.id, data);
+      const updateBundle = await bundleService.createBundle(data);
       if (updateBundle) {
         successToast(`Bundle updated successfully.`);
       } else {
@@ -149,12 +126,10 @@ const BundleDetail = () => {
       }
     });
   }, []);
-  // Chỉ render khi `data` có giá trị
-  if (!data) return null;
 
   return (
     <div>
-      <EditingForm ref={formRef} data={data} />
+      <EditingForm ref={formRef} data={[]} />
       <Button mt={4} colorScheme="blue" onClick={handleSave} type="submit">
         Save
       </Button>
@@ -162,4 +137,4 @@ const BundleDetail = () => {
   );
 };
 
-export default BundleDetail;
+export default NewBundle;

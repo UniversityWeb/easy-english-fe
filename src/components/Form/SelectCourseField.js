@@ -31,24 +31,20 @@ const SelectCourseField = ({
     formState: { errors },
     setValue,
   } = useFormContext();
-
   const [search, setSearch] = useState('');
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const dropdownRef = useRef(null);
 
-  // Khởi tạo selectedCourses từ field.value khi component mount
   useEffect(() => {
-    // Lấy giá trị ban đầu từ form, mặc định là mảng rỗng nếu không có giá trị
-    const initialCourseData = control._formValues[fieldName] || [];
+    const initialCourseIds = control._formValues[fieldName] || [];
 
-    // Lọc các khóa học từ danh sách courses dựa trên ID trong initialCourseData
     const initialCourses = courses.filter((course) =>
-      initialCourseData.some((item) => item.id === course.id),
+      initialCourseIds.includes(course.id),
     );
+    console.log('initialCourses', initialCourses);
 
-    // Cập nhật state với danh sách khóa học đã lọc
     setSelectedCourses(initialCourses);
   }, [control, fieldName, courses]);
 
@@ -63,14 +59,15 @@ const SelectCourseField = ({
       fieldName,
       selectedCourses.map((course) => course.id),
     );
+
     const total = selectedCourses.reduce(
-      (sum, course) => sum + (course.priceValue || 0), // Xử lý trường hợp priceValue không tồn tại
+      (sum, course) => sum + (course.priceValue || 0),
       0,
     );
     setTotalPrice(total);
   }, [selectedCourses, fieldName, setValue]);
 
-  // Đóng dropdown khi click bên ngoài
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
