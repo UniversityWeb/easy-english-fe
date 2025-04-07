@@ -13,6 +13,7 @@ import courseService from '~/services/courseService';
 import { formatVNDMoney } from '~/utils/methods';
 import { useNavigate } from 'react-router-dom';
 import PriceDisplay from '~/components/PriceDisplay';
+import config from '~/config';
 
 const RandomCourse = ({ courseId, numberOfCourses, type }) => {
   const navigate = useNavigate();
@@ -78,7 +79,9 @@ const RandomCourse = ({ courseId, numberOfCourses, type }) => {
             } catch (e) {
               console.error(e);
             }
-            navigate(`/course-view-detail/${courseId}`);
+            navigate(
+              config.routes.course_view_detail.replace(':courseId', courseId),
+            );
           }}
         >
           <HStack>

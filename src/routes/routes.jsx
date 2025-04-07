@@ -41,6 +41,7 @@ const CourseLineChartPage = lazy(
   () => import('~/pages/Admin/CourseLineChartPage'),
 );
 const ReviewAnalystPage = lazy(() => import('~/pages/Admin/ReviewAnalystPage'));
+const Gradebook = lazy(() => import('~/pages/Teacher/Gradebook'));
 const UserManagement = lazy(() => import('~/pages/Admin/UserManagementPage'));
 const ChatPage = lazy(() => import('~/pages/Common/ChatPage'));
 const CourseManagementForAdminPage = lazy(
@@ -51,6 +52,8 @@ const BundleDetail = lazy(
   () => import('~/components/Teacher/Bundle/BundleDetail'),
 );
 const NewBundle = lazy(() => import('~/components/Teacher/Bundle/NewBundle'));
+const WritingTaskPage = lazy(() => import('~/pages/Common/WritingTaskPage'));
+
 const publicRoutes = [
   { path: config.routes.login, component: LoginPage },
   { path: config.routes.register, component: RegisterPage },
@@ -92,6 +95,7 @@ const publicRoutes = [
     component: TestResultPage,
   },
   { path: config.routes.analytics_courses, component: CourseLineChartPage },
+  { path: config.routes.gradebook, component: Gradebook },
   { path: config.routes.analytics_reviews, component: ReviewAnalystPage },
   { path: config.routes.user_management, component: UserManagement },
 
@@ -101,9 +105,6 @@ const publicRoutes = [
     component: CourseManagementForAdminPage,
   },
   { path: config.routes.homepage, component: HomePage },
-  { path: config.routes.bundle, component: Bundle },
-  { path: config.routes.bundle_detail(':bundleId'), component: BundleDetail },
-  { path: config.routes.bundle_add, component: NewBundle },
 ];
 
 const privateRoutes = [];

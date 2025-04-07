@@ -33,6 +33,8 @@ const routes = {
   bundle: '/bundle',
   bundle_detail: (bundleId) => `/bundle-detail/${bundleId}`,
   bundle_add: '/new-bundle',
+  gradebook: '/teacher/gradebook',
+  writing_task: (writingTaskId) => `/writing-task/${writingTaskId}`,
 };
 
 export default routes;
