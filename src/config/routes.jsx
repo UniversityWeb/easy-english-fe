@@ -30,6 +30,9 @@ const routes = {
   chat: '/chat',
   course_management_for_admin: '/admin/course-management',
   homepage: '/homepage/',
+  bundle: '/bundle',
+  bundle_detail: (bundleId) => `/bundle-detail/${bundleId}`,
+  bundle_add: '/new-bundle',
 };
 
 export default routes;
