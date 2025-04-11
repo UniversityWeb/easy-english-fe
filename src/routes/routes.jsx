@@ -105,6 +105,14 @@ const publicRoutes = [
     component: CourseManagementForAdminPage,
   },
   { path: config.routes.homepage, component: HomePage },
+  { path: config.routes.bundle_detail(':bundleId'), component: BundleDetail },
+  { path: config.routes.bundle_add, component: NewBundle },
+  { path: config.routes.bundle, component: Bundle },
+  { path: config.routes.gradebook, component: Gradebook },
+  {
+    path: config.routes.writing_task(':writingTaskId'),
+    component: WritingTaskPage,
+  },
 ];
 
 const privateRoutes = [];
