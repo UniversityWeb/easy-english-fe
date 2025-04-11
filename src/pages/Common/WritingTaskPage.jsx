@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -9,11 +9,36 @@ import {
   Badge,
   VStack,
   HStack,
+  Textarea,
 } from '@chakra-ui/react';
 import { CheckIcon, ChatIcon } from '@chakra-ui/icons';
+import './WritingTaskPage.scss';
+import writingService from '~/services/writingService';
+const text = {
+  score: 6.5,
+  errorGrammar: 6,
+  errorVocabulary: 4,
+  sampleAnswer:
+    'The debate surrounding school uniforms is a prevalent one, with compelling arguments on both sides. While some advocate for mandatory uniforms, others champion the freedom of students to express themselves through their clothing choices. This essay will explore both perspectives before offering my own opinion.\n\nProponents of school uniforms often highlight the benefits of equality and discipline. Uniforms eliminate socio-economic disparities in appearance, preventing bullying and fostering a sense of unity among students. They also reduce distractions in the classroom, allowing students to focus on their studies rather than comparing outfits. Furthermore, uniforms can simplify the morning routine and alleviate pressure on parents to purchase trendy clothes.\n\nConversely, those who oppose school uniforms argue that they stifle individuality and self-expression. Clothing is a powerful tool for communicating personality and creativity, and forcing students to conform to a dress code can be detrimental to their self-esteem. Allowing students to choose their own clothes can also promote responsibility and decision-making skills. Moreover, some argue that uniforms are a financial burden for low-income families, as they still need to purchase clothes for non-school activities.\n\nIn my opinion, while both sides have valid points, the benefits of allowing students to choose their own clothing outweigh the drawbacks of uniforms. Fostering individuality and self-expression is crucial for personal development, and allowing students to choose their clothes empowers them to explore their identities and develop their own unique styles. While concerns about inequality and distraction are legitimate, they can be addressed through alternative measures, such as promoting a culture of respect and acceptance within the school environment.\n\nIn conclusion, the decision of whether or not to implement school uniforms is a complex one with valid arguments on both sides. However, I believe that allowing students to choose their own clothes promotes individuality, self-expression, and responsibility, ultimately contributing to a more positive and enriching learning environment.',
+};
+
+const question =
+  'The table below illustrates weekly consumption by age group of dairy products in a European country. Summarise the information byselecting and reporting the main features, and make comparisons where relevant.';
 
 const WritingTaskPage = () => {
   const [activeTab, setActiveTab] = useState('original');
+  const [data, setData] = useState(null);
+  const [textSubmit, setTextSubmit] = useState('');
+  const submitWriting = async () => {
+    const writingRequest = {
+      submittedText: 'Đề bài: ' + question + ' Bài làm: ' + textSubmit,
+    };
+
+    try {
+      const response = await writingService.submitWriting(writingRequest);
+      setData(response);
+    } catch (error) {}
+  };
 
   return (
     <Container maxW="container.xl" bg="#FAE6D8" p={4} borderRadius="md">
@@ -51,10 +76,7 @@ const WritingTaskPage = () => {
             borderRadius="md"
             fontWeight="bold"
           >
-            The table below illustrates weekly consumption by age group of dairy
-            products in a European country. Summarise the information by
-            selecting and reporting the main features, and make comparisons
-            where relevant.
+            {question}
           </Box>
 
           {/* Hình ảnh bảng số liệu */}
@@ -67,126 +89,50 @@ const WritingTaskPage = () => {
           </Flex>
 
           {/* Thảo luận và chia sẻ */}
-          <HStack spacing={4} my={4}>
-            <Button leftIcon={<ChatIcon />} variant="outline">
-              11 thảo luận
-            </Button>
-            <Button leftIcon={<CheckIcon />} colorScheme="green">
-              Chia sẻ bài làm
-            </Button>
-          </HStack>
 
           {/* Nội dung bài viết theo tab */}
           {activeTab === 'original' && (
             <>
-              <Text>
-                The given table shows the information for weekly consumption by
-                age group about from 25 to 65+ of dairy goods in a European
-                country.
-              </Text>
-              <Text mt={2}>
-                Overall, it is obvious that the senior group is has the most
-                highest intake of milk about at 1900 ml, while middle ages group
-                has the most highest consumption to use of butter.
-              </Text>
-              <Text mt={2}>
-                Additionally, the youngest age group shows the lowest dairy
-                consumption, indicating a trend of increasing intake with age.
-                This pattern suggests that dietary habit evolve over time,
-                potentially due to health awareness or lifestyle changes.
-              </Text>
+              <HStack spacing={4} my={4}>
+                <Button leftIcon={<ChatIcon />} variant="outline">
+                  11 thảo luận
+                </Button>
+                <Button
+                  leftIcon={<CheckIcon />}
+                  colorScheme="green"
+                  onClick={submitWriting}
+                >
+                  Nộp bài
+                </Button>
+              </HStack>
+              {/* <Text>
+                {text.sampleAnswer.split('\n').map((line, index) => (
+                  <span key={index}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </Text> */}
+              <Textarea onChange={(e) => setTextSubmit(e.target.value)} />
             </>
           )}
 
           {activeTab === 'highlight' && (
-            <>
-              <Text>
-                The given table presents data on weekly dairy consumption by
-                different age groups, ranging
-                <Tag bg="yellow.300">about</Tag>
-                <Tag bg="yellow.500">FROM</Tag> 25 to 65+ in a European country.
-              </Text>
-              <Text mt={2}>
-                Overall, it is evident that the senior group{' '}
-                <Tag bg="yellow.300">is</Tag>
-                <Tag bg="yellow.500">HAS</Tag> the{' '}
-                <Tag bg="yellow.300">most highest</Tag>
-                <Tag bg="yellow.500">HIGHEST</Tag> intake of milk, reaching{' '}
-                <Tag bg="yellow.300">about</Tag>
-                <Tag bg="yellow.500">AT</Tag> 1900 ml per week. Meanwhile, the
-                middle <Tag bg="yellow.500">ages</Tag>
-                <Tag bg="yellow.500">AGE</Tag> group{' '}
-                <Tag bg="yellow.500">HAS</Tag> the{' '}
-                <Tag bg="yellow.500">HIGHEST</Tag> consumption{' '}
-                <Tag bg="yellow.300">to use</Tag>
-                <Tag bg="yellow.500">OF</Tag> butter, significantly exceeding
-                other age categories.
-              </Text>
-              <Text mt={2}>
-                Additionally, the youngest age group shows the lowest dairy
-                consumption, indicating a<Tag bg="yellow.300">trend</Tag>
-                <Tag bg="yellow.500">TENDENCY</Tag> of increasing intake with
-                age. This pattern suggests that dietary
-                <Tag bg="yellow.300">habit</Tag>
-                <Tag bg="yellow.500">HABITS</Tag> evolve over time, potentially
-                due to health awareness or lifestyle changes.
-              </Text>
-            </>
+            <div
+              className="fix-by-ai"
+              dangerouslySetInnerHTML={{ __html: data?.fixByAI }}
+            />
           )}
 
           {activeTab === 'upgrade' && (
-            <>
-              <Text>
-                <u style={{ color: 'green' }}>Overall</u>, milk consumption{' '}
-                <u style={{ color: 'green' }}>tends to increase</u> with age,
-                with the <u style={{ color: 'green' }}>65+ age group</u>{' '}
-                consuming the <u style={{ color: 'green' }}>highest volume</u>.
-                This trend suggests that{' '}
-                <u style={{ color: 'green' }}>older individuals</u> may rely
-                more on milk for its{' '}
-                <u style={{ color: 'green' }}>nutritional benefits</u>,
-                particularly for <u style={{ color: 'green' }}>bone health</u>.
-                Conversely, butter consumption{' '}
-                <u style={{ color: 'green' }}>peaks</u> in the{' '}
-                <u style={{ color: 'green' }}>middle-aged group (45-64)</u> and
-                then <u style={{ color: 'green' }}>declines</u>. This could be
-                due to <u style={{ color: 'green' }}>dietary changes</u> as
-                people grow older, with a shift toward{' '}
-                <u style={{ color: 'green' }}>healthier fat alternatives</u>.
-                Additionally,{' '}
-                <u style={{ color: 'green' }}>younger age groups</u> may consume{' '}
-                <u style={{ color: 'green' }}>less butter</u> due to evolving{' '}
-                <u style={{ color: 'green' }}>dietary preferences</u>,
-                influenced by <u style={{ color: 'green' }}>health awareness</u>{' '}
-                and <u style={{ color: 'green' }}>modern food trends</u>.
-              </Text>
-            </>
+            <div
+              className="upgrade-by-ai"
+              dangerouslySetInnerHTML={{ __html: data?.upgradeByAI }}
+            />
           )}
 
           {activeTab === 'sample' && (
-            <>
-              <Text fontWeight="bold">
-                Đây là bài mẫu từ YouPass với cách viết cải thiện:
-              </Text>
-              <Text mt={2}>
-                The given table contains information about weekly dairy
-                consumption in four age groups, namely below 25, 26 to 45, 45 to
-                65, and over 65. <br />
-                Overall, it is clear that people of their retirement age drink
-                the most milk, while those in the second oldest group eat by far
-                the most butter. <br />
-                In addition, people across all age demographics prefer the
-                low-fat alternative for both products, with the exception of the
-                youngest group. Regarding milk consumption, people under 25
-                drink the least milk, at 1200ml per week, 59% of which is full
-                fat, while the rest is low fat. 80% of the 1650ml drunk by those
-                from 26 to 45 is low-fat milk, compared to 20% for full fat.
-                Similarly, people in the second oldest age group drink 1670ml a
-                week, at 55% for low fat versus 45% for full fat. 1900ml is
-                drunk per week by the elderly, only 30% of which is full fat,
-                while the remaining 70% is low fat.
-              </Text>
-            </>
+            <div dangerouslySetInnerHTML={{ __html: data?.sampleByAI }} />
           )}
         </Box>
 
