@@ -15,6 +15,7 @@ import LoaderPage from '~/components/LoaderPage';
 import WebSocketService from '~/services/websocketService';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store from './store/store';
+import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   useEffect(() => {
     let webSocketInstance;
@@ -52,6 +53,7 @@ function App() {
 
                 {publicRoutes.map((route, index) => {
                   const Page = route.component;
+                  const allowedRoles = route.roles || ['ALL'];
                   let Layout = DefaultLayout;
 
                   if (route.layout) {
@@ -65,9 +67,11 @@ function App() {
                       key={index}
                       path={route.path}
                       element={
-                        <Layout>
-                          <Page />
-                        </Layout>
+                        <ProtectedRoute allowedRoles={allowedRoles}>
+                          <Layout>
+                            <Page />
+                          </Layout>
+                        </ProtectedRoute>
                       }
                     />
                   );

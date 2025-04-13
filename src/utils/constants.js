@@ -1,4 +1,10 @@
-import { CheckCircleIcon, DeleteIcon, EditIcon, TimeIcon, WarningIcon } from '@chakra-ui/icons';
+import {
+  CheckCircleIcon,
+  DeleteIcon,
+  EditIcon,
+  TimeIcon,
+  WarningIcon,
+} from '@chakra-ui/icons';
 
 export const MIN_USERNAME_LENGTH = 3;
 export const MIN_PASSWORD_LENGTH = 8;
@@ -7,20 +13,21 @@ export const USER_ROLES = {
   STUDENT: 'STUDENT',
   TEACHER: 'TEACHER',
   ADMIN: 'ADMIN',
+  ALL: 'ALL',
 };
 
 export const USER_STATUSES = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
   DELETED: 'DELETED',
-}
+};
 
 export const SEC_ITEM_TYPES = {
   TEXT: 'TEXT',
   VIDEO: 'VIDEO',
   AUDIO: 'AUDIO',
   TEST: 'TEST',
-}
+};
 
 export const TEST_TYPES = {
   QUIZ: 'QUIZ',
@@ -42,7 +49,14 @@ export const QUESTION_TYPES = {
 };
 
 export const SAVED_ORDERS_TAB_INDEX_KEY = 'selectedOrdersTabIndex';
-export const ORDERS_TAB_STATUSES = ["All", "PENDING_PAYMENT", "PAID", "FAILED", "REFUNDED", "EXPIRED"];
+export const ORDERS_TAB_STATUSES = [
+  'All',
+  'PENDING_PAYMENT',
+  'PAID',
+  'FAILED',
+  'REFUNDED',
+  'EXPIRED',
+];
 export const getOrdersTabStatusByIndex = (index) => {
   return ORDERS_TAB_STATUSES[index] || ORDERS_TAB_STATUSES[0];
 };
@@ -52,12 +66,12 @@ export const DEFAULT_LIST_SIZE = 10;
 export const TEST_RESULT_STATUSES = {
   DONE: 'DONE',
   IN_PROGRESS: 'IN_PROGRESS',
-  FAILED: 'FAILED'
-}
+  FAILED: 'FAILED',
+};
 
 export const PAYMENT_STATUES = {
-  SUCCESS: 'SUCCESS'
-}
+  SUCCESS: 'SUCCESS',
+};
 
 export const COURSE_STATUS = {
   PUBLISHED: {

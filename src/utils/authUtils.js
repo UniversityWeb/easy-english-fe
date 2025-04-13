@@ -1,4 +1,4 @@
-const LOGIN_RESPONSE_KEY = 'loginResponseData'
+const LOGIN_RESPONSE_KEY = 'loginResponseData';
 
 export const isLoggedIn = () => {
   let data = localStorage.getItem(LOGIN_RESPONSE_KEY);
@@ -27,4 +27,11 @@ export const getUsername = () => {
     return null;
   }
   return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).user?.username;
-}
+};
+
+export const getCurrentUserRole = () => {
+  if (!isLoggedIn()) {
+    return null;
+  }
+  return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).user?.role;
+};
