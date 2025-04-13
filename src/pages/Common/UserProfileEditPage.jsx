@@ -28,29 +28,31 @@ import VerifyOtpModal from '~/components/VerifyOtpModal';
 import { validatePassword } from '~/utils/methods';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import ValidationErrors from '~/components/ValidationErrors';
+import UserSettings from '~/components/UserSettings';
 
 const UpdatePassword = () => {
   const [passwordData, setPasswordData] = useState({
-    password: "",
-    confirmPassword: "",
+    password: '',
+    confirmPassword: '',
   });
   const [validationErrors, setValidationErrors] = useState([]);
   const [loadingPassword, setLoadingPassword] = useState(false);
   const [isOpenVerifyOtpModel, setIsOpenVerifyOtpModel] = useState(false);
-  const {successToast, errorToast} = useCustomToast();
+  const { successToast, errorToast } = useCustomToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
 
-    if (name === "password" || name === "confirmPassword") {
+    if (name === 'password' || name === 'confirmPassword') {
       const errors = validatePassword(
-        name === "password" ? value : passwordData.password,
-        name === "confirmPassword" ? value : passwordData.confirmPassword
+        name === 'password' ? value : passwordData.password,
+        name === 'confirmPassword' ? value : passwordData.confirmPassword,
       );
       setValidationErrors(errors);
     }
@@ -58,7 +60,10 @@ const UpdatePassword = () => {
 
   const generateOtpToUpdatePassword = async (e) => {
     e.preventDefault();
-    const errors = validatePassword(passwordData.password, passwordData.confirmPassword);
+    const errors = validatePassword(
+      passwordData.password,
+      passwordData.confirmPassword,
+    );
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
@@ -70,7 +75,7 @@ const UpdatePassword = () => {
       successToast('Otp generated successfully');
       setIsOpenVerifyOtpModel(true);
     } catch (error) {
-      errorToast("Error generating otp");
+      errorToast('Error generating otp');
       console.error('Error saving data:', error);
     } finally {
       setLoadingPassword(false);
@@ -83,11 +88,11 @@ const UpdatePassword = () => {
       const updatePassReq = {
         otp: otp,
         newPassword: passwordData?.password,
-      }
+      };
       await authService.updatePasswordWithOtp(updatePassReq);
       setPasswordData({
-        password: "",
-        confirmPassword: "",
+        password: '',
+        confirmPassword: '',
       });
       successToast('Password updated successfully');
       setIsOpenVerifyOtpModel(false);
@@ -186,13 +191,10 @@ const UpdatePassword = () => {
             Verify Otp
           </Button>
         </HStack>
-
       </form>
 
       <Box mt={5}>
-        <ValidationErrors
-          errors={validationErrors}
-        />
+        <ValidationErrors errors={validationErrors} />
       </Box>
 
       <VerifyOtpModal
@@ -275,12 +277,13 @@ const UserProfileEditPage = () => {
           p={10}
         >
           <GridItem alignSelf="start">
-            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="flex-start">
-              <UploadAvatar
-                user={user}
-                setUser={setUser}
-                mb={4}
-              />
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="flex-start"
+            >
+              <UploadAvatar user={user} setUser={setUser} mb={4} />
               <Text fontSize="sm" color="gray.500">
                 Role: {user?.role}
               </Text>
@@ -430,6 +433,13 @@ const UserProfileEditPage = () => {
                 Update Password
               </Heading>
               <UpdatePassword />
+            </Box>
+
+            <Box mt={20}>
+              <Heading as="h5" size="lg" mb={4}>
+                Settings
+              </Heading>
+              <UserSettings />
             </Box>
           </GridItem>
         </Grid>
