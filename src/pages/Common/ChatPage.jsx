@@ -222,8 +222,19 @@ const ChatPage = () => {
                 onClick={fetchRecentChats}
                 loading={loading}
                 disabled={loading}
+                style={{
+                  transition: 'transform 0.3s, background-color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.backgroundColor = '#1890ff'; // Change to blue or hover color
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = ''; // Reset color
+                }}
               >
-                Load More...
+                {loading ? 'Loading...' : 'Load More'}
               </Button>
             </div>
           )}
