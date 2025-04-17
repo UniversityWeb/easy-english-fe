@@ -46,6 +46,7 @@ import EditableTest from '~/components/Test/EditableTest';
 import testService from '~/services/testService';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import Writing from './Curriculum/Writing';
+import writingService from '~/services/writingService';
 
 const getSectionItemIcon = (type) => {
   switch (type) {
@@ -76,6 +77,8 @@ const Curriculum = ({ courseId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const [hoveredLessonId, setHoveredLessonId] = useState(null);
+  const [hoveredWritingId, setHoveredWritingId] = useState(null);
+
   const [hoveredTestId, setHoveredTestId] = useState(null);
   const { successToast, errorToast } = useCustomToast();
   const [isNewTest, setIsNewTest] = useState(false);
@@ -100,11 +103,16 @@ const Curriculum = ({ courseId }) => {
 
               // Create requests for lessons and tests
               const lessonRequest = { sectionId: sectionId };
-
+              const writingRequest = {
+                sectionId: sectionId,
+                pageNumber: 0,
+                size: 9999,
+              };
               // Fetch both lessons and tests concurrently
-              const [lessons, tests] = await Promise.all([
+              const [lessons, tests, writings] = await Promise.all([
                 lessonService.fetchLessons(lessonRequest),
                 testService.getTestsBySection(sectionId),
+                writingService.getWriting(writingRequest),
               ]);
 
               // Return the section object with lessons and tests included
@@ -112,6 +120,7 @@ const Curriculum = ({ courseId }) => {
                 ...section,
                 lessons: lessons || [],
                 tests: tests || [],
+                writings: writings || [],
               };
             }),
           );
@@ -153,6 +162,33 @@ const Curriculum = ({ courseId }) => {
     setSelectedLessonId(savedLesson.id); // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
     setSelectedSectionItemType(savedLesson.type);
     setSelectedSectionId(savedLesson.sectionId);
+  };
+
+  const handleWritingSaved = (savedWriting) => {
+    console.log('save : ', savedWriting);
+
+    // Cập nhật lại sections với lesson mới hoặc cập nhật lesson đã tồn tại
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.id === savedWriting.sectionId) {
+          const updatedWritings = section.writings.some(
+            (lesson) => lesson.id === savedWriting.id,
+          )
+            ? section.writings.map((writings) =>
+                writings.id === savedWriting.id ? savedWriting : writings,
+              )
+            : [...section.writings, savedWriting];
+
+          return { ...section, writings: updatedWritings };
+        }
+        return section;
+      }),
+    );
+
+    // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
+    setSelectedLessonId(savedWriting.id); // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
+    setSelectedSectionItemType(SEC_ITEM_TYPES.WRITING);
+    setSelectedSectionId(savedWriting.sectionId);
   };
 
   const handleSectionItemTypeClick = (sectionItemType) => {
@@ -237,6 +273,12 @@ const Curriculum = ({ courseId }) => {
     setSelectedSectionId(lesson.sectionId);
   };
 
+  const handleWritingClick = (writing) => {
+    setSelectedSectionItemType(SEC_ITEM_TYPES.WRITING);
+    setSelectedLessonId(writing.id);
+    setSelectedSectionId(writing.sectionId);
+  };
+
   const renderLessonComponent = () => {
     const isNewLesson = Boolean(!selectedLessonId && selectedSectionId);
     switch (selectedSectionItemType) {
@@ -288,8 +330,10 @@ const Curriculum = ({ courseId }) => {
             //testId={selectedTestId}
             sectionId={selectedSectionId}
             // ordinalNumber={1}
-            //isNew={isNewTest}
-            // onTestSaved={handleTestSaved}
+            isNew={isNewLesson}
+            id={selectedLessonId}
+            handleWritingSaved
+            onWritingSaved={handleWritingSaved}
           />
         );
       default:
@@ -572,7 +616,49 @@ const Curriculum = ({ courseId }) => {
                             </ListItem>
                           );
                         })}
-
+                        {section.writings.map((writing) => {
+                          const { icon, color } = getSectionItemIcon(
+                            writing?.type,
+                          );
+                          return (
+                            <ListItem
+                              onClick={() =>
+                                handleWritingClick({
+                                  ...writing,
+                                  sectionId: section.id,
+                                })
+                              }
+                              key={writing.id}
+                              cursor="pointer"
+                              onMouseEnter={() =>
+                                setHoveredWritingId(writing.id)
+                              }
+                              onMouseLeave={() => setHoveredWritingId(null)}
+                            >
+                              <HStack justify="space-between">
+                                <HStack>
+                                  <ListIcon
+                                    as={RxDragHandleDots2}
+                                    color="gray.500"
+                                  />
+                                  <ListIcon as={LuPencil} color={color} />
+                                  <Text noOfLines={1}>{writing.title}</Text>
+                                </HStack>
+                                {hoveredWritingId === writing.id && (
+                                  <Icon
+                                    as={RiDeleteBinFill}
+                                    color="gray.500"
+                                    cursor="pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      promptDelete('writing', writing.id);
+                                    }}
+                                  />
+                                )}
+                              </HStack>
+                            </ListItem>
+                          );
+                        })}
                         {/* tests */}
                         {section.tests.map((test) => {
                           const { icon, color } = getSectionItemIcon(

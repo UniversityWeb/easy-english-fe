@@ -26,7 +26,7 @@ const Writing = ({
   ordinalNumber,
   testId,
   isNew,
-  onTestSaved,
+  onWritingSaved,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +39,54 @@ const Writing = ({
     endDate: '',
   });
   const { successToast, errorToast } = useCustomToast();
+
+  useEffect(() => {
+    debugger;
+    if (!isNew && id) {
+      // Fetch existing lesson data
+      let isMounted = true; // Mounted flag for component cleanup
+
+      const fetchWriting = async () => {
+        setLoading(true);
+        try {
+          const data = await writingService.fetchWritingById(id);
+          if (data && isMounted) {
+            // Check if component is still mounted
+            setWriting({
+              title: data.title || '',
+              level: data.level || '',
+              instructions: data.instructions || '',
+              startDate: data.startDate || '',
+              startTime: data.startTime || '',
+            });
+            //successToast('Lesson data fetched successfully');
+          }
+        } catch (error) {
+          if (isMounted) {
+            console.error(error?.message);
+            errorToast('Error fetching lesson data');
+          }
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      };
+
+      fetchWriting();
+
+      return () => {
+        isMounted = false; // Cleanup function to prevent memory leaks
+      };
+    } else {
+      // Initialize new lesson state for a new lesson
+      setWriting({
+        title: '',
+        level: 'INTERMEDIATE',
+        instructions: '',
+        startDate: '',
+        startTime: '',
+      });
+    }
+  }, [id, isNew]);
 
   const validate = () => {
     const newErrors = {};
@@ -76,15 +124,19 @@ const Writing = ({
     try {
       let savedWriting;
       if (id) {
-        savedWriting = await writingService.updateWriting({ ...formData, id });
+        savedWriting = await writingService.updateWriting(id, {
+          ...formData,
+          status: 'DRAFT',
+          id,
+        });
         successToast('Lesson updated successfully');
       } else {
         savedWriting = await writingService.createWriting(formData);
         successToast('Lesson created successfully');
       }
-      //   if (onLessonSaved) {
-      //     onLessonSaved(savedWriting); // Pass the saved lesson to the parent
-      //   }
+      if (onWritingSaved) {
+        onWritingSaved(savedWriting); // Pass the saved lesson to the parent
+      }
     } catch (error) {
       errorToast('Error saving the lesson');
       console.error(error);
@@ -139,6 +191,7 @@ const Writing = ({
                   <FormControl mb={4}>
                     <FormLabel>Instructions</FormLabel>
                     <Textarea
+                      value={writing.instructions}
                       onChange={(e) =>
                         setWriting({ ...writing, instructions: e.target.value })
                       }
@@ -153,6 +206,7 @@ const Writing = ({
                       <FormControl>
                         <FormLabel>Start Date</FormLabel>
                         <Input
+                          value={writing.startDate}
                           type="datetime-local"
                           onChange={(e) =>
                             setWriting({
@@ -168,6 +222,7 @@ const Writing = ({
                       <FormControl>
                         <FormLabel>End Date</FormLabel>
                         <Input
+                          value={writing.endDate}
                           onChange={(e) =>
                             setWriting({ ...writing, endDate: e.target.value })
                           }
