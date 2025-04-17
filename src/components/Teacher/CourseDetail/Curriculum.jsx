@@ -26,6 +26,7 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
+import { LuPencil } from 'react-icons/lu';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import {
   RxDragHandleDots2,
@@ -44,6 +45,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import EditableTest from '~/components/Test/EditableTest';
 import testService from '~/services/testService';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
+import Writing from './Curriculum/Writing';
 
 const getSectionItemIcon = (type) => {
   switch (type) {
@@ -277,6 +279,17 @@ const Curriculum = ({ courseId }) => {
             ordinalNumber={1}
             isNew={isNewTest}
             onTestSaved={handleTestSaved}
+          />
+        );
+      case SEC_ITEM_TYPES.WRITING:
+        return (
+          <Writing
+            //courseId={courseId}
+            //testId={selectedTestId}
+            sectionId={selectedSectionId}
+            // ordinalNumber={1}
+            //isNew={isNewTest}
+            // onTestSaved={handleTestSaved}
           />
         );
       default:
@@ -779,6 +792,26 @@ const Curriculum = ({ courseId }) => {
                   <Icon as={FiHelpCircle} w={8} h={8} color="blue.500" />
                   <Text mt={2} fontSize="sm">
                     Test
+                  </Text>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    handleSectionItemTypeClick(SEC_ITEM_TYPES.WRITING)
+                  }
+                  size="lg"
+                  minW="130px"
+                  minH="130px"
+                  borderRadius="md"
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={LuPencil} w={8} h={8} color="blue.500" />
+                  <Text mt={2} fontSize="sm">
+                    Writing
                   </Text>
                 </Button>
               </SimpleGrid>

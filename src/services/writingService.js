@@ -13,8 +13,32 @@ const submitWriting = async (writingRequest) => {
   return response.data;
 };
 
+const updateWriting = async (writingId, writingRequest) => {
+  const path = `${SUFFIX_WRITING_TASK_API_URL}/update/${writingId}`;
+  const response = await put(path, writingRequest);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
+
+const createWriting = async (writingRequest) => {
+  const path = `${SUFFIX_WRITING_TASK_API_URL}/add`;
+  const response = await post(path, writingRequest);
+
+  if (response?.status !== 201) {
+    return null;
+  }
+
+  return response.data;
+};
+
 const writingService = {
   submitWriting,
+  createWriting,
+  updateWriting,
 };
 
 export default writingService;
