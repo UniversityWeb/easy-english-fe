@@ -25,7 +25,8 @@ const text = {
 const question =
   'The table below illustrates weekly consumption by age group of dairy products in a European country. Summarise the information byselecting and reporting the main features, and make comparisons where relevant.';
 
-const WritingTaskPage = () => {
+const WritingTaskPage = ({ infoWriting }) => {
+  console.log('infoWriting', infoWriting);
   const [activeTab, setActiveTab] = useState('original');
   const [data, setData] = useState(null);
   const [textSubmit, setTextSubmit] = useState('');
@@ -76,7 +77,7 @@ const WritingTaskPage = () => {
             borderRadius="md"
             fontWeight="bold"
           >
-            {question}
+            {infoWriting?.title} ({infoWriting?.instructions})
           </Box>
 
           {/* Hình ảnh bảng số liệu */}
@@ -94,9 +95,9 @@ const WritingTaskPage = () => {
           {activeTab === 'original' && (
             <>
               <HStack spacing={4} my={4}>
-                <Button leftIcon={<ChatIcon />} variant="outline">
+                {/* <Button leftIcon={<ChatIcon />} variant="outline">
                   11 thảo luận
-                </Button>
+                </Button> */}
                 <Button
                   leftIcon={<CheckIcon />}
                   colorScheme="green"
@@ -113,7 +114,10 @@ const WritingTaskPage = () => {
                   </span>
                 ))}
               </Text> */}
-              <Textarea onChange={(e) => setTextSubmit(e.target.value)} />
+              <Textarea
+                height={500}
+                onChange={(e) => setTextSubmit(e.target.value)}
+              />
             </>
           )}
 

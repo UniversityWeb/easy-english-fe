@@ -27,6 +27,7 @@ export const SEC_ITEM_TYPES = {
   VIDEO: 'VIDEO',
   AUDIO: 'AUDIO',
   TEST: 'TEST',
+  WRITING: 'WRITING',
 };
 
 export const TEST_TYPES = {

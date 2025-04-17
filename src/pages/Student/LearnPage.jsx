@@ -15,6 +15,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
+import { LuPencil } from 'react-icons/lu';
+
 import { FaCheckCircle, FaLock } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
@@ -33,6 +35,8 @@ import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
 import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
+import writingService from '~/services/writingService';
+import WritingTaskPage from '../Common/WritingTaskPage';
 
 const LessonItem = ({
   icon,
@@ -109,9 +113,16 @@ const LearnPage = () => {
 
         const sectionsWithContent = await Promise.all(
           fetchedSections.map(async (section) => {
-            const [lessons, tests] = await Promise.all([
+            const writingRequest = {
+              sectionId: section.id,
+              pageNumber: 0,
+              size: 9999,
+            };
+            const [lessons, tests, writings] = await Promise.all([
               lessonService.fetchLessons({ sectionId: section.id }),
               testService.getTestsBySection(section.id),
+
+              writingService.getWriting(writingRequest),
             ]);
 
             const formattedLessons = lessons.map((lesson) => ({
@@ -132,9 +143,22 @@ const LearnPage = () => {
               type: 'TEST',
             }));
 
+            const formattedWritings = writings.map((writing) => ({
+              ...writing,
+              icon: LuPencil,
+              iconColor: 'green.500',
+              //complete: writing.isDone,
+              //isTest: true,
+              type: 'WRITING',
+            }));
+
             return {
               ...section,
-              items: [...formattedLessons, ...formattedTests],
+              items: [
+                ...formattedLessons,
+                ...formattedTests,
+                ...formattedWritings,
+              ],
             };
           }),
         );
@@ -370,24 +394,15 @@ const LearnPage = () => {
         {type === SEC_ITEM_TYPES.AUDIO && (
           <>
             <Box
-              position="relative"
-              width="100%"
-              height="100%"
-              cursor="pointer"
-              overflow="hidden"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <audio src={contentUrl} controls style={{ width: '50%' }}>
-                Your browser does not support the audio tag.
-              </audio>
-            </Box>
-            <Box
               color="gray.700"
               mt={4}
               dangerouslySetInnerHTML={{ __html: content }}
             />
+          </>
+        )}
+        {type === SEC_ITEM_TYPES.WRITING && (
+          <>
+            <WritingTaskPage infoWriting={selectedItem} />
           </>
         )}
       </>
