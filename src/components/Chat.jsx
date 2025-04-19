@@ -87,7 +87,7 @@ const CourseCard = ({ courseData }) => {
   );
 };
 
-const Chat = ({ recipient, courseData }) => {
+const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
   const curUsername = getUsername();
   const [messages, setMessages] = useState([]);
   const [messageContent, setMessageContent] = useState('');
@@ -95,6 +95,7 @@ const Chat = ({ recipient, courseData }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [isViewerImageOpen, setViewerImageOpen] = useState(false);
   const [imageViewerUrl, setImageViewerUrl] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
 
   const { infoToast } = useCustomToast();
   const scrollRef = useRef(null);
@@ -199,7 +200,8 @@ const Chat = ({ recipient, courseData }) => {
         sendingTime: new Date().toISOString(),
       };
       messageService.send(courseInfo);
-      courseData = undefined;
+      setNullTargetCourse();
+      courseData = null;
     }
 
     messageService.send(message);
@@ -247,6 +249,37 @@ const Chat = ({ recipient, courseData }) => {
   const showPreviewImage = (imageUrl) => {
     setViewerImageOpen(true);
     setImageViewerUrl(imageUrl);
+  };
+
+  const getMessageSuggestions = (input) => {
+    const predefinedSuggestions = [
+      'Hello, how can I help you?',
+      'Can you provide more details?',
+      'I’m available for a chat.',
+      'Let me know if you have any questions.',
+      'I would love to assist you!',
+    ];
+
+    return predefinedSuggestions.filter((suggestion) =>
+      suggestion.toLowerCase().includes(input.toLowerCase()),
+    );
+  };
+
+  const handleInputChange = (e) => {
+    const newMessageContent = e.target.value;
+    setMessageContent(newMessageContent);
+
+    // Update suggestions based on the current input
+    if (newMessageContent) {
+      setSuggestions(getMessageSuggestions(newMessageContent));
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setMessageContent(suggestion); // Insert suggestion into input
+    setSuggestions([]); // Clear suggestions
   };
 
   const SENSITIVE_WORDS = [
@@ -423,12 +456,36 @@ const Chat = ({ recipient, courseData }) => {
         </Box>
       )}
 
+      {/* Suggestion Box */}
+      {suggestions.length > 0 && (
+        <Box
+          p={2}
+          bg="gray.100"
+          borderTop="1px solid"
+          borderColor="gray.200"
+          borderBottom="1px solid"
+        >
+          {suggestions.map((suggestion, index) => (
+            <Button
+              key={index}
+              variant="ghost"
+              size="sm"
+              onClick={() => handleSuggestionClick(suggestion)}
+              width="100%"
+              textAlign="left"
+            >
+              {suggestion}
+            </Button>
+          ))}
+        </Box>
+      )}
+
       <HStack p={4} bg="white" borderTop="1px solid" borderColor="gray.200">
         <Input
           disabled={selectedImage}
           placeholder="Type a message"
           value={messageContent}
-          onChange={(e) => setMessageContent(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={async (e) => {
             if (e.key === 'Enter') {
               setMessageContent(messageContent.trim());
