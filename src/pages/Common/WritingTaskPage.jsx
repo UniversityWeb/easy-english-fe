@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,6 +14,7 @@ import {
 import { CheckIcon, ChatIcon } from '@chakra-ui/icons';
 import './WritingTaskPage.scss';
 import writingService from '~/services/writingService';
+import writingResultService from '~/services/writingResultService';
 const text = {
   score: 6.5,
   errorGrammar: 6,
@@ -30,13 +31,36 @@ const WritingTaskPage = ({ infoWriting }) => {
   const [activeTab, setActiveTab] = useState('original');
   const [data, setData] = useState(null);
   const [textSubmit, setTextSubmit] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const inputRef = useRef(null);
+  const handleImageClick = () => {
+    inputRef.current.click(); // Mở dialog chọn ảnh
+  };
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImageFile(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await writingResultService.imageToText(formData);
+      setTextSubmit(response);
+    } catch (error) {
+      console.error('Lỗi khi gọi API:', error);
+    }
+  };
+
   const submitWriting = async () => {
     const writingRequest = {
       submittedText: 'Đề bài: ' + question + ' Bài làm: ' + textSubmit,
     };
 
     try {
-      const response = await writingService.submitWriting(writingRequest);
+      const response =
+        await writingResultService.supportWriting(writingRequest);
       setData(response);
     } catch (error) {}
   };
@@ -77,7 +101,8 @@ const WritingTaskPage = ({ infoWriting }) => {
             borderRadius="md"
             fontWeight="bold"
           >
-            {infoWriting?.title} ({infoWriting?.instructions})
+            {infoWriting?.title}
+            {/* ({infoWriting?.instructions}) */}
           </Box>
 
           {/* Hình ảnh bảng số liệu */}
@@ -95,9 +120,22 @@ const WritingTaskPage = ({ infoWriting }) => {
           {activeTab === 'original' && (
             <>
               <HStack spacing={4} my={4}>
-                {/* <Button leftIcon={<ChatIcon />} variant="outline">
-                  11 thảo luận
-                </Button> */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={inputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+
+                {/* Nút gọi input và gọi API */}
+                <Button
+                  leftIcon={<ChatIcon />}
+                  variant="outline"
+                  onClick={handleImageClick}
+                >
+                  Ảnh
+                </Button>
                 <Button
                   leftIcon={<CheckIcon />}
                   colorScheme="green"
@@ -115,6 +153,7 @@ const WritingTaskPage = ({ infoWriting }) => {
                 ))}
               </Text> */}
               <Textarea
+                value={textSubmit}
                 height={500}
                 onChange={(e) => setTextSubmit(e.target.value)}
               />
@@ -177,18 +216,11 @@ const WritingTaskPage = ({ infoWriting }) => {
               <Badge colorScheme="yellow">Ngữ pháp</Badge>
               <Badge colorScheme="green">Từ vựng</Badge>
             </HStack>
-            <Text bg="gray.100" p={2} borderRadius="md">
-              Khi nói về phạm vi độ tuổi, ta dùng "from... to..." thay vì
-              "about".
-            </Text>
-            <Text bg="gray.100" p={2} borderRadius="md">
-              Trong câu này, ta đang so sánh lượng tiêu thụ, nên dùng "has" thay
-              vì "is".
-            </Text>
-            <Text bg="gray.100" p={2} borderRadius="md">
-              Trong tiếng Anh, ta không dùng "most highest", chỉ cần "highest"
-              là đủ.
-            </Text>
+            {data?.errorGrammarAndVocabulary?.map((item, index) => (
+              <Text key={index} bg="gray.100" p={3} borderRadius="md">
+                {item.error}
+              </Text>
+            ))}
           </VStack>
         </Box>
       </Flex>
