@@ -106,13 +106,6 @@ const WritingTaskPage = ({ infoWriting }) => {
           </Box>
 
           {/* Hình ảnh bảng số liệu */}
-          <Flex justify="center" my={4}>
-            <img
-              src="https://cms.youpass.vn/assets/29a06a2d-2af8-49e0-847f-9af15f7ae8f5?width=500"
-              alt="Table data"
-              style={{ border: '1px solid black' }}
-            />
-          </Flex>
 
           {/* Thảo luận và chia sẻ */}
 
