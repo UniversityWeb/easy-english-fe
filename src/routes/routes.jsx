@@ -54,7 +54,7 @@ const BundleDetail = lazy(
 );
 const NewBundle = lazy(() => import('~/components/Teacher/Bundle/NewBundle'));
 const WritingTaskPage = lazy(() => import('~/pages/Common/WritingTaskPage'));
-
+const ChatAI = lazy(() => import('~/pages/Common/ChatAIPage'));
 const publicRoutes = [
   {
     path: config.routes.login,
@@ -231,6 +231,11 @@ const publicRoutes = [
   {
     path: config.routes.writing_task(':writingTaskId'),
     component: WritingTaskPage,
+    roles: [USER_ROLES.ALL],
+  },
+  {
+    path: config.routes.chat_ai,
+    component: ChatAI,
     roles: [USER_ROLES.ALL],
   },
 ];

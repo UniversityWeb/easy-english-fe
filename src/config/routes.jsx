@@ -35,6 +35,7 @@ const routes = {
   bundle_add: '/new-bundle',
   gradebook: '/teacher/gradebook',
   writing_task: (writingTaskId) => `/writing-task/${writingTaskId}`,
+  chat_ai: '/chat-ai',
 };
 
 export default routes;

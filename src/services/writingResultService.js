@@ -28,9 +28,17 @@ const imageToText = async (formData) => {
   return response.data;
 };
 
-const writingResultService = {
-  supportWriting,
-  imageToText,
+const chatWithAI = async (writingRequest) => {
+  const path = `${SUFFIX_WRITING_RESULT_TASK_API_URL}/chat-with-ai`;
+  const response = await post(path, writingRequest);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
 };
+
+const writingResultService = { chatWithAI, supportWriting, imageToText };
 
 export default writingResultService;
