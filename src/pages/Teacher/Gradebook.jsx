@@ -23,6 +23,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import enrollmentService from '~/services/enrollmentService';
 
 const courses = [
   {
@@ -201,9 +202,29 @@ const courses = [
 ];
 
 function Gradebook() {
+  const [courses, setCourses] = useState([]);
   const [expandedCourse, setExpandedCourse] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [loadingStudents, setLoadingStudents] = useState({});
   const [loadedStudents, setLoadedStudents] = useState({});
+
+  const fetchCoursesStats = async () => {
+    setLoading(true);
+    try {
+      const courseStatsFilter = {
+        pageNumber: 0,
+        size: 10,
+      };
+
+      const response =
+        await enrollmentService.getCoursesStatistics(courseStatsFilter);
+      setCourses(response);
+    } catch (error) {
+      console.error('Error fetching enroll courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleCourse = (courseId) => {
     setExpandedCourse(expandedCourse === courseId ? null : courseId);
