@@ -106,6 +106,7 @@ const NavbarForStudent = () => {
         alt="Logo"
         style={{ width: '100px', height: '100px' }}
         ms={5}
+        onClick={() => navigate(config.routes.homepage)}
       />
       <div className="navbar--list">
         <div className="navbar--list__gap20" align="center">

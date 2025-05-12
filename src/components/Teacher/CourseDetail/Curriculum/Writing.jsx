@@ -19,6 +19,8 @@ import {
 } from '@chakra-ui/react';
 import useCustomToast from '~/hooks/useCustomToast';
 import writingService from '~/services/writingService';
+import { Support } from '@mui/icons-material';
+import SupportWriting from './SupportWriting';
 
 const Writing = ({
   id,
@@ -32,6 +34,7 @@ const Writing = ({
 
   const [errors, setErrors] = useState({});
   const [writing, setWriting] = useState({
+    id: '',
     title: '',
     instructions: '',
     level: 'INTERMEDIATE',
@@ -53,6 +56,7 @@ const Writing = ({
           if (data && isMounted) {
             // Check if component is still mounted
             setWriting({
+              id: data.id || '',
               title: data.title || '',
               level: data.level || '',
               instructions: data.instructions || '',
@@ -248,7 +252,9 @@ const Writing = ({
             </Box>
           </TabPanel>
 
-          <TabPanel>Tab kết quả</TabPanel>
+          <TabPanel>
+            <SupportWriting infoWriting={writing} />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </Box>

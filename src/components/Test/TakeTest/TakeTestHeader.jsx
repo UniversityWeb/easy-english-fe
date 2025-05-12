@@ -99,6 +99,7 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
 };
 
 function TakeTestHeader({
+  backLearn = true,
   resetCountDown,
   testId,
   audioPath,
@@ -257,10 +258,12 @@ function TakeTestHeader({
       const courseId = getCourseId(testId);
       clearSavedTest(testId);
       localStorage.removeItem(`audioCurrentTime/${testId}`);
-      if (testResultResponse?.id) {
+      if (testResultResponse?.id && backLearn === true) {
         navigate(config.routes.test_result(testResultResponse?.id), {
           state: { returnUrl: config.routes.learn(courseId) },
         });
+      } else if (testResultResponse?.id && backLearn === false) {
+        navigate(config.routes.entrance_test_result(testResultResponse?.id));
       } else {
         handleBackClick();
       }
@@ -273,8 +276,12 @@ function TakeTestHeader({
   };
 
   const handleBackClick = () => {
-    const courseId = getCourseId(testId);
-    navigate(config.routes.learn(courseId));
+    if (backLearn === true) {
+      const courseId = getCourseId(testId);
+      navigate(config.routes.learn(courseId));
+    } else {
+      navigate(-1);
+    }
   };
 
   const toggleFullScreen = () => {

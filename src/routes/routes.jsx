@@ -38,6 +38,9 @@ const LearnPage = lazy(() => import('~/pages/Student/LearnPage'));
 const CategoryPage = lazy(() => import('~/pages/Admin/CategoryPage'));
 const TopicAndLevelPage = lazy(() => import('~/pages/Admin/TopicAndLevelPage'));
 const TestResultPage = lazy(() => import('~/pages/Common/TestResultPage'));
+const EntranceTestResultPage = lazy(
+  () => import('~/pages/Common/EntranceTestResultPage'),
+);
 const CourseLineChartPage = lazy(
   () => import('~/pages/Admin/CourseLineChartPage'),
 );
@@ -55,6 +58,7 @@ const BundleDetail = lazy(
 const NewBundle = lazy(() => import('~/components/Teacher/Bundle/NewBundle'));
 const WritingTaskPage = lazy(() => import('~/pages/Common/WritingTaskPage'));
 const ChatAI = lazy(() => import('~/pages/Common/ChatAIPage'));
+const EntranceTestPage = lazy(() => import('~/pages/Student/EntranceTestPage'));
 const publicRoutes = [
   {
     path: config.routes.login,
@@ -173,6 +177,11 @@ const publicRoutes = [
     roles: [USER_ROLES.ALL],
   },
   {
+    path: config.routes.entrance_test_result(':testResultId'),
+    component: EntranceTestResultPage,
+    roles: [USER_ROLES.STUDENT],
+  },
+  {
     path: config.routes.analytics_courses,
     component: CourseLineChartPage,
     roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN],
@@ -237,6 +246,11 @@ const publicRoutes = [
     path: config.routes.chat_ai,
     component: ChatAI,
     roles: [USER_ROLES.ALL],
+  },
+  {
+    path: config.routes.entrance_test,
+    component: EntranceTestPage,
+    roles: [USER_ROLES.STUDENT],
   },
 ];
 
