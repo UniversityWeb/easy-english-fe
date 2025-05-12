@@ -439,7 +439,7 @@ const UserProfileEditPage = () => {
               <Heading as="h5" size="lg" mb={4}>
                 Settings
               </Heading>
-              <UserSettings />
+              <UserSettings user={user} />
             </Box>
           </GridItem>
         </Grid>
