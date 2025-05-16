@@ -1,27 +1,19 @@
 import * as yup from 'yup';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import React, { forwardRef } from 'react';
-
-import { Button } from '@chakra-ui/react';
+import { Button, Flex } from '@chakra-ui/react';
 import FormDataWrapper from '~/components/Form/FormDataWrapper';
 import SelectCourseField from '~/components/Form/SelectCourseField';
 import TextField from '~/components/Form/TextField';
-import UploadFileFiled from '~/components/Form/UploadFileFiled';
 import TextAreaField from '~/components/Form/TextAreaField';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { getDataCourse } from '~/store/courseSlice';
 import bundleService from '~/services/bundleService';
-import { useParams } from 'react-router-dom';
 import useCustomToast from '~/hooks/useCustomToast';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const EditingForm = forwardRef(({ data = {} }, ref) => {
   const schema = yup.object().shape({
@@ -128,12 +120,14 @@ const NewBundle = () => {
   }, []);
 
   return (
-    <div>
+    <RoleBasedPageLayout>
       <EditingForm ref={formRef} data={[]} />
-      <Button mt={4} colorScheme="blue" onClick={handleSave} type="submit">
-        Save
-      </Button>
-    </div>
+      <Flex mt={4} justify="center">
+        <Button colorScheme="blue" onClick={handleSave} type="submit">
+          Save
+        </Button>
+      </Flex>
+    </RoleBasedPageLayout>
   );
 };
 

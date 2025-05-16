@@ -48,6 +48,12 @@ const addUserForAdmin = async (userData) => {
   return response.data;
 };
 
+const updateOwnSettings = async (updateReq) => {
+  const path = `${SUFFIX_USER_API_URL}/update-own-settings`;
+  const response = await put(path, updateReq);
+  return handleResponse(response, 200);
+};
+
 const userService = {
   updateOwnProfile,
   uploadAvatar,
@@ -55,6 +61,7 @@ const userService = {
   updateUserForAdmin,
   deleteUserForAdmin,
   addUserForAdmin,
+  updateOwnSettings,
 };
 
 export default userService;
