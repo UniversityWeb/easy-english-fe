@@ -25,6 +25,7 @@ import Notice from '~/components/Teacher/CourseDetail/Notice';
 import config from '~/config';
 import courseService from '~/services/courseService';
 import useCustomToast from '~/hooks/useCustomToast';
+import { COURSE_STATUS } from '~/utils/constants';
 
 function CourseDetailPage() {
   const { successToast, errorToast } = useCustomToast();
@@ -172,10 +173,10 @@ function CourseDetailPage() {
               if (courseStatus === 'DRAFT') {
                 await courseService.updateCourseStatus(
                   courseId,
-                  'PENDING_APPROVAL',
+                  COURSE_STATUS.PENDING_APPROVAL.value,
                 );
                 successToast('Send for request publish course successfully.');
-                setCourseStatus('PENDING_APPROVAL');
+                setCourseStatus(COURSE_STATUS.PENDING_APPROVAL.value);
               } else if (courseStatus === 'PUBLISHED') {
                 await courseService.updateCourseStatus(courseId, 'DRAFT');
                 successToast('Unpublish course successfully.');
@@ -186,13 +187,13 @@ function CourseDetailPage() {
             }
           }}
         >
-          {courseStatus === 'PUBLISHED'
+          {courseStatus === COURSE_STATUS.PUBLISHED.value
             ? 'UnPublish'
-            : courseStatus === 'DRAFT'
+            : courseStatus === COURSE_STATUS.DRAFT.value
               ? 'Request Publish'
-              : courseStatus === 'PENDING_APPROVAL'
+              : courseStatus === COURSE_STATUS.PENDING_APPROVAL.value
                 ? 'Pending Approval'
-                : courseStatus === 'REJECTED'
+                : courseStatus === COURSE_STATUS.REJECTED.value
                   ? 'Request Publish'
                   : 'Deleted'}
         </Button>

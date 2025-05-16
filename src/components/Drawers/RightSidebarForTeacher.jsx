@@ -21,6 +21,7 @@ import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import AuthService from '~/services/authService';
 import { IoBarChartOutline } from 'react-icons/io5';
+import { FaBoxOpen } from 'react-icons/fa';
 
 const menuItems = [
   {
@@ -29,6 +30,16 @@ const menuItems = [
     route: config.routes.course_management_for_teacher,
   },
   { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
+  {
+    label: 'Bundles',
+    icon: FaBoxOpen,
+    route: config.routes.bundle,
+  },
+  {
+    label: 'Add Bundle',
+    icon: FaBoxOpen,
+    route: config.routes.bundle_add,
+  },
   { label: 'Chat', icon: MdChat, route: config.routes.chat },
   {
     label: 'Analyst Courses',

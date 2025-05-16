@@ -8,6 +8,7 @@ import bundleService from '~/services/bundleService';
 import { CourseBundle } from '~/components/Teacher/Bundle/CourseBundle';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const BundleList = () => {
   const [hoveredBundle, setHoveredBundle] = useState(null);
@@ -41,25 +42,27 @@ const BundleList = () => {
   }, []);
 
   return (
-    <Container maxW="container.xl" py={8}>
-      <Heading as="h2" size="xl" mb={6}>
-        Course Bundles
-      </Heading>
-      <Button onClick={() => navigate(config.routes.bundle_add)}>
-        Add bundle
-      </Button>
-      <Flex wrap="wrap" gap={6} justify="center">
-        {bundles.map((bundle) => (
-          <CourseBundle
-            key={bundle.id}
-            data={bundle}
-            isHovered={hoveredBundle === bundle.name}
-            setHovered={setHoveredBundle}
-            fetchCourses={fetchCourses}
-          />
-        ))}
-      </Flex>
-    </Container>
+    <RoleBasedPageLayout>
+      <Container maxW="container.xl" py={8}>
+        <Heading as="h2" size="xl" mb={6}>
+          Course Bundles
+        </Heading>
+        <Button onClick={() => navigate(config.routes.bundle_add)}>
+          Add bundle
+        </Button>
+        <Flex wrap="wrap" gap={6} justify="center">
+          {bundles.map((bundle) => (
+            <CourseBundle
+              key={bundle.id}
+              data={bundle}
+              isHovered={hoveredBundle === bundle.name}
+              setHovered={setHoveredBundle}
+              fetchCourses={fetchCourses}
+            />
+          ))}
+        </Flex>
+      </Container>
+    </RoleBasedPageLayout>
   );
 };
 
