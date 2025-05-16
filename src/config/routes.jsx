@@ -24,18 +24,21 @@ const routes = {
   category_for_admin: '/admin/category',
   topic_level_for_admin: '/admin/topic-vs-level',
   test_result: (testResultId) => `/test-result/${testResultId}`,
+  entrance_test_result: (testResultId) =>
+    `/entrance-test-result/${testResultId}`,
   analytics_courses: '/admin/analytics/courses',
   analytics_reviews: '/admin/analytics/reviews',
   user_management: '/admin/user-management',
   chat: '/chat',
   course_management_for_admin: '/admin/course-management',
-  homepage: '/homepage/',
+  homepage: '/homepage',
   bundle: '/bundle',
   bundle_detail: (bundleId) => `/bundle-detail/${bundleId}`,
   bundle_add: '/new-bundle',
   gradebook: '/teacher/gradebook',
   writing_task: (writingTaskId) => `/writing-task/${writingTaskId}`,
   chat_ai: '/chat-ai',
+  entrance_test: '/entrance-test',
 };
 
 export default routes;

@@ -39,6 +39,42 @@ const chatWithAI = async (writingRequest) => {
   return response.data;
 };
 
-const writingResultService = { chatWithAI, supportWriting, imageToText };
+const createWritingResult = async (writingRequest) => {
+  const path = `${SUFFIX_WRITING_RESULT_TASK_API_URL}/submit`;
+  const response = await post(path, writingRequest);
+
+  if (response?.status !== 201) {
+    return null;
+  }
+
+  return response.data;
+};
+
+const getWritingResult = async (writingRequest) => {
+  const path = `${SUFFIX_WRITING_RESULT_TASK_API_URL}/get-results`;
+  const response = await post(path, writingRequest);
+
+  return response.data;
+};
+
+const updateWritingResult = async (writingId, writingRequest) => {
+  const path = `${SUFFIX_WRITING_RESULT_TASK_API_URL}/update/${writingId}`;
+  const response = await put(path, writingRequest);
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
+
+const writingResultService = {
+  chatWithAI,
+  supportWriting,
+  imageToText,
+  createWritingResult,
+  getWritingResult,
+  updateWritingResult,
+};
 
 export default writingResultService;
