@@ -50,9 +50,9 @@ const Home = () => {
           <Alert status="info" justifyContent="space-between" p={4}>
             <Box display="flex" alignItems="center">
               <AlertIcon />
-              <AlertTitle mr={2}>Làm bài test!</AlertTitle>
+              <AlertTitle mr={2}>Take the test!</AlertTitle>
               <AlertDescription>
-                Bắt đầu bài kiểm tra trình độ của bạn ngay bây giờ.
+                Start your proficiency test right now.
               </AlertDescription>
             </Box>
             <HStack>

@@ -18,10 +18,12 @@ import userService from '~/services/userService';
 import useCustomToast from '~/hooks/useCustomToast';
 import { motion } from 'framer-motion';
 import ImagePreview from '~/components/ImagePreview';
+import { useTranslation } from 'react-i18next';
 
 const MotionAvatar = motion(Avatar);
 
 const UploadAvatar = ({ user, setUser }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [newFile, setNewFile] = useState(null);
   const [avatarKey, setAvatarKey] = useState(Date.now());
@@ -133,11 +135,11 @@ const UploadAvatar = ({ user, setUser }) => {
         <input {...getInputProps()} />
         {isDragActive ? (
           <Text color="blue.500" fontSize="sm">
-            Drop your avatar image here...
+            {t('profile.til_drop_img')}
           </Text>
         ) : (
           <Text color="gray.600" fontSize="sm">
-            Pick image
+            {t('profile.til_pick_img')}
           </Text>
         )}
       </Box>

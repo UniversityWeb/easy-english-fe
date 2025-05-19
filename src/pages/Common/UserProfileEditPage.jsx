@@ -29,8 +29,11 @@ import { validatePassword } from '~/utils/methods';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import ValidationErrors from '~/components/ValidationErrors';
 import UserSettings from '~/components/UserSettings';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '~/components/LanguageSwitcher';
 
 const UpdatePassword = () => {
+  const { t } = useTranslation();
   const [passwordData, setPasswordData] = useState({
     password: '',
     confirmPassword: '',
@@ -109,7 +112,7 @@ const UpdatePassword = () => {
       <form onSubmit={generateOtpToUpdatePassword}>
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
           <FormControl isRequired mb={6}>
-            <FormLabel>New Password</FormLabel>
+            <FormLabel>{t('common.new_password')}</FormLabel>
             <InputGroup>
               <Input
                 id="password"
@@ -137,7 +140,7 @@ const UpdatePassword = () => {
           </FormControl>
 
           <FormControl isRequired mb={6}>
-            <FormLabel>Confirm Password</FormLabel>
+            <FormLabel>{t('common.confirm_password')}</FormLabel>
             <InputGroup>
               <Input
                 id="confirmPassword"
@@ -175,7 +178,11 @@ const UpdatePassword = () => {
             isLoading={loadingPassword}
             isDisabled={loadingPassword}
           >
-            {loadingPassword ? <Spinner size="sm" /> : 'Update Password'}
+            {loadingPassword ? (
+              <Spinner size="sm" />
+            ) : (
+              t('common.update_password')
+            )}
           </Button>
 
           <Button
@@ -208,6 +215,7 @@ const UpdatePassword = () => {
 };
 
 const UserProfileEditPage = () => {
+  const { t } = useTranslation();
   const [user, setUser] = useState({
     username: 'john',
     fullName: 'john',
@@ -285,14 +293,14 @@ const UserProfileEditPage = () => {
             >
               <UploadAvatar user={user} setUser={setUser} mb={4} />
               <Text fontSize="sm" color="gray.500">
-                Role: {user?.role}
+                {t('common.role')}: {user?.role}
               </Text>
             </Box>
           </GridItem>
 
           <GridItem>
             <Heading as="h5" size="lg" mb={4}>
-              Information
+              {t('common.information')}
             </Heading>
 
             <form onSubmit={handleUpdateProfile}>
@@ -304,7 +312,7 @@ const UserProfileEditPage = () => {
               >
                 <FormControl id="username" isDisabled>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Username
+                    {t('common.username')}
                   </FormLabel>
                   <Input
                     type="text"
@@ -317,7 +325,7 @@ const UserProfileEditPage = () => {
 
                 <FormControl id="fullName" isRequired>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Full Name
+                    {t('common.full_name')}
                   </FormLabel>
                   <Input
                     type="text"
@@ -337,7 +345,7 @@ const UserProfileEditPage = () => {
               >
                 <FormControl id="email" isRequired>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Email
+                    {t('common.email')}
                   </FormLabel>
                   <Input
                     type="email"
@@ -350,7 +358,7 @@ const UserProfileEditPage = () => {
 
                 <FormControl id="phoneNumber" isRequired>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Phone Number
+                    {t('common.phone_number')}
                   </FormLabel>
                   <Input
                     type="text"
@@ -364,7 +372,7 @@ const UserProfileEditPage = () => {
 
               <FormControl id="bio" mb={6}>
                 <FormLabel fontSize="md" fontWeight="medium">
-                  Bio
+                  {t('common.bio')}
                 </FormLabel>
                 <Textarea
                   name="bio"
@@ -378,7 +386,7 @@ const UserProfileEditPage = () => {
 
               <FormControl id="gender" mb={6}>
                 <FormLabel fontSize="md" fontWeight="medium">
-                  Gender
+                  {t('common.gender')}
                 </FormLabel>
                 <RadioGroup
                   name="gender"
@@ -387,13 +395,13 @@ const UserProfileEditPage = () => {
                 >
                   <Stack direction="row" spacing={8}>
                     <Radio value="MALE" size="md">
-                      Male
+                      {t('common.male')}
                     </Radio>
                     <Radio value="FEMALE" size="md">
-                      Female
+                      {t('common.female')}
                     </Radio>
                     <Radio value="OTHER" size="md">
-                      Other
+                      {t('common.other')}
                     </Radio>
                   </Stack>
                 </RadioGroup>
@@ -401,7 +409,7 @@ const UserProfileEditPage = () => {
 
               <FormControl id="dob" mb={6}>
                 <FormLabel fontSize="md" fontWeight="medium">
-                  Date of Birth
+                  {t('common.dob')}
                 </FormLabel>
                 <Input
                   type="date"
@@ -423,23 +431,34 @@ const UserProfileEditPage = () => {
                 isLoading={updateProfileLoading}
                 isDisabled={updateProfileLoading}
               >
-                {updateProfileLoading ? <Spinner size="sm" /> : 'Save Changes'}
+                {updateProfileLoading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  t('common.save_changes')
+                )}
               </Button>
             </form>
 
             {/* Password Update Section */}
             <Box mt={20}>
               <Heading as="h5" size="lg" mb={4}>
-                Update Password
+                {t('common.update_password')}
               </Heading>
               <UpdatePassword />
             </Box>
 
             <Box mt={20}>
               <Heading as="h5" size="lg" mb={4}>
-                Settings
+                {t('profile.settings')}
               </Heading>
               <UserSettings user={user} />
+            </Box>
+
+            <Box mt={20}>
+              <Heading as="h5" size="lg" mb={4}>
+                {t('common.language')}
+              </Heading>
+              <LanguageSwitcher />
             </Box>
           </GridItem>
         </Grid>
