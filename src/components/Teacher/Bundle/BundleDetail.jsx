@@ -22,6 +22,7 @@ import { getDataCourse } from '~/store/courseSlice';
 import bundleService from '~/services/bundleService';
 import { useParams } from 'react-router-dom';
 import useCustomToast from '~/hooks/useCustomToast';
+import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 
 const EditingForm = forwardRef(({ data = {} }, ref) => {
   const schema = yup.object().shape({
@@ -153,12 +154,14 @@ const BundleDetail = () => {
   if (!data) return null;
 
   return (
-    <div>
-      <EditingForm ref={formRef} data={data} />
-      <Button mt={4} colorScheme="blue" onClick={handleSave} type="submit">
-        Save
-      </Button>
-    </div>
+    <RoleBasedPageLayout>
+      <div>
+        <EditingForm ref={formRef} data={data} />
+        <Button mt={4} colorScheme="blue" onClick={handleSave} type="submit">
+          Save
+        </Button>
+      </div>
+    </RoleBasedPageLayout>
   );
 };
 

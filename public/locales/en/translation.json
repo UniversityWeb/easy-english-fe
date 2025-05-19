@@ -1,0 +1,31 @@
+{
+    "common.language": "Language",
+    "common.login": "Login",
+    "common.logout": "Logout",
+    "common.username": "Username",
+    "common.password": "Password",
+    "common.new_password": "New Password",
+    "common.confirm_password": "Confirm Password",
+    "common.author_footer": "Created by An & Hung",
+    "common.information": "Information",
+    "common.role": "Role",
+    "common.full_name": "Full Name",
+    "common.email": "Email",
+    "common.phone_number": "Phone Number",
+    "common.bio": "Bio",
+    "common.save_changes": "Save Changes",
+    "common.update_password": "Update Password",
+
+    "settings.auto_reply": "Enable auto-reply message",
+    "settings.til_reply_msg": "Message to reply",
+    "settings.note_reply_msg": "I'm currently away. I'll get back to you soon.",
+
+    "profile.settings": "Settings",
+    "profile.til_pick_img": "Pick image",
+    "profile.til_drop_img": "Drop your avatar image here...",
+  
+    "language.english": "English",
+    "language.vietnamese": "Vietnamese",
+    "language.current": "Current language"
+}
+  

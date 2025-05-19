@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import useCustomToast from '~/hooks/useCustomToast';
 import userService from '~/services/userService';
+import { useTranslation } from 'react-i18next';
 
 // Validation schema
 const schema = yup.object().shape({
@@ -25,6 +26,7 @@ const schema = yup.object().shape({
 
 const UserSettings = ({ user }) => {
   const { successToast, errorToast } = useCustomToast();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -80,16 +82,16 @@ const UserSettings = ({ user }) => {
           name="autoReplyEnabled"
           render={({ field }) => (
             <Checkbox isChecked={field.value} onChange={field.onChange}>
-              Enable auto-reply message
+              {t('settings.auto_reply')}
             </Checkbox>
           )}
         />
 
         {autoReplyEnabled && (
           <FormControl isInvalid={!!errors.autoReplyMessage}>
-            <FormLabel>Message to reply</FormLabel>
+            <FormLabel>{t('settings.til_reply_msg')}</FormLabel>
             <Textarea
-              placeholder="I'm currently away. I'll get back to you soon."
+              placeholder={t('settings.note_reply_msg')}
               {...register('autoReplyMessage')}
             />
             {errors.autoReplyMessage && (
