@@ -39,6 +39,7 @@ const routes = {
   writing_task: (writingTaskId) => `/writing-task/${writingTaskId}`,
   chat_ai: '/chat-ai',
   entrance_test: '/entrance-test',
+  student_drop: '/student-drop',
 };
 
 export default routes;

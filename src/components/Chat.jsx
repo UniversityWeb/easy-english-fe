@@ -22,6 +22,7 @@ import ImagePreview from '~/components/ImagePreview';
 import PriceDisplay from '~/components/PriceDisplay';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
+import { message } from 'antd';
 
 // Define message types as constants
 const MESSAGE_TYPES = {
@@ -459,31 +460,43 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
       {/* Suggestion Box */}
       {suggestions.length > 0 && (
         <Box
-          p={2}
-          bg="gray.100"
+          bg="gray.50"
           borderTop="1px solid"
           borderColor="gray.200"
-          borderBottom="1px solid"
+          px={4}
+          py={2}
         >
-          {suggestions.map((suggestion, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleSuggestionClick(suggestion)}
-              width="100%"
-              textAlign="left"
-            >
-              {suggestion}
-            </Button>
-          ))}
+          <Text mb={2} fontWeight="medium" color="gray.600">
+            Quick Replies
+          </Text>
+          <Flex wrap="wrap" gap={2}>
+            {suggestions.map((suggestion, index) => (
+              <Button
+                key={index}
+                size="sm"
+                variant="outline"
+                leftIcon={<FiSend />}
+                onClick={() => handleSuggestionClick(suggestion)}
+                _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                colorScheme="blue"
+              >
+                {suggestion}
+              </Button>
+            ))}
+          </Flex>
         </Box>
       )}
 
-      <HStack p={4} bg="white" borderTop="1px solid" borderColor="gray.200">
+      <HStack
+        p={4}
+        bg="white"
+        borderTop="1px solid"
+        borderColor="gray.200"
+        spacing={2}
+      >
         <Input
           disabled={selectedImage}
-          placeholder="Type a message"
+          placeholder="Type a message..."
           value={messageContent}
           onChange={handleInputChange}
           onKeyDown={async (e) => {
@@ -496,9 +509,11 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
               }
             }
           }}
+          borderRadius="full"
+          bg="gray.50"
+          _focus={{ bg: 'white', borderColor: 'blue.300' }}
         />
 
-        {/* Images Button */}
         <input
           type="file"
           accept="image/*"
@@ -507,10 +522,18 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
           id="image-upload"
         />
         <label htmlFor="image-upload">
-          <IconButton as="span" icon={<FiImage />} colorScheme="teal" />
+          <IconButton
+            as="span"
+            icon={<FiImage />}
+            colorScheme="teal"
+            variant="ghost"
+            borderRadius="full"
+            aria-label="Upload image"
+          />
         </label>
 
-        <Button
+        <IconButton
+          icon={<FiSend />}
           colorScheme="blue"
           onClick={async () => {
             setMessageContent(messageContent.trim());
@@ -520,14 +543,8 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
               await sendMessage(MESSAGE_TYPES.TEXT, messageContent);
             }
           }}
-        >
-          <Icon as={FiSend} />
-        </Button>
-
-        <ImagePreview
-          isOpen={isViewerImageOpen}
-          onClose={setViewerImageOpen}
-          imageUrl={imageViewerUrl}
+          borderRadius="full"
+          aria-label="Send message"
         />
       </HStack>
     </Flex>

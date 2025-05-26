@@ -44,7 +44,6 @@ const Writing = ({
   const { successToast, errorToast } = useCustomToast();
 
   useEffect(() => {
-    debugger;
     if (!isNew && id) {
       // Fetch existing lesson data
       let isMounted = true; // Mounted flag for component cleanup
@@ -62,6 +61,7 @@ const Writing = ({
               instructions: data.instructions || '',
               startDate: data.startDate || '',
               startTime: data.startTime || '',
+              endDate: data.endDate || '',
             });
             //successToast('Lesson data fetched successfully');
           }

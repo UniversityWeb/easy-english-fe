@@ -26,29 +26,6 @@ const SupportWriting = ({ infoWriting }) => {
   const [selectedWriting, setSelectedWriting] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const inputRef = useRef(null);
-
-  const handleImageClick = () => {
-    inputRef.current.click();
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setImageFile(file);
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await writingResultService.imageToText(formData);
-      setTextSubmit(response);
-    } catch (error) {
-      console.error('Lỗi khi gọi API:', error);
-    }
-  };
-
   const submitWriting = async () => {
     const writingRequest = {
       submittedText: textSubmit,
@@ -90,6 +67,7 @@ const SupportWriting = ({ infoWriting }) => {
 
   const fetchWritingList = async () => {
     try {
+      console.log('infoWriting', infoWriting);
       //await writingResultService.getWritingResultForTeacher(writingList);
       const writingRequest = {
         writingTaskId: infoWriting.id,
@@ -98,10 +76,12 @@ const SupportWriting = ({ infoWriting }) => {
         pageNumber: 0,
         size: 8,
       };
-      const writingList =
-        await writingResultService.getWritingResult(writingRequest);
-      console.log('writingList', writingList);
-      setWritingList(writingList.content);
+      if (infoWriting?.id) {
+        const writingList =
+          await writingResultService.getWritingResult(writingRequest);
+        console.log('writingList', writingList);
+        setWritingList(writingList.content);
+      }
     } catch (error) {
       console.error('Lỗi khi tải danh sách bài viết:', error);
     }
