@@ -10,7 +10,7 @@ import {
 } from 'react';
 import React, { forwardRef } from 'react';
 
-import { Button } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
 import FormDataWrapper from '~/components/Form/FormDataWrapper';
 import SelectCourseField from '~/components/Form/SelectCourseField';
 import TextField from '~/components/Form/TextField';
@@ -63,59 +63,52 @@ const EditingForm = forwardRef(({ data = {} }, ref) => {
   console.log('data', data);
 
   return (
-    <div
-      style={{
-        margin: '30px 100px 30px 100px',
-        width: '1000px',
-      }}
-    >
-      <FormDataWrapper methods={methods}>
-        <SelectCourseField
-          fieldName="courseIds"
-          control={control}
-          errors={errors}
-          courses={courseData}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
-        <TextField
-          fieldName="name"
-          control={control}
-          errors={errors}
-          label="Bundle Name"
-          disable={false}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
-        <UploadFileFiled
-          fieldName="imagePreview"
-          control={control}
-          errors={errors}
-          label="Bundle price"
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
-        <TextAreaField
-          fieldName="desc"
-          control={control}
-          errors={errors}
-          label="Bundle description"
-          disable={false}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
-        <TextField
-          fieldName="price"
-          control={control}
-          errors={errors}
-          label="Bundle price"
-          disable={false}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-          type="number"
-        />
+    <FormDataWrapper methods={methods}>
+      <SelectCourseField
+        fieldName="courseIds"
+        control={control}
+        errors={errors}
+        courses={courseData}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
+      <TextField
+        fieldName="name"
+        control={control}
+        errors={errors}
+        label="Bundle Name"
+        disable={false}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
+      <UploadFileFiled
+        fieldName="imagePreview"
+        control={control}
+        errors={errors}
+        label="Bundle price"
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
+      <TextAreaField
+        fieldName="desc"
+        control={control}
+        errors={errors}
+        label="Bundle description"
+        disable={false}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
+      <TextField
+        fieldName="price"
+        control={control}
+        errors={errors}
+        label="Bundle price"
+        disable={false}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+        type="number"
+      />
 
-        {/* <div>{watchData[0]}</div>
+      {/* <div>{watchData[0]}</div>
       <button onClick={methods.handleSubmit(handleSave)} type="submit">
         Submit
       </button> */}
-      </FormDataWrapper>
-    </div>
+    </FormDataWrapper>
   );
 });
 
@@ -156,10 +149,21 @@ const BundleDetail = () => {
   return (
     <RoleBasedPageLayout>
       <div>
-        <EditingForm ref={formRef} data={data} />
-        <Button mt={4} colorScheme="blue" onClick={handleSave} type="submit">
-          Save
-        </Button>
+        <Box
+          width="1000px"
+          mx="auto"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          minHeight="100vh"
+          py={8}
+        >
+          <EditingForm ref={formRef} data={data} />
+
+          <Button mt={6} colorScheme="blue" onClick={handleSave} type="submit">
+            Save
+          </Button>
+        </Box>
       </div>
     </RoleBasedPageLayout>
   );

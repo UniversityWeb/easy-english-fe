@@ -61,7 +61,7 @@ const SelectCourseField = ({
     );
 
     const total = selectedCourses.reduce(
-      (sum, course) => sum + (course.priceValue || 0),
+      (sum, course) => sum + (course.price.price || 0),
       0,
     );
     setTotalPrice(total);

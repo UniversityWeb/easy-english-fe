@@ -59,6 +59,7 @@ const NewBundle = lazy(() => import('~/components/Teacher/Bundle/NewBundle'));
 const WritingTaskPage = lazy(() => import('~/pages/Common/WritingTaskPage'));
 const ChatAI = lazy(() => import('~/pages/Common/ChatAIPage'));
 const EntranceTestPage = lazy(() => import('~/pages/Student/EntranceTestPage'));
+const StudentDropPage = lazy(() => import('~/pages/Teacher/StudentDropPage'));
 const publicRoutes = [
   {
     path: config.routes.login,
@@ -251,6 +252,11 @@ const publicRoutes = [
     path: config.routes.entrance_test,
     component: EntranceTestPage,
     roles: [USER_ROLES.STUDENT],
+  },
+  {
+    path: config.routes.student_drop,
+    component: StudentDropPage,
+    roles: [USER_ROLES.TEACHER],
   },
 ];
 

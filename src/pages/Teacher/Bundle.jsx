@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Heading, Flex, Button } from '@chakra-ui/react';
+import { Container, Heading, Flex, Button, Box } from '@chakra-ui/react';
 import { getDataCourse } from '~/store/courseSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
@@ -28,7 +28,6 @@ const BundleList = () => {
       const bundleRequest = { pageNumber: 0, size: 8, name: '' };
 
       const response = await bundleService.getMyBundle(bundleRequest);
-      debugger;
       if (response) {
         setBundles(response.content);
       }
@@ -44,12 +43,20 @@ const BundleList = () => {
   return (
     <RoleBasedPageLayout>
       <Container maxW="container.xl" py={8}>
-        <Heading as="h2" size="xl" mb={6}>
-          Course Bundles
-        </Heading>
-        <Button onClick={() => navigate(config.routes.bundle_add)}>
-          Add bundle
-        </Button>
+        {/* Header Section */}
+        <Flex justify="space-between" align="center" mb={8}>
+          <Heading as="h2" size="xl">
+            Course Bundles
+          </Heading>
+          <Button
+            colorScheme="teal"
+            onClick={() => navigate(config.routes.bundle_add)}
+          >
+            Add Bundle
+          </Button>
+        </Flex>
+
+        {/* Bundle List */}
         <Flex wrap="wrap" gap={6} justify="center">
           {bundles.map((bundle) => (
             <CourseBundle

@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import React, { forwardRef } from 'react';
-import { Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Flex } from '@chakra-ui/react';
 import FormDataWrapper from '~/components/Form/FormDataWrapper';
 import SelectCourseField from '~/components/Form/SelectCourseField';
 import TextField from '~/components/Form/TextField';
@@ -14,6 +14,8 @@ import { getDataCourse } from '~/store/courseSlice';
 import bundleService from '~/services/bundleService';
 import useCustomToast from '~/hooks/useCustomToast';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
 
 const EditingForm = forwardRef(({ data = {} }, ref) => {
   const schema = yup.object().shape({
@@ -54,65 +56,59 @@ const EditingForm = forwardRef(({ data = {} }, ref) => {
   console.log('data', data);
 
   return (
-    <div
-      style={{
-        margin: '30px 100px 30px 100px',
-        width: '1000px',
-      }}
-    >
-      <FormDataWrapper methods={methods}>
-        <SelectCourseField
-          fieldName="courseIds"
-          control={control}
-          errors={errors}
-          courses={courseData}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
-        <TextField
-          fieldName="name"
-          control={control}
-          errors={errors}
-          label="Bundle Name"
-          disable={false}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
+    <FormDataWrapper methods={methods} style={{ width: '100%' }}>
+      <SelectCourseField
+        fieldName="courseIds"
+        control={control}
+        errors={errors}
+        courses={courseData}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
+      <TextField
+        fieldName="name"
+        control={control}
+        errors={errors}
+        label="Bundle Name"
+        disable={false}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
 
-        <TextAreaField
-          fieldName="desc"
-          control={control}
-          errors={errors}
-          label="Bundle description"
-          disable={false}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-        />
-        <TextField
-          fieldName="price"
-          control={control}
-          errors={errors}
-          label="Bundle price"
-          disable={false}
-          className="col-xs-12 col-md-12" // chỉnh độ dài
-          type="number"
-        />
+      <TextAreaField
+        fieldName="desc"
+        control={control}
+        errors={errors}
+        label="Bundle description"
+        disable={false}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+      />
+      <TextField
+        fieldName="price"
+        control={control}
+        errors={errors}
+        label="Bundle price"
+        disable={false}
+        className="col-xs-12 col-md-12" // chỉnh độ dài
+        type="number"
+      />
 
-        {/* <div>{watchData[0]}</div>
+      {/* <div>{watchData[0]}</div>
       <button onClick={methods.handleSubmit(handleSave)} type="submit">
         Submit
       </button> */}
-      </FormDataWrapper>
-    </div>
+    </FormDataWrapper>
   );
 });
 
 const NewBundle = () => {
   const formRef = useRef(null);
   const { successToast, errorToast } = useCustomToast();
-
+  const navigate = useNavigate();
   const handleSave = useCallback(() => {
     formRef.current?.submitForm(async (data) => {
       const updateBundle = await bundleService.createBundle(data);
       if (updateBundle) {
         successToast(`Bundle updated successfully.`);
+        navigate(config.routes.bundle);
       } else {
         errorToast(`An error occurred while updating the bundle .`);
       }
@@ -121,12 +117,23 @@ const NewBundle = () => {
 
   return (
     <RoleBasedPageLayout>
-      <EditingForm ref={formRef} data={[]} />
-      <Flex mt={4} justify="center">
-        <Button colorScheme="blue" onClick={handleSave} type="submit">
-          Save
-        </Button>
-      </Flex>
+      <div>
+        <Box
+          width="1000px"
+          mx="auto"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          minHeight="100vh"
+          py={8}
+        >
+          <EditingForm ref={formRef} data={[]} />
+
+          <Button mt={6} colorScheme="blue" onClick={handleSave} type="submit">
+            Save
+          </Button>
+        </Box>
+      </div>
     </RoleBasedPageLayout>
   );
 };

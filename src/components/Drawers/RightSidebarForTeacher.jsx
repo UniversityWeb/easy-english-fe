@@ -22,6 +22,7 @@ import SidebarItem from '~/components/Drawers/SidebarItem';
 import AuthService from '~/services/authService';
 import { IoBarChartOutline } from 'react-icons/io5';
 import { FaBoxOpen } from 'react-icons/fa';
+import { PiWarningCircleBold } from 'react-icons/pi';
 
 const menuItems = [
   {
@@ -50,6 +51,11 @@ const menuItems = [
     label: 'Gradebook',
     icon: BsGraphUpArrow,
     route: config.routes.gradebook,
+  },
+  {
+    label: 'Dropout Risk',
+    icon: PiWarningCircleBold,
+    route: config.routes.student_drop,
   },
   // {
   //   label: 'Analyst Reviews',

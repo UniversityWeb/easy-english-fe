@@ -31,6 +31,11 @@ import config from '~/config';
 import { MdArrowBack } from 'react-icons/md';
 import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 import { Badge } from 'lucide-react';
+import { getDataCourse } from '~/store/courseSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { isEmpty } from 'lodash';
+import courseService from '~/services/courseService';
+
 const suggestedCourses = [
   {
     minScore: 0,
@@ -135,6 +140,35 @@ const RoadmapStep = ({ course, isActive, isLast }) => {
 const EntranceTestResultPage = () => {
   const { testResultId } = useParams();
   const { state } = useLocation();
+  const [courses, setCourses] = useState(null);
+  const fetchCourses = async () => {
+    try {
+      const courseRequest = {
+        pageNumber: 0,
+        size: 100,
+        title: null,
+        categoryIds: null,
+        rating: null,
+        topicId: null,
+        levelId: null,
+      };
+
+      const response = await courseService.getCourseByFilter(courseRequest);
+
+      if (response) {
+        const { content } = response;
+
+        setCourses(content);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+  console.log('courses', courses);
   // const returnUrl = state?.returnUrl || config.routes.home[0];
   const returnUrl = config.routes.homepage;
   const navigate = useNavigate();
