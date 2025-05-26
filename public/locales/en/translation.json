@@ -15,6 +15,11 @@
     "common.bio": "Bio",
     "common.save_changes": "Save Changes",
     "common.update_password": "Update Password",
+    "common.gender": "Gender",
+    "common.male": "Male",
+    "common.female": "Female",
+    "common.other": "Other",
+    "common.dob": "Date of Birth",
 
     "settings.auto_reply": "Enable auto-reply message",
     "settings.til_reply_msg": "Message to reply",
