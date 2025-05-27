@@ -20,9 +20,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { getDataCourse } from '~/store/courseSlice';
 import bundleService from '~/services/bundleService';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useCustomToast from '~/hooks/useCustomToast';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import config from '~/config';
 
 const EditingForm = forwardRef(({ data = {} }, ref) => {
   const schema = yup.object().shape({
@@ -117,6 +118,7 @@ const BundleDetail = () => {
   const formRef = useRef(null);
   const { bundleId } = useParams();
   const { successToast, errorToast } = useCustomToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBundle();
@@ -138,6 +140,8 @@ const BundleDetail = () => {
       const updateBundle = await bundleService.updateBundle(data.id, data);
       if (updateBundle) {
         successToast(`Bundle updated successfully.`);
+
+        navigate(config.routes.bundle);
       } else {
         errorToast(`An error occurred while updating the bundle .`);
       }

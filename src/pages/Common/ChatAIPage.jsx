@@ -14,6 +14,7 @@ import {
 import writingResultService from '~/services/writingResultService';
 import ReactMarkdown from 'react-markdown';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+
 const theme = extendTheme({
   styles: {
     global: {
@@ -43,22 +44,48 @@ function App() {
     }
 
     const userMessage = { id: Date.now(), sender: 'user', text: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput('');
     setLoading(true);
 
     try {
-      const writingRequest = { submittedText: input }; // tùy theo API yêu cầu dữ liệu thế nào
+      // Tạo chuỗi lịch sử hội thoại
+      let conversationHistory = updatedMessages
+        .map(
+          (msg) =>
+            `${msg.sender === 'user' ? 'Người dùng' : 'Trợ lý'}: ${msg.text}`,
+        )
+        .join('\n');
+
+      // Escape dấu ngoặc kép (") để tránh lỗi JSON
+      conversationHistory = conversationHistory.replace(/\\/g, '\\\\'); // escape dấu \
+      conversationHistory = conversationHistory.replace(/"/g, '\\"'); // escape dấu "
+
+      const writingRequest = {
+        submittedText: conversationHistory,
+      };
+
       const response = await writingResultService.chatWithAI(writingRequest);
 
-      const botReply = response || 'Xin lỗi, tôi chưa hiểu câu hỏi.';
+      // Nếu API trả về dạng object, lấy trường text, nếu trả về chuỗi thì dùng luôn
+      let botReply =
+        typeof response === 'string'
+          ? response
+          : response?.text || 'Xin lỗi, tôi chưa hiểu câu hỏi.';
+
+      // Loại bỏ prefix "Trợ lý: " nếu có ở đầu botReply
+      if (botReply.startsWith('Trợ lý:')) {
+        botReply = botReply.replace(/^Trợ lý:\s*/, '');
+      }
+
       const botMessage = { id: Date.now() + 1, sender: 'bot', text: botReply };
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       toast({
         title: 'Có lỗi xảy ra khi gửi câu hỏi.',
-        description: error.message,
+        description: error.message || error.toString(),
         status: 'error',
         duration: 3000,
         isClosable: true,

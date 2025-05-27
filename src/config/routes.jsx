@@ -40,6 +40,7 @@ const routes = {
   chat_ai: '/chat-ai',
   entrance_test: '/entrance-test',
   student_drop: '/student-drop',
+  teacher: (username) => `/teacher/${username}`,
 };
 
 export default routes;

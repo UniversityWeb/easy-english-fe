@@ -13,6 +13,8 @@ import {
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import useCustomToast from '~/hooks/useCustomToast';
+import enrollmentService from '~/services/enrollmentService';
 import userService from '~/services/userService';
 
 // const atRiskUsers = [
@@ -36,6 +38,8 @@ import userService from '~/services/userService';
 
 export default function StudentDropPage() {
   const [users, setUsers] = useState([]);
+  const { successToast, errorToast } = useCustomToast();
+
   const fetchUsers = async () => {
     const userRequest = {
       page: 0,
@@ -91,7 +95,21 @@ export default function StudentDropPage() {
       return [];
     }
   };
-
+  async function handleSendNotification(email) {
+    let studentsEmail = [];
+    studentsEmail.push(email);
+    const enrollmentRequest = {
+      studentEmails: studentsEmail,
+    };
+    await enrollmentService
+      .sendNotify(enrollmentRequest)
+      .then(() => {
+        successToast(`Đã gửi thông báo đến ${email}`);
+      })
+      .catch((error) => {
+        errorToast('Gửi thông báo thất bại');
+      });
+  }
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
@@ -130,7 +148,7 @@ export default function StudentDropPage() {
                   <Button
                     colorScheme="blue"
                     size="sm"
-                    onClick={() => alert(`Đã nhắc ${user.name}`)}
+                    onClick={() => handleSendNotification(user.email)}
                   >
                     Nhắc học
                   </Button>

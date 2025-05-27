@@ -60,6 +60,7 @@ const WritingTaskPage = lazy(() => import('~/pages/Common/WritingTaskPage'));
 const ChatAI = lazy(() => import('~/pages/Common/ChatAIPage'));
 const EntranceTestPage = lazy(() => import('~/pages/Student/EntranceTestPage'));
 const StudentDropPage = lazy(() => import('~/pages/Teacher/StudentDropPage'));
+const TeacherPage = lazy(() => import('~/pages/Student/TeacherPage'));
 const publicRoutes = [
   {
     path: config.routes.login,
@@ -257,6 +258,11 @@ const publicRoutes = [
     path: config.routes.student_drop,
     component: StudentDropPage,
     roles: [USER_ROLES.TEACHER],
+  },
+  {
+    path: config.routes.teacher(':username'),
+    component: TeacherPage,
+    roles: [USER_ROLES.STUDENT],
   },
 ];
 
