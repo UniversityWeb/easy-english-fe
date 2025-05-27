@@ -41,6 +41,7 @@ import WebsocketService from '~/services/websocketService';
 import favouriteService from '~/services/favouriteService';
 import useCustomToast from '~/hooks/useCustomToast';
 import PriceDisplay from '~/components/PriceDisplay';
+import RelatedBundle from '~/components/Student/CourseDetail/RelateBundle';
 
 const CourseDetailBtnStat = {
   START_COURSE: 'START_COURSE',
@@ -210,10 +211,17 @@ function CourseDetailsPage() {
               />
               <Box ml={4}>
                 <Text fontWeight="bold">Teacher</Text>
-                <Text color="blue.500">
+                <Text
+                  color="blue.500"
+                  cursor="pointer"
+                  onClick={() =>
+                    navigate(config.routes.teacher(courseData?.owner?.username))
+                  }
+                >
                   {courseData?.owner?.fullName || 'Teacher Name'}
                 </Text>
               </Box>
+
               <Box ml={10}>
                 <Text fontWeight="bold">{courseData?.countStudent}</Text>
                 <Text>Students enrolled</Text>
@@ -313,7 +321,7 @@ function CourseDetailsPage() {
               </Tabs>
             </Box>
             <Box mt={10}>
-              <RelateCourse
+              <RelatedBundle
                 courseId={courseId}
                 numberOfCourses={3}
                 type={'LEVEL'}

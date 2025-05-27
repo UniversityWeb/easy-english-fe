@@ -57,12 +57,31 @@ const deleteBundle = async (bundleId) => {
   return response.data;
 };
 
+const getAllBundle = async () => {
+  const bundleRequest = {
+    name: '',
+    pageNumber: 0,
+    size: 1000,
+  };
+
+  const response = await post(
+    `${SUFFIX_BUNDLE_API_URL}/students/get-bundles`,
+    bundleRequest,
+  );
+
+  if (response?.status !== 200) {
+    return null;
+  }
+
+  return response.data;
+};
 const bundleService = {
   getMyBundle,
   getBundleById,
   updateBundle,
   createBundle,
   deleteBundle,
+  getAllBundle,
 };
 
 export default bundleService;

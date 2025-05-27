@@ -11,7 +11,7 @@ const getCart = async () => {
   }
 
   return response.data;
-}
+};
 
 const countCartItems = async () => {
   const path = `${SUFFIX_CART_API_URL}/count-items`;
@@ -22,7 +22,7 @@ const countCartItems = async () => {
   }
 
   return response.data;
-}
+};
 
 const removeItemFromCart = async (courseId) => {
   const path = `${SUFFIX_CART_API_URL}/remove-item/${courseId}`;
@@ -33,7 +33,7 @@ const removeItemFromCart = async (courseId) => {
   }
 
   return response.data;
-}
+};
 
 const updateItemFromCart = async (cartItemId) => {
   const path = `${SUFFIX_CART_API_URL}/update-item/${cartItemId}`;
@@ -44,7 +44,7 @@ const updateItemFromCart = async (cartItemId) => {
   }
 
   return response.data;
-}
+};
 
 const clearCart = async () => {
   const path = `${SUFFIX_CART_API_URL}/clear`;
@@ -55,7 +55,7 @@ const clearCart = async () => {
   }
 
   return response.data;
-}
+};
 
 const canAddToCart = async (courseId) => {
   const path = `${SUFFIX_CART_API_URL}/can-add-to-cart/${courseId}`;
@@ -66,7 +66,7 @@ const canAddToCart = async (courseId) => {
   }
 
   return response.data;
-}
+};
 
 const addItemToCart = async (courseId) => {
   const path = `${SUFFIX_CART_API_URL}/add-item/${courseId}`;
@@ -77,7 +77,18 @@ const addItemToCart = async (courseId) => {
   }
 
   return response.data;
-}
+};
+
+const addBundleToCart = async (bundleId) => {
+  const path = `${SUFFIX_CART_API_URL}/add-bundle/${bundleId}`;
+  const response = await post(path);
+
+  if (response?.status !== 201) {
+    return null;
+  }
+
+  return response.data;
+};
 
 const cartService = {
   canAddToCart,
@@ -86,7 +97,8 @@ const cartService = {
   updateItemFromCart,
   removeItemFromCart,
   clearCart,
-  countCartItems
-}
+  countCartItems,
+  addBundleToCart,
+};
 
 export default cartService;
