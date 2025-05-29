@@ -1,12 +1,11 @@
 import React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import {
   Avatar,
   Box,
   Button,
   Flex,
   HStack,
-  Icon,
   IconButton,
   Image,
   Input,
@@ -18,17 +17,31 @@ import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import useCustomToast from '~/hooks/useCustomToast';
 import { getUsername } from '~/utils/authUtils';
-import ImagePreview from '~/components/ImagePreview';
 import PriceDisplay from '~/components/PriceDisplay';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import { message } from 'antd';
+import debounce from 'lodash.debounce';
+import ImagePreview from '~/components/ImagePreview';
 
 // Define message types as constants
 const MESSAGE_TYPES = {
   TEXT: 'TEXT',
   IMAGE: 'IMAGE',
   COURSE_INFO: 'COURSE_INFO',
+};
+
+const getMessageSuggestions = (input) => {
+  const predefinedSuggestions = [
+    'Hello, how can I help you?',
+    'Can you provide more details?',
+    'I’m available for a chat.',
+    'Let me know if you have any questions.',
+    'I would love to assist you!',
+  ];
+
+  return predefinedSuggestions.filter((suggestion) =>
+    suggestion.toLowerCase().includes(input.toLowerCase()),
+  );
 };
 
 const CourseCard = ({ courseData }) => {
@@ -206,7 +219,6 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
     }
 
     messageService.send(message);
-    setMessages((prevMessages) => [...prevMessages, message]);
     setMessageContent('');
     setSelectedImage(null);
     setImagePreview(null);
@@ -252,30 +264,22 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
     setImageViewerUrl(imageUrl);
   };
 
-  const getMessageSuggestions = (input) => {
-    const predefinedSuggestions = [
-      'Hello, how can I help you?',
-      'Can you provide more details?',
-      'I’m available for a chat.',
-      'Let me know if you have any questions.',
-      'I would love to assist you!',
-    ];
-
-    return predefinedSuggestions.filter((suggestion) =>
-      suggestion.toLowerCase().includes(input.toLowerCase()),
-    );
-  };
+  const debouncedSetSuggestions = useMemo(
+    () =>
+      debounce((input) => {
+        if (input) {
+          setSuggestions(getMessageSuggestions(input));
+        } else {
+          setSuggestions([]);
+        }
+      }, 300),
+    [],
+  );
 
   const handleInputChange = (e) => {
     const newMessageContent = e.target.value;
     setMessageContent(newMessageContent);
-
-    // Update suggestions based on the current input
-    if (newMessageContent) {
-      setSuggestions(getMessageSuggestions(newMessageContent));
-    } else {
-      setSuggestions([]);
-    }
+    debouncedSetSuggestions(newMessageContent);
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -545,6 +549,12 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
           }}
           borderRadius="full"
           aria-label="Send message"
+        />
+
+        <ImagePreview
+          isOpen={isViewerImageOpen}
+          onClose={setViewerImageOpen}
+          imageUrl={imageViewerUrl}
         />
       </HStack>
     </Flex>
