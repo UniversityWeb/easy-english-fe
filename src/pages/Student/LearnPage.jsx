@@ -125,7 +125,7 @@ const LearnPage = () => {
               writingService.getWriting(writingRequest),
             ]);
 
-            const formattedLessons = lessons.map((lesson) => ({
+            const formattedLessons = lessons?.map((lesson) => ({
               ...lesson,
               icon: getLessonIcon(lesson.type),
               iconColor: getLessonColor(lesson.type),
@@ -134,7 +134,7 @@ const LearnPage = () => {
               type: lesson.type,
             }));
 
-            const formattedTests = tests.map((test) => ({
+            const formattedTests = tests?.map((test) => ({
               ...test,
               icon: FiHelpCircle,
               iconColor: 'orange.500',
@@ -143,7 +143,7 @@ const LearnPage = () => {
               type: 'TEST',
             }));
 
-            const formattedWritings = writings.map((writing) => ({
+            const formattedWritings = writings?.map((writing) => ({
               ...writing,
               icon: LuPencil,
               iconColor: 'green.500',
@@ -151,7 +151,7 @@ const LearnPage = () => {
               //isTest: true,
               type: 'WRITING',
             }));
-
+            //const formattedWritings = [];
             return {
               ...section,
               items: [
