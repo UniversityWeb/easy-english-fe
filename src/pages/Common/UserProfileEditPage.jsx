@@ -31,6 +31,8 @@ import ValidationErrors from '~/components/ValidationErrors';
 import UserSettings from '~/components/UserSettings';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '~/components/LanguageSwitcher';
+import { USER_ROLES } from '~/utils/constants';
+import { getCurrentUserRole } from '~/utils/authUtils';
 
 const UpdatePassword = () => {
   const { t } = useTranslation();
@@ -447,12 +449,15 @@ const UserProfileEditPage = () => {
               <UpdatePassword />
             </Box>
 
-            <Box mt={20}>
-              <Heading as="h5" size="lg" mb={4}>
-                {t('profile.settings')}
-              </Heading>
-              <UserSettings user={user} />
-            </Box>
+            {(getCurrentUserRole() === USER_ROLES.TEACHER ||
+              getCurrentUserRole() === USER_ROLES.ADMIN) && (
+              <Box mt={20}>
+                <Heading as="h5" size="lg" mb={4}>
+                  {t('profile.settings')}
+                </Heading>
+                <UserSettings user={user} />
+              </Box>
+            )}
 
             <Box mt={20}>
               <Heading as="h5" size="lg" mb={4}>
