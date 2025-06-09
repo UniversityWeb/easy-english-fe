@@ -22,6 +22,7 @@ const WritingTaskPage = ({ infoWriting }) => {
   const [textSubmit, setTextSubmit] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [hasFeedback, setHasFeedback] = useState(false);
+  const [isSubmit, setIsSubmit] = useState(false);
   const inputRef = useRef(null);
 
   const handleImageClick = () => {
@@ -46,18 +47,16 @@ const WritingTaskPage = ({ infoWriting }) => {
   };
 
   const submitWriting = async () => {
-    const question =
-      'The table below illustrates weekly consumption by age group of dairy products in a European country. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.';
-
     const writingRequest = {
-      submittedText: 'Đề bài: ' + question + ' Bài làm: ' + textSubmit,
+      submittedText: textSubmit,
+      writingTaskId: infoWriting?.id,
+      feedback: null,
+      status: 'SUBMITTED',
     };
 
     try {
-      const response =
-        await writingResultService.supportWriting(writingRequest);
-      setData(response);
-      setHasFeedback(true); // Đã có phản hồi sau khi nộp
+      await writingResultService.createWritingResult(writingRequest);
+      setIsSubmit(true);
     } catch (error) {}
   };
 
@@ -71,6 +70,9 @@ const WritingTaskPage = ({ infoWriting }) => {
           await writingResultService.getWritingResult(writingRequest);
         if (result) {
           const content = result?.content?.[0];
+          if (result?.content?.length > 0) {
+            setIsSubmit(true);
+          }
           setTextSubmit(content?.submittedText || '');
           const feedback = content?.feedback;
           if (feedback) {
@@ -144,7 +146,7 @@ const WritingTaskPage = ({ infoWriting }) => {
           {/* Nếu là tab bài gốc */}
           {activeTab === 'original' && (
             <>
-              {!hasFeedback && (
+              {!isSubmit && (
                 <HStack spacing={4} my={4}>
                   <input
                     type="file"
