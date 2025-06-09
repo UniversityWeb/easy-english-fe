@@ -9,33 +9,21 @@ import {
   Td,
   Badge,
   Button,
+  Spinner,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import useCustomToast from '~/hooks/useCustomToast';
+import enrollmentService from '~/services/enrollmentService';
 import userService from '~/services/userService';
-
-// const atRiskUsers = [
-//   {
-//     id: 1,
-//     name: 'Nguyễn Văn A',
-//     email: 'a@example.com',
-//     lastLogin: '2025-04-20',
-//     progress: '30%',
-//     riskLevel: 'Cao',
-//   },
-//   {
-//     id: 2,
-//     name: 'Trần Thị B',
-//     email: 'b@example.com',
-//     lastLogin: '2025-04-25',
-//     progress: '45%',
-//     riskLevel: 'Trung bình',
-//   },
-// ];
 
 export default function StudentDropPage() {
   const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState({}); // Theo dõi trạng thái loading của từng user
+  const [notifiedUsers, setNotifiedUsers] = useState({}); // Theo dõi user đã được nhắc
+  const { successToast, errorToast } = useCustomToast();
+
   const fetchUsers = async () => {
     const userRequest = {
       page: 0,
@@ -92,6 +80,30 @@ export default function StudentDropPage() {
     }
   };
 
+  async function handleSendNotification(email) {
+    // Bắt đầu loading cho user này
+    setLoadingUsers((prev) => ({ ...prev, [email]: true }));
+
+    try {
+      let studentsEmail = [];
+      studentsEmail.push(email);
+      const enrollmentRequest = {
+        studentEmails: studentsEmail,
+      };
+
+      await enrollmentService.sendNotify(enrollmentRequest);
+
+      // Thành công - đánh dấu đã nhắc và tắt loading
+      setNotifiedUsers((prev) => ({ ...prev, [email]: true }));
+      successToast(`Đã gửi thông báo đến ${email}`);
+    } catch (error) {
+      errorToast('Gửi thông báo thất bại');
+    } finally {
+      // Tắt loading
+      setLoadingUsers((prev) => ({ ...prev, [email]: false }));
+    }
+  }
+
   return (
     <RoleBasedPageLayout>
       <Box p={5}>
@@ -127,13 +139,29 @@ export default function StudentDropPage() {
                   </Badge>
                 </Td>
                 <Td>
-                  <Button
-                    colorScheme="blue"
-                    size="sm"
-                    onClick={() => alert(`Đã nhắc ${user.name}`)}
-                  >
-                    Nhắc học
-                  </Button>
+                  {notifiedUsers[user.email] ? (
+                    <Badge colorScheme="green" variant="solid">
+                      Đã nhắc
+                    </Badge>
+                  ) : (
+                    <Button
+                      colorScheme="blue"
+                      size="sm"
+                      onClick={() => handleSendNotification(user.email)}
+                      isLoading={loadingUsers[user.email]}
+                      loadingText="Đang gửi..."
+                      disabled={loadingUsers[user.email]}
+                    >
+                      {loadingUsers[user.email] ? (
+                        <>
+                          <Spinner size="sm" mr={2} />
+                          Đang gửi...
+                        </>
+                      ) : (
+                        'Nhắc học'
+                      )}
+                    </Button>
+                  )}
                 </Td>
               </Tr>
             ))}

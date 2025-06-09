@@ -43,12 +43,21 @@ const getStudentsStatistics = async (studFilter) => {
   return handleResponse(response, 200);
 };
 
+const sendNotify = async (listEmail) => {
+  const response = await post(
+    `${SUFFIX_ENROLLMENT_API_URL}/teachers/notify-dropout-risk`,
+    listEmail,
+  );
+  return handleResponse(response, 200);
+};
+
 const enrollmentService = {
   isEnrolled,
   getAllEnrolls,
   getEnrollByFilter,
   getCoursesStatistics,
   getStudentsStatistics,
+  sendNotify,
 };
 
 export default enrollmentService;
