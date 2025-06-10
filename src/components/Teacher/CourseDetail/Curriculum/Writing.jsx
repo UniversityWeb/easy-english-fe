@@ -185,8 +185,9 @@ const Writing = ({
                         setWriting({ ...writing, level: e.target.value })
                       }
                     >
+                      <option value="BEGINNER">BEGINNER</option>
                       <option value="INTERMEDIATE">INTERMEDIATE</option>
-                      <option value="VIP">VIP</option>
+                      <option value="ADVANCED">ADVANCED</option>
                     </Select>
                     {errors.level && (
                       <Text color="red.500">{errors.level}</Text>

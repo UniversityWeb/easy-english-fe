@@ -37,6 +37,7 @@ import TestPreview from '~/components/Test/TestPreview';
 import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 import writingService from '~/services/writingService';
 import WritingTaskPage from '../Common/WritingTaskPage';
+import enrollmentService from '~/services/enrollmentService';
 
 const LessonItem = ({
   icon,
@@ -121,7 +122,6 @@ const LearnPage = () => {
             const [lessons, tests, writings] = await Promise.all([
               lessonService.fetchLessons({ sectionId: section.id }),
               testService.getTestsBySection(section.id),
-
               writingService.getWriting(writingRequest),
             ]);
 
@@ -259,12 +259,14 @@ const LearnPage = () => {
       }
     }
 
-    const updatedSections = sections.map((section) => ({
+    let updatedSections = sections.map((section) => ({
       ...section,
       items: section.items.map((item) =>
         item.id === selectedItem.id ? { ...item, complete: true } : item,
       ),
     }));
+    // Cập nhật trạng thái khóa
+    updatedSections = updateLockedStates(updatedSections);
 
     setSections(updatedSections);
 
@@ -408,6 +410,30 @@ const LearnPage = () => {
       </>
     );
   };
+
+  const updateLockedStates = (sections) => {
+    const allItems = sections.flatMap((section) => section.items);
+
+    const completedIds = new Set(
+      allItems.filter((item) => item.complete).map((item) => item.id),
+    );
+
+    return sections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => {
+        if (!item.prevDrips || item.prevDrips.length === 0) {
+          return { ...item, isLocked: false };
+        }
+
+        const isLocked = item.prevDrips.some(
+          (prev) => !completedIds.has(prev.id),
+        );
+
+        return { ...item, isLocked };
+      }),
+    }));
+  };
+
   const handleItemClick = (id, type) => {
     const foundItem = sections
       .flatMap((section) => section.items)
@@ -432,7 +458,30 @@ const LearnPage = () => {
       selectedItem.id === lastItem.id && lastItem.complete // Ensure the last item is completed
     );
   };
+  useEffect(() => {
+    const fetchEnrollmentData = async () => {
+      if (isLastItem()) {
+        try {
+          const courseRequest = {
+            pageNumber: 0,
+            size: 1000,
+            title: null,
+            categoryIds: null,
+            rating: null,
+            topicId: null,
+            levelId: null,
+          };
 
+          await enrollmentService.getEnrollByFilter(courseRequest);
+          console.log('Enrollment data fetched');
+        } catch (error) {
+          console.error('Error fetching enrollment data:', error);
+        }
+      }
+    };
+
+    fetchEnrollmentData();
+  }, [sections, selectedItem]);
   if (loading) {
     return (
       <Flex justify="center" align="center" h="100vh">
@@ -558,9 +607,9 @@ const LearnPage = () => {
                     colorScheme="teal"
                     alignSelf="flex-end"
                     leftIcon={<MdRateReview />}
-                    onClick={() =>
-                      navigate(`/course-view-detail/${courseId}?tab=reviews`)
-                    }
+                    onClick={async () => {
+                      navigate(`/course-view-detail/${courseId}?tab=reviews`);
+                    }}
                   >
                     Review Course
                   </Button>
