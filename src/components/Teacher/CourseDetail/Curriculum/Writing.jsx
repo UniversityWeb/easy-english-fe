@@ -153,8 +153,8 @@ const Writing = ({
     <Box p={4} paddingBottom={0} shadow="md" borderWidth="1px">
       <Tabs variant="enclosed" isFitted>
         <TabList>
-          <Tab>Đề</Tab>
-          <Tab>Kết quả</Tab>
+          <Tab>Test</Tab>
+          <Tab>Result</Tab>
         </TabList>
 
         <TabPanels>
