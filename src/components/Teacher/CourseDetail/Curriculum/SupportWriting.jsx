@@ -52,16 +52,26 @@ const SupportWriting = ({ infoWriting }) => {
       feedback: JSON.stringify(data),
       status: 'FEEDBACK_PROVIDED',
     };
+
+    setIsLoading(true); // Thêm loading state
+
     try {
       const response = await writingResultService.updateWritingResult(
         writingRequest.id,
         writingRequest,
       );
-      setData(response);
+
+      // Sau khi feedback thành công, quay lại danh sách
+      setSelectedWriting(null);
+      setData(null);
+      setTextSubmit('');
+
+      // Reload lại danh sách để cập nhật status mới
+      await fetchWritingList();
     } catch (error) {
       console.error('Lỗi khi nộp bài:', error);
     } finally {
-      setIsLoading(false); // Kết thúc loading dù thành công hay thất bại
+      setIsLoading(false);
     }
   };
 
@@ -89,7 +99,7 @@ const SupportWriting = ({ infoWriting }) => {
 
   useEffect(() => {
     fetchWritingList();
-  }, []);
+  }, [infoWriting]);
 
   const handleSelectWriting = (writing) => {
     setSelectedWriting(writing);
@@ -109,7 +119,7 @@ const SupportWriting = ({ infoWriting }) => {
       {!selectedWriting && (
         <Box bg="white" p={4} borderRadius="md" boxShadow="md">
           <Text fontWeight="bold" mb={2}>
-            Danh sách bài viết đã nộp
+            Submitted Essays
           </Text>
           <List spacing={2}>
             {writingList.map((item, index) => (
@@ -151,7 +161,7 @@ const SupportWriting = ({ infoWriting }) => {
             colorScheme="gray"
             onClick={handleBack}
           >
-            Quay lại danh sách
+            Back to List
           </Button>
 
           <Flex gap={3} mb={4}>
@@ -163,12 +173,12 @@ const SupportWriting = ({ infoWriting }) => {
                 onClick={() => setActiveTab(tab)}
               >
                 {tab === 'original'
-                  ? 'Bài gốc'
+                  ? 'Original Essay'
                   : tab === 'highlight'
-                    ? 'YouPass sửa bài'
+                    ? 'AI Edits'
                     : tab === 'upgrade'
-                      ? 'Gợi ý nâng cấp'
-                      : 'Sample từ YouPass'}
+                      ? 'Upgrade Suggestions'
+                      : 'Sample from AI'}
               </Button>
             ))}
           </Flex>
@@ -186,7 +196,7 @@ const SupportWriting = ({ infoWriting }) => {
                 borderRadius="md"
                 fontWeight="bold"
               >
-                {selectedWriting?.title || 'Không có tiêu đề'}
+                {selectedWriting?.title || 'No title'}
               </Box>
 
               {activeTab === 'original' && (
@@ -201,10 +211,10 @@ const SupportWriting = ({ infoWriting }) => {
                           colorScheme="green"
                           onClick={submitWriting}
                           isLoading={isLoading}
-                          loadingText="Đang chấm bài..."
+                          loadingText="Grading..."
                           disabled={isLoading}
                         >
-                          {isLoading ? 'Đang chấm bài...' : 'AI chấm bài'}
+                          {isLoading ? 'Grading...' : 'AI grading'}
                         </Button>
                         <Button
                           colorScheme="green"
@@ -253,14 +263,14 @@ const SupportWriting = ({ infoWriting }) => {
                 boxShadow="md"
               >
                 <HStack>
-                  <Badge colorScheme="yellow">Ngữ pháp</Badge>
-                  <Badge colorScheme="green">Từ vựng</Badge>
+                  <Badge colorScheme="yellow">Grammar</Badge>
+                  <Badge colorScheme="green">Vocabulary</Badge>
                 </HStack>
                 {isLoading ? (
                   <Flex justify="center" w="100%" p={4}>
                     <VStack spacing={3}>
                       <Spinner size="lg" color="orange.500" thickness="4px" />
-                      <Text color="gray.600">Đang phân tích bài viết...</Text>
+                      <Text color="gray.600">Analyzing the essay...</Text>
                     </VStack>
                   </Flex>
                 ) : (

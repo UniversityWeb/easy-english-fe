@@ -99,28 +99,28 @@ const WritingTaskPage = ({ infoWriting }) => {
               fontWeight={activeTab === 'original' ? 'bold' : 'normal'}
               onClick={() => setActiveTab('original')}
             >
-              Bài gốc
+              Original Essay
             </Button>
             <Button
               colorScheme={activeTab === 'highlight' ? 'orange' : 'gray'}
               fontWeight={activeTab === 'highlight' ? 'bold' : 'normal'}
               onClick={() => setActiveTab('highlight')}
             >
-              YouPass sửa bài
+              AI Edits
             </Button>
             <Button
               colorScheme={activeTab === 'upgrade' ? 'orange' : 'gray'}
               fontWeight={activeTab === 'upgrade' ? 'bold' : 'normal'}
               onClick={() => setActiveTab('upgrade')}
             >
-              Gợi ý nâng cấp
+              Upgrade Suggestions
             </Button>
             <Button
               colorScheme={activeTab === 'sample' ? 'orange' : 'gray'}
               fontWeight={activeTab === 'sample' ? 'bold' : 'normal'}
               onClick={() => setActiveTab('sample')}
             >
-              Sample từ YouPass
+              Sample from AI
             </Button>
           </>
         )}
@@ -210,8 +210,8 @@ const WritingTaskPage = ({ infoWriting }) => {
               boxShadow="md"
             >
               <HStack>
-                <Badge colorScheme="yellow">Ngữ pháp</Badge>
-                <Badge colorScheme="green">Từ vựng</Badge>
+                <Badge colorScheme="yellow">Grammar</Badge>
+                <Badge colorScheme="green">Vocabulary</Badge>
               </HStack>
               {data?.errorGrammarAndVocabulary?.map((item, index) => (
                 <Text key={index} bg="gray.100" p={3} borderRadius="md">

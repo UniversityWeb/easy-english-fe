@@ -21,14 +21,31 @@ import { getUsername } from '~/utils/authUtils';
 import config from '~/config';
 import { PAYMENT_STATUES } from '~/utils/constants';
 import { useNavigate } from 'react-router-dom';
+import bundleService from '~/services/bundleService';
 
 const CartPage = () => {
   const { successToast, errorToast } = useCustomToast();
   const [cart, setCart] = useState(null);
+  const [bundles, setBundles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const fetchBundle = async () => {
+    setLoading(true);
+    try {
+      const result = await bundleService.getAllBundle();
+      const response = result?.content || [];
+      setBundles(response);
+    } catch (error) {
+      console.error(error.message);
+      errorToast('Failed to fetch bundle data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    fetchBundle();
     fetchCart();
   }, []);
 
@@ -106,40 +123,88 @@ const CartPage = () => {
     }
   };
 
-  // Group items by bundleId
+  // Check if all courses in a bundle are present in cart
+  const isBundleComplete = (bundleData, cartItems) => {
+    const cartCourseIds = cartItems.map((item) => item.course.id);
+    return bundleData.courseIds.every((courseId) =>
+      cartCourseIds.includes(courseId),
+    );
+  };
+
+  // Group items by bundleId and only show complete bundles
   const groupItemsByBundle = (items) => {
     const grouped = {
       bundles: {},
       individualCourses: [],
     };
 
+    // Create a map of course IDs to cart items for easier lookup
+    const courseIdToCartItem = {};
     items.forEach((item) => {
-      if (item.bundleId && item.bundleId !== null) {
-        if (!grouped.bundles[item.bundleId]) {
-          grouped.bundles[item.bundleId] = {
-            bundleId: item.bundleId,
-            bundleName: item.bundleName || `Bundle ${item.bundleId}`,
-            bundleDescription: item.bundleDescription || '',
-            courses: [],
-            totalPrice: 0,
-            totalDiscountedPrice: 0,
-          };
-        }
+      courseIdToCartItem[item.course.id] = item;
+    });
 
-        const discountedPrice = calculateDiscountedPrice(
-          item.course.price.price,
-          item.discountPercent,
-        );
+    // Check each bundle to see if it's complete
+    bundles.forEach((bundleData) => {
+      if (isBundleComplete(bundleData, items)) {
+        // Bundle is complete, group the courses
+        const bundleInfo = {
+          bundleId: bundleData.id,
+          bundleName: bundleData.name,
+          bundleDescription: bundleData.desc,
+          bundlePrice: bundleData.price, // Use actual bundle price
+          courses: [],
+          totalOriginalPrice: 0, // Sum of individual course prices
+        };
 
-        grouped.bundles[item.bundleId].courses.push(item);
-        grouped.bundles[item.bundleId].totalPrice += item.course.price.price;
-        grouped.bundles[item.bundleId].totalDiscountedPrice += discountedPrice;
-      } else {
+        bundleData.courseIds.forEach((courseId) => {
+          const cartItem = courseIdToCartItem[courseId];
+          if (cartItem) {
+            bundleInfo.courses.push(cartItem);
+            bundleInfo.totalOriginalPrice += cartItem.course.price.price;
+          }
+        });
+
+        grouped.bundles[bundleData.id] = bundleInfo;
+      }
+    });
+
+    // Add remaining courses as individual courses (not part of complete bundles)
+    items.forEach((item) => {
+      const isPartOfCompleteBundle = Object.values(grouped.bundles).some(
+        (bundle) =>
+          bundle.courses.some(
+            (bundleCourse) => bundleCourse.course.id === item.course.id,
+          ),
+      );
+
+      if (!isPartOfCompleteBundle) {
         grouped.individualCourses.push(item);
       }
     });
 
     return grouped;
+  };
+
+  // Calculate correct total amount
+  const calculateCorrectTotal = (groupedItems) => {
+    let total = 0;
+
+    // Add bundle prices
+    Object.values(groupedItems.bundles).forEach((bundle) => {
+      total += bundle.bundlePrice || 0;
+    });
+
+    // Add individual course prices
+    groupedItems.individualCourses.forEach((item) => {
+      const discountedPrice = item.discountPercent
+        ? item.course.price.price -
+          (item.course.price.price * item.discountPercent) / 100
+        : item.course.price.price;
+      total += discountedPrice;
+    });
+
+    return total;
   };
 
   const calculateDiscountedPrice = (price, discountPercent) => {
@@ -159,10 +224,12 @@ const CartPage = () => {
         ratingCount,
         price: { price, salePrice },
       },
-      discountPercent,
+      discountPercent = 0,
     } = item;
 
-    const discountedPrice = calculateDiscountedPrice(price, discountPercent);
+    const discountedPrice = discountPercent
+      ? calculateDiscountedPrice(price, discountPercent)
+      : price;
 
     return (
       <Box
@@ -208,17 +275,17 @@ const CartPage = () => {
             </Text>
           </Box>
           <Box ml="auto" textAlign="right">
-            <Text
-              color="purple.600"
-              fontWeight="bold"
-              fontSize={isInBundle ? 'md' : 'lg'}
-            >
-              đ{discountedPrice.toLocaleString()}
-            </Text>
-            {discountPercent > 0 && (
-              <Text as="s" color="gray.500" fontSize="sm">
-                đ{price.toLocaleString()}
-              </Text>
+            {!isInBundle && (
+              <>
+                <Text color="purple.600" fontWeight="bold" fontSize="lg">
+                  đ{discountedPrice.toLocaleString()}
+                </Text>
+                {discountPercent > 0 && (
+                  <Text as="s" color="gray.500" fontSize="sm">
+                    đ{price.toLocaleString()}
+                  </Text>
+                )}
+              </>
             )}
           </Box>
         </Flex>
@@ -238,6 +305,10 @@ const CartPage = () => {
   };
 
   const renderBundle = (bundle) => {
+    const bundlePrice = bundle.bundlePrice || 0;
+    const originalPrice = bundle.totalOriginalPrice;
+    const savings = originalPrice - bundlePrice;
+
     return (
       <Box
         key={bundle.bundleId}
@@ -265,16 +336,18 @@ const CartPage = () => {
           </VStack>
           <VStack align="end" spacing={1}>
             <Text fontSize="xl" fontWeight="bold" color="purple.600">
-              đ{bundle.totalDiscountedPrice.toLocaleString()}
+              đ{bundlePrice.toLocaleString()}
             </Text>
-            {bundle.totalPrice > bundle.totalDiscountedPrice && (
-              <Text as="s" color="gray.500" fontSize="sm">
-                đ{bundle.totalPrice.toLocaleString()}
-              </Text>
+            {savings > 0 && (
+              <>
+                <Text as="s" color="gray.500" fontSize="sm">
+                  đ{originalPrice.toLocaleString()}
+                </Text>
+                <Badge colorScheme="green" fontSize="xs">
+                  Save đ{savings.toLocaleString()}
+                </Badge>
+              </>
             )}
-            <Badge colorScheme="green" fontSize="xs">
-              Bundle Discount
-            </Badge>
           </VStack>
         </Flex>
 
@@ -336,6 +409,9 @@ const CartPage = () => {
   const bundleCount = Object.keys(groupedItems.bundles).length;
   const individualCourseCount = groupedItems.individualCourses.length;
 
+  // Calculate the correct total
+  const correctTotal = calculateCorrectTotal(groupedItems);
+
   return (
     <RoleBasedPageLayout>
       <Box p={8} maxW="1200px" mx="auto">
@@ -381,7 +457,7 @@ const CartPage = () => {
               Total:
             </Text>
             <Text fontSize="3xl" color="purple.600" fontWeight="bold">
-              {formatVNDMoney(cart?.totalAmount || 0)}
+              {formatVNDMoney(correctTotal)}
             </Text>
 
             {/* Summary breakdown */}

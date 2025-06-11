@@ -253,6 +253,7 @@ const Curriculum = ({ courseId }) => {
             ...createdSection,
             lessons: [],
             tests: [],
+            writings: [],
           },
         ]);
 

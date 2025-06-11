@@ -28,56 +28,21 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import testResultService from '~/services/testResultService';
 import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
 import config from '~/config';
-import { MdArrowBack } from 'react-icons/md';
 import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 import { Badge } from 'lucide-react';
-import { getDataCourse } from '~/store/courseSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { isEmpty } from 'lodash';
 import courseService from '~/services/courseService';
 
-const suggestedCourses = [
-  {
-    minScore: 0,
-    maxScore: 7,
-    title: 'Essential Business English Vocabulary (FREE)',
-    image:
-      'http://www.ee-fe-final-project.store:9000/easy-english-prod/e956c4c6-f1d0-451a-b9f8-be66f1560244.png',
-    level: 'Beginner',
-    id: 1,
-    description:
-      'Perfect starting point for beginners to build essential vocabulary for business contexts.',
-  },
-  {
-    minScore: 8,
-    maxScore: 14,
-    title: 'Enhance English Vocabulary, Idioms, Improve Speaking (Free)',
-    image:
-      'http://www.ee-fe-final-project.store:9000/easy-english-prod/223fff5d-0100-49ce-84cf-a10068921e7c.png',
-    level: 'Intermediate',
-    id: 2,
-    description:
-      'Expand your vocabulary and learn common idioms to sound more natural when speaking.',
-  },
-  {
-    minScore: 15,
-    maxScore: 20,
-    title: 'How to have fluent listening skills in English',
-    image:
-      'http://www.ee-fe-final-project.store:9000/easy-english-prod/471688a1-3d1a-4839-8130-9bfcfebd9115.png',
-    level: 'Advanced',
-    id: 3,
-    description:
-      'Master listening comprehension with advanced techniques for real-world situations.',
-  },
-];
 const RoadmapStep = ({ course, isActive, isLast }) => {
   const activeBorderColor = isActive ? 'blue.500' : 'gray.200';
   const bgColor = isActive ? 'blue.50' : 'white';
-
+  const navigate = useNavigate();
   return (
     <Flex direction="column" align="center">
       <Box
+        cursor={'pointer'}
+        onClick={() => {
+          navigate(`/course-view-detail/${course.id}`);
+        }}
         w="280px"
         borderWidth="2px"
         borderColor={activeBorderColor}
@@ -88,7 +53,7 @@ const RoadmapStep = ({ course, isActive, isLast }) => {
         transition="all 0.3s"
       >
         <Image
-          src={course.image}
+          src={course.imagePreview}
           alt={course.title}
           h="160px"
           w="full"
@@ -97,21 +62,21 @@ const RoadmapStep = ({ course, isActive, isLast }) => {
         <Box p={4}>
           <Badge
             colorScheme={
-              course.level === 'Beginner'
+              course.level.name === 'Beginner'
                 ? 'green'
-                : course.level === 'Intermediate'
+                : course.level.name === 'Intermediate'
                   ? 'orange'
                   : 'red'
             }
             mb={2}
           >
-            {course.level}
+            {course.level.name}
           </Badge>
           <Heading size="sm" mb={2}>
             {course.title}
           </Heading>
           <Text fontSize="sm" color="gray.600">
-            {course.description}
+            {course.descriptionPreview}
           </Text>
         </Box>
       </Box>
@@ -154,11 +119,14 @@ const EntranceTestResultPage = () => {
       };
 
       const response = await courseService.getCourseByFilter(courseRequest);
-
       if (response) {
         const { content } = response;
 
-        setCourses(content);
+        const randomCourses = [...content]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+
+        setCourses(randomCourses);
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -324,7 +292,7 @@ const EntranceTestResultPage = () => {
             Your Learning Roadmap
           </Heading>
           <VStack spacing={0} align="center">
-            {suggestedCourses.map((course, index) => (
+            {courses?.map((course, index) => (
               <RoadmapStep
                 key={course.id}
                 course={course}
@@ -332,7 +300,7 @@ const EntranceTestResultPage = () => {
                   // course.id === activeCourseId || course.id < activeCourseId
                   true
                 }
-                isLast={index === suggestedCourses.length - 1}
+                isLast={index === courses?.length - 1}
               />
             ))}
           </VStack>
