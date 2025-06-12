@@ -89,7 +89,7 @@ const SupportWriting = ({ infoWriting }) => {
 
   useEffect(() => {
     fetchWritingList();
-  }, []);
+  }, [infoWriting]);
 
   const handleSelectWriting = (writing) => {
     setSelectedWriting(writing);

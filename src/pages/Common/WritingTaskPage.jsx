@@ -70,7 +70,8 @@ const WritingTaskPage = ({ infoWriting }) => {
           await writingResultService.getWritingResult(writingRequest);
         if (result) {
           const content = result?.content?.[0];
-          if (result?.content?.length > 0) {
+          if (content) {
+            console.log('if (content) == true');
             setIsSubmit(true);
           }
           setTextSubmit(content?.submittedText || '');
@@ -90,6 +91,7 @@ const WritingTaskPage = ({ infoWriting }) => {
     fetchWriting();
   }, [infoWriting?.id]);
 
+  console.log('isSubmit ' + isSubmit);
   return (
     <Container maxW="container.xl" bg="#FAE6D8" p={4} borderRadius="md">
       {/* Tabs */}
