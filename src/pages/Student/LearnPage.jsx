@@ -38,6 +38,7 @@ import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 import writingService from '~/services/writingService';
 import WritingTaskPage from '../Common/WritingTaskPage';
 import enrollmentService from '~/services/enrollmentService';
+import writingResultService from '~/services/writingResultService';
 
 const LessonItem = ({
   icon,
@@ -143,15 +144,45 @@ const LearnPage = () => {
               type: 'TEST',
             }));
 
-            const formattedWritings = writings?.map((writing) => ({
-              ...writing,
-              icon: LuPencil,
-              iconColor: 'green.500',
-              //complete: writing.isDone,
-              //isTest: true,
-              type: 'WRITING',
-            }));
-            //const formattedWritings = [];
+            // Cập nhật logic cho writing - kiểm tra trạng thái submit
+            const formattedWritings = await Promise.all(
+              writings?.map(async (writing) => {
+                let isCompleted = false;
+
+                try {
+                  // Kiểm tra xem bài writing đã được submit chưa
+                  const writingResultRequest = {
+                    writingTaskId: writing.id,
+                  };
+                  const result =
+                    await writingResultService.getWritingResult(
+                      writingResultRequest,
+                    );
+
+                  // Nếu có kết quả và có ít nhất 1 submission thì coi là completed
+                  if (result && result.content && result.content.length > 0) {
+                    isCompleted = true;
+                  }
+                } catch (error) {
+                  console.error(
+                    `Error checking writing completion for ${writing.id}:`,
+                    error,
+                  );
+                  // Nếu có lỗi, mặc định là chưa completed
+                  isCompleted = false;
+                }
+
+                return {
+                  ...writing,
+                  icon: LuPencil,
+                  iconColor: 'green.500',
+                  complete: isCompleted, // Sử dụng trạng thái đã kiểm tra
+                  isWriting: true, // Thêm flag để phân biệt với lesson và test
+                  type: 'WRITING',
+                };
+              }) || [],
+            );
+
             return {
               ...section,
               items: [
@@ -165,17 +196,15 @@ const LearnPage = () => {
 
         setSections(sectionsWithContent);
 
+        // Phần còn lại của logic giữ nguyên...
         const selectedType = searchParams.get('type');
         const selectedId = searchParams.get('id');
 
-        // First, try to get the first unlearned lesson
         const firstUnlearnedLesson =
           await lessonTrackerService.getFirstUnlearnedLesson(courseId);
 
-        // Find the selected item
         let foundItem = null;
 
-        // First, check URL params
         if (selectedType && selectedId) {
           foundItem = sectionsWithContent
             .flatMap((section) => section.items)
@@ -186,7 +215,6 @@ const LearnPage = () => {
             );
         }
 
-        // If no URL params match, try the first unlearned lesson
         if (!foundItem && firstUnlearnedLesson) {
           foundItem = sectionsWithContent
             .flatMap((section) => section.items)
@@ -198,7 +226,6 @@ const LearnPage = () => {
             );
         }
 
-        // If still no item found, default to the first item
         if (!foundItem && sectionsWithContent[0]?.items[0]) {
           foundItem = sectionsWithContent[0].items[0];
         }

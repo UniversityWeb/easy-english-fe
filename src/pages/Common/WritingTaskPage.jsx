@@ -22,6 +22,9 @@ const WritingTaskPage = ({ infoWriting }) => {
   const [textSubmit, setTextSubmit] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [hasFeedback, setHasFeedback] = useState(false);
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Thêm state loading
+
   const inputRef = useRef(null);
 
   const handleImageClick = () => {
@@ -46,23 +49,30 @@ const WritingTaskPage = ({ infoWriting }) => {
   };
 
   const submitWriting = async () => {
-    const question =
-      'The table below illustrates weekly consumption by age group of dairy products in a European country. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.';
+    if (isSubmitting) return; // Tránh submit nhiều lần
+
+    setIsSubmitting(true); // Bật loading
 
     const writingRequest = {
-      submittedText: 'Đề bài: ' + question + ' Bài làm: ' + textSubmit,
+      submittedText: textSubmit,
+      writingTaskId: infoWriting?.id,
+      feedback: null,
+      status: 'SUBMITTED',
     };
 
     try {
-      const response =
-        await writingResultService.supportWriting(writingRequest);
-      setData(response);
-      setHasFeedback(true); // Đã có phản hồi sau khi nộp
-    } catch (error) {}
+      await writingResultService.createWritingResult(writingRequest);
+      setIsSubmit(true);
+    } catch (error) {
+      console.error('Lỗi khi nộp bài:', error);
+    } finally {
+      setIsSubmitting(false); // Tắt loading
+    }
   };
 
   useEffect(() => {
     const fetchWriting = async () => {
+      debugger;
       const writingRequest = {
         writingTaskId: infoWriting?.id,
       };
@@ -71,6 +81,11 @@ const WritingTaskPage = ({ infoWriting }) => {
           await writingResultService.getWritingResult(writingRequest);
         if (result) {
           const content = result?.content?.[0];
+          if (result?.content?.length > 0) {
+            setIsSubmit(true);
+          } else {
+            setIsSubmit(false);
+          }
           setTextSubmit(content?.submittedText || '');
           const feedback = content?.feedback;
           if (feedback) {
@@ -128,9 +143,17 @@ const WritingTaskPage = ({ infoWriting }) => {
 
       <Flex gap={4} align="start">
         {/* Nội dung chính */}
-        <Box flex="2" bg="white" p={6} borderRadius="md" boxShadow="md">
-          <Text fontWeight="bold">Word count: 289/400</Text>
-
+        <Box
+          flex={hasFeedback ? '2' : '1'}
+          bg="white"
+          p={6}
+          borderRadius="md"
+          boxShadow="md"
+          width={hasFeedback ? 'auto' : '100%'}
+        >
+          <Text fontWeight="bold">
+            Word count: {textSubmit?.split(' ').length || 0}/250
+          </Text>
           <Box
             border="1px solid #000"
             p={4}
@@ -138,13 +161,13 @@ const WritingTaskPage = ({ infoWriting }) => {
             borderRadius="md"
             fontWeight="bold"
           >
-            {infoWriting?.title}
+            {infoWriting?.instructions}
           </Box>
 
           {/* Nếu là tab bài gốc */}
           {activeTab === 'original' && (
             <>
-              {!hasFeedback && (
+              {!isSubmit && (
                 <HStack spacing={4} my={4}>
                   <input
                     type="file"
@@ -164,6 +187,9 @@ const WritingTaskPage = ({ infoWriting }) => {
                     leftIcon={<CheckIcon />}
                     colorScheme="green"
                     onClick={submitWriting}
+                    isLoading={isSubmitting}
+                    loadingText="Đang nộp..."
+                    disabled={isSubmitting}
                   >
                     Nộp bài
                   </Button>
@@ -197,9 +223,9 @@ const WritingTaskPage = ({ infoWriting }) => {
           )}
         </Box>
 
-        {/* Sidebar */}
-        <Box flex="1">
-          {hasFeedback && (
+        {/* Sidebar - chỉ hiển thị khi có feedback */}
+        {hasFeedback && (
+          <Box flex="1">
             <VStack
               align="start"
               spacing={3}
@@ -219,8 +245,8 @@ const WritingTaskPage = ({ infoWriting }) => {
                 </Text>
               ))}
             </VStack>
-          )}
-        </Box>
+          </Box>
+        )}
       </Flex>
     </Container>
   );

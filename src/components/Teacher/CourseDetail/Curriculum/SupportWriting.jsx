@@ -13,8 +13,10 @@ import {
   ListItem,
   Divider,
   Spinner,
+  Fade,
+  ScaleFade,
 } from '@chakra-ui/react';
-import { CheckIcon, ArrowBackIcon } from '@chakra-ui/icons';
+import { CheckIcon, ArrowBackIcon, RepeatIcon } from '@chakra-ui/icons';
 import writingResultService from '~/services/writingResultService';
 
 const SupportWriting = ({ infoWriting }) => {
@@ -25,13 +27,15 @@ const SupportWriting = ({ infoWriting }) => {
   const [writingList, setWritingList] = useState([]);
   const [selectedWriting, setSelectedWriting] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingList, setIsLoadingList] = useState(false);
+  const [isReloading, setIsReloading] = useState(false); // Thêm state riêng cho reload
 
   const submitWriting = async () => {
     const writingRequest = {
       submittedText: textSubmit,
     };
 
-    setIsLoading(true); // Bắt đầu hiển thị loading
+    setIsLoading(true);
 
     try {
       const response =
@@ -40,7 +44,7 @@ const SupportWriting = ({ infoWriting }) => {
     } catch (error) {
       console.error('Lỗi khi nộp bài:', error);
     } finally {
-      setIsLoading(false); // Kết thúc loading dù thành công hay thất bại
+      setIsLoading(false);
     }
   };
 
@@ -53,7 +57,7 @@ const SupportWriting = ({ infoWriting }) => {
       status: 'FEEDBACK_PROVIDED',
     };
 
-    setIsLoading(true); // Thêm loading state
+    setIsLoading(true);
 
     try {
       const response = await writingResultService.updateWritingResult(
@@ -61,13 +65,12 @@ const SupportWriting = ({ infoWriting }) => {
         writingRequest,
       );
 
-      // Sau khi feedback thành công, quay lại danh sách
       setSelectedWriting(null);
       setData(null);
       setTextSubmit('');
 
-      // Reload lại danh sách để cập nhật status mới
-      await fetchWritingList();
+      // Reload lại danh sách với hiệu ứng mượt
+      await fetchWritingList(true);
     } catch (error) {
       console.error('Lỗi khi nộp bài:', error);
     } finally {
@@ -75,10 +78,18 @@ const SupportWriting = ({ infoWriting }) => {
     }
   };
 
-  const fetchWritingList = async () => {
+  const fetchWritingList = async (isReloadAction = false) => {
+    // Chỉ set loading cho lần đầu load hoặc khi reload
+    if (!writingList.length || isReloadAction) {
+      if (isReloadAction) {
+        setIsReloading(true);
+      } else {
+        setIsLoadingList(true);
+      }
+    }
+
     try {
       console.log('infoWriting', infoWriting);
-      //await writingResultService.getWritingResultForTeacher(writingList);
       const writingRequest = {
         writingTaskId: infoWriting.id,
         ownerUsername: '',
@@ -86,15 +97,29 @@ const SupportWriting = ({ infoWriting }) => {
         pageNumber: 0,
         size: 8,
       };
+
       if (infoWriting?.id) {
-        const writingList =
+        const writingListResponse =
           await writingResultService.getWritingResult(writingRequest);
-        console.log('writingList', writingList);
-        setWritingList(writingList.content);
+        console.log('writingList', writingListResponse);
+
+        // Thêm delay nhỏ để hiệu ứng mượt hơn
+        if (isReloadAction) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+
+        setWritingList(writingListResponse.content);
       }
     } catch (error) {
       console.error('Lỗi khi tải danh sách bài viết:', error);
+    } finally {
+      setIsLoadingList(false);
+      setIsReloading(false);
     }
+  };
+
+  const handleReloadList = async () => {
+    await fetchWritingList(true);
   };
 
   useEffect(() => {
@@ -114,25 +139,73 @@ const SupportWriting = ({ infoWriting }) => {
     setTextSubmit('');
   };
 
-  return (
-    <Container maxW="container.xl" bg="#FAE6D8" p={4} borderRadius="md">
-      {!selectedWriting && (
-        <Box bg="white" p={4} borderRadius="md" boxShadow="md">
-          <Text fontWeight="bold" mb={2}>
-            Submitted Essays
-          </Text>
+  // Component hiển thị danh sách với hiệu ứng fade
+  const renderWritingList = () => {
+    if (isLoadingList && !writingList.length) {
+      return (
+        <Fade in={true}>
+          <Flex justify="center" p={8}>
+            <VStack spacing={3}>
+              <Spinner size="lg" color="blue.500" thickness="4px" />
+              <Text color="gray.600">Loading essays...</Text>
+            </VStack>
+          </Flex>
+        </Fade>
+      );
+    }
+
+    return (
+      <Box position="relative">
+        {/* Overlay khi đang reload */}
+        {isReloading && (
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bg="white"
+            opacity="0.8"
+            zIndex="1"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            borderRadius="md"
+          >
+            <VStack spacing={2}>
+              <Spinner size="md" color="blue.500" thickness="3px" />
+              <Text fontSize="sm" color="gray.600">
+                Refreshing...
+              </Text>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Danh sách với hiệu ứng fade */}
+        <Fade in={!isReloading} transition={{ duration: 0.3 }}>
           <List spacing={2}>
             {writingList.map((item, index) => (
-              <React.Fragment key={index}>
+              <ScaleFade
+                key={item.id || index}
+                in={!isReloading}
+                initialScale={0.95}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
+              >
                 <ListItem
-                  p={2}
+                  p={3}
                   borderRadius="md"
                   bg="gray.50"
                   cursor="pointer"
-                  _hover={{ bg: 'orange.100' }}
-                  onClick={() => handleSelectWriting(item)}
+                  transition="all 0.2s ease"
+                  _hover={{
+                    bg: 'orange.100',
+                    transform: 'translateY(-1px)',
+                    boxShadow: 'sm',
+                  }}
+                  onClick={() => !isReloading && handleSelectWriting(item)}
+                  opacity={isReloading ? 0.6 : 1}
                 >
-                  <Flex justify="space-between">
+                  <Flex justify="space-between" align="center">
                     <Text fontWeight="medium">{item.ownerUsername}</Text>
                     <Badge
                       colorScheme={
@@ -142,24 +215,69 @@ const SupportWriting = ({ infoWriting }) => {
                       {item.status}
                     </Badge>
                   </Flex>
-                  {/* <Text fontSize="sm" noOfLines={1}>
-                    {item.feedback || 'Chưa có phản hồi'}
-                  </Text> */}
+                  <Text fontSize="sm" color="gray.600" mt={1}>
+                    Submitted{' '}
+                    {new Date(item.createdAt).toLocaleDateString() ||
+                      'Recently'}
+                  </Text>
                 </ListItem>
-                <Divider />
-              </React.Fragment>
+                {index < writingList.length - 1 && <Divider />}
+              </ScaleFade>
             ))}
           </List>
-        </Box>
+        </Fade>
+      </Box>
+    );
+  };
+
+  return (
+    <Container maxW="container.xl" bg="#FAE6D8" p={4} borderRadius="md">
+      {!selectedWriting && (
+        <Fade in={true}>
+          <Box bg="white" p={4} borderRadius="md" boxShadow="md">
+            <Flex justify="space-between" align="center" mb={4}>
+              <Text fontWeight="bold" fontSize="lg">
+                Submitted Essays
+              </Text>
+              <Button
+                leftIcon={isReloading ? <Spinner size="xs" /> : <RepeatIcon />}
+                colorScheme="blue"
+                size="sm"
+                onClick={handleReloadList}
+                isLoading={isReloading}
+                loadingText="Refreshing..."
+                disabled={isReloading}
+                transition="all 0.2s ease"
+                _hover={{
+                  transform: !isReloading ? 'scale(1.05)' : 'none',
+                }}
+              >
+                {isReloading ? 'Refreshing...' : 'Reload'}
+              </Button>
+            </Flex>
+
+            {renderWritingList()}
+
+            {!isLoadingList && !isReloading && writingList.length === 0 && (
+              <Fade in={true}>
+                <Box textAlign="center" py={8}>
+                  <Text color="gray.500">No essays submitted yet</Text>
+                </Box>
+              </Fade>
+            )}
+          </Box>
+        </Fade>
       )}
 
       {selectedWriting && (
-        <>
+        <Fade in={true}>
           <Button
             leftIcon={<ArrowBackIcon />}
             mb={4}
             colorScheme="gray"
             onClick={handleBack}
+            transition="all 0.2s ease"
+            _hover={{ transform: 'translateX(-2px)' }}
           >
             Back to List
           </Button>
@@ -171,6 +289,11 @@ const SupportWriting = ({ infoWriting }) => {
                 colorScheme={activeTab === tab ? 'orange' : 'gray'}
                 fontWeight={activeTab === tab ? 'bold' : 'normal'}
                 onClick={() => setActiveTab(tab)}
+                transition="all 0.2s ease"
+                _hover={{
+                  transform: 'translateY(-1px)',
+                  boxShadow: 'sm',
+                }}
               >
                 {tab === 'original'
                   ? 'Original Essay'
@@ -186,7 +309,7 @@ const SupportWriting = ({ infoWriting }) => {
           <Flex gap={4} align="start">
             <Box flex="2" bg="white" p={6} borderRadius="md" boxShadow="md">
               <Text fontWeight="bold">
-                Word count: {textSubmit?.split(' ').length || 0}/400
+                Word count: {textSubmit?.split(' ').length || 0}/250
               </Text>
 
               <Box
@@ -196,11 +319,11 @@ const SupportWriting = ({ infoWriting }) => {
                 borderRadius="md"
                 fontWeight="bold"
               >
-                {selectedWriting?.title || 'No title'}
+                {infoWriting?.instructions || 'No title'}
               </Box>
 
               {activeTab === 'original' && (
-                <>
+                <Fade in={activeTab === 'original'}>
                   <HStack spacing={4} my={4}>
                     {selectedWriting?.status === 'SUBMITTED' && (
                       <>
@@ -213,6 +336,10 @@ const SupportWriting = ({ infoWriting }) => {
                           isLoading={isLoading}
                           loadingText="Grading..."
                           disabled={isLoading}
+                          transition="all 0.2s ease"
+                          _hover={{
+                            transform: !isLoading ? 'scale(1.05)' : 'none',
+                          }}
                         >
                           {isLoading ? 'Grading...' : 'AI grading'}
                         </Button>
@@ -220,6 +347,10 @@ const SupportWriting = ({ infoWriting }) => {
                           colorScheme="green"
                           onClick={handleFeedBack}
                           disabled={isLoading}
+                          transition="all 0.2s ease"
+                          _hover={{
+                            transform: !isLoading ? 'scale(1.05)' : 'none',
+                          }}
                         >
                           Feedback
                         </Button>
@@ -231,24 +362,35 @@ const SupportWriting = ({ infoWriting }) => {
                     height={500}
                     onChange={(e) => setTextSubmit(e.target.value)}
                     isDisabled={isLoading}
+                    transition="all 0.2s ease"
+                    _focus={{
+                      borderColor: 'orange.300',
+                      boxShadow: '0 0 0 1px orange.300',
+                    }}
                   />
-                </>
+                </Fade>
               )}
 
               {activeTab === 'highlight' && (
-                <div
-                  className="fix-by-ai"
-                  dangerouslySetInnerHTML={{ __html: data?.fixByAI }}
-                />
+                <Fade in={activeTab === 'highlight'}>
+                  <div
+                    className="fix-by-ai"
+                    dangerouslySetInnerHTML={{ __html: data?.fixByAI }}
+                  />
+                </Fade>
               )}
               {activeTab === 'upgrade' && (
-                <div
-                  className="upgrade-by-ai"
-                  dangerouslySetInnerHTML={{ __html: data?.upgradeByAI }}
-                />
+                <Fade in={activeTab === 'upgrade'}>
+                  <div
+                    className="upgrade-by-ai"
+                    dangerouslySetInnerHTML={{ __html: data?.upgradeByAI }}
+                  />
+                </Fade>
               )}
               {activeTab === 'sample' && (
-                <div dangerouslySetInnerHTML={{ __html: data?.sampleByAI }} />
+                <Fade in={activeTab === 'sample'}>
+                  <div dangerouslySetInnerHTML={{ __html: data?.sampleByAI }} />
+                </Fade>
               )}
             </Box>
 
@@ -267,23 +409,46 @@ const SupportWriting = ({ infoWriting }) => {
                   <Badge colorScheme="green">Vocabulary</Badge>
                 </HStack>
                 {isLoading ? (
-                  <Flex justify="center" w="100%" p={4}>
-                    <VStack spacing={3}>
-                      <Spinner size="lg" color="orange.500" thickness="4px" />
-                      <Text color="gray.600">Analyzing the essay...</Text>
-                    </VStack>
-                  </Flex>
+                  <Fade in={isLoading}>
+                    <Flex justify="center" w="100%" p={4}>
+                      <VStack spacing={3}>
+                        <Spinner size="lg" color="orange.500" thickness="4px" />
+                        <Text color="gray.600">Analyzing the essay...</Text>
+                      </VStack>
+                    </Flex>
+                  </Fade>
                 ) : (
-                  data?.errorGrammarAndVocabulary?.map((item, index) => (
-                    <Text key={index} bg="gray.100" p={3} borderRadius="md">
-                      {item.error}
-                    </Text>
-                  ))
+                  <Fade in={!isLoading}>
+                    <VStack spacing={2} w="100%">
+                      {data?.errorGrammarAndVocabulary?.map((item, index) => (
+                        <ScaleFade
+                          key={index}
+                          in={!isLoading}
+                          initialScale={0.95}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <Text
+                            bg="gray.100"
+                            p={3}
+                            borderRadius="md"
+                            w="100%"
+                            transition="all 0.2s ease"
+                            _hover={{
+                              bg: 'gray.200',
+                              transform: 'translateX(2px)',
+                            }}
+                          >
+                            {item.error}
+                          </Text>
+                        </ScaleFade>
+                      ))}
+                    </VStack>
+                  </Fade>
                 )}
               </VStack>
             </Box>
           </Flex>
-        </>
+        </Fade>
       )}
     </Container>
   );
