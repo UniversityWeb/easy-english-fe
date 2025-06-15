@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -23,12 +23,11 @@ const SupportWriting = ({ infoWriting }) => {
   const [activeTab, setActiveTab] = useState('original');
   const [data, setData] = useState(null);
   const [textSubmit, setTextSubmit] = useState('');
-  const [imageFile, setImageFile] = useState(null);
   const [writingList, setWritingList] = useState([]);
   const [selectedWriting, setSelectedWriting] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingList, setIsLoadingList] = useState(false);
-  const [isReloading, setIsReloading] = useState(false); // Thêm state riêng cho reload
+  const [isReloading, setIsReloading] = useState(false);
 
   const submitWriting = async () => {
     const writingRequest = {
@@ -36,7 +35,6 @@ const SupportWriting = ({ infoWriting }) => {
     };
 
     setIsLoading(true);
-
     try {
       const response =
         await writingResultService.supportWriting(writingRequest);
@@ -58,9 +56,8 @@ const SupportWriting = ({ infoWriting }) => {
     };
 
     setIsLoading(true);
-
     try {
-      const response = await writingResultService.updateWritingResult(
+      await writingResultService.updateWritingResult(
         writingRequest.id,
         writingRequest,
       );
@@ -68,8 +65,6 @@ const SupportWriting = ({ infoWriting }) => {
       setSelectedWriting(null);
       setData(null);
       setTextSubmit('');
-
-      // Reload lại danh sách với hiệu ứng mượt
       await fetchWritingList(true);
     } catch (error) {
       console.error('Lỗi khi nộp bài:', error);
@@ -79,17 +74,11 @@ const SupportWriting = ({ infoWriting }) => {
   };
 
   const fetchWritingList = async (isReloadAction = false) => {
-    // Chỉ set loading cho lần đầu load hoặc khi reload
     if (!writingList.length || isReloadAction) {
-      if (isReloadAction) {
-        setIsReloading(true);
-      } else {
-        setIsLoadingList(true);
-      }
+      isReloadAction ? setIsReloading(true) : setIsLoadingList(true);
     }
 
     try {
-      console.log('infoWriting', infoWriting);
       const writingRequest = {
         writingTaskId: infoWriting.id,
         ownerUsername: '',
@@ -101,13 +90,7 @@ const SupportWriting = ({ infoWriting }) => {
       if (infoWriting?.id) {
         const writingListResponse =
           await writingResultService.getWritingResult(writingRequest);
-        console.log('writingList', writingListResponse);
-
-        // Thêm delay nhỏ để hiệu ứng mượt hơn
-        if (isReloadAction) {
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        }
-
+        if (isReloadAction) await new Promise((res) => setTimeout(res, 300));
         setWritingList(writingListResponse.content);
       }
     } catch (error) {
@@ -118,9 +101,7 @@ const SupportWriting = ({ infoWriting }) => {
     }
   };
 
-  const handleReloadList = async () => {
-    await fetchWritingList(true);
-  };
+  const handleReloadList = async () => await fetchWritingList(true);
 
   useEffect(() => {
     fetchWritingList();
@@ -129,7 +110,7 @@ const SupportWriting = ({ infoWriting }) => {
   const handleSelectWriting = (writing) => {
     setSelectedWriting(writing);
     setTextSubmit(writing.submittedText || '');
-    setData(writing.feedback || '');
+    setData(writing.feedback ? JSON.parse(writing.feedback) : null);
     setActiveTab('original');
   };
 
@@ -139,7 +120,6 @@ const SupportWriting = ({ infoWriting }) => {
     setTextSubmit('');
   };
 
-  // Component hiển thị danh sách với hiệu ứng fade
   const renderWritingList = () => {
     if (isLoadingList && !writingList.length) {
       return (
@@ -156,7 +136,6 @@ const SupportWriting = ({ infoWriting }) => {
 
     return (
       <Box position="relative">
-        {/* Overlay khi đang reload */}
         {isReloading && (
           <Box
             position="absolute"
@@ -181,7 +160,6 @@ const SupportWriting = ({ infoWriting }) => {
           </Box>
         )}
 
-        {/* Danh sách với hiệu ứng fade */}
         <Fade in={!isReloading} transition={{ duration: 0.3 }}>
           <List spacing={2}>
             {writingList.map((item, index) => (
@@ -336,10 +314,6 @@ const SupportWriting = ({ infoWriting }) => {
                           isLoading={isLoading}
                           loadingText="Grading..."
                           disabled={isLoading}
-                          transition="all 0.2s ease"
-                          _hover={{
-                            transform: !isLoading ? 'scale(1.05)' : 'none',
-                          }}
                         >
                           {isLoading ? 'Grading...' : 'AI grading'}
                         </Button>
@@ -347,10 +321,6 @@ const SupportWriting = ({ infoWriting }) => {
                           colorScheme="green"
                           onClick={handleFeedBack}
                           disabled={isLoading}
-                          transition="all 0.2s ease"
-                          _hover={{
-                            transform: !isLoading ? 'scale(1.05)' : 'none',
-                          }}
                         >
                           Feedback
                         </Button>
@@ -362,11 +332,6 @@ const SupportWriting = ({ infoWriting }) => {
                     height={500}
                     onChange={(e) => setTextSubmit(e.target.value)}
                     isDisabled={isLoading}
-                    transition="all 0.2s ease"
-                    _focus={{
-                      borderColor: 'orange.300',
-                      boxShadow: '0 0 0 1px orange.300',
-                    }}
                   />
                 </Fade>
               )}
@@ -408,6 +373,7 @@ const SupportWriting = ({ infoWriting }) => {
                   <Badge colorScheme="yellow">Grammar</Badge>
                   <Badge colorScheme="green">Vocabulary</Badge>
                 </HStack>
+
                 {isLoading ? (
                   <Fade in={isLoading}>
                     <Flex justify="center" w="100%" p={4}>
@@ -427,21 +393,72 @@ const SupportWriting = ({ infoWriting }) => {
                           initialScale={0.95}
                           transition={{ delay: index * 0.1 }}
                         >
-                          <Text
+                          <Flex
+                            align="center"
+                            justify="space-between"
                             bg="gray.100"
                             p={3}
                             borderRadius="md"
                             w="100%"
-                            transition="all 0.2s ease"
+                            gap={2}
                             _hover={{
                               bg: 'gray.200',
                               transform: 'translateX(2px)',
                             }}
                           >
-                            {item.error}
-                          </Text>
+                            <Textarea
+                              value={item.error}
+                              onChange={(e) => {
+                                const newErrors = [
+                                  ...data.errorGrammarAndVocabulary,
+                                ];
+                                newErrors[index].error = e.target.value;
+                                setData({
+                                  ...data,
+                                  errorGrammarAndVocabulary: newErrors,
+                                });
+                              }}
+                              size="sm"
+                              resize="none"
+                              flex="1"
+                            />
+                            <Button
+                              size="sm"
+                              colorScheme="red"
+                              onClick={() => {
+                                const newErrors =
+                                  data.errorGrammarAndVocabulary.filter(
+                                    (_, i) => i !== index,
+                                  );
+                                setData({
+                                  ...data,
+                                  errorGrammarAndVocabulary: newErrors,
+                                });
+                              }}
+                            >
+                              X
+                            </Button>
+                          </Flex>
                         </ScaleFade>
                       ))}
+
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        onClick={() => {
+                          const newErrors = [
+                            ...(data?.errorGrammarAndVocabulary || []),
+                            { error: '' },
+                          ];
+                          setData({
+                            ...data,
+                            errorGrammarAndVocabulary: newErrors,
+                          });
+                        }}
+                        alignSelf="start"
+                      >
+                        + Add Error
+                      </Button>
                     </VStack>
                   </Fade>
                 )}

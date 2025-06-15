@@ -31,7 +31,8 @@ const EditingForm = forwardRef(({ data = {} }, ref) => {
   });
   const dispatch = useDispatch();
   const { courseData } = useSelector((state) => state.course);
-
+  console.log('courseData', courseData);
+  // Kiểm tra nếu courseData là mảng và không có phần tử nào
   useEffect(() => {
     if (isEmpty(courseData)) {
       dispatch(getDataCourse());
@@ -69,7 +70,7 @@ const EditingForm = forwardRef(({ data = {} }, ref) => {
         fieldName="courseIds"
         control={control}
         errors={errors}
-        courses={courseData}
+        courses={courseData?.filter((course) => course?.status === 'PUBLISHED')}
         className="col-xs-12 col-md-12" // chỉnh độ dài
       />
       <TextField
