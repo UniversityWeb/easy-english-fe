@@ -23,12 +23,15 @@ const PAGE_SIZE = 10;
 const ChatPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  let { returnUrl, targetCourse } = location.state || {};
+  const { returnUrl, targetCourse: initialTargetCourse } = location.state || {};
+
   const [recentUsers, setRecentUsers] = useState([]);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
   const [page, setPage] = useState(0);
   const [isLastPage, setIsLastPage] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Thêm state để quản lý targetCourse
+  const [targetCourse, setTargetCourse] = useState(initialTargetCourse);
 
   const username = getUsername();
 
@@ -126,18 +129,15 @@ const ChatPage = () => {
     setSelectedRecipient(recipient);
   };
 
-  const pickTargetTeacher = () => {
-    if (targetCourse?.ownerUsername) {
+  // Chỉ chạy khi có targetCourse và chưa được xử lý
+  useEffect(() => {
+    if (targetCourse?.ownerUsername || targetCourse?.owner?.username) {
       setSelectedRecipient({
-        username: targetCourse.owner?.username,
-        fullName: targetCourse.owner?.fullName,
+        username: targetCourse.owner?.username || targetCourse.ownerUsername,
+        fullName: targetCourse.owner?.fullName || targetCourse.ownerFullName,
       });
     }
-  };
-
-  useEffect(() => {
-    pickTargetTeacher();
-  }, []);
+  }, [targetCourse]); // Dependency vào targetCourse
 
   const handleBack = () => {
     setSelectedRecipient(null);
@@ -148,8 +148,9 @@ const ChatPage = () => {
     }
   };
 
+  // Sửa hàm này để thực sự clear targetCourse
   const setNullTargetCourse = () => {
-    targetCourse = null;
+    setTargetCourse(null);
   };
 
   return (
@@ -227,11 +228,11 @@ const ChatPage = () => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.backgroundColor = '#1890ff'; // Change to blue or hover color
+                  e.currentTarget.style.backgroundColor = '#1890ff';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.backgroundColor = ''; // Reset color
+                  e.currentTarget.style.backgroundColor = '';
                 }}
               >
                 {loading ? 'Loading...' : 'Load More'}

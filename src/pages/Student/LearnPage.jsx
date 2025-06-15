@@ -17,7 +17,7 @@ import {
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { LuPencil } from 'react-icons/lu';
 
-import { FaCheckCircle, FaLock } from 'react-icons/fa';
+import { FaCheckCircle, FaLock, FaStar } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import { MdRateReview } from 'react-icons/md';
@@ -39,6 +39,7 @@ import writingService from '~/services/writingService';
 import WritingTaskPage from '../Common/WritingTaskPage';
 import enrollmentService from '~/services/enrollmentService';
 import writingResultService from '~/services/writingResultService';
+import RecommendCourse from './RecommendCourse';
 
 const LessonItem = ({
   icon,
@@ -52,6 +53,7 @@ const LessonItem = ({
   isTest = false,
   isSelected = false,
   itemRef,
+  isRecommend = false,
 }) => (
   <HStack
     w="100%"
@@ -59,10 +61,18 @@ const LessonItem = ({
     p={2}
     justifyContent="space-between"
     borderRadius={8}
-    bg={isSelected ? 'blue.100' : 'gray.50'}
+    bg={isSelected ? 'blue.100' : isRecommend ? 'yellow.50' : 'gray.50'}
     cursor="pointer"
-    _hover={{ bg: isSelected ? 'blue.200' : 'gray.100' }}
-    border={isSelected ? '2px solid blue.500' : 'none'}
+    _hover={{
+      bg: isSelected ? 'blue.200' : isRecommend ? 'yellow.100' : 'gray.100',
+    }}
+    border={
+      isSelected
+        ? '2px solid blue.500'
+        : isRecommend
+          ? '2px solid yellow.400'
+          : 'none'
+    }
     onClick={onClick}
   >
     <VStack align="start" spacing={2} w="100%">
@@ -72,9 +82,9 @@ const LessonItem = ({
       <HStack spacing={1}>
         <Icon as={icon} boxSize={5} color={iconColor} />
         <Text fontSize="sm" fontWeight="bold">
-          {isTest ? 'TEST' : typeLesson}
+          {isTest ? 'TEST' : isRecommend ? 'RECOMMEND' : typeLesson}
         </Text>
-        {!isTest && (
+        {!isTest && !isRecommend && (
           <Text fontSize="sm" color="gray.500">
             {duration} min
           </Text>
@@ -83,6 +93,8 @@ const LessonItem = ({
     </VStack>
     {isLocked ? (
       <Icon as={FaLock} boxSize={5} color="gray.500" />
+    ) : isRecommend ? (
+      <Icon as={FaStar} boxSize={5} color="yellow.500" />
     ) : (
       <Icon
         as={complete ? FaCheckCircle : ImRadioUnchecked}
@@ -104,6 +116,14 @@ const LearnPage = () => {
   const username = getUsername();
   const itemRefs = useRef({});
   const returnURL = localStorage.getItem('previousPageMain');
+
+  // Helper function to check if all items are completed
+  const areAllItemsCompleted = (sectionsData) => {
+    const allItems = sectionsData.flatMap(
+      (section) => section.items.filter((item) => !item.isRecommend), // Exclude recommend items from completion check
+    );
+    return allItems.length > 0 && allItems.every((item) => item.complete);
+  };
 
   useEffect(() => {
     const fetchCurriculumData = async () => {
@@ -183,18 +203,46 @@ const LearnPage = () => {
               }) || [],
             );
 
+            const allItems = [
+              ...formattedLessons,
+              ...formattedTests,
+              ...formattedWritings,
+            ];
+
             return {
               ...section,
-              items: [
-                ...formattedLessons,
-                ...formattedTests,
-                ...formattedWritings,
-              ],
+              items: allItems,
             };
           }),
         );
 
-        setSections(sectionsWithContent);
+        // Check if all items are completed and add recommend item
+        let finalSections = sectionsWithContent;
+        if (areAllItemsCompleted(sectionsWithContent)) {
+          // Add recommend item to the last section
+          const lastSectionIndex = finalSections.length - 1;
+          if (lastSectionIndex >= 0) {
+            const recommendItem = {
+              id: `recommend-${courseId}`,
+              title: 'Recommend this course',
+              icon: FaStar,
+              iconColor: 'yellow.500',
+              complete: false,
+              isRecommend: true,
+              type: 'RECOMMEND',
+              content: 'Recommend for course',
+              description: 'Share your thoughts about this course',
+            };
+
+            finalSections = [...finalSections];
+            finalSections[lastSectionIndex] = {
+              ...finalSections[lastSectionIndex],
+              items: [...finalSections[lastSectionIndex].items, recommendItem],
+            };
+          }
+        }
+
+        setSections(finalSections);
 
         // Phần còn lại của logic giữ nguyên...
         const selectedType = searchParams.get('type');
@@ -206,28 +254,35 @@ const LearnPage = () => {
         let foundItem = null;
 
         if (selectedType && selectedId) {
-          foundItem = sectionsWithContent
+          foundItem = finalSections
             .flatMap((section) => section.items)
             .find(
               (item) =>
-                (item.isTest ? 'TEST' : item.type) === selectedType &&
+                (item.isTest
+                  ? 'TEST'
+                  : item.isRecommend
+                    ? 'RECOMMEND'
+                    : item.type) === selectedType &&
                 item.id.toString() === selectedId,
             );
         }
 
         if (!foundItem && firstUnlearnedLesson) {
-          foundItem = sectionsWithContent
+          foundItem = finalSections
             .flatMap((section) => section.items)
             .find(
               (item) =>
-                (item.isTest ? 'TEST' : item.type) ===
-                  firstUnlearnedLesson.type &&
+                (item.isTest
+                  ? 'TEST'
+                  : item.isRecommend
+                    ? 'RECOMMEND'
+                    : item.type) === firstUnlearnedLesson.type &&
                 item.id.toString() === firstUnlearnedLesson.id.toString(),
             );
         }
 
-        if (!foundItem && sectionsWithContent[0]?.items[0]) {
-          foundItem = sectionsWithContent[0].items[0];
+        if (!foundItem && finalSections[0]?.items[0]) {
+          foundItem = finalSections[0].items[0];
         }
 
         if (foundItem) {
@@ -258,7 +313,11 @@ const LearnPage = () => {
   }, [selectedItem]);
 
   const updateSearchParams = (item) => {
-    const type = item.isTest ? 'TEST' : item.type;
+    const type = item.isTest
+      ? 'TEST'
+      : item.isRecommend
+        ? 'RECOMMEND'
+        : item.type;
     setSearchParams({ type, id: item.id.toString() }, { replace: true });
   };
 
@@ -358,7 +417,8 @@ const LearnPage = () => {
   const renderContent = (courseTitle) => {
     if (!selectedItem) return null;
 
-    const { content, contentUrl, description, type, isTest } = selectedItem;
+    const { content, contentUrl, description, type, isTest, isRecommend } =
+      selectedItem;
 
     if (isTest) {
       return (
@@ -367,6 +427,10 @@ const LearnPage = () => {
           test={selectedItem}
         />
       );
+    }
+
+    if (isRecommend) {
+      return <RecommendCourse currentCourseId={courseId} />;
     }
 
     return (
@@ -471,20 +535,24 @@ const LearnPage = () => {
       updateSearchParams(foundItem);
     }
   };
+
   const isLastItem = () => {
     if (!selectedItem) return false;
 
-    // Flatten the list of items in sections
-    const allItems = sections.flatMap((section) => section.items);
+    // Flatten the list of items in sections (excluding recommend items)
+    const allItems = sections.flatMap((section) =>
+      section.items.filter((item) => !item.isRecommend),
+    );
 
     // Get the last item in the list
     const lastItem = allItems[allItems.length - 1];
 
     // Check if the selected item is the last one *and* if it is complete
     return (
-      selectedItem.id === lastItem.id && lastItem.complete // Ensure the last item is completed
+      selectedItem.id === lastItem?.id && lastItem?.complete // Ensure the last item is completed
     );
   };
+
   useEffect(() => {
     const fetchEnrollmentData = async () => {
       if (isLastItem()) {
@@ -509,6 +577,7 @@ const LearnPage = () => {
 
     fetchEnrollmentData();
   }, [sections, selectedItem]);
+
   if (loading) {
     return (
       <Flex justify="center" align="center" h="100vh">
@@ -569,6 +638,7 @@ const LearnPage = () => {
                           complete={item.complete}
                           isLocked={item?.isLocked}
                           isTest={item.isTest}
+                          isRecommend={item.isRecommend}
                           onClick={() => handleItemSelect(item)}
                           isSelected={selectedItem?.id === item.id}
                           itemRef={(el) => (itemRefs.current[item.id] = el)}
@@ -586,8 +656,7 @@ const LearnPage = () => {
           {selectedItem?.isLocked ? (
             <>
               <HStack mb={4} align="center" spacing={2}>
-                <Icon as={FaLock} color="red.500" boxSize={5} />{' '}
-                {/* Replace `YourLockIconComponent` with the lock icon component you're using */}
+                <Icon as={FaLock} color="red.500" boxSize={5} />
                 <Text color="gray.600">
                   The current content is locked. Please complete the list below
                   to unlock and proceed.
@@ -599,8 +668,8 @@ const LearnPage = () => {
                   key={prevDrip.id}
                   spacing={4}
                   align="center"
-                  _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }} // Hover effect
-                  onClick={() => handleItemClick(prevDrip.id, prevDrip.type)} // Click event handler
+                  _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }}
+                  onClick={() => handleItemClick(prevDrip.id, prevDrip.type)}
                 >
                   <Icon
                     as={getLessonIcon(prevDrip.type)}
@@ -641,7 +710,8 @@ const LearnPage = () => {
                     Review Course
                   </Button>
                 ) : (
-                  !selectedItem?.isTest && (
+                  !selectedItem?.isTest &&
+                  !selectedItem?.isRecommend && (
                     <Button
                       colorScheme="blue"
                       alignSelf="flex-end"

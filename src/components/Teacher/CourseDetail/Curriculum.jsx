@@ -47,6 +47,7 @@ import testService from '~/services/testService';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import Writing from './Curriculum/Writing';
 import writingService from '~/services/writingService';
+import writingResultService from '~/services/writingResultService';
 
 const getSectionItemIcon = (type) => {
   switch (type) {
@@ -420,6 +421,34 @@ const Curriculum = ({ courseId }) => {
     }
   };
 
+  const handleDeleteWriting = async (writingId) => {
+    try {
+      await writingService.deleteWriting(writingId);
+
+      setSections((prevSections) =>
+        prevSections.map((section) => ({
+          ...section,
+          writings: section.writings.filter(
+            (writing) => writing.id !== writingId,
+          ),
+        })),
+      );
+
+      if (
+        selectedLessonId === writingId &&
+        selectedSectionItemType === SEC_ITEM_TYPES.WRITING
+      ) {
+        setSelectedLessonId(null);
+        setSelectedSectionItemType(null);
+        setSelectedSectionId(null);
+      }
+
+      successToast('Writing deleted');
+    } catch (error) {
+      errorToast('Error deleting writing');
+    }
+  };
+
   const handleConfirmDelete = () => {
     if (itemToDelete.type === 'section') {
       handleDeleteSection(itemToDelete.id);
@@ -427,6 +456,8 @@ const Curriculum = ({ courseId }) => {
       handleDeleteLesson(itemToDelete.id);
     } else if (itemToDelete.type === 'test') {
       handleDeleteTest(itemToDelete.id);
+    } else if (itemToDelete.type === 'writing') {
+      handleDeleteWriting(itemToDelete.id);
     }
     setIsConfirmOpen(false);
   };
