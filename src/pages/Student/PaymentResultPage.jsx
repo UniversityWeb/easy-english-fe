@@ -34,27 +34,49 @@ const PaymentDetails = ({ paymentData }) => {
 
   return (
     paymentData && (
-      <Box mt={4} p={4} borderWidth={1} borderRadius="lg" boxShadow="md" textAlign="start">
+      <Box
+        mt={4}
+        p={4}
+        borderWidth={1}
+        borderRadius="lg"
+        boxShadow="md"
+        textAlign="start"
+      >
         <Text fontSize="lg" fontWeight="bold" mb={2}>
           Payment Details
         </Text>
-        <Text><strong>Method:</strong> {paymentData.method}</Text>
-        <Text><strong>Transaction No:</strong> {paymentData.transactionNo}</Text>
         <Text>
-          <strong>Amount Paid:</strong> {formatCurrency(paymentData.amountPaid, paymentData.currency)}
+          <strong>Method:</strong> {paymentData.method}
         </Text>
         <Text>
-          <strong>Payment Time:</strong> {new Date(paymentData.paymentTime).toLocaleString('vi-VN')}
+          <strong>Transaction No:</strong> {paymentData.transactionNo}
         </Text>
-        <Text><strong>Order ID:</strong> {paymentData.orderId}</Text>
+        <Text>
+          <strong>Amount Paid:</strong>{' '}
+          {formatCurrency(paymentData.amountPaid, paymentData.currency)}
+        </Text>
+        <Text>
+          <strong>Payment Time:</strong>{' '}
+          {new Date(paymentData.paymentTime).toLocaleString('vi-VN')}
+        </Text>
+        <Text>
+          <strong>Order ID:</strong> {paymentData.orderId}
+        </Text>
       </Box>
     )
   );
 };
 
-const PaymentButtons = ({ navigate, isSuccess }) => (
+const PaymentButtons = ({ navigate, isSuccess, paymentData }) => (
   <HStack spacing={4} mt={6}>
-    <Button colorScheme="green" onClick={() => navigate(config.routes.orders)}>
+    <Button
+      colorScheme="green"
+      onClick={() =>
+        navigate(
+          config.routes.order_detail.replace(':orderId', paymentData.orderId),
+        )
+      }
+    >
       My Orders
     </Button>
     <Button
@@ -71,7 +93,14 @@ const PaymentSuccess = ({ paymentData }) => {
   const navigate = useNavigate();
 
   return (
-    <Box p={8} bg="white" borderRadius="lg" boxShadow="lg" maxW="900px" mx="auto">
+    <Box
+      p={8}
+      bg="white"
+      borderRadius="lg"
+      boxShadow="lg"
+      maxW="900px"
+      mx="auto"
+    >
       <Alert status="success" mb={6} borderRadius="md">
         <AlertIcon />
         <AlertTitle mr={2}>Almost there!</AlertTitle>
@@ -93,7 +122,11 @@ const PaymentSuccess = ({ paymentData }) => {
           </HStack>
 
           <PaymentDetails paymentData={paymentData} />
-          <PaymentButtons navigate={navigate} isSuccess={true} />
+          <PaymentButtons
+            navigate={navigate}
+            isSuccess={true}
+            paymentData={paymentData}
+          />
         </VStack>
 
         <Image
@@ -111,7 +144,14 @@ const PaymentFail = ({ paymentData }) => {
   const navigate = useNavigate();
 
   return (
-    <Box p={8} bg="white" borderRadius="lg" boxShadow="lg" maxW="900px" mx="auto">
+    <Box
+      p={8}
+      bg="white"
+      borderRadius="lg"
+      boxShadow="lg"
+      maxW="900px"
+      mx="auto"
+    >
       <Alert status="error" mb={6} borderRadius="md">
         <AlertIcon />
         <AlertTitle mr={2}>Oh no!</AlertTitle>
@@ -137,7 +177,7 @@ const PaymentFail = ({ paymentData }) => {
           </HStack>
 
           <PaymentDetails paymentData={paymentData} />
-          <PaymentButtons navigate={navigate} />
+          <PaymentButtons navigate={navigate} paymentData={paymentData} />
         </VStack>
 
         <Image

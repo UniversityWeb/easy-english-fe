@@ -14,12 +14,15 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { MdAdd, MdChat, MdDashboard, MdLogout } from 'react-icons/md';
+import { BsGraphUpArrow } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import AuthService from '~/services/authService';
 import { IoBarChartOutline } from 'react-icons/io5';
+import { FaBoxOpen } from 'react-icons/fa';
+import { PiWarningCircleBold } from 'react-icons/pi';
 
 const menuItems = [
   {
@@ -28,11 +31,31 @@ const menuItems = [
     route: config.routes.course_management_for_teacher,
   },
   { label: 'Add Course', icon: MdAdd, route: config.routes.maincourse },
+  {
+    label: 'Bundles',
+    icon: FaBoxOpen,
+    route: config.routes.bundle,
+  },
+  {
+    label: 'Add Bundle',
+    icon: FaBoxOpen,
+    route: config.routes.bundle_add,
+  },
   { label: 'Chat', icon: MdChat, route: config.routes.chat },
   {
     label: 'Analyst Courses',
     icon: IoBarChartOutline,
     route: config.routes.analytics_courses,
+  },
+  {
+    label: 'Gradebook',
+    icon: BsGraphUpArrow,
+    route: config.routes.gradebook,
+  },
+  {
+    label: 'Dropout Risk',
+    icon: PiWarningCircleBold,
+    route: config.routes.student_drop,
   },
   // {
   //   label: 'Analyst Reviews',

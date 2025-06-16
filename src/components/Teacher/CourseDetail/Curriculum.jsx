@@ -26,8 +26,13 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
+import { LuPencil } from 'react-icons/lu';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import { RxDragHandleDots2, RxTriangleDown, RxTriangleUp } from 'react-icons/rx';
+import {
+  RxDragHandleDots2,
+  RxTriangleDown,
+  RxTriangleUp,
+} from 'react-icons/rx';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
 import { useEffect, useState } from 'react';
@@ -40,6 +45,9 @@ import useCustomToast from '~/hooks/useCustomToast';
 import EditableTest from '~/components/Test/EditableTest';
 import testService from '~/services/testService';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
+import Writing from './Curriculum/Writing';
+import writingService from '~/services/writingService';
+import writingResultService from '~/services/writingResultService';
 
 const getSectionItemIcon = (type) => {
   switch (type) {
@@ -70,6 +78,8 @@ const Curriculum = ({ courseId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const [hoveredLessonId, setHoveredLessonId] = useState(null);
+  const [hoveredWritingId, setHoveredWritingId] = useState(null);
+
   const [hoveredTestId, setHoveredTestId] = useState(null);
   const { successToast, errorToast } = useCustomToast();
   const [isNewTest, setIsNewTest] = useState(false);
@@ -94,11 +104,16 @@ const Curriculum = ({ courseId }) => {
 
               // Create requests for lessons and tests
               const lessonRequest = { sectionId: sectionId };
-
+              const writingRequest = {
+                sectionId: sectionId,
+                pageNumber: 0,
+                size: 9999,
+              };
               // Fetch both lessons and tests concurrently
-              const [lessons, tests] = await Promise.all([
+              const [lessons, tests, writings] = await Promise.all([
                 lessonService.fetchLessons(lessonRequest),
                 testService.getTestsBySection(sectionId),
+                writingService.getWriting(writingRequest),
               ]);
 
               // Return the section object with lessons and tests included
@@ -106,6 +121,7 @@ const Curriculum = ({ courseId }) => {
                 ...section,
                 lessons: lessons || [],
                 tests: tests || [],
+                writings: writings || [],
               };
             }),
           );
@@ -149,12 +165,37 @@ const Curriculum = ({ courseId }) => {
     setSelectedSectionId(savedLesson.sectionId);
   };
 
+  const handleWritingSaved = (savedWriting) => {
+    console.log('save : ', savedWriting);
+
+    // Cập nhật lại sections với lesson mới hoặc cập nhật lesson đã tồn tại
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.id === savedWriting.sectionId) {
+          const updatedWritings = section.writings.some(
+            (lesson) => lesson.id === savedWriting.id,
+          )
+            ? section.writings.map((writings) =>
+                writings.id === savedWriting.id ? savedWriting : writings,
+              )
+            : [...section.writings, savedWriting];
+
+          return { ...section, writings: updatedWritings };
+        }
+        return section;
+      }),
+    );
+
+    // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
+    setSelectedLessonId(savedWriting.id); // Cập nhật ID của lesson mới tạo hoặc vừa cập nhật
+    setSelectedSectionItemType(SEC_ITEM_TYPES.WRITING);
+    setSelectedSectionId(savedWriting.sectionId);
+  };
+
   const handleSectionItemTypeClick = (sectionItemType) => {
     setSelectedSectionItemType(sectionItemType);
-    console.log('selectedSectionId : ', selectedSectionId);
     setSelectedLessonId(null);
     setSelectedTestId(null);
-    console.log('selectedSectionId : ', selectedSectionId);
     onClose();
   };
 
@@ -213,6 +254,7 @@ const Curriculum = ({ courseId }) => {
             ...createdSection,
             lessons: [],
             tests: [],
+            writings: [],
           },
         ]);
 
@@ -222,6 +264,8 @@ const Curriculum = ({ courseId }) => {
       } catch (error) {
         errorToast('Error adding section');
       }
+    } else {
+      errorToast('Section title cannot be empty');
     }
   };
 
@@ -231,13 +275,19 @@ const Curriculum = ({ courseId }) => {
     setSelectedSectionId(lesson.sectionId);
   };
 
-  const renderLessonComponent = () => {
-    const isNewLesson = !selectedLessonId && selectedSectionId;
+  const handleWritingClick = (writing) => {
+    setSelectedSectionItemType(SEC_ITEM_TYPES.WRITING);
+    setSelectedLessonId(writing.id);
+    setSelectedSectionId(writing.sectionId);
+  };
 
+  const renderLessonComponent = () => {
+    const isNewLesson = Boolean(!selectedLessonId && selectedSectionId);
     switch (selectedSectionItemType) {
       case SEC_ITEM_TYPES.TEXT:
         return (
           <TextLesson
+            key={`${selectedSectionId}-${selectedLessonId}`}
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}
@@ -247,6 +297,7 @@ const Curriculum = ({ courseId }) => {
       case SEC_ITEM_TYPES.VIDEO:
         return (
           <VideoLesson
+            key={`${selectedSectionId}-${selectedLessonId}`}
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}
@@ -256,6 +307,7 @@ const Curriculum = ({ courseId }) => {
       case SEC_ITEM_TYPES.AUDIO:
         return (
           <AudioLesson
+            key={`${selectedSectionId}-${selectedLessonId}`}
             id={selectedLessonId}
             sectionId={selectedSectionId}
             isNew={isNewLesson}
@@ -271,6 +323,19 @@ const Curriculum = ({ courseId }) => {
             ordinalNumber={1}
             isNew={isNewTest}
             onTestSaved={handleTestSaved}
+          />
+        );
+      case SEC_ITEM_TYPES.WRITING:
+        return (
+          <Writing
+            //courseId={courseId}
+            //testId={selectedTestId}
+            sectionId={selectedSectionId}
+            // ordinalNumber={1}
+            isNew={isNewLesson}
+            id={selectedLessonId}
+            handleWritingSaved
+            onWritingSaved={handleWritingSaved}
           />
         );
       default:
@@ -356,6 +421,34 @@ const Curriculum = ({ courseId }) => {
     }
   };
 
+  const handleDeleteWriting = async (writingId) => {
+    try {
+      await writingService.deleteWriting(writingId);
+
+      setSections((prevSections) =>
+        prevSections.map((section) => ({
+          ...section,
+          writings: section.writings.filter(
+            (writing) => writing.id !== writingId,
+          ),
+        })),
+      );
+
+      if (
+        selectedLessonId === writingId &&
+        selectedSectionItemType === SEC_ITEM_TYPES.WRITING
+      ) {
+        setSelectedLessonId(null);
+        setSelectedSectionItemType(null);
+        setSelectedSectionId(null);
+      }
+
+      successToast('Writing deleted');
+    } catch (error) {
+      errorToast('Error deleting writing');
+    }
+  };
+
   const handleConfirmDelete = () => {
     if (itemToDelete.type === 'section') {
       handleDeleteSection(itemToDelete.id);
@@ -363,6 +456,8 @@ const Curriculum = ({ courseId }) => {
       handleDeleteLesson(itemToDelete.id);
     } else if (itemToDelete.type === 'test') {
       handleDeleteTest(itemToDelete.id);
+    } else if (itemToDelete.type === 'writing') {
+      handleDeleteWriting(itemToDelete.id);
     }
     setIsConfirmOpen(false);
   };
@@ -553,7 +648,49 @@ const Curriculum = ({ courseId }) => {
                             </ListItem>
                           );
                         })}
-
+                        {section.writings.map((writing) => {
+                          const { icon, color } = getSectionItemIcon(
+                            writing?.type,
+                          );
+                          return (
+                            <ListItem
+                              onClick={() =>
+                                handleWritingClick({
+                                  ...writing,
+                                  sectionId: section.id,
+                                })
+                              }
+                              key={writing.id}
+                              cursor="pointer"
+                              onMouseEnter={() =>
+                                setHoveredWritingId(writing.id)
+                              }
+                              onMouseLeave={() => setHoveredWritingId(null)}
+                            >
+                              <HStack justify="space-between">
+                                <HStack>
+                                  <ListIcon
+                                    as={RxDragHandleDots2}
+                                    color="gray.500"
+                                  />
+                                  <ListIcon as={LuPencil} color={color} />
+                                  <Text noOfLines={1}>{writing.title}</Text>
+                                </HStack>
+                                {hoveredWritingId === writing.id && (
+                                  <Icon
+                                    as={RiDeleteBinFill}
+                                    color="gray.500"
+                                    cursor="pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      promptDelete('writing', writing.id);
+                                    }}
+                                  />
+                                )}
+                              </HStack>
+                            </ListItem>
+                          );
+                        })}
                         {/* tests */}
                         {section.tests.map((test) => {
                           const { icon, color } = getSectionItemIcon(
@@ -773,6 +910,26 @@ const Curriculum = ({ courseId }) => {
                   <Icon as={FiHelpCircle} w={8} h={8} color="blue.500" />
                   <Text mt={2} fontSize="sm">
                     Test
+                  </Text>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    handleSectionItemTypeClick(SEC_ITEM_TYPES.WRITING)
+                  }
+                  size="lg"
+                  minW="130px"
+                  minH="130px"
+                  borderRadius="md"
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={LuPencil} w={8} h={8} color="blue.500" />
+                  <Text mt={2} fontSize="sm">
+                    Writing
                   </Text>
                 </Button>
               </SimpleGrid>

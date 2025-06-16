@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import useCustomToast from '~/hooks/useCustomToast';
 import { formatVNDMoney } from '~/utils/methods';
+import PriceDisplay from '~/components/PriceDisplay';
 
 const Rating = ({ rating }) => (
   <HStack spacing="1">
@@ -106,7 +107,7 @@ const CourseList = ({
               boxShadow: 'xl',
             }}
           >
-            <Box height="180px" overflow="hidden">
+            <Box height="160px" overflow="hidden">
               <Image
                 src={course.imagePreview}
                 alt={course.title}
@@ -135,13 +136,13 @@ const CourseList = ({
                 <Flex justify="space-between" align="center" width="100%">
                   <HStack spacing="1">
                     <Icon as={PiStudent} boxSize={5} color="gray.600" />
-                    <Text fontSize="sm" color="gray.500">
+                    <Text fontSize="sm" color="gray.500" noOfLines={1}>
                       {course.countStudent} Students
                     </Text>
                   </HStack>
                   <HStack spacing="1">
                     <Icon as={IoBookOutline} boxSize={5} color="gray.600" />
-                    <Text fontSize="sm" color="gray.500">
+                    <Text fontSize="sm" color="gray.500"  noOfLines={1}>
                       {course.countSection} Sections
                     </Text>
                   </HStack>
@@ -151,9 +152,8 @@ const CourseList = ({
 
                 <Flex justify="space-between" align="center" width="100%">
                   <Rating rating={course.rating} />
-                  <Text fontWeight="bold" fontSize="lg" color="gray.700">
-                    {course.price?.price ? `${formatVNDMoney(course.price.price)}` : 'Free'}
-                  </Text>
+
+                  <PriceDisplay priceResponse={course?.price} primaryColor={'gray.700'}/>
                 </Flex>
 
                 <Box

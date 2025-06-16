@@ -28,29 +28,36 @@ import VerifyOtpModal from '~/components/VerifyOtpModal';
 import { validatePassword } from '~/utils/methods';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import ValidationErrors from '~/components/ValidationErrors';
+import UserSettings from '~/components/UserSettings';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '~/components/LanguageSwitcher';
+import { USER_ROLES } from '~/utils/constants';
+import { getCurrentUserRole } from '~/utils/authUtils';
 
 const UpdatePassword = () => {
+  const { t } = useTranslation();
   const [passwordData, setPasswordData] = useState({
-    password: "",
-    confirmPassword: "",
+    password: '',
+    confirmPassword: '',
   });
   const [validationErrors, setValidationErrors] = useState([]);
   const [loadingPassword, setLoadingPassword] = useState(false);
   const [isOpenVerifyOtpModel, setIsOpenVerifyOtpModel] = useState(false);
-  const {successToast, errorToast} = useCustomToast();
+  const { successToast, errorToast } = useCustomToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
 
-    if (name === "password" || name === "confirmPassword") {
+    if (name === 'password' || name === 'confirmPassword') {
       const errors = validatePassword(
-        name === "password" ? value : passwordData.password,
-        name === "confirmPassword" ? value : passwordData.confirmPassword
+        name === 'password' ? value : passwordData.password,
+        name === 'confirmPassword' ? value : passwordData.confirmPassword,
       );
       setValidationErrors(errors);
     }
@@ -58,7 +65,10 @@ const UpdatePassword = () => {
 
   const generateOtpToUpdatePassword = async (e) => {
     e.preventDefault();
-    const errors = validatePassword(passwordData.password, passwordData.confirmPassword);
+    const errors = validatePassword(
+      passwordData.password,
+      passwordData.confirmPassword,
+    );
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
@@ -70,7 +80,7 @@ const UpdatePassword = () => {
       successToast('Otp generated successfully');
       setIsOpenVerifyOtpModel(true);
     } catch (error) {
-      errorToast("Error generating otp");
+      errorToast('Error generating otp');
       console.error('Error saving data:', error);
     } finally {
       setLoadingPassword(false);
@@ -83,11 +93,11 @@ const UpdatePassword = () => {
       const updatePassReq = {
         otp: otp,
         newPassword: passwordData?.password,
-      }
+      };
       await authService.updatePasswordWithOtp(updatePassReq);
       setPasswordData({
-        password: "",
-        confirmPassword: "",
+        password: '',
+        confirmPassword: '',
       });
       successToast('Password updated successfully');
       setIsOpenVerifyOtpModel(false);
@@ -104,7 +114,7 @@ const UpdatePassword = () => {
       <form onSubmit={generateOtpToUpdatePassword}>
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6} mb={6}>
           <FormControl isRequired mb={6}>
-            <FormLabel>New Password</FormLabel>
+            <FormLabel>{t('common.new_password')}</FormLabel>
             <InputGroup>
               <Input
                 id="password"
@@ -132,7 +142,7 @@ const UpdatePassword = () => {
           </FormControl>
 
           <FormControl isRequired mb={6}>
-            <FormLabel>Confirm Password</FormLabel>
+            <FormLabel>{t('common.confirm_password')}</FormLabel>
             <InputGroup>
               <Input
                 id="confirmPassword"
@@ -170,7 +180,11 @@ const UpdatePassword = () => {
             isLoading={loadingPassword}
             isDisabled={loadingPassword}
           >
-            {loadingPassword ? <Spinner size="sm" /> : 'Update Password'}
+            {loadingPassword ? (
+              <Spinner size="sm" />
+            ) : (
+              t('common.update_password')
+            )}
           </Button>
 
           <Button
@@ -186,13 +200,10 @@ const UpdatePassword = () => {
             Verify Otp
           </Button>
         </HStack>
-
       </form>
 
       <Box mt={5}>
-        <ValidationErrors
-          errors={validationErrors}
-        />
+        <ValidationErrors errors={validationErrors} />
       </Box>
 
       <VerifyOtpModal
@@ -206,6 +217,7 @@ const UpdatePassword = () => {
 };
 
 const UserProfileEditPage = () => {
+  const { t } = useTranslation();
   const [user, setUser] = useState({
     username: 'john',
     fullName: 'john',
@@ -275,21 +287,22 @@ const UserProfileEditPage = () => {
           p={10}
         >
           <GridItem alignSelf="start">
-            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="flex-start">
-              <UploadAvatar
-                user={user}
-                setUser={setUser}
-                mb={4}
-              />
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="flex-start"
+            >
+              <UploadAvatar user={user} setUser={setUser} mb={4} />
               <Text fontSize="sm" color="gray.500">
-                Role: {user?.role}
+                {t('common.role')}: {user?.role}
               </Text>
             </Box>
           </GridItem>
 
           <GridItem>
             <Heading as="h5" size="lg" mb={4}>
-              Information
+              {t('common.information')}
             </Heading>
 
             <form onSubmit={handleUpdateProfile}>
@@ -301,7 +314,7 @@ const UserProfileEditPage = () => {
               >
                 <FormControl id="username" isDisabled>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Username
+                    {t('common.username')}
                   </FormLabel>
                   <Input
                     type="text"
@@ -314,7 +327,7 @@ const UserProfileEditPage = () => {
 
                 <FormControl id="fullName" isRequired>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Full Name
+                    {t('common.full_name')}
                   </FormLabel>
                   <Input
                     type="text"
@@ -334,7 +347,7 @@ const UserProfileEditPage = () => {
               >
                 <FormControl id="email" isRequired>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Email
+                    {t('common.email')}
                   </FormLabel>
                   <Input
                     type="email"
@@ -347,7 +360,7 @@ const UserProfileEditPage = () => {
 
                 <FormControl id="phoneNumber" isRequired>
                   <FormLabel fontSize="md" fontWeight="medium">
-                    Phone Number
+                    {t('common.phone_number')}
                   </FormLabel>
                   <Input
                     type="text"
@@ -361,7 +374,7 @@ const UserProfileEditPage = () => {
 
               <FormControl id="bio" mb={6}>
                 <FormLabel fontSize="md" fontWeight="medium">
-                  Bio
+                  {t('common.bio')}
                 </FormLabel>
                 <Textarea
                   name="bio"
@@ -375,7 +388,7 @@ const UserProfileEditPage = () => {
 
               <FormControl id="gender" mb={6}>
                 <FormLabel fontSize="md" fontWeight="medium">
-                  Gender
+                  {t('common.gender')}
                 </FormLabel>
                 <RadioGroup
                   name="gender"
@@ -384,13 +397,13 @@ const UserProfileEditPage = () => {
                 >
                   <Stack direction="row" spacing={8}>
                     <Radio value="MALE" size="md">
-                      Male
+                      {t('common.male')}
                     </Radio>
                     <Radio value="FEMALE" size="md">
-                      Female
+                      {t('common.female')}
                     </Radio>
                     <Radio value="OTHER" size="md">
-                      Other
+                      {t('common.other')}
                     </Radio>
                   </Stack>
                 </RadioGroup>
@@ -398,7 +411,7 @@ const UserProfileEditPage = () => {
 
               <FormControl id="dob" mb={6}>
                 <FormLabel fontSize="md" fontWeight="medium">
-                  Date of Birth
+                  {t('common.dob')}
                 </FormLabel>
                 <Input
                   type="date"
@@ -420,16 +433,37 @@ const UserProfileEditPage = () => {
                 isLoading={updateProfileLoading}
                 isDisabled={updateProfileLoading}
               >
-                {updateProfileLoading ? <Spinner size="sm" /> : 'Save Changes'}
+                {updateProfileLoading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  t('common.save_changes')
+                )}
               </Button>
             </form>
 
             {/* Password Update Section */}
             <Box mt={20}>
               <Heading as="h5" size="lg" mb={4}>
-                Update Password
+                {t('common.update_password')}
               </Heading>
               <UpdatePassword />
+            </Box>
+
+            {(getCurrentUserRole() === USER_ROLES.TEACHER ||
+              getCurrentUserRole() === USER_ROLES.ADMIN) && (
+              <Box mt={20}>
+                <Heading as="h5" size="lg" mb={4}>
+                  {t('profile.settings')}
+                </Heading>
+                <UserSettings user={user} />
+              </Box>
+            )}
+
+            <Box mt={20}>
+              <Heading as="h5" size="lg" mb={4}>
+                {t('common.language')}
+              </Heading>
+              <LanguageSwitcher />
             </Box>
           </GridItem>
         </Grid>

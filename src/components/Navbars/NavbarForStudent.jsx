@@ -2,18 +2,26 @@ import React, { useEffect, useState } from 'react';
 import './Navbar.scss';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import Button from '~/components/Buttons/Button';
-import { Avatar, Badge, Box, Image, Spacer, useDisclosure } from '@chakra-ui/react';
+import {
+  Avatar,
+  Badge,
+  Box,
+  Image,
+  Spacer,
+  useDisclosure,
+} from '@chakra-ui/react';
 import AuthService from '~/services/authService';
 import { getUsername, isLoggedIn } from '~/utils/authUtils';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import RightSidebarForStudent from '~/components/Drawers/RightSidebarForStudent';
-import { FiBell, FiShoppingCart } from 'react-icons/fi';
+import { FiBell, FiShoppingCart, FiAperture } from 'react-icons/fi';
 import { Icon } from '@chakra-ui/icons';
 import CartService from '~/services/cartService';
 import NotificationService from '~/services/notificationService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import WebSocketService from '~/services/websocketService';
+import { RiRobot2Line } from 'react-icons/ri';
 
 const NavbarForStudent = () => {
   const navigate = useNavigate();
@@ -84,7 +92,9 @@ const NavbarForStudent = () => {
       const username = getUsername();
       WebSocketService.getIns().then((wsService) => {
         wsService.unsubscribe(websocketConstants.cartItemCountTopic(username));
-        wsService.unsubscribe(websocketConstants.notificationCountTopic(username));
+        wsService.unsubscribe(
+          websocketConstants.notificationCountTopic(username),
+        );
       });
     };
   }, []);
@@ -96,6 +106,7 @@ const NavbarForStudent = () => {
         alt="Logo"
         style={{ width: '100px', height: '100px' }}
         ms={5}
+        onClick={() => navigate(config.routes.homepage)}
       />
       <div className="navbar--list">
         <div className="navbar--list__gap20" align="center">
@@ -108,6 +119,18 @@ const NavbarForStudent = () => {
           </Button>
 
           <Box display="flex" alignItems="center" gap={10}>
+            {/* ChatAI Icon */}
+            <Box
+              position="relative"
+              cursor="pointer"
+              onClick={() => navigate(config.routes.chat_ai)}
+              _hover={{
+                transform: 'scale(1.1)',
+                transition: '0.2s ease-in-out',
+              }}
+            >
+              <Icon as={FiAperture} boxSize={6} />
+            </Box>
             {/* Notification Icon */}
             <Box
               position="relative"

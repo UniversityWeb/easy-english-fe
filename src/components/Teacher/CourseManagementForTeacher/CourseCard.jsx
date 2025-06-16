@@ -4,11 +4,14 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 import { useMemo } from 'react';
 import StarRating from './StarRating';
 import { formatVNDMoney } from '~/utils/methods';
+import { COURSE_STATUS } from '~/utils/constants';
+import PriceDisplay from '~/components/PriceDisplay';
 
 const CourseCard = ({ course, onMakeFeatured }) => {
   const averageRating = useMemo(() => {
     return course.rating ? course.rating.toFixed(1) : 'N/A';
   }, [course.rating]);
+  const status = COURSE_STATUS[course.status];
 
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4} w="100%">
@@ -69,33 +72,16 @@ const CourseCard = ({ course, onMakeFeatured }) => {
           </Flex>
         </Flex>
       </Box>
-      <Stack mt={4} direction="row" align="center" justify="space-between">
-        <Flex align="center" color="green.500">
-          <CheckCircleIcon mr={1} />
-          <Text>{course.isPublish ? 'Published' : 'Unpublished'}</Text>
+      <Flex mt={4} align="center" justify="space-between" w="100%">
+        {/* Status Section */}
+        <Flex align="center" color={status?.color || 'black'}>
+          {status?.icon && <status.icon mr={1} />}
+          <Text noOfLines={1}>{status?.label || 'Unknown Status'}</Text>
         </Flex>
 
         {/* Price Section */}
-        <Flex direction="column" align="flex-end" minH="48px">
-          {/* Original Price */}
-          {course.price.price !== course.price?.salePrice && course.price.price <= 0 && (
-            <Text as="s" color="gray.500">
-              {formatVNDMoney(course.price.price)}
-            </Text>
-          )}
-
-          {/* Sale Price or Free */}
-          {course.price?.salePrice === 0 ? (
-            <Text fontWeight="bold" color="green.500">
-              FREE
-            </Text>
-          ) : (
-            <Text fontWeight="bold" color="red.500">
-              {formatVNDMoney(course.price.salePrice)}
-            </Text>
-          )}
-        </Flex>
-      </Stack>
+        <PriceDisplay priceResponse={course?.price} />
+      </Flex>
       <Button
         colorScheme="blue"
         mt={4}

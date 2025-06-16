@@ -1,5 +1,13 @@
 import React from 'react';
-import { Box, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import {
+  Box,
+  Image,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+} from '@chakra-ui/react';
 
 const ImagePreview = ({ isOpen, onClose, imageUrl }) => {
   return (
@@ -12,7 +20,14 @@ const ImagePreview = ({ isOpen, onClose, imageUrl }) => {
         width="100%"
         backgroundColor="transparent" // Make modal content transparent
       >
-        <ModalCloseButton position="absolute" top={4} right={4} zIndex="1" color="white" size="lg"/>
+        <ModalCloseButton
+          position="absolute"
+          top={4}
+          right={4}
+          zIndex="1"
+          color="white"
+          size="lg"
+        />
         <ModalBody
           display="flex"
           justifyContent="center"
@@ -29,11 +44,7 @@ const ImagePreview = ({ isOpen, onClose, imageUrl }) => {
             justifyContent="center"
             alignItems="center"
           >
-            <Image
-              src={imageUrl}
-              alt="Image Preview"
-              objectFit="contain"
-            />
+            <Image src={imageUrl} alt="Image Preview" objectFit="contain" />
           </Box>
         </ModalBody>
       </ModalContent>

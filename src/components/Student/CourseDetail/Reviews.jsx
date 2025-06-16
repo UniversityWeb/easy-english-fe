@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Divider, HStack, Icon, Progress, Spinner, Text, Textarea, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Divider,
+  HStack,
+  Icon,
+  Progress,
+  Spinner,
+  Text,
+  Textarea,
+  VStack,
+} from '@chakra-ui/react';
 import { FaStar } from 'react-icons/fa';
 import reviewService from '~/services/reviewService';
 import { getUsername } from '~/utils/authUtils';
 
 const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
-  const canWriteReview =
-    buttonState === 'COMPLETED';
-
+  const canWriteReview = buttonState === 'COMPLETED';
+  const [hasReviewed, setHasReviewed] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
@@ -36,6 +46,10 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
         });
         if (response) {
           setReviews(response);
+          const userHasReviewed = response.some(
+            (review) => review.owner === username,
+          );
+          setHasReviewed(userHasReviewed);
           if (response.length > 0) {
             calculateAverageRating(response);
           } else {
@@ -91,7 +105,7 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
         setReviews(updatedReviews);
         setNewReview({ rating: 0, comment: '', owner: username });
         setIsWritingReview(false);
-
+        setHasReviewed(true);
         calculateAverageRating(updatedReviews);
         if (onReviewUpdate) {
           await onReviewUpdate();
@@ -156,18 +170,24 @@ const Reviews = ({ courseId, instructorName, onReviewUpdate, buttonState }) => {
         </Text>
         <VStack align="flex-start">
           <HStack>
-            {[...Array(Math.floor(averageRating))].map((_, i) => (
-              <Icon key={i} as={FaStar} color="orange.400" />
+            {[...Array(5)].map((_, i) => (
+              <Icon
+                key={i}
+                as={FaStar}
+                color={
+                  i < Math.floor(averageRating)
+                    ? 'orange.400'
+                    : i < averageRating
+                      ? 'gray.300'
+                      : 'gray.300'
+                }
+              />
             ))}
-            {averageRating % 1 !== 0 && <Icon as={FaStar} color="gray.300" />}
-            {averageRating === 0 &&
-              [...Array(5)].map((_, i) => (
-                <Icon key={i} as={FaStar} color="gray.300" />
-              ))}
           </HStack>
           <Text fontSize="sm">{reviews.length} review(s)</Text>
         </VStack>
-        {canWriteReview && (
+
+        {canWriteReview && !hasReviewed && (
           <Button
             colorScheme="blue"
             variant="outline"

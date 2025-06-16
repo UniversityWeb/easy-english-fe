@@ -10,12 +10,14 @@ import {
   Select,
   Switch,
   Textarea,
+  Text,
 } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
 import VideoPicker from '~/components/VideoPicker';
+import VideoPlayer from './VideoPlayer';
 
 const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
   const [loading, setLoading] = useState(false);
@@ -31,9 +33,60 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
   });
   const [video, setVideo] = useState(null);
   const [sourceType, setSourceType] = useState('MP4');
+  // Add separate state for YouTube and MP4 URLs
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [mp4Url, setMp4Url] = useState('');
 
   const { successToast, errorToast } = useCustomToast();
+  const [errors, setErrors] = useState({});
 
+  const extractYouTubeId = (url) => {
+    if (!url) return '';
+    const regex =
+      /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : '';
+  };
+
+  const validate = () => {
+    const newErrors = {};
+
+    // Kiểm tra tiêu đề
+    if (!lesson.title) {
+      newErrors.title = 'Title is required';
+    }
+
+    // Kiểm tra thời lượng
+    if (!lesson.duration) {
+      newErrors.duration = 'Duration is required';
+    }
+
+    // Kiểm tra mô tả
+    if (!lesson.description) {
+      newErrors.description = 'Description is required';
+    }
+
+    // Kiểm tra nội dung (HTML rỗng hoặc không có nội dung thực sự)
+    const isContentEmpty = (content) => {
+      return !content || content.trim() === '' || content === '<p><br></p>';
+    };
+
+    if (isContentEmpty(lesson.content)) {
+      newErrors.content = 'Content is required';
+    }
+
+    // Kiểm tra video hoặc liên kết YouTube
+    if (sourceType === 'MP4' && !mp4Url) {
+      newErrors.contentUrl = 'MP4 video is required';
+    }
+
+    if (sourceType === 'YouTube' && !youtubeUrl) {
+      newErrors.contentUrl = 'YouTube URL is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   useEffect(() => {
     let isMounted = true;
 
@@ -44,6 +97,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
       try {
         const data = await lessonService.fetchLessonById({ id });
         if (data && isMounted) {
+          const isYouTube = data.contentUrl?.includes('youtube.com');
           setLesson({
             title: data.title || '',
             content: data.content || '',
@@ -54,12 +108,14 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
             startDate: data.startDate || '',
             startTime: data.startTime || '',
           });
-          if (data.contentUrl?.includes('youtube.com')) {
+          // Set the appropriate URL based on type
+          if (isYouTube) {
+            setYoutubeUrl(data.contentUrl || '');
             setSourceType('YouTube');
           } else {
+            setMp4Url(data.contentUrl || '');
             setSourceType('MP4');
           }
-          successToast('Lesson data fetched successfully');
         }
       } catch (error) {
         if (isMounted) {
@@ -74,20 +130,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
     };
 
     if (!isNew && id) {
-      // Fetch existing lesson data
       fetchLesson();
-    } else {
-      // Initialize new lesson state
-      setLesson({
-        title: '',
-        content: '',
-        contentUrl: '',
-        description: '',
-        duration: '',
-        isPreview: false,
-        startDate: '',
-        startTime: '',
-      });
     }
 
     return () => {
@@ -95,16 +138,40 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
     };
   }, [id, isNew]);
 
-  // Cleanup object URLs when component unmounts
   useEffect(() => {
     return () => {
-      if (lesson.contentUrl && lesson.contentUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(lesson.contentUrl);
+      if (mp4Url && mp4Url.startsWith('blob:')) {
+        URL.revokeObjectURL(mp4Url);
       }
     };
-  }, []);
+  }, [mp4Url]);
+
+  const handleSourceTypeChange = (e) => {
+    const newSourceType = e.target.value;
+    setSourceType(newSourceType);
+    // Update contentUrl based on the selected source type
+    if (newSourceType === 'YouTube') {
+      setLesson((prev) => ({ ...prev, contentUrl: youtubeUrl }));
+    } else {
+      setLesson((prev) => ({ ...prev, contentUrl: mp4Url }));
+    }
+  };
+
+  const handleUrlChange = (url) => {
+    if (sourceType === 'YouTube') {
+      setYoutubeUrl(url);
+      setLesson((prev) => ({ ...prev, contentUrl: url }));
+    } else {
+      setMp4Url(url);
+      setLesson((prev) => ({ ...prev, contentUrl: url }));
+    }
+  };
 
   const handleSubmit = async () => {
+    if (!validate()) {
+      errorToast('Please fill in all required fields');
+      return;
+    }
     setLoading(true);
 
     const formData = {
@@ -124,7 +191,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
         successToast('Lesson created successfully');
       }
       if (onLessonSaved) {
-        onLessonSaved(savedLesson); // Pass the saved lesson to the parent
+        onLessonSaved(savedLesson);
       }
     } catch (error) {
       errorToast('Error saving the lesson');
@@ -146,41 +213,50 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
               onChange={(e) => setLesson({ ...lesson, title: e.target.value })}
               placeholder="Enter lesson title"
             />
+            {errors.title && <Text color="red.500">{errors.title}</Text>}
           </FormControl>
 
           <FormControl mb={4}>
             <FormLabel>Source Type</FormLabel>
-            <Select
-              value={sourceType}
-              onChange={(e) => setSourceType(e.target.value)}
-            >
+            <Select value={sourceType} onChange={handleSourceTypeChange}>
               <option value="MP4">MP4</option>
               <option value="YouTube">YouTube</option>
             </Select>
           </FormControl>
 
           {sourceType === 'YouTube' ? (
-            <FormControl mb={4}>
+            <FormControl mb={4} isInvalid={!!errors.contentUrl}>
               <FormLabel>YouTube Video URL</FormLabel>
               <Input
-                value={lesson.contentUrl}
-                onChange={(e) =>
-                  setLesson({ ...lesson, contentUrl: e.target.value })
-                }
+                value={youtubeUrl}
+                onChange={(e) => handleUrlChange(e.target.value)}
                 placeholder="Enter YouTube video URL"
               />
+              {errors.contentUrl && (
+                <Text color="red.500">{errors.contentUrl}</Text>
+              )}
             </FormControl>
           ) : (
-            <VideoPicker
-              title={'Upload Video (MP4)'}
-              videoPreview={lesson?.contentUrl}
-              setVideoPreview={(videoPreview) =>
-                setLesson({ ...lesson, contentUrl: videoPreview })
-              }
-              setVideoFile={setVideo}
-            />
+            <FormControl mb={4} isInvalid={!!errors.contentUrl}>
+              <VideoPicker
+                title={'Upload Video (MP4)'}
+                videoPreview={mp4Url}
+                setVideoPreview={(url) => handleUrlChange(url)}
+                setVideoFile={setVideo}
+              />
+              {errors.contentUrl && (
+                <Text color="red.500">{errors.contentUrl}</Text>
+              )}
+            </FormControl>
           )}
 
+          <Box mb={4}>
+            {sourceType === 'YouTube' && (
+              <VideoPlayer url={youtubeUrl} type={sourceType} />
+            )}
+          </Box>
+
+          {/* Rest of the form remains the same */}
           <FormControl mb={4}>
             <FormLabel>Duration (minutes)</FormLabel>
             <Input
@@ -191,48 +267,8 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
               }
               placeholder="Enter lesson duration"
             />
+            {errors.duration && <Text color="red.500">{errors.duration}</Text>}
           </FormControl>
-
-          <FormControl display="none" alignItems="center" mb={4}>
-            <Switch
-              id="preview-switch"
-              isChecked={lesson.isPreview}
-              onChange={(e) =>
-                setLesson({ ...lesson, isPreview: e.target.checked })
-              }
-            />
-            <FormLabel htmlFor="preview-switch" ml={2}>
-              Enable Preview
-            </FormLabel>
-          </FormControl>
-
-          <Grid templateColumns="repeat(2, 1fr)" gap={6} display="none">
-            <GridItem>
-              <FormControl>
-                <FormLabel>Start Date</FormLabel>
-                <Input
-                  type="date"
-                  value={lesson.startDate}
-                  onChange={(e) =>
-                    setLesson({ ...lesson, startDate: e.target.value })
-                  }
-                />
-              </FormControl>
-            </GridItem>
-
-            <GridItem>
-              <FormControl>
-                <FormLabel>Start Time</FormLabel>
-                <Input
-                  type="time"
-                  value={lesson.startTime}
-                  onChange={(e) =>
-                    setLesson({ ...lesson, startTime: e.target.value })
-                  }
-                />
-              </FormControl>
-            </GridItem>
-          </Grid>
 
           <FormControl mb={4}>
             <FormLabel>Description</FormLabel>
@@ -243,6 +279,9 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
               }
               placeholder="Enter lesson description"
             />
+            {errors.description && (
+              <Text color="red.500">{errors.description}</Text>
+            )}
           </FormControl>
 
           <FormControl mb={4}>
@@ -267,6 +306,7 @@ const VideoLesson = ({ sectionId, id, isNew, onLessonSaved }) => {
                 placeholder="Enter lesson content"
                 style={{ height: '420px', marginBottom: '20px' }}
               />
+              {errors.content && <Text color="red.500">{errors.content}</Text>}
             </Box>
           </FormControl>
 

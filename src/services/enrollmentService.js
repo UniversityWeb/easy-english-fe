@@ -27,10 +27,37 @@ const getEnrollByFilter = async (courseRequest) => {
   return handleResponse(response, 200);
 };
 
+const getCoursesStatistics = async (courseStatsFilter) => {
+  const response = await post(
+    `${SUFFIX_ENROLLMENT_API_URL}/get-courses-statistics`,
+    courseStatsFilter,
+  );
+  return handleResponse(response, 200);
+};
+
+const getStudentsStatistics = async (studFilter) => {
+  const response = await post(
+    `${SUFFIX_ENROLLMENT_API_URL}/get-students-statistics`,
+    studFilter,
+  );
+  return handleResponse(response, 200);
+};
+
+const sendNotify = async (listEmail) => {
+  const response = await post(
+    `${SUFFIX_ENROLLMENT_API_URL}/teachers/notify-dropout-risk`,
+    listEmail,
+  );
+  return handleResponse(response, 200);
+};
+
 const enrollmentService = {
   isEnrolled,
   getAllEnrolls,
   getEnrollByFilter,
+  getCoursesStatistics,
+  getStudentsStatistics,
+  sendNotify,
 };
 
 export default enrollmentService;

@@ -1,0 +1,34 @@
+{
+    "common.language": "Ngôn ngữ",
+    "common.login": "Đăng nhập",
+    "common.logout": "Đăng xuất",
+    "common.username": "Tên người dùng",
+    "common.password": "Mật khẩu",
+    "common.new_password": "Mật khẩu mới",
+    "common.confirm_password": "Xác nhận mật khẩu",
+    "common.author_footer": "Được tạo bởi An & Hùng",
+    "common.information": "Thông tin",
+    "common.role": "Vai trò",
+    "common.full_name": "Họ và tên",
+    "common.email": "Email",
+    "common.phone_number": "Số điện thoại",
+    "common.bio": "Giới thiệu bản thân",
+    "common.save_changes": "Lưu thay đổi",
+    "common.update_password": "Cập nhật mật khẩu",
+    "common.gender": "Giới tính",
+    "common.male": "Nam",
+    "common.female": "Nữ",
+    "common.other": "Khác",
+    "common.dob": "Ngày sinh",
+
+    "settings.auto_reply": "Tự động trả lời tin nhắn",
+    "settings.til_reply_msg": "Tự động trả lời tin nhắn",
+    "settings.note_reply_msg": "Tôi hiện đang đi. Tôi sẽ liên hệ lại với bạn sớm.",
+
+    "profile.settings": "Cài đặt",
+  
+    "language.english": "Tiếng Anh",
+    "language.vietnamese": "Tiếng Việt",
+    "language.current": "Ngôn ngữ hiện tại"
+  }
+  

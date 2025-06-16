@@ -16,12 +16,39 @@ import {
 import styles from './Drawer.module.scss';
 import { useNavigate } from 'react-router-dom';
 import { MdLogout } from 'react-icons/md';
-import { IoBarChartOutline, IoBookOutline, IoListOutline } from 'react-icons/io5';
+import {
+  IoBarChartOutline,
+  IoBookOutline,
+  IoListOutline,
+} from 'react-icons/io5';
 import config from '~/config';
 import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import { FaUserEdit } from 'react-icons/fa';
 import AuthService from '~/services/authService';
+
+const menuItems = [
+  {
+    label: 'Courses',
+    icon: IoBookOutline,
+    route: config.routes.course_management_for_admin,
+  },
+  {
+    label: 'Categories',
+    icon: IoListOutline,
+    route: config.routes.category_for_admin,
+  },
+  {
+    label: 'Topics And Levels',
+    icon: IoBarChartOutline,
+    route: config.routes.topic_level_for_admin,
+  },
+  {
+    label: 'Users Management',
+    icon: FaUserEdit,
+    route: config.routes.user_management,
+  },
+];
 
 const RightSidebarForAdmin = React.memo((props) => {
   const user = props.user;
@@ -84,31 +111,14 @@ const RightSidebarForAdmin = React.memo((props) => {
                 Management
               </Text>
             </Box>
-            {/* Sidebar Items */}
-            <SidebarItem
-              icon={IoBookOutline}
-              text="Courses"
-              handleClick={() =>
-                navigate(config.routes.course_management_for_admin)
-              }
-            />
-
-            {/*<SidebarItem*/}
-            {/*  icon={IoListOutline}*/}
-            {/*  text="Categories"*/}
-            {/*  handleClick={() => navigate(config.routes.category_for_admin)}*/}
-            {/*/>*/}
-            {/*<SidebarItem*/}
-            {/*  icon={IoBarChartOutline}*/}
-            {/*  text="Topics And Levels"*/}
-            {/*  handleClick={() => navigate(config.routes.topic_level_for_admin)}*/}
-            {/*/>*/}
-
-            <SidebarItem
-              icon={FaUserEdit}
-              text="Users Management"
-              handleClick={() => navigate(config.routes.user_management)}
-            />
+            {menuItems.map((item, index) => (
+              <SidebarItem
+                key={index}
+                icon={item.icon}
+                text={item.label}
+                handleClick={() => navigate(item.route)}
+              />
+            ))}
 
             {/* Account Section */}
             <Box paddingTop="10px" paddingBottom="5px">

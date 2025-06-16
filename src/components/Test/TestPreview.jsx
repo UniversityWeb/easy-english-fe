@@ -2,7 +2,7 @@ import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 
-const TestPreview = ({ test }) => {
+const TestPreview = ({ courseTitle, test }) => {
   const navigate = useNavigate();
   const {
     id,
@@ -66,7 +66,12 @@ const TestPreview = ({ test }) => {
         ))}
       </Stack>
       <Button colorScheme="blue" mt={6} onClick={() => {
-        navigate(config.routes.take_test(id))
+        localStorage.setItem("previousPage", window.location.href);
+        navigate(config.routes.take_test(id), {
+          state: {
+            returnUrl: config.routes.learn(test?.courseId, courseTitle) + `?type=TEST&id=${id}`
+          }
+        })
       }}>
         Start Test
       </Button>

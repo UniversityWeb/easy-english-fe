@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Grid, GridItem, Input, Switch, Textarea } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Grid,
+  GridItem,
+  Input,
+  Switch,
+  Text,
+  Textarea,
+} from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import lessonService from '~/services/lessonService';
 import useCustomToast from '~/hooks/useCustomToast';
 
 const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [lesson, setLesson] = useState({
     title: '',
@@ -40,7 +52,7 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               startDate: data.startDate || '',
               startTime: data.startTime || '',
             });
-            successToast('Lesson data fetched successfully');
+            //successToast('Lesson data fetched successfully');
           }
         } catch (error) {
           if (isMounted) {
@@ -72,7 +84,42 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
   }, [id, isNew]);
 
   // Handle form submission for create/update
+  const validate = () => {
+    const newErrors = {};
+
+    // Kiểm tra tiêu đề
+    if (!lesson.title) {
+      newErrors.title = 'Title is required';
+    }
+
+    // Kiểm tra thời lượng
+    if (!lesson.duration) {
+      newErrors.duration = 'Duration is required';
+    }
+
+    // Kiểm tra mô tả
+    if (!lesson.description) {
+      newErrors.description = 'Description is required';
+    }
+
+    // Kiểm tra nội dung (HTML rỗng hoặc không có nội dung thực sự)
+    const isContentEmpty = (content) => {
+      return !content || content.trim() === '' || content === '<p><br></p>';
+    };
+
+    if (isContentEmpty(lesson.content)) {
+      newErrors.content = 'Content is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
+    if (!validate()) {
+      errorToast('Please fill in all required fields');
+      return;
+    }
     setLoading(true);
     const formData = { ...lesson, sectionId, type: 'TEXT' };
     try {
@@ -111,6 +158,7 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               onChange={(e) => setLesson({ ...lesson, title: e.target.value })}
               placeholder="Enter lesson title"
             />
+            {errors.title && <Text color="red.500">{errors.title}</Text>}
           </FormControl>
 
           <FormControl mb={4}>
@@ -123,6 +171,7 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               }
               placeholder="Enter lesson duration"
             />
+            {errors.duration && <Text color="red.500">{errors.duration}</Text>}
           </FormControl>
 
           <FormControl display="none" alignItems="center" mb={4}>
@@ -133,7 +182,7 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
                 setLesson({ ...lesson, isPreview: e.target.checked })
               }
             />
-            <FormLabel htmlFor="preview-switch" ml={2} >
+            <FormLabel htmlFor="preview-switch" ml={2}>
               Enable Preview
             </FormLabel>
           </FormControl>
@@ -176,6 +225,9 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
               placeholder="Enter lesson description"
               height="170px"
             />
+            {errors.description && (
+              <Text color="red.500">{errors.description}</Text>
+            )}
           </FormControl>
 
           <FormControl mb={4}>
@@ -201,6 +253,7 @@ const TextLesson = ({ id, sectionId, isNew, onLessonSaved }) => {
                 style={{ height: '380px', marginBottom: '20px' }}
               />
             </Box>
+            {errors.content && <Text color="red.500">{errors.content}</Text>}
           </FormControl>
 
           <Box position="sticky" bottom={0} bg="white" p={4} zIndex={5}>

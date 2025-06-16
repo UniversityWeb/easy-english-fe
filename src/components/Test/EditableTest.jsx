@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Heading, Tab, TabList, TabPanel, TabPanels, Tabs, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Heading,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  VStack,
+} from '@chakra-ui/react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'; // Import drag-and-drop components
 import EditableTestPart from './EditableTestPart';
 import TestForm from './TestForm';
@@ -68,6 +78,7 @@ const EditableTest = ({
           audioPath: data?.audioPath,
           createdAt: data.createdAt || new Date().toISOString().slice(0, 16),
           sectionId: data.sectionId || 0,
+          passingGrade: data?.passingGrade || 0,
         });
         successToast('Test data fetched successfully');
       }

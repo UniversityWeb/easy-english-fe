@@ -15,18 +15,31 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
-import { FaCheckCircle, FaLock } from 'react-icons/fa';
+import { LuPencil } from 'react-icons/lu';
+
+import { FaCheckCircle, FaLock, FaStar } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
-import { MdArrowBack } from 'react-icons/md';
+import { MdRateReview } from 'react-icons/md';
 import sectionService from '~/services/sectionService';
 import lessonService from '~/services/lessonService';
 import testService from '~/services/testService';
 import lessonTrackerService from '~/services/lessonTrackerService';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { getUsername } from '~/utils/authUtils';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 import TestPreview from '~/components/Test/TestPreview';
+import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
+import writingService from '~/services/writingService';
+import WritingTaskPage from '../Common/WritingTaskPage';
+import enrollmentService from '~/services/enrollmentService';
+import writingResultService from '~/services/writingResultService';
+import RecommendCourse from './RecommendCourse';
 
 const LessonItem = ({
   icon,
@@ -40,6 +53,7 @@ const LessonItem = ({
   isTest = false,
   isSelected = false,
   itemRef,
+  isRecommend = false,
 }) => (
   <HStack
     w="100%"
@@ -47,10 +61,18 @@ const LessonItem = ({
     p={2}
     justifyContent="space-between"
     borderRadius={8}
-    bg={isSelected ? 'blue.100' : 'gray.50'}
+    bg={isSelected ? 'blue.100' : isRecommend ? 'yellow.50' : 'gray.50'}
     cursor="pointer"
-    _hover={{ bg: isSelected ? 'blue.200' : 'gray.100' }}
-    border={isSelected ? '2px solid blue.500' : 'none'}
+    _hover={{
+      bg: isSelected ? 'blue.200' : isRecommend ? 'yellow.100' : 'gray.100',
+    }}
+    border={
+      isSelected
+        ? '2px solid blue.500'
+        : isRecommend
+          ? '2px solid yellow.400'
+          : 'none'
+    }
     onClick={onClick}
   >
     <VStack align="start" spacing={2} w="100%">
@@ -60,9 +82,9 @@ const LessonItem = ({
       <HStack spacing={1}>
         <Icon as={icon} boxSize={5} color={iconColor} />
         <Text fontSize="sm" fontWeight="bold">
-          {isTest ? 'TEST' : typeLesson}
+          {isTest ? 'TEST' : isRecommend ? 'RECOMMEND' : typeLesson}
         </Text>
-        {!isTest && (
+        {!isTest && !isRecommend && (
           <Text fontSize="sm" color="gray.500">
             {duration} min
           </Text>
@@ -71,6 +93,8 @@ const LessonItem = ({
     </VStack>
     {isLocked ? (
       <Icon as={FaLock} boxSize={5} color="gray.500" />
+    ) : isRecommend ? (
+      <Icon as={FaStar} boxSize={5} color="yellow.500" />
     ) : (
       <Icon
         as={complete ? FaCheckCircle : ImRadioUnchecked}
@@ -82,6 +106,7 @@ const LessonItem = ({
 );
 
 const LearnPage = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,37 +114,15 @@ const LearnPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { courseId, courseTitle } = useParams();
   const username = getUsername();
-  const navigate = useNavigate();
   const itemRefs = useRef({});
+  const returnURL = localStorage.getItem('previousPageMain');
 
-  const Navbar = ({state}) => {
-    const handleBackClick = () => {
-      if (state?.returnUrl) {
-        navigate(state?.returnUrl);
-      } else {
-        navigate(-1);
-      }
-    };
-
-    return (
-      <Flex
-        bg="gray.800"
-        color="white"
-        px="8"
-        py="4"
-        alignItems="center"
-        w="full"
-      >
-        <Button
-          leftIcon={<MdArrowBack />}
-          variant="ghost"
-          colorScheme="whiteAlpha"
-          onClick={handleBackClick}
-        >
-          Back to courses
-        </Button>
-      </Flex>
+  // Helper function to check if all items are completed
+  const areAllItemsCompleted = (sectionsData) => {
+    const allItems = sectionsData.flatMap(
+      (section) => section.items.filter((item) => !item.isRecommend), // Exclude recommend items from completion check
     );
+    return allItems.length > 0 && allItems.every((item) => item.complete);
   };
 
   useEffect(() => {
@@ -132,12 +135,18 @@ const LearnPage = () => {
 
         const sectionsWithContent = await Promise.all(
           fetchedSections.map(async (section) => {
-            const [lessons, tests] = await Promise.all([
+            const writingRequest = {
+              sectionId: section.id,
+              pageNumber: 0,
+              size: 9999,
+            };
+            const [lessons, tests, writings] = await Promise.all([
               lessonService.fetchLessons({ sectionId: section.id }),
               testService.getTestsBySection(section.id),
+              writingService.getWriting(writingRequest),
             ]);
 
-            const formattedLessons = lessons.map((lesson) => ({
+            const formattedLessons = lessons?.map((lesson) => ({
               ...lesson,
               icon: getLessonIcon(lesson.type),
               iconColor: getLessonColor(lesson.type),
@@ -146,7 +155,7 @@ const LearnPage = () => {
               type: lesson.type,
             }));
 
-            const formattedTests = tests.map((test) => ({
+            const formattedTests = tests?.map((test) => ({
               ...test,
               icon: FiHelpCircle,
               iconColor: 'orange.500',
@@ -155,51 +164,125 @@ const LearnPage = () => {
               type: 'TEST',
             }));
 
+            // Cập nhật logic cho writing - kiểm tra trạng thái submit
+            const formattedWritings = await Promise.all(
+              writings?.map(async (writing) => {
+                let isCompleted = false;
+
+                try {
+                  // Kiểm tra xem bài writing đã được submit chưa
+                  const writingResultRequest = {
+                    writingTaskId: writing.id,
+                  };
+                  const result =
+                    await writingResultService.getWritingResult(
+                      writingResultRequest,
+                    );
+
+                  // Nếu có kết quả và có ít nhất 1 submission thì coi là completed
+                  if (result && result.content && result.content.length > 0) {
+                    isCompleted = true;
+                  }
+                } catch (error) {
+                  console.error(
+                    `Error checking writing completion for ${writing.id}:`,
+                    error,
+                  );
+                  // Nếu có lỗi, mặc định là chưa completed
+                  isCompleted = false;
+                }
+
+                return {
+                  ...writing,
+                  icon: LuPencil,
+                  iconColor: 'green.500',
+                  complete: isCompleted, // Sử dụng trạng thái đã kiểm tra
+                  isWriting: true, // Thêm flag để phân biệt với lesson và test
+                  type: 'WRITING',
+                };
+              }) || [],
+            );
+
+            const allItems = [
+              ...formattedLessons,
+              ...formattedTests,
+              ...formattedWritings,
+            ];
+
             return {
               ...section,
-              items: [...formattedLessons, ...formattedTests],
+              items: allItems,
             };
           }),
         );
 
-        setSections(sectionsWithContent);
+        // Check if all items are completed and add recommend item
+        let finalSections = sectionsWithContent;
+        if (areAllItemsCompleted(sectionsWithContent)) {
+          // Add recommend item to the last section
+          const lastSectionIndex = finalSections.length - 1;
+          if (lastSectionIndex >= 0) {
+            const recommendItem = {
+              id: `recommend-${courseId}`,
+              title: 'Recommend this course',
+              icon: FaStar,
+              iconColor: 'yellow.500',
+              complete: false,
+              isRecommend: true,
+              type: 'RECOMMEND',
+              content: 'Recommend for course',
+              description: 'Share your thoughts about this course',
+            };
 
+            finalSections = [...finalSections];
+            finalSections[lastSectionIndex] = {
+              ...finalSections[lastSectionIndex],
+              items: [...finalSections[lastSectionIndex].items, recommendItem],
+            };
+          }
+        }
+
+        setSections(finalSections);
+
+        // Phần còn lại của logic giữ nguyên...
         const selectedType = searchParams.get('type');
         const selectedId = searchParams.get('id');
 
-        // First, try to get the first unlearned lesson
         const firstUnlearnedLesson =
           await lessonTrackerService.getFirstUnlearnedLesson(courseId);
 
-        // Find the selected item
         let foundItem = null;
 
-        // First, check URL params
         if (selectedType && selectedId) {
-          foundItem = sectionsWithContent
+          foundItem = finalSections
             .flatMap((section) => section.items)
             .find(
               (item) =>
-                (item.isTest ? 'TEST' : item.type) === selectedType &&
+                (item.isTest
+                  ? 'TEST'
+                  : item.isRecommend
+                    ? 'RECOMMEND'
+                    : item.type) === selectedType &&
                 item.id.toString() === selectedId,
             );
         }
 
-        // If no URL params match, try the first unlearned lesson
         if (!foundItem && firstUnlearnedLesson) {
-          foundItem = sectionsWithContent
+          foundItem = finalSections
             .flatMap((section) => section.items)
             .find(
               (item) =>
-                (item.isTest ? 'TEST' : item.type) ===
-                  firstUnlearnedLesson.type &&
+                (item.isTest
+                  ? 'TEST'
+                  : item.isRecommend
+                    ? 'RECOMMEND'
+                    : item.type) === firstUnlearnedLesson.type &&
                 item.id.toString() === firstUnlearnedLesson.id.toString(),
             );
         }
 
-        // If still no item found, default to the first item
-        if (!foundItem && sectionsWithContent[0]?.items[0]) {
-          foundItem = sectionsWithContent[0].items[0];
+        if (!foundItem && finalSections[0]?.items[0]) {
+          foundItem = finalSections[0].items[0];
         }
 
         if (foundItem) {
@@ -230,8 +313,12 @@ const LearnPage = () => {
   }, [selectedItem]);
 
   const updateSearchParams = (item) => {
-    const type = item.isTest ? 'TEST' : item.type;
-    setSearchParams({ type, id: item.id.toString() });
+    const type = item.isTest
+      ? 'TEST'
+      : item.isRecommend
+        ? 'RECOMMEND'
+        : item.type;
+    setSearchParams({ type, id: item.id.toString() }, { replace: true });
   };
 
   const handleItemSelect = (item) => {
@@ -258,12 +345,14 @@ const LearnPage = () => {
       }
     }
 
-    const updatedSections = sections.map((section) => ({
+    let updatedSections = sections.map((section) => ({
       ...section,
       items: section.items.map((item) =>
         item.id === selectedItem.id ? { ...item, complete: true } : item,
       ),
     }));
+    // Cập nhật trạng thái khóa
+    updatedSections = updateLockedStates(updatedSections);
 
     setSections(updatedSections);
 
@@ -325,13 +414,23 @@ const LearnPage = () => {
     return match ? match[1] : '';
   }
 
-  const renderContent = () => {
+  const renderContent = (courseTitle) => {
     if (!selectedItem) return null;
 
-    const { content, contentUrl, description, type, isTest } = selectedItem;
+    const { content, contentUrl, description, type, isTest, isRecommend } =
+      selectedItem;
 
     if (isTest) {
-      return <TestPreview test={selectedItem} />;
+      return (
+        <TestPreview
+          courseTitle={courseTitle || 'Default'}
+          test={selectedItem}
+        />
+      );
+    }
+
+    if (isRecommend) {
+      return <RecommendCourse currentCourseId={courseId} />;
     }
 
     return (
@@ -388,29 +487,44 @@ const LearnPage = () => {
         {type === SEC_ITEM_TYPES.AUDIO && (
           <>
             <Box
-              position="relative"
-              width="100%"
-              height="100%"
-              cursor="pointer"
-              overflow="hidden"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <audio src={contentUrl} controls style={{ width: '50%' }}>
-                Your browser does not support the audio tag.
-              </audio>
-            </Box>
-            <Box
               color="gray.700"
               mt={4}
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </>
         )}
+        {type === SEC_ITEM_TYPES.WRITING && (
+          <>
+            <WritingTaskPage infoWriting={selectedItem} />
+          </>
+        )}
       </>
     );
   };
+
+  const updateLockedStates = (sections) => {
+    const allItems = sections.flatMap((section) => section.items);
+
+    const completedIds = new Set(
+      allItems.filter((item) => item.complete).map((item) => item.id),
+    );
+
+    return sections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => {
+        if (!item.prevDrips || item.prevDrips.length === 0) {
+          return { ...item, isLocked: false };
+        }
+
+        const isLocked = item.prevDrips.some(
+          (prev) => !completedIds.has(prev.id),
+        );
+
+        return { ...item, isLocked };
+      }),
+    }));
+  };
+
   const handleItemClick = (id, type) => {
     const foundItem = sections
       .flatMap((section) => section.items)
@@ -421,6 +535,49 @@ const LearnPage = () => {
       updateSearchParams(foundItem);
     }
   };
+
+  const isLastItem = () => {
+    if (!selectedItem) return false;
+
+    // Flatten the list of items in sections (excluding recommend items)
+    const allItems = sections.flatMap((section) =>
+      section.items.filter((item) => !item.isRecommend),
+    );
+
+    // Get the last item in the list
+    const lastItem = allItems[allItems.length - 1];
+
+    // Check if the selected item is the last one *and* if it is complete
+    return (
+      selectedItem.id === lastItem?.id && lastItem?.complete // Ensure the last item is completed
+    );
+  };
+
+  useEffect(() => {
+    const fetchEnrollmentData = async () => {
+      if (isLastItem()) {
+        try {
+          const courseRequest = {
+            pageNumber: 0,
+            size: 1000,
+            title: null,
+            categoryIds: null,
+            rating: null,
+            topicId: null,
+            levelId: null,
+          };
+
+          await enrollmentService.getEnrollByFilter(courseRequest);
+          console.log('Enrollment data fetched');
+        } catch (error) {
+          console.error('Error fetching enrollment data:', error);
+        }
+      }
+    };
+
+    fetchEnrollmentData();
+  }, [sections, selectedItem]);
+
   if (loading) {
     return (
       <Flex justify="center" align="center" h="100vh">
@@ -431,7 +588,10 @@ const LearnPage = () => {
 
   return (
     <Flex direction="column" h="100vh">
-      <Navbar state={state} />
+      <NavbarWithBackBtn
+        returnUrl={returnURL}
+        backBtnTitle={'Back to courses'}
+      />
       <Flex h="100vh" overflow="hidden">
         <Box
           w="30%"
@@ -478,6 +638,7 @@ const LearnPage = () => {
                           complete={item.complete}
                           isLocked={item?.isLocked}
                           isTest={item.isTest}
+                          isRecommend={item.isRecommend}
                           onClick={() => handleItemSelect(item)}
                           isSelected={selectedItem?.id === item.id}
                           itemRef={(el) => (itemRefs.current[item.id] = el)}
@@ -495,8 +656,7 @@ const LearnPage = () => {
           {selectedItem?.isLocked ? (
             <>
               <HStack mb={4} align="center" spacing={2}>
-                <Icon as={FaLock} color="red.500" boxSize={5} />{' '}
-                {/* Replace `YourLockIconComponent` with the lock icon component you're using */}
+                <Icon as={FaLock} color="red.500" boxSize={5} />
                 <Text color="gray.600">
                   The current content is locked. Please complete the list below
                   to unlock and proceed.
@@ -508,8 +668,8 @@ const LearnPage = () => {
                   key={prevDrip.id}
                   spacing={4}
                   align="center"
-                  _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }} // Hover effect
-                  onClick={() => handleItemClick(prevDrip.id, prevDrip.type)} // Click event handler
+                  _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }}
+                  onClick={() => handleItemClick(prevDrip.id, prevDrip.type)}
                 >
                   <Icon
                     as={getLessonIcon(prevDrip.type)}
@@ -524,7 +684,7 @@ const LearnPage = () => {
           ) : (
             <>
               <VStack align="start" spacing={4} minHeight="89%">
-                {renderContent()}
+                {renderContent(courseTitle)}
               </VStack>
               <Box
                 position="sticky"
@@ -538,14 +698,28 @@ const LearnPage = () => {
                 paddingBottom={3}
                 paddingTop={3}
               >
-                {!selectedItem?.isTest && (
+                {isLastItem() ? (
                   <Button
-                    colorScheme="blue"
+                    colorScheme="teal"
                     alignSelf="flex-end"
-                    onClick={handleCompleteAndNext}
+                    leftIcon={<MdRateReview />}
+                    onClick={async () => {
+                      navigate(`/course-view-detail/${courseId}?tab=reviews`);
+                    }}
                   >
-                    {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+                    Review Course
                   </Button>
+                ) : (
+                  !selectedItem?.isTest &&
+                  !selectedItem?.isRecommend && (
+                    <Button
+                      colorScheme="blue"
+                      alignSelf="flex-end"
+                      onClick={handleCompleteAndNext}
+                    >
+                      {selectedItem?.complete ? 'Next' : 'Complete & Next'}
+                    </Button>
+                  )
                 )}
               </Box>
             </>

@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Avatar, Box, Flex, HStack, Icon, Text, VStack } from '@chakra-ui/react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import {
+  Avatar,
+  Box,
+  Flex,
+  HStack,
+  Icon,
+  Text,
+  VStack,
+  Spinner,
+} from '@chakra-ui/react';
 import { IoArrowBack } from 'react-icons/io5';
 import servicesService from '~/services/messageService';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,36 +16,64 @@ import Chat from '~/components/Chat';
 import WebSocketService from '~/services/websocketService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import { getUsername } from '~/utils/authUtils';
+import { Button } from 'antd';
 
+const PAGE_SIZE = 10;
 
 const ChatPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { returnUrl, targetCourse } = location.state || {}; // Retrieve course data from state
+  const { returnUrl, targetCourse: initialTargetCourse } = location.state || {};
+
   const [recentUsers, setRecentUsers] = useState([]);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
+  const [page, setPage] = useState(0);
+  const [isLastPage, setIsLastPage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  // Thêm state để quản lý targetCourse
+  const [targetCourse, setTargetCourse] = useState(initialTargetCourse);
 
-  // Fetch recent conversations list from the API
+  const username = getUsername();
+
+  const fetchRecentChats = async () => {
+    if (loading || isLastPage) return;
+
+    setLoading(true);
+    try {
+      const response = await servicesService.getRecentChats(page, PAGE_SIZE);
+      const content = response.content || [];
+
+      setRecentUsers((prev) => [...prev, ...content]);
+      setIsLastPage(response.last);
+      setPage((prevPage) => prevPage + 1);
+    } catch (error) {
+      console.error('Failed to fetch recent chats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const username = getUsername();
     let wsService;
 
     const initializeWebsocket = async () => {
       try {
         wsService = await WebSocketService.getIns();
 
-        wsService.subscribe(websocketConstants.recentChatsTopic(username), (message) => {
-          try {
-            const { senderUsername, recipientUsername, content, sendingTime } = message;
+        wsService.subscribe(
+          websocketConstants.recentChatsTopic(username),
+          (message) => {
+            const { senderUsername, recipientUsername, content, sendingTime } =
+              message;
 
-            // Determine the chat partner (exclude the logged-in user)
-            const chatPartner = senderUsername === username ? recipientUsername : senderUsername;
+            const chatPartner =
+              senderUsername === username ? recipientUsername : senderUsername;
 
-            // Update the recent chats list dynamically
             setRecentUsers((prevUsers) => {
-              const existingUserIndex = prevUsers.findIndex((user) => user.username === chatPartner);
+              const existingUserIndex = prevUsers.findIndex(
+                (user) => user.username === chatPartner,
+              );
 
-              // If the user already exists in the list, update them and move them to the top
               if (existingUserIndex !== -1) {
                 const updatedUser = {
                   ...prevUsers[existingUserIndex],
@@ -44,48 +81,36 @@ const ChatPage = () => {
                   lastMessageTime: sendingTime,
                 };
                 const updatedUsers = [...prevUsers];
-                updatedUsers.splice(existingUserIndex, 1); // Remove the existing user
-                return [updatedUser, ...updatedUsers]; // Add the updated user to the top
+                updatedUsers.splice(existingUserIndex, 1);
+                return [updatedUser, ...updatedUsers];
               }
 
-              // If the user doesn't exist, add them to the top of the list
               return [
                 {
                   username: chatPartner,
                   lastMessage: content,
                   lastMessageTime: sendingTime,
-                  fullName: chatPartner, // Adjust if additional data is available
+                  fullName: chatPartner,
                 },
                 ...prevUsers,
               ];
             });
-          } catch (error) {
-            console.error("Failed to process WebSocket message:", error);
-          }
-        });
+          },
+        );
 
-        wsService.subscribe(websocketConstants.onlineUsersTopic, (onlineUsernames) => {
-          setRecentUsers((prevUsers) =>
-            prevUsers.map((user) => ({
-              ...user,
-              isOnline: onlineUsernames.includes(user.username),
-            }))
-          );
-        });
-
+        wsService.subscribe(
+          websocketConstants.onlineUsersTopic,
+          (onlineUsernames) => {
+            setRecentUsers((prevUsers) =>
+              prevUsers.map((user) => ({
+                ...user,
+                isOnline: onlineUsernames.includes(user.username),
+              })),
+            );
+          },
+        );
       } catch (error) {
         console.error('WebSocket initialization failed:', error);
-      }
-    }
-
-    const fetchRecentChats = async () => {
-      try {
-        const response = await servicesService.getRecentChats(0, 10);
-        setRecentUsers(response.content || []);
-
-        pickTargetTeacher();
-      } catch (error) {
-        console.error("Failed to fetch recent chats:", error);
       }
     };
 
@@ -97,22 +122,22 @@ const ChatPage = () => {
         wsService.unsubscribe(websocketConstants.recentChatsTopic(username));
         wsService.unsubscribe(websocketConstants.onlineUsersTopic);
       }
-    }
-  }, []);
+    };
+  }, [username]);
 
-  // Handle recipient selection
   const handleRecipientSelect = (recipient) => {
     setSelectedRecipient(recipient);
   };
 
-  const pickTargetTeacher = async () => {
-    if (targetCourse?.ownerUsername) {
+  // Chỉ chạy khi có targetCourse và chưa được xử lý
+  useEffect(() => {
+    if (targetCourse?.ownerUsername || targetCourse?.owner?.username) {
       setSelectedRecipient({
-        username: targetCourse.owner?.username,
-        fullName: targetCourse.owner?.fullName,
-      })
+        username: targetCourse.owner?.username || targetCourse.ownerUsername,
+        fullName: targetCourse.owner?.fullName || targetCourse.ownerFullName,
+      });
     }
-  }
+  }, [targetCourse]); // Dependency vào targetCourse
 
   const handleBack = () => {
     setSelectedRecipient(null);
@@ -123,9 +148,13 @@ const ChatPage = () => {
     }
   };
 
+  // Sửa hàm này để thực sự clear targetCourse
+  const setNullTargetCourse = () => {
+    setTargetCourse(null);
+  };
+
   return (
     <Flex h="100vh" w="100vw" bg="gray.100" overflow="hidden">
-      {/* User List (Recent Conversations) */}
       <Box
         w="300px"
         bg="white"
@@ -135,7 +164,13 @@ const ChatPage = () => {
         p={4}
       >
         <HStack mb={4}>
-          <Icon as={IoArrowBack} boxSize={5} color="gray.600" onClick={handleBack} />
+          <Icon
+            as={IoArrowBack}
+            boxSize={5}
+            color="gray.600"
+            onClick={handleBack}
+            cursor="pointer"
+          />
           <Text fontSize="xl" fontWeight="bold">
             Recent Chats
           </Text>
@@ -147,22 +182,19 @@ const ChatPage = () => {
               p={3}
               bg={
                 selectedRecipient?.username === user?.username
-                  ? "blue.100"
-                  : "gray.50"
+                  ? 'blue.100'
+                  : 'gray.50'
               }
               borderRadius="md"
               cursor="pointer"
               onClick={() => handleRecipientSelect(user)}
             >
               <Flex position="relative" w="fit-content">
-                {/* Avatar Component */}
                 <Avatar
                   size="sm"
-                  name={user?.fullName || user?.username || "User"}
+                  name={user?.fullName || user?.username || 'User'}
                   src={user?.avatarPath || undefined}
                 />
-
-                {/* Online Dot */}
                 {user?.isOnline && (
                   <Box
                     position="absolute"
@@ -184,13 +216,44 @@ const ChatPage = () => {
               </Box>
             </HStack>
           ))}
+          {!isLastPage && (
+            <div style={{ marginTop: '1rem' }}>
+              <Button
+                type="secondary"
+                onClick={fetchRecentChats}
+                loading={loading}
+                disabled={loading}
+                style={{
+                  transition: 'transform 0.3s, background-color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.backgroundColor = '#1890ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
+                }}
+              >
+                {loading ? 'Loading...' : 'Load More'}
+              </Button>
+            </div>
+          )}
+          {loading && (
+            <Flex justify="center" py={4}>
+              <Spinner size="sm" />
+            </Flex>
+          )}
         </VStack>
       </Box>
 
-      {/* Chat Window */}
       <Flex flex="1" direction="column" bg="gray.50">
         {selectedRecipient ? (
-          <Chat recipient={selectedRecipient} targetCourse={targetCourse} />
+          <Chat
+            recipient={selectedRecipient}
+            courseData={targetCourse}
+            setNullTargetCourse={setNullTargetCourse}
+          />
         ) : (
           <Flex
             flex="1"

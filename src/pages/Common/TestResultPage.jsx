@@ -15,17 +15,24 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { FaRedoAlt, FaTimesCircle } from 'react-icons/fa';
-import { HiOutlineCheckCircle, HiOutlineClock, HiOutlineQuestionMarkCircle, HiOutlineTrophy } from 'react-icons/hi2';
+import {
+  HiOutlineCheckCircle,
+  HiOutlineClock,
+  HiOutlineQuestionMarkCircle,
+  HiOutlineTrophy,
+} from 'react-icons/hi2';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import testResultService from '~/services/testResultService';
 import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
 import config from '~/config';
 import { MdArrowBack } from 'react-icons/md';
+import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 
 const TestResultPage = () => {
   const { testResultId } = useParams();
   const { state } = useLocation();
-  const returnUrl = state?.returnUrl || config.routes.home[0];
+  // const returnUrl = state?.returnUrl || config.routes.home[0];
+  const returnUrl = localStorage.getItem('previousPage');
   const navigate = useNavigate();
   const [testResult, setTestResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -108,37 +115,9 @@ const TestResultPage = () => {
 
   const isPassed = correctPercent >= test?.passingGrade;
 
-  const Navbar = ({ returnUrl }) => {
-    const navigate = useNavigate();
-
-    const handleBackClick = () => {
-      navigate(returnUrl);
-    };
-
-    return (
-      <Flex
-        bg="gray.800"
-        color="white"
-        px="8"
-        py="4"
-        alignItems="center"
-        w="full"
-      >
-        <Button
-          leftIcon={<MdArrowBack />}
-          variant="ghost"
-          colorScheme="whiteAlpha"
-          onClick={handleBackClick}
-        >
-          Back to course
-        </Button>
-      </Flex>
-    );
-  };
-
   return (
     <Box>
-      <Navbar returnUrl={returnUrl} />
+      <NavbarWithBackBtn returnUrl={returnUrl} />
       <Container maxW="800px" mx="auto" p={5}>
         {/* Quiz Title */}
         <Heading as="h2" size="lg" mb={4}>
@@ -179,7 +158,11 @@ const TestResultPage = () => {
         {/* Test Details */}
         <VStack spacing={4} align="start" mb={6}>
           <HStack>
-            <Icon as={HiOutlineQuestionMarkCircle} color="cyan.600" boxSize={6} />
+            <Icon
+              as={HiOutlineQuestionMarkCircle}
+              color="cyan.600"
+              boxSize={6}
+            />
             <Text color="gray.700">Status: {status}</Text>
           </HStack>
           <HStack>
