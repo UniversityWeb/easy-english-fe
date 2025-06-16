@@ -55,12 +55,23 @@ const fetchWritingById = async (writingId) => {
   return response.data;
 };
 
+const deleteWriting = async (topicId) => {
+  const response = await del(
+    `${SUFFIX_WRITING_TASK_API_URL}/delete/${topicId}`,
+  );
+  if (response?.status !== 204) {
+    return null;
+  }
+  return true;
+};
+
 const writingService = {
   submitWriting,
   createWriting,
   updateWriting,
   getWriting,
   fetchWritingById,
+  deleteWriting,
 };
 
 export default writingService;

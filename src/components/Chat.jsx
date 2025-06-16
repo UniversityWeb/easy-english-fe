@@ -30,11 +30,24 @@ const MESSAGE_TYPES = {
   COURSE_INFO: 'COURSE_INFO',
 };
 
+const BASE_URL = 'http://localhost:9000/easy-english';
+
+// Helper function to fix image URLs
+const getFullImageUrl = (url) => {
+  if (!url) return url;
+  // If URL starts with '/', add base URL
+  if (url.startsWith('/')) {
+    return BASE_URL + url;
+  }
+  // If URL already has protocol or is base64, return as is
+  return url;
+};
+
 const getMessageSuggestions = (input) => {
   const predefinedSuggestions = [
     'Hello, how can I help you?',
     'Can you provide more details?',
-    'I’m available for a chat.',
+    'I"m available for a chat.',
     'Let me know if you have any questions.',
     'I would love to assist you!',
   ];
@@ -78,7 +91,7 @@ const CourseCard = ({ courseData }) => {
 
         <Flex align="center" flexWrap="wrap">
           <Image
-            src={courseData.imagePreview}
+            src={getFullImageUrl(courseData.imagePreview)}
             alt={courseData.title}
             borderRadius="md"
             mr={3}
@@ -261,7 +274,7 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
 
   const showPreviewImage = (imageUrl) => {
     setViewerImageOpen(true);
-    setImageViewerUrl(imageUrl);
+    setImageViewerUrl(getFullImageUrl(imageUrl));
   };
 
   const debouncedSetSuggestions = useMemo(
@@ -420,7 +433,7 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
                     >
                       {msg.type === MESSAGE_TYPES.IMAGE && msg.content ? (
                         <Image
-                          src={msg.content}
+                          src={getFullImageUrl(msg.content)}
                           alt="Image"
                           maxH="400px"
                           onClick={() => showPreviewImage(msg.content)}

@@ -78,7 +78,7 @@ const Setting = React.memo(({ courseId }) => {
         try {
           const courseRequest = { id: courseId };
           const data = await courseService.fetchMainCourse(courseRequest);
-
+          console.log('Fetched course data:', data);
           setCourse({
             title: data.title,
             categoryIds: data.categories.map((category) => category.id),
@@ -87,7 +87,7 @@ const Setting = React.memo(({ courseId }) => {
             description: data.description,
             descriptionPreview: data.descriptionPreview,
             duration: data.duration,
-            isPublish: data.isPublish,
+            status: data.status,
             createdBy: data.createdBy,
             imagePreview: data.imagePreview,
             videoPreview: data.videoPreview,
@@ -186,7 +186,7 @@ const Setting = React.memo(({ courseId }) => {
     formData.append('description', course.description);
     formData.append('descriptionPreview', course.descriptionPreview);
     formData.append('duration', course.duration);
-    formData.append('isPublish', course.isPublish);
+    formData.append('status', course.status);
     formData.append('imagePreview', course.imagePreview);
     formData.append('videoPreview', course.videoPreview);
     course.categoryIds.forEach((id) => {
