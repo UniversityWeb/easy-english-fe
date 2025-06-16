@@ -103,6 +103,7 @@ const WritingTaskPage = ({ infoWriting }) => {
     fetchWriting();
   }, [infoWriting?.id]);
 
+  console.log('isSubmit ' + isSubmit);
   return (
     <Container maxW="container.xl" bg="#FAE6D8" p={4} borderRadius="md">
       {/* Tabs */}

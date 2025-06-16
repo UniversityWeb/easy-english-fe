@@ -1,11 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Box, Button, Flex, Select, Spinner, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  Select,
+  Spinner,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from '@chakra-ui/react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
 import { formatVNDMoney } from '~/utils/methods';
 import courseStatisticsService from '~/services/courseStatisticsService';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUserRole, getUsername } from '~/utils/authUtils';
+import { USER_ROLES } from '~/utils/constants';
 
 const CourseBarChartPage = () => {
   const navigate = useNavigate();
@@ -22,12 +46,17 @@ const CourseBarChartPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      const role = getCurrentUserRole();
+      const currentUsername = getUsername();
+      const teacherUsername =
+        role === USER_ROLES.TEACHER ? currentUsername : '';
       try {
         const response = await courseStatisticsService.getRevenueByMonthAndYear(
+          teacherUsername,
           month,
           year,
           page,
-          size
+          size,
         );
 
         // Sort the data by revenue in descending order and keep only the top 10 courses
@@ -39,7 +68,7 @@ const CourseBarChartPage = () => {
         setCourses(sortedData);
         setTotalPages(response.totalPages);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -124,7 +153,7 @@ const CourseBarChartPage = () => {
             >
               {Array.from({ length: 12 }, (_, i) => (
                 <option key={i + 1} value={i + 1}>
-                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                  {new Date(0, i).toLocaleString('default', { month: 'long' })}
                 </option>
               ))}
             </Select>
@@ -163,14 +192,12 @@ const CourseBarChartPage = () => {
               {courses.map((course, index) => (
                 <Tr
                   key={course.id}
-                  _hover={{ bg: "gray.100", cursor: "pointer" }}
+                  _hover={{ bg: 'gray.100', cursor: 'pointer' }}
                   onClick={() =>
                     navigate(config.routes.course_detail(course?.id))
                   }
                 >
-                  <Td>
-                    {index + 1}
-                  </Td>
+                  <Td>{index + 1}</Td>
                   <Td>
                     <Avatar src={course.imagePreview} name={course.title} />
                   </Td>
