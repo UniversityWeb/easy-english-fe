@@ -8,10 +8,17 @@ const getRevenueByYear = async (year) => {
   return handleResponse(response, 200);
 };
 
-const getRevenueByMonthAndYear = async (month, year, page, size) => {
+const getRevenueByMonthAndYear = async (
+  teacherUsername,
+  month,
+  year,
+  page,
+  size,
+) => {
   const url = `${SUFFIX_COURSE_ANA_API_URL}/top-revenue/${month}/${year}`;
   const response = await get(url, {
     params: {
+      teacherUsername: teacherUsername,
       page: page,
       size: size,
     },

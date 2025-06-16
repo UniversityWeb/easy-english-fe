@@ -24,7 +24,9 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import { getCurrentUserRole, getUsername } from '~/utils/authUtils';
 import enrollmentService from '~/services/enrollmentService';
+import { USER_ROLES } from '~/utils/constants';
 
 function Gradebook() {
   const [courses, setCourses] = useState([]);
@@ -41,8 +43,12 @@ function Gradebook() {
 
   const fetchCoursesStats = async () => {
     setLoading(true);
+    const role = getCurrentUserRole();
+    const currentUsername = getUsername();
+    const teacherUsername = role === USER_ROLES.TEACHER ? currentUsername : '';
     try {
       const courseStatsFilter = {
+        teacherUsername: teacherUsername,
         pageNumber: 0,
         size: 20,
         keyword: searchTerm,
