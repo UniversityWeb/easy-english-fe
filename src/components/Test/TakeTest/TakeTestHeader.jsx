@@ -43,6 +43,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import axios from 'axios';
+import { isPlayableMp3 } from '~/utils/methods';
 
 const CountdownTimer = ({ testId, resetKey, onFinished }) => {
   const navigate = useNavigate();
@@ -122,6 +123,15 @@ function TakeTestHeader({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [playable, setPlayable] = useState(null);
+
+  useEffect(() => {
+    const check = async () => {
+      const result = await isPlayableMp3(audioUrl);
+      setPlayable(result);
+    };
+    check();
+  }, [audioUrl]);
 
   useEffect(() => {
     const fetchAudio = async () => {
@@ -360,7 +370,7 @@ function TakeTestHeader({
         </HStack>
       </SimpleGrid>
 
-      {audioFile && audioFile !== '' && (
+      {audioFile && audioFile !== '' && playable && (
         <HStack mt={6} spacing={4} alignItems="center">
           {/* Control buttons */}
           {audioUrl ? (

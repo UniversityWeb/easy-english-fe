@@ -25,6 +25,7 @@ import { MdFileUpload } from 'react-icons/md';
 import useCustomToast from '~/hooks/useCustomToast';
 import testService from '~/services/testService';
 import axios from 'axios';
+import { isPlayableMp3 } from '~/utils/methods';
 
 const TestAudioUpload = ({ testState, setTestState }) => {
   const [audioFile, setAudioFile] = useState(null);
@@ -34,7 +35,16 @@ const TestAudioUpload = ({ testState, setTestState }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const audioRef = useRef(null);
+  const [playable, setPlayable] = useState(null);
   const { successToast, errorToast } = useCustomToast();
+
+  useEffect(() => {
+    const check = async () => {
+      const result = await isPlayableMp3(audioUrl);
+      setPlayable(result);
+    };
+    check();
+  }, [audioUrl]);
 
   const fetchAudio = async () => {
     try {
@@ -172,7 +182,7 @@ const TestAudioUpload = ({ testState, setTestState }) => {
         textAlign="center"
         _hover={{ borderColor: 'blue.300' }}
       >
-        {audioFile && audioUrl ? (
+        {audioFile && audioUrl && playable ? (
           <VStack spacing={3}>
             <FaFileAudio size={48} color="blue.500" />
             <Text fontSize="md" fontWeight="600">
@@ -239,16 +249,14 @@ const TestAudioUpload = ({ testState, setTestState }) => {
       </Box>
 
       {/* Audio Player Section */}
-      {audioUrl && audioFile && (
+      {audioUrl && audioFile && playable && (
         <Box bg="gray.50" p={4} borderRadius="md" boxShadow="md">
           <audio
             controls
             ref={audioRef}
             onTimeUpdate={updateCurrentTime}
             onEnded={() => setIsPlaying(false)}
-            onLoadedMetadata={() =>
-              setAudioDuration(audioRef.current.duration)
-            }
+            onLoadedMetadata={() => setAudioDuration(audioRef.current.duration)}
             hidden
           >
             <source src={audioUrl} type={audioFile?.type || 'audio/mpeg'} />
