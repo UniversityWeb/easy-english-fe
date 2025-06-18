@@ -23,15 +23,13 @@ const PAGE_SIZE = 10;
 const ChatPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { returnUrl, targetCourse: initialTargetCourse } = location.state || {};
-
+  let { returnUrl, targetCourse } = location.state || {};
+  const [courseData, setCourseData] = useState(targetCourse);
   const [recentUsers, setRecentUsers] = useState([]);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
   const [page, setPage] = useState(0);
   const [isLastPage, setIsLastPage] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Thêm state để quản lý targetCourse
-  const [targetCourse, setTargetCourse] = useState(initialTargetCourse);
 
   const username = getUsername();
 
@@ -148,11 +146,6 @@ const ChatPage = () => {
     }
   };
 
-  // Sửa hàm này để thực sự clear targetCourse
-  const setNullTargetCourse = () => {
-    setTargetCourse(null);
-  };
-
   return (
     <Flex h="100vh" w="100vw" bg="gray.100" overflow="hidden">
       <Box
@@ -251,8 +244,8 @@ const ChatPage = () => {
         {selectedRecipient ? (
           <Chat
             recipient={selectedRecipient}
-            courseData={targetCourse}
-            setNullTargetCourse={setNullTargetCourse}
+            courseData={courseData}
+            setCourseData={setCourseData}
           />
         ) : (
           <Flex

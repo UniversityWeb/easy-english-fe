@@ -114,7 +114,7 @@ const CourseCard = ({ courseData }) => {
   );
 };
 
-const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
+const Chat = ({ recipient, courseData, setCourseData }) => {
   const curUsername = getUsername();
   const [messages, setMessages] = useState([]);
   const [messageContent, setMessageContent] = useState('');
@@ -227,8 +227,7 @@ const Chat = ({ recipient, courseData, setNullTargetCourse }) => {
         sendingTime: new Date().toISOString(),
       };
       messageService.send(courseInfo);
-      setNullTargetCourse();
-      courseData = null;
+      setCourseData(null);
     }
 
     messageService.send(message);
