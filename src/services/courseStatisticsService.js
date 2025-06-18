@@ -45,10 +45,17 @@ const getTopCourse = async (
   return handleResponse(response, 200);
 };
 
+const getAllTeachers = async () => {
+  const url = `${SUFFIX_COURSE_ANA_API_URL}/admin/get-teacher-usernames`;
+  const response = await get(url);
+  return handleResponse(response, 200);
+};
+
 const courseStatisticsService = {
   getRevenueByYear,
   getRevenueByMonthAndYear,
   getTopCourse,
+  getAllTeachers,
 };
 
 export default courseStatisticsService;

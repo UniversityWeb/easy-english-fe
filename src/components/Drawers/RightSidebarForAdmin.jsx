@@ -26,6 +26,7 @@ import { isLoggedIn, removeLoginResponse } from '~/utils/authUtils';
 import SidebarItem from '~/components/Drawers/SidebarItem';
 import { FaUserEdit } from 'react-icons/fa';
 import AuthService from '~/services/authService';
+import { BsGraphUpArrow } from 'react-icons/bs';
 
 const menuItems = [
   {
@@ -52,6 +53,11 @@ const menuItems = [
     label: 'Analyst Courses',
     icon: IoBarChartOutline,
     route: config.routes.analytics_courses,
+  },
+  {
+    label: 'Gradebook',
+    icon: BsGraphUpArrow,
+    route: config.routes.gradebook,
   },
 ];
 
