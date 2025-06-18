@@ -48,6 +48,11 @@ const menuItems = [
     icon: FaUserEdit,
     route: config.routes.user_management,
   },
+  {
+    label: 'Analyst Courses',
+    icon: IoBarChartOutline,
+    route: config.routes.analytics_courses,
+  },
 ];
 
 const RightSidebarForAdmin = React.memo((props) => {

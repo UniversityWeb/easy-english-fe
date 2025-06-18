@@ -49,7 +49,7 @@ const CourseBarChartPage = () => {
       const role = getCurrentUserRole();
       const currentUsername = getUsername();
       const teacherUsername =
-        role === USER_ROLES.TEACHER ? currentUsername : '';
+        role === USER_ROLES.TEACHER ? currentUsername : null;
       try {
         const response = await courseStatisticsService.getRevenueByMonthAndYear(
           teacherUsername,
