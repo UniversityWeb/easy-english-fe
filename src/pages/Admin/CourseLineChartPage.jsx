@@ -15,8 +15,8 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import {
-  Bar,
   BarChart,
+  Bar,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -39,27 +39,45 @@ const CourseBarChartPage = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10); // Ensure only the top 10 courses are shown
+  const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [teacherUsername, setTeacherUsername] = useState('');
+  const [teacherList, setTeacherList] = useState([]);
 
-  // Fetch data from API
+  // Fetch teachers (for admin role)
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      const role = getCurrentUserRole();
+      if (role === USER_ROLES.ADMIN) {
+        try {
+          const response = await courseStatisticsService.getAllTeachers(); // Assumes API exists
+          setTeacherList(response || []);
+        } catch (error) {
+          console.error('Error fetching teachers:', error);
+        }
+      }
+    };
+    fetchTeachers();
+  }, []);
+
+  // Fetch chart data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const role = getCurrentUserRole();
       const currentUsername = getUsername();
-      const teacherUsername =
-        role === USER_ROLES.TEACHER ? currentUsername : null;
+      const usernameToUse =
+        role === USER_ROLES.TEACHER ? currentUsername : teacherUsername || null;
+
       try {
         const response = await courseStatisticsService.getRevenueByMonthAndYear(
-          teacherUsername,
+          usernameToUse,
           month,
           year,
           page,
           size,
         );
 
-        // Sort the data by revenue in descending order and keep only the top 10 courses
         const sortedData = response.content
           .sort((a, b) => b.totalRevenue - a.totalRevenue)
           .slice(0, 10);
@@ -75,20 +93,21 @@ const CourseBarChartPage = () => {
     };
 
     fetchData();
-  }, [month, year, page, size]);
+  }, [month, year, page, size, teacherUsername]);
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
+  const handleMonthChange = (e) => {
+    setMonth(Number(e.target.value));
+    setPage(0);
   };
 
-  const handleMonthChange = (event) => {
-    setMonth(Number(event.target.value));
-    setPage(0); // Reset pagination when changing filters
+  const handleYearChange = (e) => {
+    setYear(Number(e.target.value));
+    setPage(0);
   };
 
-  const handleYearChange = (event) => {
-    setYear(Number(event.target.value));
-    setPage(0); // Reset pagination when changing filters
+  const handleTeacherChange = (e) => {
+    setTeacherUsername(e.target.value);
+    setPage(0);
   };
 
   if (loading) {
@@ -123,9 +142,9 @@ const CourseBarChartPage = () => {
             />
             <YAxis
               tickFormatter={(value) => formatVNDMoney(value)}
-              tick={{ fontSize: 12 }} // Adjust font size for better readability
-              padding={{ top: 10, bottom: 10 }} // Add padding to avoid label clipping
-              width={100} // Increase width for longer labels
+              tick={{ fontSize: 12 }}
+              padding={{ top: 10, bottom: 10 }}
+              width={100}
             />
             <Tooltip formatter={(value) => formatVNDMoney(value)} />
             <Bar
@@ -140,16 +159,24 @@ const CourseBarChartPage = () => {
 
       {/* Filter Section */}
       <Box w="full" p={4} mb={2} shadow="md" borderWidth="1px" rounded="md">
-        <Flex justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold">
-            Filter by Month & Year
+        <Flex
+          direction="row"
+          justify="space-between"
+          align="center"
+          wrap="wrap"
+          gap={4}
+        >
+          <Text fontSize="xl" fontWeight="bold" whiteSpace="nowrap">
+            Filter Options
           </Text>
-          <Flex gap={4}>
+
+          <Flex direction="row" wrap="wrap" gap={4} flex="1" justify="flex-end">
             <Select
               placeholder="Select Month"
               value={month}
               onChange={handleMonthChange}
-              maxWidth="150px"
+              minW="150px"
+              flex="1"
             >
               {Array.from({ length: 12 }, (_, i) => (
                 <option key={i + 1} value={i + 1}>
@@ -157,18 +184,39 @@ const CourseBarChartPage = () => {
                 </option>
               ))}
             </Select>
+
             <Select
               placeholder="Select Year"
               value={year}
               onChange={handleYearChange}
-              maxWidth="150px"
+              minW="150px"
+              flex="1"
             >
-              {Array.from({ length: 10 }, (_, i) => (
-                <option key={i} value={new Date().getFullYear() - i}>
-                  {new Date().getFullYear() - i}
-                </option>
-              ))}
+              {Array.from({ length: 10 }, (_, i) => {
+                const yr = new Date().getFullYear() - i;
+                return (
+                  <option key={yr} value={yr}>
+                    {yr}
+                  </option>
+                );
+              })}
             </Select>
+
+            {getCurrentUserRole() === USER_ROLES.ADMIN && (
+              <Select
+                placeholder="All Teachers"
+                value={teacherUsername}
+                onChange={handleTeacherChange}
+                minW="200px"
+                flex="1"
+              >
+                {teacherList.map((teacher) => (
+                  <option key={teacher.username} value={teacher.username}>
+                    {teacher.name}
+                  </option>
+                ))}
+              </Select>
+            )}
           </Flex>
         </Flex>
       </Box>
@@ -208,17 +256,16 @@ const CourseBarChartPage = () => {
             </Tbody>
           </Table>
         </Box>
-        {/* Pagination Controls */}
         <Box mt={4} textAlign="center">
           <Button
-            onClick={() => handlePageChange(page - 1)}
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
             isDisabled={page === 0}
             mr={2}
           >
             Previous
           </Button>
           <Button
-            onClick={() => handlePageChange(page + 1)}
+            onClick={() => setPage((p) => p + 1)}
             isDisabled={page + 1 >= totalPages}
           >
             Next
