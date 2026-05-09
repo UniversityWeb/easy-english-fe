@@ -4,7 +4,6 @@ import {
   Button,
   Container,
   Divider,
-  Flex,
   Heading,
   HStack,
   Icon,
@@ -16,21 +15,19 @@ import {
 } from '@chakra-ui/react';
 import { FaRedoAlt, FaTimesCircle } from 'react-icons/fa';
 import {
-  HiOutlineCheckCircle,
   HiOutlineClock,
+  HiOutlineCheckCircle,
   HiOutlineQuestionMarkCircle,
   HiOutlineTrophy,
 } from 'react-icons/hi2';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import testResultService from '~/services/testResultService';
 import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
 import config from '~/config';
-import { MdArrowBack } from 'react-icons/md';
 import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
 
 const TestResultPage = () => {
   const { testResultId } = useParams();
-  const { state } = useLocation();
   // const returnUrl = state?.returnUrl || config.routes.home[0];
   const returnUrl = localStorage.getItem('previousPage');
   const navigate = useNavigate();
@@ -93,7 +90,6 @@ const TestResultPage = () => {
     startedAt,
     finishedAt,
     userAnswers,
-    courseId,
   } = testResult;
 
   // Render the answer section for each question

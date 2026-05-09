@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionButton,
@@ -84,17 +84,17 @@ const Filter = ({ onFilterChange }) => {
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [selectedRating, setSelectedRating] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const topicsData = await topicService.fetchAllTopic();
-      setTopics(topicsData || []);
+  const fetchData = useCallback(async () => {
+    const topicsData = await topicService.fetchAllTopic();
+    setTopics(topicsData || []);
 
-      const categoriesData = await categoryService.fetchAllCategory();
-      setCategories(categoriesData || []);
-    };
-
-    fetchData();
+    const categoriesData = await categoryService.fetchAllCategory();
+    setCategories(categoriesData || []);
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategories((prev) =>
@@ -122,7 +122,7 @@ const Filter = ({ onFilterChange }) => {
       levelId: selectedLevel,
       rating: selectedRating,
     });
-  }, [selectedCategories, selectedTopic, selectedLevel, selectedRating]);
+  }, [onFilterChange, selectedCategories, selectedLevel, selectedRating, selectedTopic]);
 
   return (
     <ChakraProvider>

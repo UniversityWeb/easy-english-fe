@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -46,7 +46,7 @@ const TestAudioUpload = ({ testState, setTestState }) => {
     check();
   }, [audioUrl]);
 
-  const fetchAudio = async () => {
+  const fetchAudio = useCallback(async () => {
     try {
       const audioPath = testState?.audioPath;
 
@@ -81,12 +81,12 @@ const TestAudioUpload = ({ testState, setTestState }) => {
     } catch (error) {
       console.error('Error fetching audio:', error);
     }
-  };
+  }, [audioFile, testState?.audioPath]);
 
   // Update audio URL either from uploaded file or testState.audioPath
   useEffect(() => {
     fetchAudio();
-  }, [testState?.audioPath]);
+  }, [fetchAudio]);
 
   useEffect(() => {
     if (audioRef.current) {

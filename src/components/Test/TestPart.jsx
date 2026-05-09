@@ -2,14 +2,6 @@ import React from 'react';
 import { Box, Text, VStack } from '@chakra-ui/react';
 import QuestionItem from '~/components/Test/Question/QuestionItem';
 
-class TestPart {
-  constructor(id, title, questions) {
-    this.id = id;
-    this.title = title;
-    this.questions = questions;
-  }
-}
-
 const TestPartComponent = ({ section, onAnswerChange, answers }) => {
   return (
     <Box>

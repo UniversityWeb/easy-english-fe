@@ -12,14 +12,8 @@ const EditableQuestionsOfQuiz = ({ test }) => {
   const [questions, setQuestions] = useState([]);
   const { successToast, errorToast } = useCustomToast();
 
-  useEffect(() => {
+  const fetchQuestionsForQuiz = useCallback(async () => {
     if (!test?.id || test?.type !== TEST_TYPES.QUIZ) return;
-
-    fetchQuestionsForQuiz();
-  }, [test?.id]);
-
-  const fetchQuestionsForQuiz = async () => {
-    if (!test) return;
 
     try {
       const loadedQuestions =
@@ -28,11 +22,15 @@ const EditableQuestionsOfQuiz = ({ test }) => {
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
-  };
+  }, [test?.id, test?.type]);
 
-  const reloadQuestions = async () => {
+  useEffect(() => {
+    fetchQuestionsForQuiz();
+  }, [fetchQuestionsForQuiz, test?.type]);
+
+  const reloadQuestions = useCallback(async () => {
     await fetchQuestionsForQuiz();
-  };
+  }, [fetchQuestionsForQuiz]);
 
   const addNewQuestionForQuiz = async () => {
     const newQuestion = {
@@ -65,7 +63,7 @@ const EditableQuestionsOfQuiz = ({ test }) => {
         errorToast('Error removing question.');
       }
     },
-    [questions.length],
+    [errorToast, successToast],
   );
 
   const onDragEnd = async (result) => {

@@ -37,12 +37,12 @@ const TestResultTable = ({ testId, courseId }) => {
   });
   const [currentPage, setCurrentPage] = useState(0); // Page index starts from 0
   const [totalPages, setTotalPages] = useState(1);   // Total number of pages
-  const [pageSize] = useState(10);                   // Fixed page size
+  const pageSize = 10;                               // Fixed page size
   const { infoToast, successToast, errorToast } = useCustomToast();
   const navigate = useNavigate();
 
   // Fetch test results by testId with pagination
-  const fetchTestResults = async (page = 0) => {
+  const fetchTestResults = useCallback(async (page = 0) => {
     setLoading(true); // Trigger loading
     try {
       const data = await testResultService.getTestHistory(testId, page, pageSize);
@@ -53,12 +53,12 @@ const TestResultTable = ({ testId, courseId }) => {
       console.error('Error fetching test results:', error);
       setLoading(false); // Stop loading even if there's an error
     }
-  };
+  }, [pageSize, testId]);
 
   // Effect to fetch test results on component mount and when page changes
   useEffect(() => {
     fetchTestResults(currentPage);
-  }, [testId, currentPage]);
+  }, [currentPage, fetchTestResults]);
 
   useEffect(() => {
     let wsService;
@@ -92,7 +92,7 @@ const TestResultTable = ({ testId, courseId }) => {
         wsService.unsubscribe(websocketConstants.testResultNotificationTopic(testId));
       }
     }
-  }, []);
+  }, [infoToast, pageSize, testId]);
 
   // Handle deleting a test result
   const deleteTestResult = useCallback(async (id) => {
@@ -104,7 +104,7 @@ const TestResultTable = ({ testId, courseId }) => {
       console.error('Error deleting test result:', error);
       errorToast('Failed to delete test result.');
     }
-  }, []);
+  }, [errorToast, successToast]);
 
   // Handle filtering the results based on username and finishedAt
   const handleFilterChange = (e) => {

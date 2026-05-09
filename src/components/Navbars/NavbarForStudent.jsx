@@ -21,7 +21,6 @@ import CartService from '~/services/cartService';
 import NotificationService from '~/services/notificationService';
 import { websocketConstants } from '~/utils/websocketConstants';
 import WebSocketService from '~/services/websocketService';
-import { RiRobot2Line } from 'react-icons/ri';
 
 const NavbarForStudent = () => {
   const navigate = useNavigate();

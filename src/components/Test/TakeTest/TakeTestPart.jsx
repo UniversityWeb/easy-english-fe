@@ -33,7 +33,7 @@ function TakeTestPart({
     } else {
       setIsSplitLayout(false);
     }
-  }, [testId, partId]);
+  }, [partId, setIsSplitLayout, testId]);
 
   // Utility function to check if the reading passage is empty
   const isReadingPassageEmpty = (text) => {

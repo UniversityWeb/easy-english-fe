@@ -21,7 +21,7 @@ import {
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import AuthService from '~/services/authService';
@@ -39,6 +39,18 @@ const LoginPage = () => {
   const [isLogging, setIsLogging] = useState(false);
   const passwordInputRef = useRef(null);
 
+  const navigateByRole = useCallback((role) => {
+    if (role === USER_ROLES.STUDENT) {
+      navigate(config.routes.homepage);
+    } else if (role === USER_ROLES.TEACHER) {
+      navigate(config.routes.course_management_for_teacher);
+    } else if (role === USER_ROLES.ADMIN) {
+      navigate(config.routes.course_management_for_admin);
+    } else {
+      console.log('Role not found');
+    }
+  }, [navigate]);
+
   useEffect(() => {
     // Check if the user is already logged in
     if (isLoggedIn()) {
@@ -53,19 +65,7 @@ const LoginPage = () => {
           console.error('Failed to fetch user:', err);
         });
     }
-  }, [navigate]);
-
-  const navigateByRole = (role) => {
-    if (role === USER_ROLES.STUDENT) {
-      navigate(config.routes.homepage);
-    } else if (role === USER_ROLES.TEACHER) {
-      navigate(config.routes.course_management_for_teacher);
-    } else if (role === USER_ROLES.ADMIN) {
-      navigate(config.routes.course_management_for_admin);
-    } else {
-      console.log('Role not found');
-    }
-  };
+  }, [navigateByRole]);
 
   const handleLogin = async (event) => {
     event.preventDefault();

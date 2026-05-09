@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -79,7 +79,7 @@ const CountdownTimer = ({ testId, resetKey, onFinished }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLimit, onFinished]);
+  }, [navigate, onFinished, testId, timeLimit]);
 
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);
@@ -173,39 +173,39 @@ function TakeTestHeader({
     setResetTimeCountDown((prev) => prev + 1);
   }, [resetCountDown]);
 
-  const saveCurrentTime = (time) => {
+  const saveCurrentTime = useCallback((time) => {
     const key = `audioCurrentTime/${testId}`;
     localStorage.setItem(key, time);
-  };
+  }, [testId]);
 
-  const getCurrentTime = () => {
+  const getCurrentTime = useCallback(() => {
     const key = `audioCurrentTime/${testId}`;
     return parseFloat(localStorage.getItem(key)) || 0;
-  };
+  }, [testId]);
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      const currentAudio = audioRef.current;
+      currentAudio.volume = volume;
       const savedTime = getCurrentTime();
-      if (savedTime && savedTime < audioRef.current.duration) {
-        audioRef.current.currentTime = savedTime;
+      if (savedTime && savedTime < currentAudio.duration) {
+        currentAudio.currentTime = savedTime;
       }
 
       const updateCurrentTime = () => {
-        setCurrentTime(audioRef.current.currentTime);
-        saveCurrentTime(audioRef.current.currentTime);
+        setCurrentTime(currentAudio.currentTime);
+        saveCurrentTime(currentAudio.currentTime);
       };
 
-      const currentAudio = audioRef.current;
-      audioRef.current.addEventListener('timeupdate', updateCurrentTime);
+      currentAudio.addEventListener('timeupdate', updateCurrentTime);
 
       return () => {
         if (currentAudio) {
-          audioRef.current.removeEventListener('timeupdate', updateCurrentTime);
+          currentAudio.removeEventListener('timeupdate', updateCurrentTime);
         }
       };
     }
-  }, [volume]);
+  }, [getCurrentTime, saveCurrentTime, volume]);
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
