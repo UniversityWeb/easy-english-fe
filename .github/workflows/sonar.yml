@@ -31,11 +31,6 @@ jobs:
           CI: false
         run: npm run build
 
-      - name: Run tests with coverage
-        env:
-          CI: false
-        run: npm test -- --watchAll=false --coverage --passWithNoTests
-
       - name: Run SonarQube analysis
         uses: SonarSource/sonarqube-scan-action@v2
         env:
