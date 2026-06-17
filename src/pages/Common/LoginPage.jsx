@@ -22,7 +22,7 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import config from '~/config';
 import AuthService from '~/services/authService';
 import { USER_ROLES, USER_STATUSES } from '~/utils/constants';
@@ -32,6 +32,8 @@ import { isLoggedIn } from '~/utils/authUtils';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || null;
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -40,6 +42,10 @@ const LoginPage = () => {
   const passwordInputRef = useRef(null);
 
   const navigateByRole = useCallback((role) => {
+    if (from && from !== config.routes.login) {
+      navigate(from, { replace: true });
+      return;
+    }
     if (role === USER_ROLES.STUDENT) {
       navigate(config.routes.homepage);
     } else if (role === USER_ROLES.TEACHER) {
@@ -49,7 +55,7 @@ const LoginPage = () => {
     } else {
       console.log('Role not found');
     }
-  }, [navigate]);
+  }, [navigate, from]);
 
   useEffect(() => {
     // Check if the user is already logged in

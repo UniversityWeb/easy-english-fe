@@ -35,3 +35,15 @@ export const getCurrentUserRole = () => {
   }
   return JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY)).user?.role;
 };
+
+export const getRefreshToken = () => {
+  if (!isLoggedIn()) {
+    return null;
+  }
+  try {
+    const data = JSON.parse(localStorage.getItem(LOGIN_RESPONSE_KEY));
+    return data?.refreshTokenStr;
+  } catch (error) {
+    return null;
+  }
+};

@@ -29,6 +29,33 @@
   
     "language.english": "Tiếng Anh",
     "language.vietnamese": "Tiếng Việt",
-    "language.current": "Ngôn ngữ hiện tại"
-  }
+    "language.current": "Ngôn ngữ hiện tại",
+
+    "profile.active_sessions": "Phiên hoạt động",
+    "session.filter_device_placeholder": "Lọc theo thiết bị (ví dụ: Chrome)...",
+    "session.filter_ip_placeholder": "Lọc theo địa chỉ IP...",
+    "session.filter_location_placeholder": "Lọc theo vị trí...",
+    "session.device": "Thiết bị",
+    "session.ip_address": "Địa chỉ IP",
+    "session.location": "Vị trí",
+    "session.status": "Trạng thái",
+    "session.action": "Hành động",
+    "session.no_sessions_found": "Không tìm thấy phiên hoạt động nào khớp với tiêu chí.",
+    "session.current_device": "Thiết bị hiện tại",
+    "session.active": "Đang hoạt động",
+    "session.revoke": "Thu hồi",
+    "session.previous": "Trước",
+    "session.next": "Sau",
+    "session.page": "Trang",
+    "session.of": "trên",
+    "session.logout_other_devices": "Đăng xuất khỏi tất cả các thiết bị khác",
+    "session.revoked_success": "Đã thu hồi phiên hoạt động thành công",
+    "session.revoked_failed": "Không thể thu hồi phiên hoạt động",
+    "session.revoke_all_success": "Đã thu hồi tất cả các phiên hoạt động khác thành công",
+    "session.revoke_all_failed": "Không thể thu hồi các phiên hoạt động khác",
+    "session.unknown_device": "Không rõ thiết bị",
+    "session.mobile_device": "Thiết bị di động",
+    "session.browser": "Trình duyệt",
+    "session.os": "Hệ điều hành"
+}
   

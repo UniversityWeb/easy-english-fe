@@ -1,5 +1,5 @@
 import { getToken, isLoggedIn, saveLoginResponse } from '~/utils/authUtils';
-import { get, handleResponse, post, put } from '~/utils/httpRequest';
+import { del, get, handleResponse, post, put } from '~/utils/httpRequest';
 import { USER_STATUSES } from '~/utils/constants';
 
 const SUFFIX_AUTH_API_URL = '/auth';
@@ -101,6 +101,30 @@ const loginWithGoogle = async (token) => {
   return loginResponse;
 };
 
+const refreshToken = async (refreshTokenRequest) => {
+  const path = `${SUFFIX_AUTH_API_URL}/refresh`;
+  const response = await post(path, refreshTokenRequest);
+  return handleResponse(response, 200);
+};
+
+const getActiveSessions = async (searchRequest) => {
+  const path = `${SUFFIX_AUTH_API_URL}/sessions/search`;
+  const response = await post(path, searchRequest);
+  return handleResponse(response, 200);
+};
+
+const revokeSession = async (sessionId) => {
+  const path = `${SUFFIX_AUTH_API_URL}/sessions/${sessionId}`;
+  const response = await del(path);
+  return handleResponse(response, 200);
+};
+
+const revokeAllSessions = async () => {
+  const path = `${SUFFIX_AUTH_API_URL}/revoke-all`;
+  const response = await post(path);
+  return handleResponse(response, 200);
+};
+
 const AuthService = {
   getCurUser,
   login,
@@ -113,6 +137,10 @@ const AuthService = {
   generateOtpToResetPassword,
   resetPasswordWithOtp,
   loginWithGoogle,
+  refreshToken,
+  getActiveSessions,
+  revokeSession,
+  revokeAllSessions,
 };
 
 export default AuthService;

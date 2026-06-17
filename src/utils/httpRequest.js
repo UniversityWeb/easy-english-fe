@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken } from './authUtils';
+import { getToken, getRefreshToken, saveLoginResponse, removeLoginResponse } from './authUtils';
 
 const httpRequest = axios.create({
   baseURL: `${process.env.REACT_APP_BASE_API_URL}`,
@@ -19,11 +19,77 @@ httpRequest.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+// Keep track of refresh state to queue concurrent requests
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 httpRequest.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      console.error('Unauthorized access - possibly due to an invalid token.');
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      // Avoid infinite loop if auth requests fail
+      if (originalRequest.url.includes('/auth/refresh') || originalRequest.url.includes('/auth/login')) {
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            return httpRequest(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/auth/refresh`, {
+          refreshTokenStr: refreshToken,
+        });
+
+        if (response.status === 200 && response.data) {
+          saveLoginResponse(response.data);
+          const newToken = response.data.tokenStr;
+
+          processQueue(null, newToken);
+          isRefreshing = false;
+
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          return httpRequest(originalRequest);
+        } else {
+          throw new Error('Failed to refresh token');
+        }
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        isRefreshing = false;
+
+        // Clear local storage and redirect to login
+        removeLoginResponse();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
     if (error.response && error.response.status === 403) {
       console.error('Forbidden - you do not have permission to access this resource.');
