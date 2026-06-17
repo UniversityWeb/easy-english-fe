@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
   Avatar,
   Box,
@@ -131,25 +131,27 @@ const Chat = ({ recipient, courseData, setCourseData }) => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await messageService.getAllMessages(
-          curUsername,
-          recipient?.username,
-          0,
-          1000,
-        );
-        setMessages(response.content || []);
-      } catch (error) {
-        console.error('Failed to fetch messages:', error);
-      }
-    };
+  const fetchMessages = useCallback(async () => {
+    if (!recipient?.username) return;
 
+    try {
+      const response = await messageService.getAllMessages(
+        curUsername,
+        recipient?.username,
+        0,
+        1000,
+      );
+      setMessages(response.content || []);
+    } catch (error) {
+      console.error('Failed to fetch messages:', error);
+    }
+  }, [curUsername, recipient?.username]);
+
+  useEffect(() => {
     if (recipient) {
       fetchMessages();
     }
-  }, [recipient, curUsername]);
+  }, [fetchMessages, recipient]);
 
   useEffect(() => {
     let wsService;
@@ -182,7 +184,7 @@ const Chat = ({ recipient, courseData, setCourseData }) => {
         wsService.unsubscribe(websocketConstants.messageTopic(curUsername));
       }
     };
-  }, []);
+  }, [curUsername, recipient?.username]);
 
   const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = '') => {
     if (type === MESSAGE_TYPES.TEXT && content.trim() === '' && !selectedImage)

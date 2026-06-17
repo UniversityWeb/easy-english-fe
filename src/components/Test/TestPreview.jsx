@@ -11,7 +11,6 @@ const TestPreview = ({ courseTitle, test }) => {
     durationInMilis,
     passingGrade,
     createdAt,
-    isLocked,
     parts,
     isDone,
   } = test;

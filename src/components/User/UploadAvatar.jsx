@@ -112,6 +112,7 @@ const UploadAvatar = ({ user, setUser }) => {
           size="2xl"
           name={user?.fullName}
           src={user?.avatarPath}
+          ignoreFallback={!!user?.avatarPath}
           key={avatarKey} // Use avatarKey to trigger re-mount
           initial={{ opacity: 0, scale: 0.8 }} // Initial state
           animate={{ opacity: 1, scale: 1 }} // Final state

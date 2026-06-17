@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import courseService from '~/services/courseService';
 import './Description.css';
@@ -6,16 +6,16 @@ import './Description.css';
 const Announcement = ({ courseId }) => {
   const [course, setCourse] = useState(null);
 
-  const fetchCourseDetails = async () => {
+  const fetchCourseDetails = useCallback(async () => {
     const response = await courseService.fetchMainCourse({ id: courseId });
     if (response) {
       setCourse(response);
     }
-  };
+  }, [courseId]);
 
   useEffect(() => {
     fetchCourseDetails();
-  }, [courseId]);
+  }, [fetchCourseDetails]);
 
   if (!course) {
     return <Text>Loading...</Text>;

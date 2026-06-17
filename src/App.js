@@ -13,7 +13,7 @@ import NotFound from '~/components/NotFound';
 import config from '~/config';
 import LoaderPage from '~/components/LoaderPage';
 import WebSocketService from '~/services/websocketService';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import store from './store/store';
 import ProtectedRoute from './components/ProtectedRoute';
 function App() {

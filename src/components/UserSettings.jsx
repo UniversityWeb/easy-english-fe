@@ -65,7 +65,7 @@ const UserSettings = ({ user }) => {
       if (!settings.autoReplyEnabled) {
         settings.autoReplyMessage = '';
       }
-      const updatedUser = await userService.updateOwnSettings(settings);
+      await userService.updateOwnSettings(settings);
 
       successToast('Settings saved.');
     } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Collapse, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react';
+import { Box, Button, Collapse, HStack, Text, VStack } from '@chakra-ui/react';
 import { getParts, getQuestionRange } from '~/utils/testUtils';
 
 // PartSection Component
@@ -12,9 +12,6 @@ const PartSection = React.memo(
     answers,
     selectedPartId,
   }) => {
-    const { isOpen, onToggle } = useDisclosure({
-      isOpen: selectedPartId === part?.id,
-    });
     const isActive = selectedPartId === part?.id;
 
     // Count how many questions have been answered

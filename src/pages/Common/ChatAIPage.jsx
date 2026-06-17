@@ -1,15 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ChakraProvider,
   Box,
   Button,
   Input,
   VStack,
-  Text,
   HStack,
-  useToast,
   extendTheme,
   Spinner,
+  useToast,
 } from '@chakra-ui/react';
 import writingResultService from '~/services/writingResultService';
 import ReactMarkdown from 'react-markdown';

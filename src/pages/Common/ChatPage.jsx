@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -33,7 +33,7 @@ const ChatPage = () => {
 
   const username = getUsername();
 
-  const fetchRecentChats = async () => {
+  const fetchRecentChats = useCallback(async () => {
     if (loading || isLastPage) return;
 
     setLoading(true);
@@ -49,7 +49,7 @@ const ChatPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLastPage, loading, page]);
 
   useEffect(() => {
     let wsService;
@@ -121,7 +121,7 @@ const ChatPage = () => {
         wsService.unsubscribe(websocketConstants.onlineUsersTopic);
       }
     };
-  }, [username]);
+  }, [fetchRecentChats, username]);
 
   const handleRecipientSelect = (recipient) => {
     setSelectedRecipient(recipient);

@@ -18,7 +18,7 @@ const courses = [
   { key: 'course4', label: 'Course 4', color: '#83a6ed' },
 ];
 
-const LineChart = () => {
+const EarningsChart = () => {
   const [visibleCourses, setVisibleCourses] = useState({
     course1: true,
     course2: true,
@@ -108,7 +108,7 @@ const LineChart = () => {
 };
 
 const AnalyticsCoursesPage = () => {
-
-}
+  return <EarningsChart />;
+};
 
 export default AnalyticsCoursesPage;

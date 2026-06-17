@@ -43,24 +43,7 @@ const EditableTest = ({
   const [testParts, setTestParts] = useState([]);
   const { successToast, errorToast } = useCustomToast();
 
-  useEffect(() => {
-    if (!isNew && testId) {
-      fetchTestById();
-      fetchTestParts();
-    } else {
-      setTestState({
-        title: '',
-        description: '',
-        durationInMilis: 2700000,
-        passingGrade: 0.0,
-        audioPath: '',
-        status: 'DISPLAY',
-        createdAt: new Date().toISOString(),
-      }); // Reset form
-    }
-  }, [testId, isNew]);
-
-  const fetchTestById = async () => {
+  const fetchTestById = useCallback(async () => {
     try {
       const data = await testService.getById(testId);
       if (data) {
@@ -86,9 +69,9 @@ const EditableTest = ({
       console.error(error?.message);
       errorToast('Error fetching test data');
     }
-  };
+  }, [errorToast, successToast, testId]);
 
-  const fetchTestParts = async () => {
+  const fetchTestParts = useCallback(async () => {
     try {
       const parts = await testPartService.getTestPartsByTestId(testId);
       setTestParts(parts);
@@ -96,7 +79,24 @@ const EditableTest = ({
       console.error('Error fetching test parts:', error);
       errorToast('Failed to fetch test parts.');
     }
-  };
+  }, [errorToast, testId]);
+
+  useEffect(() => {
+    if (!isNew && testId) {
+      fetchTestById();
+      fetchTestParts();
+    } else {
+      setTestState({
+        title: '',
+        description: '',
+        durationInMilis: 2700000,
+        passingGrade: 0.0,
+        audioPath: '',
+        status: 'DISPLAY',
+        createdAt: new Date().toISOString(),
+      }); // Reset form
+    }
+  }, [fetchTestById, fetchTestParts, isNew, testId]);
 
   const removeTestPart = useCallback(async (id) => {
     try {
@@ -107,7 +107,7 @@ const EditableTest = ({
       console.error('Error removing test part:', error);
       errorToast('Failed to remove test part.');
     }
-  }, []);
+  }, [errorToast, successToast]);
 
   const addTestPart = async () => {
     const newPart = {

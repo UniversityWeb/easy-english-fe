@@ -21,8 +21,8 @@ import {
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
 import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import config from '~/config';
 import AuthService from '~/services/authService';
 import { USER_ROLES, USER_STATUSES } from '~/utils/constants';
@@ -32,12 +32,30 @@ import { isLoggedIn } from '~/utils/authUtils';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || null;
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { successToast, errorToast, warningToast } = useCustomToast();
   const [isLogging, setIsLogging] = useState(false);
   const passwordInputRef = useRef(null);
+
+  const navigateByRole = useCallback((role) => {
+    if (from && from !== config.routes.login) {
+      navigate(from, { replace: true });
+      return;
+    }
+    if (role === USER_ROLES.STUDENT) {
+      navigate(config.routes.homepage);
+    } else if (role === USER_ROLES.TEACHER) {
+      navigate(config.routes.course_management_for_teacher);
+    } else if (role === USER_ROLES.ADMIN) {
+      navigate(config.routes.course_management_for_admin);
+    } else {
+      console.log('Role not found');
+    }
+  }, [navigate, from]);
 
   useEffect(() => {
     // Check if the user is already logged in
@@ -53,19 +71,7 @@ const LoginPage = () => {
           console.error('Failed to fetch user:', err);
         });
     }
-  }, [navigate]);
-
-  const navigateByRole = (role) => {
-    if (role === USER_ROLES.STUDENT) {
-      navigate(config.routes.homepage);
-    } else if (role === USER_ROLES.TEACHER) {
-      navigate(config.routes.course_management_for_teacher);
-    } else if (role === USER_ROLES.ADMIN) {
-      navigate(config.routes.course_management_for_admin);
-    } else {
-      console.log('Role not found');
-    }
-  };
+  }, [navigateByRole]);
 
   const handleLogin = async (event) => {
     event.preventDefault();

@@ -18,22 +18,22 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(part?.title || '');
 
-  useEffect(() => {
-    const fetchQuestionGroups = async () => {
-      if (!part) return;
+  const fetchQuestionGroups = useCallback(async () => {
+    if (!part) return;
 
-      setReadingPassage(part?.readingPassage);
-      setShowReadingPassage(part?.readingPassage || false);
-      try {
-        const groups = await questionGroupService.getByTestPart(part.id);
-        setQuestionGroups(groups);
-      } catch (error) {
-        console.error('Error fetching question groups:', error);
-      }
-    };
-
-    fetchQuestionGroups();
+    setReadingPassage(part?.readingPassage);
+    setShowReadingPassage(part?.readingPassage || false);
+    try {
+      const groups = await questionGroupService.getByTestPart(part.id);
+      setQuestionGroups(groups);
+    } catch (error) {
+      console.error('Error fetching question groups:', error);
+    }
   }, [part]);
+
+  useEffect(() => {
+    fetchQuestionGroups();
+  }, [fetchQuestionGroups]);
 
   const updateTestPart = async (id, updatedPart) => {
     if (!id || !updatedPart) return;
@@ -60,7 +60,7 @@ const EditableTestPart = React.memo(({ part, onRemovePart }) => {
         errorToast('Failed to remove question group.');
       }
     },
-    [questionGroups.length],
+    [errorToast, successToast],
   );
 
   const handleAddGroup = async () => {

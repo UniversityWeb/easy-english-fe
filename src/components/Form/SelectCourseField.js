@@ -7,8 +7,6 @@ import {
   FormErrorMessage,
   Box,
   Button,
-  List,
-  ListItem,
   Image,
   Text,
   Flex,
