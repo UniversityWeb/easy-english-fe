@@ -49,6 +49,20 @@ import Writing from './Curriculum/Writing';
 import writingService from '~/services/writingService';
 import writingResultService from '~/services/writingResultService';
 
+const updateSectionItems = (sections, sectionId, savedItem, itemKey) => {
+  return sections.map((section) => {
+    if (section.id === sectionId) {
+      const items = section[itemKey] || [];
+      const updatedItems = items.some((item) => item.id === savedItem.id)
+        ? items.map((item) => (item.id === savedItem.id ? savedItem : item))
+        : [...items, savedItem];
+
+      return { ...section, [itemKey]: updatedItems };
+    }
+    return section;
+  });
+};
+
 const getSectionItemIcon = (type) => {
   switch (type) {
     case SEC_ITEM_TYPES.TEXT:
@@ -143,20 +157,7 @@ const Curriculum = ({ courseId }) => {
 
     // Cập nhật lại sections với lesson mới hoặc cập nhật lesson đã tồn tại
     setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === savedLesson.sectionId) {
-          const updatedLessons = section.lessons.some(
-            (lesson) => lesson.id === savedLesson.id,
-          )
-            ? section.lessons.map((lesson) =>
-                lesson.id === savedLesson.id ? savedLesson : lesson,
-              )
-            : [...section.lessons, savedLesson];
-
-          return { ...section, lessons: updatedLessons };
-        }
-        return section;
-      }),
+      updateSectionItems(prevSections, savedLesson.sectionId, savedLesson, 'lessons')
     );
 
     // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
@@ -170,20 +171,7 @@ const Curriculum = ({ courseId }) => {
 
     // Cập nhật lại sections với lesson mới hoặc cập nhật lesson đã tồn tại
     setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === savedWriting.sectionId) {
-          const updatedWritings = section.writings.some(
-            (lesson) => lesson.id === savedWriting.id,
-          )
-            ? section.writings.map((writings) =>
-                writings.id === savedWriting.id ? savedWriting : writings,
-              )
-            : [...section.writings, savedWriting];
-
-          return { ...section, writings: updatedWritings };
-        }
-        return section;
-      }),
+      updateSectionItems(prevSections, savedWriting.sectionId, savedWriting, 'writings')
     );
 
     // Sau khi lesson được lưu, cập nhật lại state để hiển thị lesson đó như là lesson đã tồn tại (update lesson)
@@ -354,20 +342,7 @@ const Curriculum = ({ courseId }) => {
   const handleTestSaved = async (savedTest) => {
     console.log('Saved test : ', savedTest);
     setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === savedTest.sectionId) {
-          const updatedTests = section.tests.some(
-            (test) => test.id === savedTest.id,
-          )
-            ? section.tests.map((test) =>
-                test.id === savedTest.id ? savedTest : test,
-              )
-            : [...section.tests, savedTest];
-
-          return { ...section, tests: updatedTests };
-        }
-        return section;
-      }),
+      updateSectionItems(prevSections, savedTest.sectionId, savedTest, 'tests')
     );
 
     await handleTestClick(savedTest);

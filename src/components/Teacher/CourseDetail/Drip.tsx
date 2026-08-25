@@ -53,6 +53,36 @@ const getLessonIcon = (type) => {
   }
 };
 
+const insertLessonIntoDrip = (dripContents, destinationId, destinationIndex, draggedLesson) => {
+  return dripContents.map((dripContent) => {
+    if (dripContent.id === destinationId) {
+      if (!dripContent.lessons.find((lesson) => lesson.id === draggedLesson.id)) {
+        const updatedLessons = Array.from(dripContent.lessons);
+        updatedLessons.splice(destinationIndex, 0, draggedLesson);
+        return {
+          ...dripContent,
+          lessons: updatedLessons,
+        };
+      }
+    }
+    return dripContent;
+  });
+};
+
+const removeLessonFromDrip = (dripContents, sourceId, sourceIndex) => {
+  return dripContents.map((dripContent) => {
+    if (dripContent.id === sourceId) {
+      const updatedLessons = Array.from(dripContent.lessons);
+      updatedLessons.splice(sourceIndex, 1);
+      return {
+        ...dripContent,
+        lessons: updatedLessons,
+      };
+    }
+    return dripContent;
+  });
+};
+
 const Drip = ({ courseId }) => {
   const [sections, setSections] = useState([]);
   const [dripContents, setDripContents] = useState([]);
@@ -206,25 +236,6 @@ const Drip = ({ courseId }) => {
 
     if (!destination) return;
 
-    if (source.droppableId === destination.droppableId) {
-      setDripContents((prevDripContents) =>
-        prevDripContents.map((dripContent) => {
-          if (dripContent.id === source.droppableId) {
-            const reorderedLessons = Array.from(dripContent.lessons);
-            const [movedLesson] = reorderedLessons.splice(source.index, 1);
-            reorderedLessons.splice(destination.index, 0, movedLesson);
-
-            return {
-              ...dripContent,
-              lessons: reorderedLessons,
-            };
-          }
-          return dripContent;
-        }),
-      );
-      return;
-    }
-
     if (source.droppableId.startsWith('section-')) {
       const sourceSection = sections.find(
         (section) => section.id === source.droppableId,
@@ -233,64 +244,20 @@ const Drip = ({ courseId }) => {
 
       if (draggedLesson) {
         setDripContents((prevDripContents) =>
-          prevDripContents.map((dripContent) => {
-            if (dripContent.id === destination.droppableId) {
-              if (
-                !dripContent.lessons.find(
-                  (lesson) => lesson.id === draggedLesson.id,
-                )
-              ) {
-                const updatedLessons = Array.from(dripContent.lessons);
-                updatedLessons.splice(destination.index, 0, draggedLesson);
-
-                return {
-                  ...dripContent,
-                  lessons: updatedLessons,
-                };
-              }
-            }
-            return dripContent;
-          }),
+          insertLessonIntoDrip(prevDripContents, destination.droppableId, destination.index, draggedLesson)
         );
       }
     } else {
-      let draggedLesson = null;
+      setDripContents((prevDripContents) => {
+        const sourceDrip = prevDripContents.find((d) => d.id === source.droppableId);
+        if (!sourceDrip) return prevDripContents;
+        
+        const draggedLesson = sourceDrip.lessons[source.index];
+        if (!draggedLesson) return prevDripContents;
 
-      setDripContents((prevDripContents) =>
-        prevDripContents.map((dripContent) => {
-          if (dripContent.id === source.droppableId) {
-            const updatedLessons = Array.from(dripContent.lessons);
-            [draggedLesson] = updatedLessons.splice(source.index, 1);
-            return {
-              ...dripContent,
-              lessons: updatedLessons,
-            };
-          }
-          return dripContent;
-        }),
-      );
-
-      if (draggedLesson) {
-        setDripContents((prevDripContents) =>
-          prevDripContents.map((dripContent) => {
-            if (dripContent.id === destination.droppableId) {
-              if (
-                !dripContent.lessons.find(
-                  (lesson) => lesson.id === draggedLesson.id,
-                )
-              ) {
-                const updatedLessons = Array.from(dripContent.lessons);
-                updatedLessons.splice(destination.index, 0, draggedLesson);
-                return {
-                  ...dripContent,
-                  lessons: updatedLessons,
-                };
-              }
-            }
-            return dripContent;
-          }),
-        );
-      }
+        const nextDripContents = removeLessonFromDrip(prevDripContents, source.droppableId, source.index);
+        return insertLessonIntoDrip(nextDripContents, destination.droppableId, destination.index, draggedLesson);
+      });
     }
   };
 

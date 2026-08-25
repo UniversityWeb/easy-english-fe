@@ -258,6 +258,7 @@ const UserProfileEditPage = () => {
 
     try {
       await userService.updateOwnProfile(user);
+      AuthService.clearUserCache();
       successToast('Profile updated successfully');
     } catch (error) {
       console.error('Error saving data:', error);

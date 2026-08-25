@@ -27,6 +27,29 @@ import { QUESTION_TEMPLATES_TO_ADD } from '~/utils/testDemoData';
 import CustomReactQuill from '~/components/CustomReactQuill';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
+const DraggableQuestionItem = React.memo(({ question, index, removeQuestion, reloadQuestions }) => (
+  <Draggable
+    draggableId={`question-${question.id}`}
+    index={index}
+  >
+    {(provided) => (
+      <Box
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        mb={4}
+      >
+        <EditableQuestionItem
+          index={index}
+          question={question}
+          onRemoveQuestion={removeQuestion}
+          onReloadQuestions={reloadQuestions}
+        />
+      </Box>
+    )}
+  </Draggable>
+));
+
 const EditableQuestionGroup = React.memo(
   ({ index, group, onRemoveGroup, onReloadGroups }) => {
     const [groupState, setGroupState] = useState(group);
@@ -234,28 +257,13 @@ const EditableQuestionGroup = React.memo(
                                 {...provided.droppableProps}
                               >
                                 {questions.map((question, index) => (
-                                  <Draggable
+                                  <DraggableQuestionItem
                                     key={question.id}
-                                    draggableId={`question-${question.id}`}
+                                    question={question}
                                     index={index}
-                                  >
-                                    {(provided) => (
-                                      <Box
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        mb={4}
-                                      >
-                                        <EditableQuestionItem
-                                          index={index}
-                                          key={question.id}
-                                          question={question}
-                                          onRemoveQuestion={removeQuestion}
-                                          onReloadQuestions={reloadQuestions}
-                                        />
-                                      </Box>
-                                    )}
-                                  </Draggable>
+                                    removeQuestion={removeQuestion}
+                                    reloadQuestions={reloadQuestions}
+                                  />
                                 ))}
                                 {provided.placeholder}
                               </Box>

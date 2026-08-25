@@ -43,7 +43,7 @@ class WebSocketService {
    */
   async ensureConnected() {
     if (this.connected) {
-      return Promise.resolve();
+      return;
     }
 
     if (!this.connectionPromise) {

@@ -182,10 +182,12 @@ const Enrollment = () => {
               ) : (
                 <Grid templateColumns="repeat(4, 1fr)" gap={6}>
                   {courses.length > 0 ? (
-                    courses.map((course) => (
+                    courses.map((enrollment) => {
+                      const course = enrollment.course;
+                      return (
                       <Box
                         style={{ zoom: 0.85 }}
-                        key={course.id}
+                        key={enrollment.id}
                         width="300px"
                         borderWidth="1px"
                         borderRadius="lg"
@@ -198,8 +200,8 @@ const Enrollment = () => {
                       >
                         <Box height="200px" overflow="hidden">
                           <Image
-                            src={course.image || course.imagePreview}
-                            alt={course.title}
+                            src={course?.image || course?.imagePreview}
+                            alt={course?.title}
                             objectFit="cover"
                             width="100%"
                             height="100%"
@@ -215,14 +217,14 @@ const Enrollment = () => {
                           <VStack align="start" spacing={2} flex="1">
                             <VStack align="start" spacing={1} minHeight="80px">
                               <Text fontSize="sm" color="gray.500">
-                                {course.topic?.name || 'Uncategorized'}
+                                {course?.topic?.name || 'Uncategorized'}
                               </Text>
                               <Text
                                 fontWeight="bold"
                                 fontSize="lg"
                                 noOfLines={2}
                               >
-                                {course.title}
+                                {course?.title}
                               </Text>
                             </VStack>
 
@@ -231,11 +233,11 @@ const Enrollment = () => {
                                 <HStack>
                                   <Icon as={TbClockHour4} />
                                   <Text fontSize="sm">
-                                    {course.duration || 'N/A'} hours
+                                    {course?.duration || 'N/A'} hours
                                   </Text>
                                 </HStack>
                                 <Text fontSize="sm">
-                                  {course.progress || 0}% Complete
+                                  {enrollment.progress || 0}% Complete
                                 </Text>
                               </Flex>
                             </HStack>
@@ -251,8 +253,8 @@ const Enrollment = () => {
                                   );
                                   navigate(
                                     config.routes.learn(
-                                      course.id,
-                                      course.title,
+                                      course?.id,
+                                      course?.title,
                                     ),
                                     {
                                       state: {
@@ -262,7 +264,7 @@ const Enrollment = () => {
                                   );
                                 }}
                               >
-                                {getButtonText(course.progress || 0)}
+                                {getButtonText(enrollment.progress || 0)}
                               </Button>
                             </Box>
 
@@ -275,16 +277,16 @@ const Enrollment = () => {
                               width="full"
                             >
                               Started{' '}
-                              {course.createdAt
+                              {enrollment.createdAt
                                 ? new Date(
-                                    course.createdAt,
+                                    enrollment.createdAt,
                                   ).toLocaleDateString()
                                 : 'N/A'}
                             </Text>
                           </VStack>
                         </Box>
                       </Box>
-                    ))
+                    )})
                   ) : (
                     <GridItem
                       colSpan={4}

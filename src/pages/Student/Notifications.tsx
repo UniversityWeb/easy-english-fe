@@ -12,6 +12,72 @@ import WebSocketService from '~/services/websocketService';
 import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
+const NotificationItem = ({ notification, handleNotificationClick, handleMarkAsRead }) => {
+  const isRead = notification?.read;
+  const bg = isRead ? 'gray.100' : 'white';
+  const hoverBg = isRead ? 'white' : 'blue.50';
+  const hoverShadow = isRead ? 'none' : 'lg';
+  const badgeColor = isRead ? 'green' : 'red';
+  const badgeText = isRead ? 'READ' : 'UNREAD';
+
+  return (
+    <MotionBox
+      p={4}
+      borderWidth="1px"
+      borderRadius="lg"
+      shadow="md"
+      backgroundColor={bg}
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      cursor="pointer"
+      _hover={{
+        backgroundColor: hoverBg,
+        boxShadow: hoverShadow,
+      }}
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Flex
+        flex="1"
+        direction="row"
+        onClick={() => handleNotificationClick(notification?.id, notification?.url)}
+        mr={5}
+      >
+        <Image
+          src={notification?.previewImage}
+          alt="Notification"
+          boxSize="100px"
+          objectFit="cover"
+          borderRadius="md"
+          mr={5}
+        />
+        <Box>
+          <Text>{notification?.message}</Text>
+          <Text fontSize="sm" color="gray.500">
+            {formatDate(notification?.createdDate)}
+          </Text>
+          {!isRead && (
+            <Button
+              size="sm"
+              colorScheme="blue"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleMarkAsRead(notification?.id);
+              }}
+            >
+              Mark as Read
+            </Button>
+          )}
+        </Box>
+      </Flex>
+      <Flex alignItems="center" gap={4}>
+        <Badge colorScheme={badgeColor}>{badgeText}</Badge>
+      </Flex>
+    </MotionBox>
+  );
+};
 
 const Notifications = () => {
   const username = getUsername();
@@ -110,6 +176,9 @@ const Notifications = () => {
     }
   };
 
+  const isFirstPage = page === 0;
+  const isLastPage = page === totalPages - 1;
+
   return (
     <RoleBasedPageLayout>
       <Container maxW="80%">
@@ -129,77 +198,25 @@ const Notifications = () => {
               </Text>
             ) : (
               notifications.map((notification) => (
-                <MotionBox
+                <NotificationItem
                   key={notification?.id}
-                  p={4}
-                  borderWidth="1px"
-                  borderRadius="lg"
-                  shadow="md"
-                  backgroundColor={notification?.read ? 'gray.100' : 'white'}
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  cursor="pointer"
-                  _hover={{
-                    backgroundColor: notification?.read ? 'white' : 'blue.50',
-                    boxShadow: notification?.read ? 'none' : 'lg',
-                  }}
-                  initial={{ opacity: 0, x: 50 }} // Initial state (invisible, offset)
-                  animate={{ opacity: 1, x: 0 }} // Animate to this state (visible, no offset)
-                  transition={{ duration: 0.5 }} // Animation duration
-                >
-                  <Flex
-                    flex="1"
-                    direction="row"
-                    onClick={() => handleNotificationClick(notification?.id, notification?.url)}
-                    mr={5}
-                  >
-                    <Image
-                      src={notification?.previewImage}
-                      alt="Notification"
-                      boxSize="100px"
-                      objectFit="cover"
-                      borderRadius="md"
-                      mr={5}
-                    />
-                    <Box>
-                      <Text>{notification?.message}</Text>
-                      <Text fontSize="sm" color="gray.500">
-                        {formatDate(notification?.createdDate)}
-                      </Text>
-                      {!notification?.read && (
-                        <Button
-                          size="sm"
-                          colorScheme="blue"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering the main notification click
-                            handleMarkAsRead(notification?.id);
-                          }}
-                        >
-                          Mark as Read
-                        </Button>
-                      )}
-                    </Box>
-                  </Flex>
-                  <Flex alignItems="center" gap={4}>
-                    <Badge colorScheme={notification?.read ? 'green' : 'red'}>
-                      {notification?.read ? 'READ' : 'UNREAD'}
-                    </Badge>
-                  </Flex>
-                </MotionBox>
+                  notification={notification}
+                  handleNotificationClick={handleNotificationClick}
+                  handleMarkAsRead={handleMarkAsRead}
+                />
               ))
             )}
             <Flex justify="center" align="center" mt={6} mb={50} gap={10}>
               <Button
                 onClick={handlePreviousPage}
-                disabled={page === 0}
-                colorScheme={page === 0 ? 'gray' : 'blue'}
+                disabled={isFirstPage}
+                colorScheme={isFirstPage ? 'gray' : 'blue'}
                 size="md"
                 variant="outline"
-                leftIcon={page > 0 ? <FaArrowLeft /> : null}
+                leftIcon={!isFirstPage ? <FaArrowLeft /> : null}
                 _hover={{
-                  bg: page > 0 ? 'blue.500' : '',
-                  color: page > 0 ? 'white' : '',
+                  bg: !isFirstPage ? 'blue.500' : '',
+                  color: !isFirstPage ? 'white' : '',
                 }}
               >
                 Prev
@@ -211,14 +228,14 @@ const Notifications = () => {
 
               <Button
                 onClick={handleNextPage}
-                disabled={page === totalPages - 1}
-                colorScheme={page === totalPages - 1 ? 'gray' : 'blue'}
+                disabled={isLastPage}
+                colorScheme={isLastPage ? 'gray' : 'blue'}
                 size="md"
                 variant="outline"
-                rightIcon={page < totalPages - 1 ? <FaArrowRight /> : null}
+                rightIcon={!isLastPage ? <FaArrowRight /> : null}
                 _hover={{
-                  bg: page < totalPages - 1 ? 'blue.500' : '',
-                  color: page < totalPages - 1 ? 'white' : '',
+                  bg: !isLastPage ? 'blue.500' : '',
+                  color: !isLastPage ? 'white' : '',
                 }}
               >
                 Next

@@ -2,12 +2,31 @@ import { del, get, post, put } from '~/utils/httpRequest'; // Removed unused imp
 
 const SUFFIX_TOPIC_API_URL = '/topics';
 
+let cachedTopics: any = null;
+let curTopicsPromise: Promise<any> | null = null;
+
+export const clearTopicCache = () => {
+  cachedTopics = null;
+  curTopicsPromise = null;
+};
+
 const fetchAllTopic = async () => {
-  const response = await get(`${SUFFIX_TOPIC_API_URL}/get-all`);
-  if (response?.status !== 200) {
-    return null;
-  }
-  return response.data;
+  if (cachedTopics) return cachedTopics;
+  if (curTopicsPromise) return curTopicsPromise;
+
+  curTopicsPromise = get(`${SUFFIX_TOPIC_API_URL}/get-all`)
+    .then((response) => {
+      curTopicsPromise = null;
+      if (response?.status !== 200) return null;
+      cachedTopics = response.data;
+      return response.data;
+    })
+    .catch((error) => {
+      curTopicsPromise = null;
+      throw error;
+    });
+
+  return curTopicsPromise;
 };
 
 const getTopicById = async (topicId) => {
@@ -23,6 +42,7 @@ const createTopic = async (topicData) => {
   if (response?.status !== 201) {
     return null;
   }
+  clearTopicCache();
   return response.data;
 };
 
@@ -34,6 +54,7 @@ const updateTopic = async (topicId, topicData) => {
   if (response?.status !== 200) {
     return null;
   }
+  clearTopicCache();
   return response.data;
 };
 
@@ -42,6 +63,7 @@ const deleteTopic = async (topicId) => {
   if (response?.status !== 204) {
     return null;
   }
+  clearTopicCache();
   return true;
 };
 

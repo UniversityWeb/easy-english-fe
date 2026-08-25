@@ -60,6 +60,20 @@ const TestResultTable = ({ testId, courseId }) => {
     fetchTestResults(currentPage);
   }, [currentPage, fetchTestResults]);
 
+  const handleNewTestResult = useCallback((newTestResult) => {
+    setTestResults((prevResults) => {
+      if (!prevResults.some((result) => result.id === newTestResult.id)) {
+        const updatedResults = [newTestResult, ...prevResults];
+        if (updatedResults.length > pageSize) {
+          updatedResults.pop();
+        }
+        return updatedResults;
+      }
+      return prevResults;
+    });
+    infoToast('Received new test result!');
+  }, [pageSize, infoToast]);
+
   useEffect(() => {
     let wsService;
 
@@ -67,19 +81,7 @@ const TestResultTable = ({ testId, courseId }) => {
       try {
         wsService = await WebSocketService.getIns();
 
-        wsService.subscribe(websocketConstants.testResultNotificationTopic(testId), (newTestResult) => {
-          setTestResults((prevResults) => {
-            if (!prevResults.some(result => result.id === newTestResult.id)) {
-              const updatedResults = [newTestResult, ...prevResults];
-              if (updatedResults.length > pageSize) {
-                updatedResults.pop();
-              }
-              return updatedResults;
-            }
-            return prevResults;
-          });
-          infoToast('Received new test result!');
-        });
+        wsService.subscribe(websocketConstants.testResultNotificationTopic(testId), handleNewTestResult);
       } catch (error) {
         console.error('WebSocket initialization failed:', error);
       }

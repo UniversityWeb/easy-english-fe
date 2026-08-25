@@ -22,6 +22,11 @@ import config from '~/config';
 import { PAYMENT_STATUES } from '~/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import bundleService from '~/services/bundleService';
+const isCourseInAnyBundle = (bundles, courseId) => {
+  return Object.values(bundles).some((bundle) =>
+    bundle.courses.some((bundleCourse) => bundleCourse.course.id === courseId),
+  );
+};
 
 const CartPage = () => {
   const { successToast, errorToast } = useCustomToast();
@@ -171,14 +176,7 @@ const CartPage = () => {
 
     // Add remaining courses as individual courses (not part of complete bundles)
     items.forEach((item) => {
-      const isPartOfCompleteBundle = Object.values(grouped.bundles).some(
-        (bundle) =>
-          bundle.courses.some(
-            (bundleCourse) => bundleCourse.course.id === item.course.id,
-          ),
-      );
-
-      if (!isPartOfCompleteBundle) {
+      if (!isCourseInAnyBundle(grouped.bundles, item.course.id)) {
         grouped.individualCourses.push(item);
       }
     });

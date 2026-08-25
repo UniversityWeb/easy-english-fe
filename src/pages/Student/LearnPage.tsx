@@ -54,56 +54,74 @@ const LessonItem = ({
   isSelected = false,
   itemRef,
   isRecommend = false,
-}) => (
-  <HStack
-    w="100%"
-    ref={itemRef}
-    p={2}
-    justifyContent="space-between"
-    borderRadius={8}
-    bg={isSelected ? 'blue.100' : isRecommend ? 'yellow.50' : 'gray.50'}
-    cursor="pointer"
-    _hover={{
-      bg: isSelected ? 'blue.200' : isRecommend ? 'yellow.100' : 'gray.100',
-    }}
-    border={
-      isSelected
-        ? '2px solid blue.500'
-        : isRecommend
-          ? '2px solid yellow.400'
-          : 'none'
-    }
-    onClick={onClick}
-  >
-    <VStack align="start" spacing={2} w="100%">
-      <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
-        {title}
-      </Text>
-      <HStack spacing={1}>
-        <Icon as={icon} boxSize={5} color={iconColor} />
-        <Text fontSize="sm" fontWeight="bold">
-          {isTest ? 'TEST' : isRecommend ? 'RECOMMEND' : typeLesson}
+}) => {
+  let bg = 'gray.50';
+  let hoverBg = 'gray.100';
+  let border = 'none';
+  let itemTypeLabel = typeLesson;
+  let StatusIcon = ImRadioUnchecked;
+  let statusIconColor = 'gray.500';
+
+  if (isSelected) {
+    bg = 'blue.100';
+    hoverBg = 'blue.200';
+    border = '2px solid var(--chakra-colors-blue-500)';
+  } else if (isRecommend) {
+    bg = 'yellow.50';
+    hoverBg = 'yellow.100';
+    border = '2px solid var(--chakra-colors-yellow-400)';
+  }
+
+  if (isTest) {
+    itemTypeLabel = 'TEST';
+  } else if (isRecommend) {
+    itemTypeLabel = 'RECOMMEND';
+  }
+
+  if (isLocked) {
+    StatusIcon = FaLock;
+    statusIconColor = 'gray.500';
+  } else if (isRecommend) {
+    StatusIcon = FaStar;
+    statusIconColor = 'yellow.500';
+  } else if (complete) {
+    StatusIcon = FaCheckCircle;
+    statusIconColor = 'blue.500';
+  }
+
+  return (
+    <HStack
+      w="100%"
+      ref={itemRef}
+      p={2}
+      justifyContent="space-between"
+      borderRadius={8}
+      bg={bg}
+      cursor="pointer"
+      _hover={{ bg: hoverBg }}
+      border={border}
+      onClick={onClick}
+    >
+      <VStack align="start" spacing={2} w="100%">
+        <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
+          {title}
         </Text>
-        {!isTest && !isRecommend && (
-          <Text fontSize="sm" color="gray.500">
-            {duration} min
+        <HStack spacing={1}>
+          <Icon as={icon} boxSize={5} color={iconColor} />
+          <Text fontSize="sm" fontWeight="bold">
+            {itemTypeLabel}
           </Text>
-        )}
-      </HStack>
-    </VStack>
-    {isLocked ? (
-      <Icon as={FaLock} boxSize={5} color="gray.500" />
-    ) : isRecommend ? (
-      <Icon as={FaStar} boxSize={5} color="yellow.500" />
-    ) : (
-      <Icon
-        as={complete ? FaCheckCircle : ImRadioUnchecked}
-        boxSize={5}
-        color={complete ? 'blue.500' : 'gray.500'}
-      />
-    )}
-  </HStack>
-);
+          {!isTest && !isRecommend && (
+            <Text fontSize="sm" color="gray.500">
+              {duration} min
+            </Text>
+          )}
+        </HStack>
+      </VStack>
+      <Icon as={StatusIcon} boxSize={5} color={statusIconColor} />
+    </HStack>
+  );
+};
 
 const LearnPage = () => {
   const navigate = useNavigate();

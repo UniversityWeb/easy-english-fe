@@ -14,18 +14,44 @@ export interface ILoginResponse extends IUser {
   token: string;
 }
 
-const getCurUser = async (): Promise<IUser | null> => {
+let cachedUser: IUser | null = null;
+let curUserPromise: Promise<IUser | null> | null = null;
+
+const clearUserCache = () => {
+  cachedUser = null;
+  curUserPromise = null;
+};
+
+const getCurUser = async (forceRefresh = false): Promise<IUser | null> => {
   if (!isLoggedIn()) {
+    clearUserCache();
     return null;
+  }
+
+  if (cachedUser && !forceRefresh) {
+    return cachedUser;
+  }
+
+  if (curUserPromise) {
+    return curUserPromise;
   }
 
   const path = `${SUFFIX_AUTH_API_URL}/get-user-by-token`;
   const tokenStr = getToken();
-  const response = await get(path, {
+  
+  curUserPromise = get(path, {
     params: { tokenStr }
+  }).then(response => {
+    curUserPromise = null;
+    const user = handleResponse(response, 200);
+    cachedUser = user;
+    return user;
+  }).catch(err => {
+    curUserPromise = null;
+    throw err;
   });
 
-  return handleResponse(response, 200);
+  return curUserPromise;
 };
 
 const login = async (loginRequest: ILoginRequest): Promise<ILoginResponse | null> => {
@@ -39,6 +65,7 @@ const login = async (loginRequest: ILoginRequest): Promise<ILoginResponse | null
   const loginResponse = await response.data;
   if (loginResponse?.accountStatus === USER_STATUSES.ACTIVE) {
     saveLoginResponse(loginResponse);
+    clearUserCache();
   }
   return loginResponse;
 };
@@ -53,9 +80,11 @@ const logout = async () => {
   try {
     const path = `${SUFFIX_AUTH_API_URL}/logout`;
     const response = await post(path);
+    clearUserCache();
     return handleResponse(response, 200);
   } catch (e) {
     console.error(e);
+    clearUserCache();
     return {};
   }
 };
@@ -107,6 +136,7 @@ const loginWithGoogle = async (token: string): Promise<ILoginResponse | null> =>
   const loginResponse = await response.data;
   if (loginResponse?.accountStatus === USER_STATUSES.ACTIVE) {
     saveLoginResponse(loginResponse);
+    clearUserCache();
   }
   return loginResponse;
 };
@@ -123,6 +153,7 @@ const AuthService = {
   generateOtpToResetPassword,
   resetPasswordWithOtp,
   loginWithGoogle,
+  clearUserCache,
 };
 
 export default AuthService;

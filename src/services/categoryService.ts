@@ -2,12 +2,31 @@ import { del, get, post, put } from '~/utils/httpRequest';
 
 const SUFFIX_CATEGORY_API_URL = '/categories';
 
+let cachedCategories: any = null;
+let curCategoriesPromise: Promise<any> | null = null;
+
+export const clearCategoryCache = () => {
+  cachedCategories = null;
+  curCategoriesPromise = null;
+};
+
 const fetchAllCategory = async () => {
-  const response = await get(`${SUFFIX_CATEGORY_API_URL}/get-all`);
-  if (response?.status !== 200) {
-    return null;
-  }
-  return response.data;
+  if (cachedCategories) return cachedCategories;
+  if (curCategoriesPromise) return curCategoriesPromise;
+
+  curCategoriesPromise = get(`${SUFFIX_CATEGORY_API_URL}/get-all`)
+    .then((response) => {
+      curCategoriesPromise = null;
+      if (response?.status !== 200) return null;
+      cachedCategories = response.data;
+      return response.data;
+    })
+    .catch((error) => {
+      curCategoriesPromise = null;
+      throw error;
+    });
+
+  return curCategoriesPromise;
 };
 
 const getCategoryById = async (categoryId) => {
@@ -25,6 +44,7 @@ const createCategory = async (categoryData) => {
   if (response?.status !== 201) {
     return null;
   }
+  clearCategoryCache();
   return response.data;
 };
 
@@ -36,6 +56,7 @@ const updateCategory = async (categoryId, categoryData) => {
   if (response?.status !== 200) {
     return null;
   }
+  clearCategoryCache();
   return response.data;
 };
 
@@ -44,6 +65,7 @@ const deleteCategory = async (categoryId) => {
   if (response?.status !== 204) {
     return null;
   }
+  clearCategoryCache();
   return true;
 };
 

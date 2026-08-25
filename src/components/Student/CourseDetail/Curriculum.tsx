@@ -8,6 +8,60 @@ import { FiFileText, FiHelpCircle, FiVideo } from 'react-icons/fi';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import { SEC_ITEM_TYPES } from '~/utils/constants';
 
+const getLessonIcon = (type) => {
+  switch (type) {
+    case SEC_ITEM_TYPES.VIDEO:
+      return FiVideo;
+    case SEC_ITEM_TYPES.AUDIO:
+      return HiOutlineSpeakerWave;
+    case SEC_ITEM_TYPES.TEST:
+      return FiHelpCircle;
+    default:
+      return FiFileText;
+  }
+};
+
+const getLessonColor = (type) => {
+  switch (type) {
+    case SEC_ITEM_TYPES.VIDEO:
+      return 'blue.500';
+    case SEC_ITEM_TYPES.AUDIO:
+      return 'purple.500';
+    case SEC_ITEM_TYPES.TEST:
+      return 'orange.500';
+    default:
+      return 'green.500';
+  }
+};
+
+const fetchSectionContent = async (section) => {
+  const [lessons, tests] = await Promise.all([
+    lessonService.fetchLessons({ sectionId: section.id }),
+    testService.getTestsBySection(section.id),
+  ]);
+
+  const formattedLessons = lessons.map((lesson) => ({
+    ...lesson,
+    type: SEC_ITEM_TYPES.LESSON,
+    icon: getLessonIcon(lesson.type),
+    color: getLessonColor(lesson.type),
+  }));
+
+  const formattedTests = tests.map((test) => ({
+    ...test,
+    type: SEC_ITEM_TYPES.TEST,
+    title: test.title, // Adjust based on the test data structure
+    duration: 0, // Tests might not have a duration
+    icon: getLessonIcon(SEC_ITEM_TYPES.TEST),
+    color: getLessonColor(SEC_ITEM_TYPES.TEST),
+  }));
+
+  return {
+    ...section,
+    items: [...formattedLessons, ...formattedTests],
+  };
+};
+
 const Curriculum = ({ courseId }) => {
   const [curriculumData, setCurriculumData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,33 +77,7 @@ const Curriculum = ({ courseId }) => {
         });
 
         const sectionsWithContent = await Promise.all(
-          sections.map(async (section) => {
-            const [lessons, tests] = await Promise.all([
-              lessonService.fetchLessons({ sectionId: section.id }),
-              testService.getTestsBySection(section.id),
-            ]);
-
-            const formattedLessons = lessons.map((lesson) => ({
-              ...lesson,
-              type: SEC_ITEM_TYPES.LESSON,
-              icon: getLessonIcon(lesson.type),
-              color: getLessonColor(lesson.type),
-            }));
-
-            const formattedTests = tests.map((test) => ({
-              ...test,
-              type: SEC_ITEM_TYPES.TEST,
-              title: test.title, // Adjust based on the test data structure
-              duration: 0, // Tests might not have a duration
-              icon: getLessonIcon(SEC_ITEM_TYPES.TEST),
-              color: getLessonColor(SEC_ITEM_TYPES.TEST),
-            }));
-
-            return {
-              ...section,
-              items: [...formattedLessons, ...formattedTests],
-            };
-          }),
+          sections.map(fetchSectionContent)
         );
 
         setCurriculumData(sectionsWithContent);
@@ -76,31 +104,6 @@ const Curriculum = ({ courseId }) => {
     }));
   };
 
-  const getLessonIcon = (type) => {
-    switch (type) {
-      case SEC_ITEM_TYPES.VIDEO:
-        return FiVideo;
-      case SEC_ITEM_TYPES.AUDIO:
-        return HiOutlineSpeakerWave;
-      case SEC_ITEM_TYPES.TEST:
-        return FiHelpCircle;
-      default:
-        return FiFileText;
-    }
-  };
-
-  const getLessonColor = (type) => {
-    switch (type) {
-      case SEC_ITEM_TYPES.VIDEO:
-        return 'blue.500';
-      case SEC_ITEM_TYPES.AUDIO:
-        return 'purple.500';
-      case SEC_ITEM_TYPES.TEST:
-        return 'orange.500';
-      default:
-        return 'green.500';
-    }
-  };
 
   if (loading) {
     return (

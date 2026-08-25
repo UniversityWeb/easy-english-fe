@@ -51,6 +51,47 @@ const ChatPage = () => {
     }
   }, [isLastPage, loading, page]);
 
+  const handleRecentChatUpdate = useCallback((message) => {
+    const { senderUsername, recipientUsername, content, sendingTime } = message;
+    const chatPartner = senderUsername === username ? recipientUsername : senderUsername;
+
+    setRecentUsers((prevUsers) => {
+      const existingUserIndex = prevUsers.findIndex(
+        (user) => user.username === chatPartner,
+      );
+
+      if (existingUserIndex !== -1) {
+        const updatedUser = {
+          ...prevUsers[existingUserIndex],
+          lastMessage: content,
+          lastMessageTime: sendingTime,
+        };
+        const updatedUsers = [...prevUsers];
+        updatedUsers.splice(existingUserIndex, 1);
+        return [updatedUser, ...updatedUsers];
+      }
+
+      return [
+        {
+          username: chatPartner,
+          lastMessage: content,
+          lastMessageTime: sendingTime,
+          fullName: chatPartner,
+        },
+        ...prevUsers,
+      ];
+    });
+  }, [username]);
+
+  const handleOnlineUsersUpdate = useCallback((onlineUsernames) => {
+    setRecentUsers((prevUsers) =>
+      prevUsers.map((user) => ({
+        ...user,
+        isOnline: onlineUsernames.includes(user.username),
+      })),
+    );
+  }, []);
+
   useEffect(() => {
     let wsService;
 
@@ -60,52 +101,12 @@ const ChatPage = () => {
 
         wsService.subscribe(
           websocketConstants.recentChatsTopic(username),
-          (message) => {
-            const { senderUsername, recipientUsername, content, sendingTime } =
-              message;
-
-            const chatPartner =
-              senderUsername === username ? recipientUsername : senderUsername;
-
-            setRecentUsers((prevUsers) => {
-              const existingUserIndex = prevUsers.findIndex(
-                (user) => user.username === chatPartner,
-              );
-
-              if (existingUserIndex !== -1) {
-                const updatedUser = {
-                  ...prevUsers[existingUserIndex],
-                  lastMessage: content,
-                  lastMessageTime: sendingTime,
-                };
-                const updatedUsers = [...prevUsers];
-                updatedUsers.splice(existingUserIndex, 1);
-                return [updatedUser, ...updatedUsers];
-              }
-
-              return [
-                {
-                  username: chatPartner,
-                  lastMessage: content,
-                  lastMessageTime: sendingTime,
-                  fullName: chatPartner,
-                },
-                ...prevUsers,
-              ];
-            });
-          },
+          handleRecentChatUpdate
         );
 
         wsService.subscribe(
           websocketConstants.onlineUsersTopic,
-          (onlineUsernames) => {
-            setRecentUsers((prevUsers) =>
-              prevUsers.map((user) => ({
-                ...user,
-                isOnline: onlineUsernames.includes(user.username),
-              })),
-            );
-          },
+          handleOnlineUsersUpdate
         );
       } catch (error) {
         console.error('WebSocket initialization failed:', error);

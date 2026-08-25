@@ -173,6 +173,14 @@ function Faq({ courseId }) {
     setIsConfirmOpen(false);
   };
 
+  const handleFieldChange = (index, field, value) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((q, i) =>
+        i === index ? { ...q, [field]: value } : q,
+      ),
+    );
+  };
+
   const DeleteConfirmationModal = () => (
     <Modal
       isOpen={isConfirmOpen}
@@ -278,29 +286,17 @@ function Faq({ courseId }) {
                       <Input
                         value={item.question}
                         isReadOnly={!item.isEditing}
-                        onChange={(e) => {
-                          const updatedQuestion = e.target.value;
-                          setQuestions((prevQuestions) =>
-                            prevQuestions.map((q, i) =>
-                              i === index
-                                ? { ...q, question: updatedQuestion }
-                                : q,
-                            ),
-                          );
-                        }}
+                        onChange={(e) =>
+                          handleFieldChange(index, 'question', e.target.value)
+                        }
                       />
                       <Text fontWeight="bold">Answer</Text>
                       <Textarea
                         value={item.answer}
                         isReadOnly={!item.isEditing}
-                        onChange={(e) => {
-                          const updatedAnswer = e.target.value;
-                          setQuestions((prevQuestions) =>
-                            prevQuestions.map((q, i) =>
-                              i === index ? { ...q, answer: updatedAnswer } : q,
-                            ),
-                          );
-                        }}
+                        onChange={(e) =>
+                          handleFieldChange(index, 'answer', e.target.value)
+                        }
                       />
                       {item.isEditing && (
                         <Button
