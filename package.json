@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -67,6 +67,7 @@
     "@babel/plugin-transform-private-methods": "^7.28.6",
     "@eslint/js": "^10.0.1",
     "@types/lodash": "^4.17.25",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^24.12.2",
     "@types/quill": "^2.0.14",
     "@types/react": "^19.2.14",

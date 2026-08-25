@@ -19,7 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   useEffect(() => {
-    let webSocketInstance;
+    let webSocketInstance: any;
 
     // Connect to WebSocket on component mount
     const initWebSocket = async () => {
@@ -52,10 +52,10 @@ function App() {
                   element={<Navigate to={config.routes.login} replace />}
                 />
 
-                {publicRoutes.map((route, index) => {
+                {publicRoutes.map((route: any, index) => {
                   const Page = route.component;
                   const allowedRoles = route.roles || ['ALL'];
-                  let Layout = DefaultLayout;
+                  let Layout: any = DefaultLayout;
 
                   if (route.layout) {
                     Layout = route.layout;
