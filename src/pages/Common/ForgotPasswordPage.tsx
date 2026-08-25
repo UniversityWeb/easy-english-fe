@@ -86,7 +86,7 @@ const PasswordResetForm = ({
             <Input
               id="password"
               name="password"
-              placeholder="********"
+              placeholder="Enter new password"
               type={showPassword ? 'text' : 'password'}
               size="lg"
               value={passwordData.password}
@@ -114,7 +114,7 @@ const PasswordResetForm = ({
             <Input
               id="confirmPassword"
               name="confirmPassword"
-              placeholder="********"
+              placeholder="Confirm new password"
               type={showPassword ? 'text' : 'password'}
               size="lg"
               value={passwordData.confirmPassword}
@@ -144,20 +144,7 @@ const PasswordResetForm = ({
               setPasswordData({ ...passwordData, otp: otp })
             }
             numInputs={6}
-            separator={<span>-</span>}
-            inputStyle={{
-              width: '40px',
-              height: '40px',
-              margin: '0 5px',
-              fontSize: '20px',
-              borderRadius: '8px',
-              textAlign: 'center',
-              border: '1px solid #eaeaea',
-            }}
-            focusStyle={{
-              borderColor: '#00B5D8',
-              boxShadow: '0 0 0 1px rgba(0, 163, 255, 0.5)',
-            }}
+            renderSeparator={<span>-</span>}
             renderInput={(props) => (
               <input
                 {...props}
@@ -198,7 +185,7 @@ const PasswordResetForm = ({
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { successToast, errorToast } = useCustomToast();
+  const { successToast } = useCustomToast();
   const [validationErrors, setValidationErrors] = useState([]);
   const [inputType, setInputType] = useState(INPUT_TYPES.EMAIL);
   const [passwordData, setPasswordData] = useState({

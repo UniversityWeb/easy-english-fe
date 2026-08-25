@@ -1,4 +1,4 @@
-import { Fragment, Suspense, useEffect } from 'react';
+import { Fragment, Suspense, useEffect, type ElementType } from 'react';
 import {
   BrowserRouter as Router,
   Navigate,
@@ -17,9 +17,16 @@ import { Provider } from 'react-redux';
 import store from './store/store';
 import ProtectedRoute from './components/ProtectedRoute';
 
+interface RouteConfig {
+  path: string;
+  component: ElementType;
+  roles?: string[];
+  layout?: ElementType | null;
+}
+
 function App() {
   useEffect(() => {
-    let webSocketInstance: any;
+    let webSocketInstance: WebSocketService;
 
     // Connect to WebSocket on component mount
     const initWebSocket = async () => {
@@ -52,10 +59,10 @@ function App() {
                   element={<Navigate to={config.routes.login} replace />}
                 />
 
-                {publicRoutes.map((route: any, index) => {
+                {publicRoutes.map((route: RouteConfig) => {
                   const Page = route.component;
                   const allowedRoles = route.roles || ['ALL'];
-                  let Layout: any = DefaultLayout;
+                  let Layout: ElementType = DefaultLayout;
 
                   if (route.layout) {
                     Layout = route.layout;
@@ -65,7 +72,7 @@ function App() {
 
                   return (
                     <Route
-                      key={index}
+                      key={route.path}
                       path={route.path}
                       element={
                         <ProtectedRoute allowedRoles={allowedRoles}>
