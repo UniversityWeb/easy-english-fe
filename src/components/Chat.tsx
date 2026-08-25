@@ -153,6 +153,19 @@ const Chat = ({ recipient, courseData, setCourseData }) => {
     }
   }, [fetchMessages, recipient]);
 
+  const handleIncomingMessage = useCallback(
+    (message) => {
+      const recipientUsername = recipient?.username;
+      if (
+        recipientUsername === message?.recipientUsername ||
+        recipientUsername === message?.senderUsername
+      ) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
+    },
+    [recipient?.username],
+  );
+
   useEffect(() => {
     let wsService;
 
@@ -162,15 +175,7 @@ const Chat = ({ recipient, courseData, setCourseData }) => {
 
         wsService.subscribe(
           websocketConstants.messageTopic(curUsername),
-          (message) => {
-            const recipientUsername = recipient?.username;
-            if (
-              recipientUsername === message?.recipientUsername ||
-              recipientUsername === message?.senderUsername
-            ) {
-              setMessages((prevMessages) => [...prevMessages, message]);
-            }
-          },
+          handleIncomingMessage,
         );
       } catch (error) {
         console.error('WebSocket initialization failed:', error);
@@ -184,7 +189,7 @@ const Chat = ({ recipient, courseData, setCourseData }) => {
         wsService.unsubscribe(websocketConstants.messageTopic(curUsername));
       }
     };
-  }, [curUsername, recipient?.username]);
+  }, [curUsername, handleIncomingMessage]);
 
   const sendMessage = async (type = MESSAGE_TYPES.TEXT, content = '') => {
     if (type === MESSAGE_TYPES.TEXT && content.trim() === '' && !selectedImage)

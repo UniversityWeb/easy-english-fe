@@ -25,3 +25,5 @@ dist-ssr
 
 Tasks
 .env
+
+.sonarlint
