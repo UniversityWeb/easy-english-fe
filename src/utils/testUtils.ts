@@ -1,4 +1,4 @@
-import { getUsername as getAuthUsername } from '~/utils/authUtils';
+import { getUsername as getAuthUsername } from '@/utils/authUtils';
 
 const TAKE_TEST_KEY = 'takeTestKey'
 

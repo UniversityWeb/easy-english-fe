@@ -14,12 +14,12 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import config from '~/config';
-import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
-import AuthService from '~/services/authService';
+import config from '@/config';
+import TransientAppLogo from '@/assets/images/TransientAppLogo.svg';
+import AuthService from '@/services/authService';
 import { useLocation, useNavigate } from 'react-router-dom';
-import useCustomToast from '~/hooks/useCustomToast';
-import { OTP_LENGTH } from '~/utils/constants';
+import useCustomToast from '@/hooks/useCustomToast';
+import { OTP_LENGTH } from '@/utils/constants';
 
 const OtpValidationPage = () => {
   const location = useLocation();
@@ -31,7 +31,7 @@ const OtpValidationPage = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
 
-  const handleOtpChange = (e) => {
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOtp(e.target.value);
   };
 
@@ -53,13 +53,13 @@ const OtpValidationPage = () => {
     if (!validateOtp()) return;
 
     setIsLoading(true);
-    const activeAccountRequest = {username, otp};
+    const activeAccountRequest = { username, otp };
     try {
-      const response = await AuthService.activeAccount(activeAccountRequest)
-      successToast(response.message);
+      const response = await AuthService.activeAccount(activeAccountRequest);
+      successToast(response?.message || 'Account activated successfully');
       navigate(config.routes.login);
-    } catch (e) {
-      errorToast(e.message);
+    } catch (e: any) {
+      errorToast(e?.message);
     } finally {
       setIsLoading(false);
     }
@@ -71,8 +71,8 @@ const OtpValidationPage = () => {
       await AuthService.resendOTPToActiveAccount(username);
       setMessage('OTP sent successfully!');
       setError(false);
-    } catch (e) {
-      setMessage(e.message);
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to resend OTP');
       setError(true);
     } finally {
       setIsLoading(false);
@@ -80,7 +80,7 @@ const OtpValidationPage = () => {
   };
 
   return (
-    <Center height="100vh">
+    <Center minH="100vh" w="100%" py={8}>
       <VStack spacing={4} align="center">
         <Image boxSize="200px" src={TransientAppLogo} alt="Logo" />
         <Heading size="md">Validate OTP</Heading>

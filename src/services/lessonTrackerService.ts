@@ -1,4 +1,4 @@
-import { get, post } from '~/utils/httpRequest';
+import { get, post } from '@/lib/axios';
 
 const SUFFIX_LESSON_TRACKER_API_URL = '/lesson-trackers';
 

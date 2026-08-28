@@ -1,4 +1,4 @@
-import { del, get, handleResponse, post, put } from '~/utils/httpRequest';
+import { del, get, handleResponse, post, put } from '@/lib/axios';
 
 const SUFFIX_TEST_QUESTION_API_URL = '/test-questions';
 

@@ -1,24 +1,24 @@
-import { Client } from '@stomp/stompjs';
+import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { getToken } from '~/utils/authUtils';
+import { getToken } from '@/utils/authUtils';
 
 class WebSocketService {
-  static instance = null;
+  private static instance: WebSocketService | null = null;
+  private client: Client | null = null;
+  private subscribers: Record<string, (payload: any) => void> = {};
+  private url: string | null = null;
+  private reconnectDelay = 5000;
+  private connected = false;
+  private subscriptionHandles: Record<string, StompSubscription> = {};
+  private onConnectedCallback: (() => void) | null = null;
+  private connectionPromise: Promise<void> | null = null;
 
   constructor() {
     if (WebSocketService.instance) {
       return WebSocketService.instance;
     }
 
-    this.client = null;
-    this.subscribers = {};
     this.url = import.meta.env.VITE_WEBSOCKET_URL || null;
-    this.reconnectDelay = 5000;
-    this.connected = false;
-    this.subscriptionHandles = {};
-    this.onConnectedCallback = null;
-    this.connectionPromise = null;
-
     WebSocketService.instance = this;
   }
 
@@ -26,7 +26,7 @@ class WebSocketService {
    * Get the singleton instance of WebSocketService.
    * Ensures connection readiness before returning the instance.
    */
-  static async getIns() {
+  static async getIns(): Promise<WebSocketService> {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();
     }
@@ -41,7 +41,7 @@ class WebSocketService {
    * Ensure the WebSocket is connected.
    * Returns a promise that resolves when connected.
    */
-  async ensureConnected() {
+  async ensureConnected(): Promise<void> {
     if (this.connected) {
       return;
     }
@@ -66,9 +66,8 @@ class WebSocketService {
 
   /**
    * Connect to the WebSocket server.
-   * @param {Function} onConnected - Callback to execute when connected.
    */
-  connect(onConnected) {
+  connect(onConnected?: () => void): void {
     this.onConnectedCallback = onConnected || this.onConnectedCallback;
 
     if (this.connected) {
@@ -87,10 +86,10 @@ class WebSocketService {
   /**
    * Create the WebSocket client and set up event handlers.
    */
-  createClient() {
+  createClient(): void {
     const token = getToken();
-    this.url = this.url + "?token=" + token;
-    const socket = new SockJS(this.url);
+    const fullUrl = this.url + (token ? '?token=' + token : '');
+    const socket = new SockJS(fullUrl);
     this.client = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {
@@ -120,7 +119,7 @@ class WebSocketService {
   /**
    * Schedule a reconnect attempt after a delay.
    */
-  scheduleReconnect() {
+  scheduleReconnect(): void {
     setTimeout(() => {
       console.log('Attempting to reconnect...');
       this.createClient();
@@ -130,7 +129,7 @@ class WebSocketService {
   /**
    * Handle WebSocket connection and resubscribe to topics.
    */
-  onConnect() {
+  onConnect(): void {
     Object.keys(this.subscribers).forEach((destination) => {
       this.subscribe(destination, this.subscribers[destination]);
     });
@@ -138,10 +137,8 @@ class WebSocketService {
 
   /**
    * Subscribe to a WebSocket topic.
-   * @param {string} destination - Topic to subscribe to.
-   * @param {Function} callback - Callback for received messages.
    */
-  subscribe(destination, callback) {
+  subscribe(destination: string, callback: (payload: any) => void): void {
     if (this.subscriptionHandles[destination]) {
       console.warn(`Already subscribed to ${destination}`);
       return;
@@ -151,13 +148,17 @@ class WebSocketService {
       this.subscribers[destination] = callback;
       const subscription = this.client.subscribe(destination, (message) => {
         if (callback) {
-          const payload = JSON.parse(message.body);
-          callback(payload);
+          try {
+            const payload = JSON.parse(message.body);
+            callback(payload);
+          } catch (e) {
+            console.error('Failed to parse WebSocket message:', e);
+            callback(message.body);
+          }
         }
       });
 
       this.subscriptionHandles[destination] = subscription;
-      this.subscribers[destination] = callback;
       console.log(`Subscribed to ${destination}`);
     } else {
       console.error('WebSocket client not connected. Unable to subscribe.');
@@ -166,9 +167,8 @@ class WebSocketService {
 
   /**
    * Unsubscribe from a WebSocket topic.
-   * @param {string} destination - Topic to unsubscribe from.
    */
-  unsubscribe(destination) {
+  unsubscribe(destination: string): void {
     if (this.subscriptionHandles[destination]) {
       this.subscriptionHandles[destination].unsubscribe();
       delete this.subscriptionHandles[destination];
@@ -181,10 +181,8 @@ class WebSocketService {
 
   /**
    * Send a message to a WebSocket topic.
-   * @param {string} destination - Topic to send the message to.
-   * @param {Object} body - Message body to send.
    */
-  send(destination, body) {
+  send(destination: string, body: any): void {
     if (this.client && this.client.connected) {
       this.client.publish({
         destination,
@@ -199,7 +197,7 @@ class WebSocketService {
   /**
    * Disconnect the WebSocket client.
    */
-  disconnect() {
+  disconnect(): void {
     if (this.client) {
       this.client.deactivate();
       this.subscriptionHandles = {};

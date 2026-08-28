@@ -1,4 +1,4 @@
-import { QUESTION_TYPES } from '~/utils/constants';
+import { QUESTION_TYPES } from '@/utils/constants';
 
 export const testDemoData = {
   id: 202,

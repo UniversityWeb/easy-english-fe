@@ -1,4 +1,4 @@
-import { get, handleResponse } from '~/utils/httpRequest';
+import { get, handleResponse } from '@/lib/axios';
 
 const SUFFIX_ORDER_API_URL = '/orders';
 

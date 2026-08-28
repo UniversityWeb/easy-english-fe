@@ -23,13 +23,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import { formatVNDMoney } from '~/utils/methods';
-import courseStatisticsService from '~/services/courseStatisticsService';
-import config from '~/config';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import { formatVNDMoney } from '@/utils/methods';
+import courseStatisticsService from '@/services/courseStatisticsService';
+import config from '@/config';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUserRole, getUsername } from '~/utils/authUtils';
-import { USER_ROLES } from '~/utils/constants';
+import { getCurrentUserRole, getUsername } from '@/utils/authUtils';
+import { USER_ROLES } from '@/utils/constants';
 
 const CourseBarChartPage = () => {
   const navigate = useNavigate();

@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
   Container,
   Flex,
   Text,
-  Tag,
   Badge,
   VStack,
   HStack,
@@ -13,29 +12,25 @@ import {
 } from '@chakra-ui/react';
 import { CheckIcon, ChatIcon } from '@chakra-ui/icons';
 import './WritingTaskPage.scss';
-import writingService from '~/services/writingService';
-import writingResultService from '~/services/writingResultService';
+import writingResultService from '@/services/writingResultService';
 
-const WritingTaskPage = ({ infoWriting }) => {
+const WritingTaskPage = ({ infoWriting }: any) => {
   const [activeTab, setActiveTab] = useState('original');
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<any>(null);
   const [textSubmit, setTextSubmit] = useState('');
-  const [imageFile, setImageFile] = useState(null);
   const [hasFeedback, setHasFeedback] = useState(false);
   const [isSubmit, setIsSubmit] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Thêm state loading
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleImageClick = () => {
-    inputRef.current.click();
+    inputRef.current?.click();
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
-
-    setImageFile(file);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -49,9 +44,9 @@ const WritingTaskPage = ({ infoWriting }) => {
   };
 
   const submitWriting = async () => {
-    if (isSubmitting) return; // Tránh submit nhiều lần
+    if (isSubmitting) return;
 
-    setIsSubmitting(true); // Bật loading
+    setIsSubmitting(true);
 
     const writingRequest = {
       submittedText: textSubmit,
@@ -66,13 +61,12 @@ const WritingTaskPage = ({ infoWriting }) => {
     } catch (error) {
       console.error('Lỗi khi nộp bài:', error);
     } finally {
-      setIsSubmitting(false); // Tắt loading
+      setIsSubmitting(false);
     }
   };
 
   useEffect(() => {
     const fetchWriting = async () => {
-      debugger;
       const writingRequest = {
         writingTaskId: infoWriting?.id,
       };
@@ -95,15 +89,16 @@ const WritingTaskPage = ({ infoWriting }) => {
             setHasFeedback(false);
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error(error?.message);
       }
     };
 
-    fetchWriting();
+    if (infoWriting?.id) {
+      fetchWriting();
+    }
   }, [infoWriting?.id]);
 
-  console.log('isSubmit ' + isSubmit);
   return (
     <Container maxW="container.xl" bg="#FAE6D8" p={4} borderRadius="md">
       {/* Tabs */}
@@ -153,7 +148,7 @@ const WritingTaskPage = ({ infoWriting }) => {
           width={hasFeedback ? 'auto' : '100%'}
         >
           <Text fontWeight="bold">
-            Word count: {textSubmit?.split(' ').length || 0}/250
+            Word count: {textSubmit ? textSubmit.trim().split(/\s+/).length : 0}/250
           </Text>
           <Box
             border="1px solid #000"
@@ -240,7 +235,7 @@ const WritingTaskPage = ({ infoWriting }) => {
                 <Badge colorScheme="yellow">Grammar</Badge>
                 <Badge colorScheme="green">Vocabulary</Badge>
               </HStack>
-              {data?.errorGrammarAndVocabulary?.map((item, index) => (
+              {data?.errorGrammarAndVocabulary?.map((item: any, index: number) => (
                 <Text key={index} bg="gray.100" p={3} borderRadius="md">
                   {item.error}
                 </Text>

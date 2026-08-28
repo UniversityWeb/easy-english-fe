@@ -21,24 +21,24 @@ import { FaCheckCircle, FaLock, FaStar } from 'react-icons/fa';
 import { ImRadioUnchecked } from 'react-icons/im';
 import { HiOutlineSpeakerWave } from 'react-icons/hi2';
 import { MdRateReview } from 'react-icons/md';
-import sectionService from '~/services/sectionService';
-import lessonService from '~/services/lessonService';
-import testService from '~/services/testService';
-import lessonTrackerService from '~/services/lessonTrackerService';
+import sectionService from '@/services/sectionService';
+import lessonService from '@/services/lessonService';
+import testService from '@/services/testService';
+import lessonTrackerService from '@/services/lessonTrackerService';
 import {
   useLocation,
   useNavigate,
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import { getUsername } from '~/utils/authUtils';
-import { SEC_ITEM_TYPES } from '~/utils/constants';
-import TestPreview from '~/components/Test/TestPreview';
-import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
-import writingService from '~/services/writingService';
+import { getUsername } from '@/utils/authUtils';
+import { SEC_ITEM_TYPES } from '@/utils/constants';
+import TestPreview from '@/components/organisms/TestPreview';
+import NavbarWithBackBtn from '@/components/organisms/NavbarWithBackBtn';
+import writingService from '@/services/writingService';
 import WritingTaskPage from '../Common/WritingTaskPage';
-import enrollmentService from '~/services/enrollmentService';
-import writingResultService from '~/services/writingResultService';
+import enrollmentService from '@/services/enrollmentService';
+import writingResultService from '@/services/writingResultService';
 import RecommendCourse from './RecommendCourse';
 
 const LessonItem = ({

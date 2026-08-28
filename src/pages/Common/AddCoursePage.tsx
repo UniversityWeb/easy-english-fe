@@ -1,5 +1,5 @@
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import Setting from '~/components/Teacher/CourseDetail/Setting';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import Setting from '@/components/organisms/Setting';
 
 const AddCoursePage = () => {
   return (

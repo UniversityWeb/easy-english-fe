@@ -1,4 +1,4 @@
-import { del, get, post, put } from '~/utils/httpRequest';
+import { del, get, post, put } from '@/lib/axios';
 
 const SUFFIX_CATEGORY_API_URL = '/categories';
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   ChakraProvider,
@@ -14,29 +14,28 @@ import {
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { getDataCourseAll } from '~/store/courseSlice';
+import { getDataCourseAll } from '@/store/courseSlice';
 import { useNavigate } from 'react-router-dom';
-import enrollmentService from '~/services/enrollmentService';
+import enrollmentService from '@/services/enrollmentService';
 
 function RecommendCourse() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
   const dispatch = useDispatch();
-  const { courseDataAll } = useSelector((state) => state.course);
+  const { courseDataAll } = useSelector((state: any) => state.course);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isEmpty(courseDataAll)) {
-      dispatch(getDataCourseAll());
+      dispatch(getDataCourseAll() as any);
     }
   }, [dispatch, courseDataAll]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch enrolled courses
         const courseRequest = {
           pageNumber: 0,
           size: 1000,
@@ -50,13 +49,10 @@ function RecommendCourse() {
         const enrollResponse =
           await enrollmentService.getEnrollByFilter(courseRequest);
 
-        // Extract enrolled course IDs
-        debugger;
         const enrolledCourseIds =
-          enrollResponse?.content?.map((enrollment) => enrollment.id) || [];
+          enrollResponse?.content?.map((enrollment: any) => enrollment.id) || [];
         setEnrolledCourses(enrolledCourseIds);
 
-        // Fetch recommendations
         const recommendationResponse = await axios.get(
           'http://localhost:8000/recommendations/vanan',
         );
@@ -72,14 +68,12 @@ function RecommendCourse() {
     fetchData();
   }, []);
 
-  // Function to get course details by course_id
-  const getCourseDetails = (courseId) => {
+  const getCourseDetails = (courseId: any) => {
     if (!courseDataAll || courseDataAll.length === 0) return null;
-    return courseDataAll.find((course) => course.id === courseId);
+    return courseDataAll.find((course: any) => course.id === courseId);
   };
 
-  // Function to check if course is already enrolled
-  const isCourseEnrolled = (courseId) => {
+  const isCourseEnrolled = (courseId: any) => {
     return enrolledCourses.includes(courseId);
   };
 
@@ -107,20 +101,17 @@ function RecommendCourse() {
     );
   }
 
-  const { recommendations } = data;
+  const recommendations = data?.recommendations || [];
 
-  // Filter recommendations to only show courses that:
-  // 1. Have matching course details (have id)
-  // 2. Are NOT already enrolled by the user
   const validRecommendations =
-    recommendations?.filter((recommendation) => {
+    recommendations.filter((recommendation: any) => {
       const courseDetails = getCourseDetails(recommendation.course_id);
       const hasValidDetails =
         courseDetails !== null && courseDetails !== undefined;
       const isNotEnrolled = !isCourseEnrolled(recommendation.course_id);
 
       return hasValidDetails && isNotEnrolled;
-    }) || [];
+    });
 
   return (
     <ChakraProvider>
@@ -136,7 +127,7 @@ function RecommendCourse() {
         </Box>
 
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {validRecommendations.map((recommendation) => {
+          {validRecommendations.map((recommendation: any) => {
             const courseDetails = getCourseDetails(recommendation.course_id);
 
             return (
@@ -150,7 +141,6 @@ function RecommendCourse() {
                 transition="all 0.2s"
                 bg="white"
               >
-                {/* Course Image */}
                 {courseDetails?.imagePreview && (
                   <Image
                     src={courseDetails.imagePreview}
@@ -163,17 +153,14 @@ function RecommendCourse() {
                   />
                 )}
 
-                {/* Course Title */}
                 <Heading size="md" mb={3} noOfLines={2} minH="3em">
-                  {courseDetails.title}
+                  {courseDetails?.title}
                 </Heading>
 
-                {/* Instructor */}
                 <Text fontSize="sm" color="gray.600" mb={4}>
                   Instructor: {courseDetails?.owner?.fullName || 'Unknown'}
                 </Text>
 
-                {/* Action Button */}
                 <Button
                   colorScheme="blue"
                   size="md"
@@ -189,7 +176,6 @@ function RecommendCourse() {
           })}
         </SimpleGrid>
 
-        {/* No recommendations message */}
         {validRecommendations.length === 0 && (
           <Box textAlign="center" py={8}>
             <Text color="gray.500">

@@ -1,4 +1,4 @@
-import { post, put } from '~/utils/httpRequest';
+import { post, put } from '@/lib/axios';
 
 const SUFFIX_PAYMENT_API_URL = '/payment';
 

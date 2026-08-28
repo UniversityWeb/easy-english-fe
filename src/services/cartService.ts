@@ -1,5 +1,5 @@
-import { get, post, put } from '~/utils/httpRequest';
-import { type ICartItem } from '~/types';
+import { get, post, put } from '@/lib/axios';
+import { type ICartItem } from '@/types';
 
 const SUFFIX_CART_API_URL = '/cart';
 

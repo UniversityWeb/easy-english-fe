@@ -1,4 +1,4 @@
-import { get, post, put, del } from '~/utils/httpRequest';
+import { get, post, put, del } from '@/lib/axios';
 
 const SUFFIX_BUNDLE_API_URL = '/bundles';
 

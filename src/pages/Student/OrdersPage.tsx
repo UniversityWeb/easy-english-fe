@@ -15,13 +15,13 @@ import {
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import orderService from '~/services/orderService';
-import useCustomToast from '~/hooks/useCustomToast';
-import { getUsername } from '~/utils/authUtils';
-import { delayLoading, formatDate, formatVNDMoney } from '~/utils/methods';
-import { DEFAULT_LIST_SIZE, getOrdersTabStatusByIndex, SAVED_ORDERS_TAB_INDEX_KEY } from '~/utils/constants';
-import config from '~/config';
-import StudentPageLayout from '~/components/StudentPageLayout';
+import orderService from '@/services/orderService';
+import useCustomToast from '@/hooks/useCustomToast';
+import { getUsername } from '@/utils/authUtils';
+import { delayLoading, formatDate, formatVNDMoney } from '@/utils/methods';
+import { DEFAULT_LIST_SIZE, getOrdersTabStatusByIndex, SAVED_ORDERS_TAB_INDEX_KEY } from '@/utils/constants';
+import config from '@/config';
+import StudentPageLayout from '@/components/organisms/StudentPageLayout';
 
 const OrdersPage = () => {
   const username = getUsername();

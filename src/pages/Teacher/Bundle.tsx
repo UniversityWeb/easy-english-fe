@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Heading, Flex, Button, Box } from '@chakra-ui/react';
-import { getDataCourse } from '~/store/courseSlice';
+import { getDataCourse } from '@/store/courseSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 
-import bundleService from '~/services/bundleService';
-import { CourseBundle } from '~/components/Teacher/Bundle/CourseBundle';
+import bundleService from '@/services/bundleService';
+import { CourseBundle } from '@/components/organisms/CourseBundle';
 import { useNavigate } from 'react-router-dom';
-import config from '~/config';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import config from '@/config';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
 
 const BundleList = () => {
   const [hoveredBundle, setHoveredBundle] = useState(null);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, Tab, TabList, TabPanel, TabPanels, Tabs, Text, VStack } from '@chakra-ui/react';
-import NavbarForStudent from '~/components/Navbars/NavbarForStudent';
-import Footer from '~/components/Footer';
+import NavbarForStudent from '@/components/organisms/NavbarForStudent';
+import Footer from '@/components/organisms/Footer';
 
 const PreviewTestPage = ({ test, onStart }) => {
   return (

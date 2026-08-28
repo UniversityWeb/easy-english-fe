@@ -19,16 +19,16 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
-import GoogleIcon from '~/assets/icons/GoogleIcon.svg';
+import TransientAppLogo from '@/assets/images/TransientAppLogo.svg';
+import GoogleIcon from '@/assets/icons/GoogleIcon.svg';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import config from '~/config';
-import AuthService from '~/services/authService';
-import { USER_ROLES, USER_STATUSES } from '~/utils/constants';
+import config from '@/config';
+import AuthService from '@/services/authService';
+import { USER_ROLES, USER_STATUSES } from '@/utils/constants';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import useCustomToast from '~/hooks/useCustomToast';
-import { isLoggedIn } from '~/utils/authUtils';
+import useCustomToast from '@/hooks/useCustomToast';
+import { isLoggedIn } from '@/utils/authUtils';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -37,9 +37,9 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { successToast, errorToast, warningToast } = useCustomToast();
   const [isLogging, setIsLogging] = useState(false);
-  const passwordInputRef = useRef(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  const navigateByRole = useCallback((role) => {
+  const navigateByRole = useCallback((role: string) => {
     if (role === USER_ROLES.STUDENT) {
       navigate(config.routes.homepage);
     } else if (role === USER_ROLES.TEACHER) {
@@ -56,9 +56,9 @@ const LoginPage = () => {
     if (isLoggedIn()) {
       AuthService.getCurUser()
         .then((user) => {
-          if (user) {
+          if (user?.role) {
             // Navigate based on user role
-            navigateByRole(user?.role);
+            navigateByRole(user.role);
           }
         })
         .catch((err) => {
@@ -67,14 +67,14 @@ const LoginPage = () => {
     }
   }, [navigateByRole]);
 
-  const handleLogin = async (event) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     localStorage.clear();
 
-    setUsernameOrEmail(usernameOrEmail?.trim());
-    setPassword(password?.trim());
+    const trimmedUser = usernameOrEmail?.trim();
+    const trimmedPass = password?.trim();
 
-    if (usernameOrEmail === '' || password === '') {
+    if (!trimmedUser || !trimmedPass) {
       warningToast(`Please fill in both the username and password fields`);
       return;
     }
@@ -82,8 +82,8 @@ const LoginPage = () => {
     setIsLogging(true); // Start loading
 
     const loginRequest = {
-      usernameOrEmail: `${usernameOrEmail}`,
-      password: `${password}`,
+      usernameOrEmail: trimmedUser,
+      password: trimmedPass,
     };
 
     try {
@@ -102,8 +102,10 @@ const LoginPage = () => {
 
       successToast(`Login successfully`);
       const user = loginResponse?.user;
-      navigateByRole(user?.role);
-    } catch (e) {
+      if (user?.role) {
+        navigateByRole(user.role);
+      }
+    } catch (e: any) {
       errorToast(e?.message);
     } finally {
       setIsLogging(false);
@@ -114,10 +116,9 @@ const LoginPage = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleGoogleSuccess = async (response) => {
+  const handleGoogleSuccess = async (response: any) => {
     localStorage.clear();
 
-    // Send the response token to your Spring Boot backend for validation
     setIsLogging(true);
     try {
       const loginResponse = await AuthService.loginWithGoogle(
@@ -133,8 +134,10 @@ const LoginPage = () => {
 
       successToast(`Login successfully`);
       const user = loginResponse?.user;
-      navigateByRole(user?.role);
-    } catch (e) {
+      if (user?.role) {
+        navigateByRole(user.role);
+      }
+    } catch (e: any) {
       errorToast('Failed to login with Google');
       console.error(e);
     } finally {
@@ -142,21 +145,20 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleFailure = (response) => {
+  const handleGoogleFailure = (response: any) => {
     errorToast('Google login failed');
     console.error(response);
   };
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-  const handleKeyDownForUsernameBox = (e) => {
+  const handleKeyDownForUsernameBox = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      // When Enter is pressed, focus on the password input
-      passwordInputRef.current.focus();
+      passwordInputRef.current?.focus();
     }
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       handleLogin(event);
     }
@@ -164,7 +166,7 @@ const LoginPage = () => {
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <Center>
+      <Center minH="100vh" w="100%" py={8}>
         <VStack spacing={4} align="center">
           <Image boxSize="200px" src={TransientAppLogo} alt="Logo" />
           <Heading size="md">Login in to your account</Heading>
