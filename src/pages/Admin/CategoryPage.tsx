@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -25,68 +25,65 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import Pagination from '~/components/Student/Search/Page'; // Import the Pagination component
-import categoryService from '~/services/categoryService';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout'; // Import the category service
+import Pagination from '@/components/organisms/Page';
+import categoryService from '@/services/categoryService';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
 
-// Hardcoded details for categories (to be used in API response)
 const defaultCategoryDetails = {
   description: 'Category detail',
   courses: 10,
   earnings: '$1000',
-  image: 'http://10.147.20.214:9000/easy-english/image/course2.jpg',
+  image: 'https://10.147.20.214:9000/easy-english/image/course2.jpg',
 };
 
 const CategoryPage = () => {
-  // State for categories
-  const [categories, setCategories] = useState([]);
-
-  // State for pagination
+  const [categories, setCategories] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8); // Default items per page
-
-  // State for search input and search result
+  const [itemsPerPage, setItemsPerPage] = useState(8);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-
-  // State for modal (add/update categories)
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [categoryData, setCategoryData] = useState({
+  const [categoryData, setCategoryData] = useState<{ id: any; name: string; description: string }>({
     id: null,
     name: '',
     description: '',
   });
 
-  // Fetch categories from the API on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       const fetchedCategories = await categoryService.fetchAllCategory();
       if (fetchedCategories) {
-        const enrichedCategories = fetchedCategories.map((category) => ({
+        const enrichedCategories = fetchedCategories.map((category: any) => ({
           ...category,
         }));
         setCategories(enrichedCategories);
-        setSearchResults(enrichedCategories); // Initialize search results
+        setSearchResults(enrichedCategories);
       }
     };
 
     fetchCategories();
   }, []);
 
-  // Handle search logic
   const handleSearch = () => {
     const filteredCategories = categories.filter((category) =>
       category.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setSearchResults(filteredCategories);
-    setCurrentPage(1); // Reset to first page after search
+    setCurrentPage(1);
   };
 
-  // Handle Add/Edit CategoryPage
+  const resetCategoryData = () => {
+    setCategoryData({
+      id: null,
+      name: '',
+      description: '',
+    });
+    setIsEditMode(false);
+  };
+
   const handleAddCategory = async () => {
     if (isEditMode) {
-      // Update category
       const updatedCategory = await categoryService.updateCategory(
         categoryData.id,
         categoryData,
@@ -98,10 +95,9 @@ const CategoryPage = () => {
             : cat,
         );
         setCategories(updatedCategories);
-        setSearchResults(updatedCategories); // Update search results
+        setSearchResults(updatedCategories);
       }
     } else {
-      // Add new category
       const newCategory = await categoryService.createCategory(categoryData);
       if (newCategory) {
         const newCategories = [
@@ -109,46 +105,32 @@ const CategoryPage = () => {
           { ...newCategory, ...defaultCategoryDetails },
         ];
         setCategories(newCategories);
-        setSearchResults(newCategories); // Update search results
+        setSearchResults(newCategories);
       }
     }
     onClose();
     resetCategoryData();
   };
 
-  // Handle Edit Button Click
-  const handleEditCategory = (category) => {
+  const handleEditCategory = (category: any) => {
     setIsEditMode(true);
     setCategoryData(category);
     onOpen();
   };
 
-  // Handle Delete CategoryPage
-  const handleDeleteCategory = async (categoryId) => {
+  const handleDeleteCategory = async (categoryId: any) => {
     const success = await categoryService.deleteCategory(categoryId);
     if (success) {
       const updatedCategories = categories.filter(
         (cat) => cat.id !== categoryId,
       );
       setCategories(updatedCategories);
-      setSearchResults(updatedCategories); // Update search results
+      setSearchResults(updatedCategories);
     }
   };
 
-  // Reset category data
-  const resetCategoryData = () => {
-    setCategoryData({
-      id: null,
-      name: '',
-      description: '',
-    });
-    setIsEditMode(false);
-  };
-
-  // Calculate total pages based on search results
   const totalPages = Math.ceil(searchResults.length / itemsPerPage);
 
-  // Determine the categories to display on the current page
   const currentCategories = searchResults.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
@@ -157,7 +139,6 @@ const CategoryPage = () => {
   return (
     <RoleBasedPageLayout>
       <Box p={5} mt={10}>
-        {/* Header: Add CategoryPage Button (left) and Search Bar (right) */}
         <HStack justify="space-between" mb={4}>
           <Button
             colorScheme="blue"
@@ -181,7 +162,6 @@ const CategoryPage = () => {
           </HStack>
         </HStack>
 
-        {/* CategoryPage table */}
         <Table variant="simple" mt={5}>
           <Thead>
             <Tr>
@@ -241,7 +221,6 @@ const CategoryPage = () => {
           </Tbody>
         </Table>
 
-        {/* Pagination controls */}
         <Pagination
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
@@ -250,12 +229,11 @@ const CategoryPage = () => {
           totalPages={totalPages}
         />
 
-        {/* Modal for Adding/Editing CategoryPage */}
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              {isEditMode ? 'Edit CategoryPage' : 'Add CategoryPage'}
+              {isEditMode ? 'Edit Category' : 'Add Category'}
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
@@ -286,7 +264,7 @@ const CategoryPage = () => {
 
             <ModalFooter>
               <Button colorScheme="blue" mr={3} onClick={handleAddCategory}>
-                {isEditMode ? 'Update CategoryPage' : 'Add CategoryPage'}
+                {isEditMode ? 'Update Category' : 'Add Category'}
               </Button>
               <Button variant="ghost" onClick={onClose}>
                 Cancel

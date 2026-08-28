@@ -5,17 +5,19 @@ import {
   Route,
   Routes,
 } from 'react-router-dom';
-import { publicRoutes } from '~/routes';
-import DefaultLayout from '~/layouts/DefaultLayout';
+import { publicRoutes } from '@/routes';
+import DefaultLayout from '@/layouts/DefaultLayout';
 import { ChakraProvider } from '@chakra-ui/react';
-import customTheme from '~/themes/customTheme';
-import NotFound from '~/components/NotFound';
-import config from '~/config';
-import LoaderPage from '~/components/LoaderPage';
-import WebSocketService from '~/services/websocketService';
+import customTheme from '@/themes/customTheme';
+import NotFound from '@/components/organisms/NotFound';
+import config from '@/config';
+import LoaderPage from '@/components/atoms/LoaderPage';
+import WebSocketService from '@/services/websocketService';
 import { Provider } from 'react-redux';
-import store from './store/store';
-import ProtectedRoute from './components/ProtectedRoute';
+import store from '@/store/store';
+import ProtectedRoute from '@/components/organisms/ProtectedRoute';
+import { isLoggedIn } from '@/utils/authUtils';
+import userService from '@/services/userService';
 
 interface RouteConfig {
   path: string;
@@ -45,6 +47,25 @@ function App() {
         console.log('WebSocket disconnected');
       }
     };
+  }, []);
+
+  // Ping online status every 60 seconds if logged in
+  useEffect(() => {
+    const pingStatus = () => {
+      if (isLoggedIn()) {
+        userService.pingOnlineStatus().catch((err) => {
+          console.error('Failed to ping online status:', err);
+        });
+      }
+    };
+
+    // Initial ping when app loads
+    pingStatus();
+
+    // Setup interval
+    const intervalId = setInterval(pingStatus, 60000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (

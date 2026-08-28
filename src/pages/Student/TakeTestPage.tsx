@@ -10,13 +10,13 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import TakeTestHeader from '~/components/Test/TakeTest/TakeTestHeader';
-import TakeTestFooter from '~/components/Test/TakeTest/TakeTestFooter';
-import TakeTestPart from '~/components/Test/TakeTest/TakeTestPart';
-import { getTest, saveQuestionState, saveTest } from '~/utils/testUtils';
+import TakeTestHeader from '@/components/organisms/TakeTestHeader';
+import TakeTestFooter from '@/components/organisms/TakeTestFooter';
+import TakeTestPart from '@/components/organisms/TakeTestPart';
+import { getTest, saveQuestionState, saveTest } from '@/utils/testUtils';
 import { useNavigate, useParams } from 'react-router-dom'; // Import useNavigate for navigation
-import testService from '~/services/testService';
-import config from '~/config';
+import testService from '@/services/testService';
+import config from '@/config';
 
 const TakeTestPage = () => {
   const { testId } = useParams();

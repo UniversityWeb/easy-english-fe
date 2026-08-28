@@ -17,11 +17,11 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import paymentService from '~/services/paymentService';
-import useCustomToast from '~/hooks/useCustomToast';
+import paymentService from '@/services/paymentService';
+import useCustomToast from '@/hooks/useCustomToast';
 import { CheckCircleIcon, Icon } from '@chakra-ui/icons';
-import StudentPageLayout from '~/components/StudentPageLayout';
-import config from '~/config';
+import StudentPageLayout from '@/components/organisms/StudentPageLayout';
+import config from '@/config';
 
 const PaymentDetails = ({ paymentData }) => {
   // Function to format currency in Vietnamese format

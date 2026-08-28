@@ -1,4 +1,4 @@
-import { get, put } from '~/utils/httpRequest';
+import { get, put } from '@/lib/axios';
 
 const SUFFIX_DRIP_API_URL = '/drips';
 const canLearn = async (targetType, targetId) => {

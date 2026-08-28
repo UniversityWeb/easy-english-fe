@@ -1,4 +1,4 @@
-import { post } from '~/utils/httpRequest'; // Removed unused imports
+import { post } from '@/lib/axios'; // Removed unused imports
 
 const SUFFIX_LESSON_API_URL = '/lesson';
 

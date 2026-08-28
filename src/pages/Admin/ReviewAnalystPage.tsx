@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Button,
@@ -28,7 +27,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import { FiCalendar, FiSettings } from 'react-icons/fi';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
 
 ChartJS.register(
   CategoryScale,
@@ -69,13 +68,13 @@ const reviewData = {
       label: 'Reviews',
       data: [0, 0, 0, 1, 0, 6, 3, 4, 6, 5, 2, 4, 5, 6, 3, 2, 5, 6, 3, 4, 5],
       fill: true,
-      backgroundColor: 'rgba(54, 162, 235, 0.2)', // Light blue fill
-      borderColor: 'rgba(54, 162, 235, 1)', // Blue line
-      borderWidth: 1.5, // Thinner line
-      pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Blue points
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1.5,
+      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
       pointBorderColor: '#fff',
-      pointRadius: 6, // Larger points
-      pointHoverRadius: 8, // Larger hover points
+      pointRadius: 6,
+      pointHoverRadius: 8,
     },
   ],
 };
@@ -107,10 +106,10 @@ const reviewTypeData = {
   datasets: [
     {
       label: '1 star',
-      data: [0, 0, 0, 0, 0, 1, 0, 0, 0, , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      data: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       borderColor: 'purple',
       borderWidth: 1.5,
-      pointBackgroundColor: 'purple', // Bold purple points
+      pointBackgroundColor: 'purple',
       pointBorderColor: '#fff',
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -120,7 +119,7 @@ const reviewTypeData = {
       data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       borderColor: 'red',
       borderWidth: 1.5,
-      pointBackgroundColor: 'red', // Bold red points
+      pointBackgroundColor: 'red',
       pointBorderColor: '#fff',
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -130,7 +129,7 @@ const reviewTypeData = {
       data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       borderColor: 'orange',
       borderWidth: 1.5,
-      pointBackgroundColor: 'orange', // Bold orange points
+      pointBackgroundColor: 'orange',
       pointBorderColor: '#fff',
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -140,7 +139,7 @@ const reviewTypeData = {
       data: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1, 0, 0, 1, 0, 0, 1, 2, 2],
       borderColor: 'green',
       borderWidth: 1.5,
-      pointBackgroundColor: 'green', // Bold green points
+      pointBackgroundColor: 'green',
       pointBorderColor: '#fff',
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -150,7 +149,7 @@ const reviewTypeData = {
       data: [0, 0, 0, 0, 0, 5, 2, 4, 6, 4, 1, 2, 4, 6, 3, 1, 5, 6, 3, 2, 3],
       borderColor: 'blue',
       borderWidth: 1.5,
-      pointBackgroundColor: 'blue', // Bold blue points
+      pointBackgroundColor: 'blue',
       pointBorderColor: '#fff',
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -158,18 +157,17 @@ const reviewTypeData = {
   ],
 };
 
-// Chart options to only show horizontal grid lines
 const chartOptions = {
   scales: {
     x: {
       grid: {
-        drawOnChartArea: false, // Hides vertical grid lines
+        drawOnChartArea: false,
       },
     },
     y: {
       grid: {
         display: true,
-        color: 'rgba(200, 200, 200, 0.5)', // Light gray grid lines
+        color: 'rgba(200, 200, 200, 0.5)',
       },
     },
   },
@@ -199,14 +197,13 @@ const ReviewReport = () => {
         </HStack>
 
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-          {/* Review Chart */}
           <GridItem>
             <Box
               p={5}
               bg="gray.50"
               rounded="md"
               shadow="md"
-              style={{ boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }} // Shadow effect
+              style={{ boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}
             >
               <Text fontSize="lg" fontWeight="bold" mb={3}>
                 Reviews <span style={{ float: 'right' }}>52</span>
@@ -215,14 +212,13 @@ const ReviewReport = () => {
             </Box>
           </GridItem>
 
-          {/* Review Types Chart */}
           <GridItem>
             <Box
               p={5}
               bg="gray.50"
               rounded="md"
               shadow="md"
-              style={{ boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }} // Shadow effect
+              style={{ boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}
             >
               <Text fontSize="lg" fontWeight="bold" mb={3}>
                 Review types
@@ -231,7 +227,6 @@ const ReviewReport = () => {
             </Box>
           </GridItem>
 
-          {/* Top reviewed courses */}
           <GridItem colSpan={1}>
             <Box p={5} bg={tableBg} rounded="md" shadow="md">
               <Text fontSize="lg" fontWeight="bold" mb={3}>
@@ -287,7 +282,6 @@ const ReviewReport = () => {
             </Box>
           </GridItem>
 
-          {/* Top reviewers */}
           <GridItem colSpan={1}>
             <Box p={5} bg={tableBg} rounded="md" shadow="md">
               <Text fontSize="lg" fontWeight="bold" mb={3}>

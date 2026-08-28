@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Badge, Box, Container, Flex, Image, Spinner, Text } from '@chakra-ui/react';
 import orderService from '../../services/orderService';
-import { formatDate, formatVNDMoney } from '~/utils/methods';
-import StudentPageLayout from '~/components/StudentPageLayout';
-import config from '~/config';
+import { formatDate, formatVNDMoney } from '@/utils/methods';
+import StudentPageLayout from '@/components/organisms/StudentPageLayout';
+import config from '@/config';
 
 const OrderDetailPage = () => {
   const { orderId } = useParams();

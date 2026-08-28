@@ -1,4 +1,4 @@
-import { del, get, handleResponse, post } from '~/utils/httpRequest';
+import { del, get, handleResponse, post } from '@/lib/axios';
 
 const SUFFIX_TEST_RESULT_API_URL = '/test-results';
 

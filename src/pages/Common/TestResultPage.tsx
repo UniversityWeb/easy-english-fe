@@ -21,10 +21,10 @@ import {
   HiOutlineTrophy,
 } from 'react-icons/hi2';
 import { useNavigate, useParams } from 'react-router-dom';
-import testResultService from '~/services/testResultService';
-import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
-import config from '~/config';
-import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
+import testResultService from '@/services/testResultService';
+import QuestionItem from '@/components/organisms/TestReadOnlyQuestionQuestionItem';
+import config from '@/config';
+import NavbarWithBackBtn from '@/components/organisms/NavbarWithBackBtn';
 
 const TestResultPage = () => {
   const { testResultId } = useParams();

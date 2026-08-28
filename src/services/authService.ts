@@ -1,7 +1,7 @@
-import { getToken, isLoggedIn, saveLoginResponse } from '~/utils/authUtils';
-import { get, handleResponse, post, put } from '~/utils/httpRequest';
-import { USER_STATUSES } from '~/utils/constants';
-import { type IUser } from '~/types';
+import { getToken, isLoggedIn, saveLoginResponse } from '@/utils/authUtils';
+import { get, handleResponse, post, put } from '@/lib/axios';
+import { USER_STATUSES } from '@/utils/constants';
+import { type IUser } from '@/types';
 
 const SUFFIX_AUTH_API_URL = '/auth';
 

@@ -1,4 +1,4 @@
-import { del, get, post } from '~/utils/httpRequest'; // Removed unused imports
+import { del, get, post } from '@/lib/axios'; // Removed unused imports
 
 const SUFFIX_FAVOURITE_API_URL = '/favourites';
 

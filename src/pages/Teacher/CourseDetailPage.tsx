@@ -16,16 +16,16 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import Curriculum from '~/components/Teacher/CourseDetail/Curriculum';
-import Drip from '~/components/Teacher/CourseDetail/Drip';
-import Settings from '~/components/Teacher/CourseDetail/Setting';
-import Pricing from '~/components/Teacher/CourseDetail/Pricing';
-import FAQ from '~/components/Teacher/CourseDetail/Faq';
-import Notice from '~/components/Teacher/CourseDetail/Notice';
-import config from '~/config';
-import courseService from '~/services/courseService';
-import useCustomToast from '~/hooks/useCustomToast';
-import { COURSE_STATUS } from '~/utils/constants';
+import Curriculum from '@/components/organisms/TeacherCourseDetailCurriculum';
+import Drip from '@/components/organisms/Drip';
+import Settings from '@/components/organisms/Setting';
+import Pricing from '@/components/organisms/Pricing';
+import FAQ from '@/components/organisms/Faq';
+import Notice from '@/components/organisms/Notice';
+import config from '@/config';
+import courseService from '@/services/courseService';
+import useCustomToast from '@/hooks/useCustomToast';
+import { COURSE_STATUS } from '@/utils/constants';
 
 function CourseDetailPage() {
   const { successToast, errorToast } = useCustomToast();

@@ -1,5 +1,5 @@
-import { get, handleResponse, post, put } from '~/utils/httpRequest'; // Removed unused imports
-import { type ICourse, type IPaginatedResponse } from '~/types';
+import { get, handleResponse, post, put } from '@/lib/axios'; // Removed unused imports
+import { type ICourse, type IPaginatedResponse } from '@/types';
 
 const SUFFIX_COURSE_API_URL = '/course';
 

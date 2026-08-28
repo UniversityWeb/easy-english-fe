@@ -1,4 +1,4 @@
-import { post } from '~/utils/httpRequest';
+import { post } from '@/lib/axios';
 
 const SUFFIX_SECTION_API_URL = '/section';
 

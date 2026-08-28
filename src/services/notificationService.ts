@@ -1,4 +1,4 @@
-import { get, handleResponse, post, put } from '~/utils/httpRequest';
+import { get, handleResponse, post, put } from '@/lib/axios';
 
 const SUFFIX_NOTIFICATION_API_URL = '/notifications';
 

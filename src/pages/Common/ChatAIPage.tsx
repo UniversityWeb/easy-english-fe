@@ -10,9 +10,9 @@ import {
   Spinner,
   useToast,
 } from '@chakra-ui/react';
-import writingResultService from '~/services/writingResultService';
+import writingResultService from '@/services/writingResultService';
 import ReactMarkdown from 'react-markdown';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
 
 const theme = extendTheme({
   styles: {

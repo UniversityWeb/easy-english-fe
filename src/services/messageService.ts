@@ -1,4 +1,4 @@
-import { get, post, handleResponse } from '~/utils/httpRequest';
+import { get, post, del, handleResponse } from '@/lib/axios';
 
 const SUFFIX_NOTIFICATION_API_URL = '/messages';
 
@@ -35,10 +35,21 @@ const send = async (msgReq) => {
   return handleResponse(response, 200);
 };
 
+const deleteMessage = async (id: string, type: string) => {
+  const path = `${SUFFIX_NOTIFICATION_API_URL}/${id}`;
+  const response = await del(path, {
+    params: {
+      type: type,
+    },
+  });
+  return handleResponse(response, 200);
+};
+
 const messageService = {
   getAllMessages,
   getRecentChats,
   send,
+  deleteMessage,
 };
 
 export default messageService;

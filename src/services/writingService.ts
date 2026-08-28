@@ -1,4 +1,4 @@
-import { get, post, put, del } from '~/utils/httpRequest';
+import { get, post, put, del } from '@/lib/axios';
 
 const SUFFIX_WRITING_TASK_API_URL = '/writing-tasks';
 

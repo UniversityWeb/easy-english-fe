@@ -17,23 +17,76 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 import { FaBook, FaClock, FaGlobe } from 'react-icons/fa';
-import CourseCard from '~/components/Student/Search/CourseCard';
-import courseStatisticsService from '~/services/courseStatisticsService';
+import CourseCard from '@/components/organisms/StudentSearchCourseCard';
+import courseStatisticsService from '@/services/courseStatisticsService';
+import priceService from '@/services/priceService';
+import topicService from '@/services/topicService';
+import levelService from '@/services/levelService';
 import { useNavigate } from 'react-router-dom';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import config from '~/config';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import config from '@/config';
 
 const Home = () => {
-  const [courses, setCourses] = useState([]);
-  const [hoveredCourseId, setHoveredCourseId] = useState(null);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [hoveredCourseId, setHoveredCourseId] = useState<any>(null);
   const [showTestAlert, setShowTestAlert] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await courseStatisticsService.getTopCourse();
-        setCourses(response.content || []);
+        const [response, topicsData, levelsData] = await Promise.all([
+          courseStatisticsService.getTopCourse(),
+          topicService.fetchAllTopic().catch(() => []),
+          levelService.fetchAllLevel().catch(() => []),
+        ]);
+
+        const rawCourses = response?.content || [];
+        const topicsMap = new Map((topicsData || []).map((t: any) => [t.id, t.name]));
+        const levelsMap = new Map((levelsData || []).map((l: any) => [l.id, l.name]));
+
+        const enrichedCourses = await Promise.all(
+          rawCourses.map(async (course: any) => {
+            let coursePrice = course.price;
+            if (!coursePrice || coursePrice.price == null) {
+              try {
+                const fetchedPrice = await priceService.fetchPriceByCourse({
+                  courseId: course.id,
+                });
+                if (fetchedPrice && fetchedPrice.price != null) {
+                  coursePrice = fetchedPrice;
+                }
+              } catch (err) {
+                // Ignore fallback error
+              }
+            }
+
+            const topicName =
+              course.topic?.name ||
+              (course.topic?.id ? topicsMap.get(course.topic.id) : null) ||
+              course.topic?.name;
+
+            const levelName =
+              course.level?.name ||
+              (course.level?.id ? levelsMap.get(course.level.id) : null) ||
+              course.level?.name;
+
+            return {
+              ...course,
+              price: coursePrice,
+              topic: {
+                ...course.topic,
+                name: topicName,
+              },
+              level: {
+                ...course.level,
+                name: levelName,
+              },
+            };
+          }),
+        );
+
+        setCourses(enrichedCourses);
       } catch (error) {
         console.error('Error fetching courses:', error);
       }

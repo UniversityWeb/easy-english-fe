@@ -1,4 +1,4 @@
-import { post } from '~/utils/httpRequest';
+import { post } from '@/lib/axios';
 
 const SUFFIX_FAQ_API_URL = '/faq';
 

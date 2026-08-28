@@ -18,21 +18,21 @@ import {
   Text,
   Textarea,
 } from '@chakra-ui/react';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import userService from '~/services/userService';
-import UploadAvatar from '~/components/User/UploadAvatar';
-import AuthService from '~/services/authService';
-import authService from '~/services/authService';
-import useCustomToast from '~/hooks/useCustomToast';
-import VerifyOtpModal from '~/components/VerifyOtpModal';
-import { validatePassword } from '~/utils/methods';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import userService from '@/services/userService';
+import UploadAvatar from '@/components/organisms/UploadAvatar';
+import AuthService from '@/services/authService';
+import authService from '@/services/authService';
+import useCustomToast from '@/hooks/useCustomToast';
+import VerifyOtpModal from '@/components/organisms/VerifyOtpModal';
+import { validatePassword } from '@/utils/methods';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import ValidationErrors from '~/components/ValidationErrors';
-import UserSettings from '~/components/UserSettings';
+import ValidationErrors from '@/components/atoms/ValidationErrors';
+import UserSettings from '@/components/organisms/UserSettings';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '~/components/LanguageSwitcher';
-import { USER_ROLES } from '~/utils/constants';
-import { getCurrentUserRole } from '~/utils/authUtils';
+import LanguageSwitcher from '@/components/atoms/LanguageSwitcher';
+import { USER_ROLES } from '@/utils/constants';
+import { getCurrentUserRole } from '@/utils/authUtils';
 
 const UpdatePassword = () => {
   const { t } = useTranslation();

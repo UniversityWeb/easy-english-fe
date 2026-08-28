@@ -23,10 +23,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { SearchIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import { getCurrentUserRole, getUsername } from '~/utils/authUtils';
-import enrollmentService from '~/services/enrollmentService';
-import { USER_ROLES } from '~/utils/constants';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import { getCurrentUserRole, getUsername } from '@/utils/authUtils';
+import enrollmentService from '@/services/enrollmentService';
+import { USER_ROLES } from '@/utils/constants';
 
 function Gradebook() {
   const [courses, setCourses] = useState([]);

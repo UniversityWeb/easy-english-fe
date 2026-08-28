@@ -20,11 +20,11 @@ import {
 } from '@chakra-ui/react';
 import { RiDeleteBinFill } from 'react-icons/ri';
 import { PiPencilSimpleFill } from 'react-icons/pi';
-import ProfileEdit from '~/components/Admin/UserManagement/UserDetail';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import userService from '~/services/userService'; // Import the service
-import Pagination from '~/components/Student/Search/Page';
-import useCustomToast from '~/hooks/useCustomToast';
+import ProfileEdit from '@/components/organisms/UserDetail';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import userService from '@/services/userService'; // Import the service
+import Pagination from '@/components/organisms/Page';
+import useCustomToast from '@/hooks/useCustomToast';
 
 const GENDER_OPTIONS = {
   MALE: 'Male',

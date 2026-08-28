@@ -1,4 +1,4 @@
-import { get, handleResponse, post } from '~/utils/httpRequest';
+import { get, handleResponse, post } from '@/lib/axios';
 
 const SUFFIX_COURSE_ANA_API_URL = '/course-statistics';
 

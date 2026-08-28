@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -13,35 +13,32 @@ import {
   TabPanels,
   Tabs,
   Text,
-  Tooltip,
 } from '@chakra-ui/react';
 import {
   FaBook,
   FaClock,
   FaHeart,
-  FaMoneyBillAlt,
   FaStar,
 } from 'react-icons/fa';
 import { IoChatbox } from 'react-icons/io5';
-import FAQ from '~/components/Student/CourseDetail/FAQ';
-import Reviews from '~/components/Student/CourseDetail/Reviews';
-import Curriculum from '~/components/Student/CourseDetail/Curriculum';
-import Announcement from '~/components/Student/CourseDetail/Announcement';
-import Description from '~/components/Student/CourseDetail/Description';
-import CourseRandom from '~/components/Student/CourseDetail/CourseRandom';
-import RelateCourse from '~/components/Student/CourseDetail/RelateCourse';
+import FAQ from '@/components/organisms/FAQ';
+import Reviews from '@/components/organisms/Reviews';
+import Curriculum from '@/components/organisms/StudentCourseDetailCurriculum';
+import Announcement from '@/components/organisms/Announcement';
+import Description from '@/components/organisms/Description';
+import CourseRandom from '@/components/organisms/CourseRandom';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import courseService from '~/services/courseService';
-import cartService from '~/services/cartService';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import { websocketConstants } from '~/utils/websocketConstants';
-import { getUsername } from '~/utils/authUtils';
-import config from '~/config';
-import WebsocketService from '~/services/websocketService';
-import favouriteService from '~/services/favouriteService';
-import useCustomToast from '~/hooks/useCustomToast';
-import PriceDisplay from '~/components/PriceDisplay';
-import RelatedBundle from '~/components/Student/CourseDetail/RelateBundle';
+import courseService from '@/services/courseService';
+import cartService from '@/services/cartService';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import { websocketConstants } from '@/utils/websocketConstants';
+import { getUsername } from '@/utils/authUtils';
+import config from '@/config';
+import WebsocketService from '@/services/websocketService';
+import favouriteService from '@/services/favouriteService';
+import useCustomToast from '@/hooks/useCustomToast';
+import PriceDisplay from '@/components/atoms/PriceDisplay';
+import RelatedBundle from '@/components/organisms/RelateBundle';
 
 const CourseDetailBtnStat = {
   START_COURSE: 'START_COURSE',
@@ -55,13 +52,12 @@ const CourseDetailBtnStat = {
 function CourseDetailsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [courseData, setCourseData] = useState(null);
-  const [buttonState, setButtonState] = useState(CourseDetailBtnStat.LOADING); // State to control the button text
-  const { courseId } = useParams();
+  const [courseData, setCourseData] = useState<any>(null);
+  const [buttonState, setButtonState] = useState(CourseDetailBtnStat.LOADING);
+  const { courseId } = useParams<{ courseId: string }>();
   const [isLiked, setIsLiked] = useState(false);
   const { successToast, errorToast } = useCustomToast();
 
-  // Determine the active tab based on the query parameter
   const activeTab = searchParams.get('tab') || 'description';
 
   const loadCourseData = async () => {
@@ -85,16 +81,15 @@ function CourseDetailsPage() {
   const fetchButtonStat = async () => {
     try {
       const btnStat = await courseService.getCourseDetailButtonStatus(courseId);
-      console.log(`Button Stat: ${btnStat}`);
       setButtonState(btnStat);
     } catch (e) {
       setButtonState(CourseDetailBtnStat.LOADING);
     }
   };
 
-  const toggleWishlist = async (id, isLiked) => {
+  const toggleWishlist = async (id: any, liked: boolean) => {
     try {
-      if (isLiked) {
+      if (liked) {
         await favouriteService.deleteFavourite(id);
         setIsLiked(false);
         successToast('Removed from wishlist');
@@ -150,8 +145,7 @@ function CourseDetailsPage() {
     }
   };
 
-  const handleTabChange = (index) => {
-    // Map tab indices to query parameter values
+  const handleTabChange = (index: number) => {
     const tabMapping = [
       'description',
       'curriculum',
@@ -163,8 +157,7 @@ function CourseDetailsPage() {
   };
 
   const getTabIndex = () => {
-    // Map query parameter values to tab indices
-    const tabMapping = {
+    const tabMapping: Record<string, number> = {
       description: 0,
       curriculum: 1,
       faq: 2,
@@ -174,71 +167,64 @@ function CourseDetailsPage() {
     return tabMapping[activeTab] || 0;
   };
 
-  if (!courseData) return <Text>Loading...</Text>;
+  if (!courseData) return <Text p={8}>Loading course details...</Text>;
 
   return (
     <RoleBasedPageLayout>
       <Box maxW="1200px" mx="auto" py={10} px={5}>
-        <Flex justify="space-between" direction={['column', 'column', 'row']}>
+        <Flex justify="space-between" direction={['column', 'column', 'row']} gap={8}>
           <Box flex="2">
-            <Text color="gray.500" fontSize="sm">
-              {courseData?.topic.name}
+            <Text color="blue.600" fontSize="sm" fontWeight="bold" textTransform="uppercase">
+              {courseData?.topic?.name}
             </Text>
-            <Tooltip
-              label={
-                <PriceDisplay
-                  primaryColor={'white'}
-                  priceResponse={courseData?.price}
-                />
-              }
-              aria-label="Course Price"
-              hasArrow
-            >
-              <Text fontSize="3xl" fontWeight="bold" mt={2}>
-                {courseData?.title}
-              </Text>
-            </Tooltip>
+
+            <Text fontSize="3xl" fontWeight="bold" mt={2} color="gray.900">
+              {courseData?.title}
+            </Text>
 
             <Text fontSize="md" mt={4} color="gray.600">
               {courseData?.descriptionPreview}
             </Text>
 
-            <Flex align="center" mt={5}>
-              <Avatar
-                name={courseData?.owner?.fullName || 'Teacher Name'}
-                src={courseData?.owner?.avatarPath}
-                size="lg"
-              />
-              <Box ml={4}>
-                <Text fontWeight="bold">Teacher</Text>
-                <Text
-                  color="blue.500"
-                  cursor="pointer"
-                  onClick={() =>
-                    navigate(config.routes.teacher(courseData?.owner?.username))
-                  }
-                >
-                  {courseData?.owner?.fullName || 'Teacher Name'}
-                </Text>
+            <Flex align="center" mt={5} wrap="wrap" gap={6}>
+              <Flex align="center">
+                <Avatar
+                  name={courseData?.owner?.fullName || 'Teacher Name'}
+                  src={courseData?.owner?.avatarPath}
+                  size="md"
+                />
+                <Box ml={3}>
+                  <Text fontSize="xs" color="gray.500">Instructor</Text>
+                  <Text
+                    fontWeight="bold"
+                    color="blue.600"
+                    cursor="pointer"
+                    onClick={() =>
+                      navigate(config.routes.teacher(courseData?.owner?.username))
+                    }
+                  >
+                    {courseData?.owner?.fullName || 'Teacher Name'}
+                  </Text>
+                </Box>
+              </Flex>
+
+              <Box>
+                <Text fontWeight="bold" fontSize="md">{courseData?.countStudent || 0}</Text>
+                <Text fontSize="xs" color="gray.500">Students enrolled</Text>
               </Box>
 
-              <Box ml={10}>
-                <Text fontWeight="bold">{courseData?.countStudent}</Text>
-                <Text>Students enrolled</Text>
-              </Box>
-              <Box ml={10}>
+              <Box>
                 <Flex align="center">
-                  {[...Array(Math.round(courseData?.rating))].map((_, i) => (
-                    <Icon key={i} as={FaStar} color="orange.400" />
+                  {[...Array(Math.round(courseData?.rating || 0))].map((_, i) => (
+                    <Icon key={i} as={FaStar} color="orange.400" boxSize={3.5} />
                   ))}
-                  {[...Array(5 - Math.round(courseData?.rating))].map(
+                  {[...Array(5 - Math.round(courseData?.rating || 0))].map(
                     (_, i) => (
-                      <Icon key={i + 5} as={FaStar} color="gray.300" />
+                      <Icon key={i + 5} as={FaStar} color="gray.300" boxSize={3.5} />
                     ),
                   )}
-                  <Text ml={2}>
-                    {courseData?.ratingCount} review
-                    {courseData?.ratingCount !== 1 ? 's' : ''}
+                  <Text ml={2} fontSize="sm" fontWeight="semibold">
+                    {courseData?.rating ? Number(courseData.rating).toFixed(1) : '0.0'} ({courseData?.ratingCount || 0} reviews)
                   </Text>
                 </Flex>
               </Box>
@@ -250,67 +236,77 @@ function CourseDetailsPage() {
                 index={getTabIndex()}
                 onChange={handleTabChange}
               >
-                <TabList>
+                <TabList borderBottom="1px solid" borderColor="gray.200">
                   <Tab
+                    pb={3}
+                    fontWeight="semibold"
                     _selected={{
-                      color: 'blue.500',
+                      color: 'blue.600',
                       borderBottom: '2px solid',
-                      borderColor: 'blue.500',
+                      borderColor: 'blue.600',
                     }}
                   >
                     Description
                   </Tab>
                   <Tab
+                    pb={3}
+                    fontWeight="semibold"
                     _selected={{
-                      color: 'blue.500',
+                      color: 'blue.600',
                       borderBottom: '2px solid',
-                      borderColor: 'blue.500',
+                      borderColor: 'blue.600',
                     }}
                   >
                     Curriculum
                   </Tab>
                   <Tab
+                    pb={3}
+                    fontWeight="semibold"
                     _selected={{
-                      color: 'blue.500',
+                      color: 'blue.600',
                       borderBottom: '2px solid',
-                      borderColor: 'blue.500',
+                      borderColor: 'blue.600',
                     }}
                   >
                     FAQ
                   </Tab>
                   <Tab
+                    pb={3}
+                    fontWeight="semibold"
                     _selected={{
-                      color: 'blue.500',
+                      color: 'blue.600',
                       borderBottom: '2px solid',
-                      borderColor: 'blue.500',
+                      borderColor: 'blue.600',
                     }}
                   >
                     Announcement
                   </Tab>
                   <Tab
+                    pb={3}
+                    fontWeight="semibold"
                     _selected={{
-                      color: 'blue.500',
+                      color: 'blue.600',
                       borderBottom: '2px solid',
-                      borderColor: 'blue.500',
+                      borderColor: 'blue.600',
                     }}
                   >
                     Reviews
                   </Tab>
                 </TabList>
                 <TabPanels>
-                  <TabPanel>
+                  <TabPanel px={0}>
                     <Description courseId={courseId} />
                   </TabPanel>
-                  <TabPanel>
+                  <TabPanel px={0}>
                     <Curriculum courseId={courseId} />
                   </TabPanel>
-                  <TabPanel>
+                  <TabPanel px={0}>
                     <FAQ courseId={courseId} />
                   </TabPanel>
-                  <TabPanel>
+                  <TabPanel px={0}>
                     <Announcement courseId={courseId} />
                   </TabPanel>
-                  <TabPanel>
+                  <TabPanel px={0}>
                     <Reviews
                       courseId={courseId}
                       instructorName={courseData?.ownerUsername}
@@ -329,93 +325,134 @@ function CourseDetailsPage() {
             </Box>
           </Box>
 
-          <Box flex="1" mt={[8, 8, 0]} pl={[0, 0, 10]}>
-            <Flex justify="space-between" mb={4}>
-              <Button
-                variant="ghost"
-                colorScheme={isLiked ? 'red' : 'gray'}
-                onClick={() => toggleWishlist(courseId, isLiked)}
-                leftIcon={
-                  <Icon as={FaHeart} color={isLiked ? 'red.500' : 'gray.500'} />
-                }
-              >
-                {isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              </Button>
-              <Button
-                leftIcon={<IoChatbox />}
-                variant="ghost"
-                colorScheme="gray"
-                onClick={() => {
-                  navigate(config.routes.chat, {
-                    state: {
-                      returnUrl: config.routes.course_view_detail.replace(
-                        ':courseId',
-                        courseData?.id,
-                      ),
-                      targetCourse: courseData,
-                    },
-                  });
-                }}
-              >
-                Chat
-              </Button>
-            </Flex>
-
-            <Button
-              colorScheme="blue"
-              size="lg"
-              w="100%"
-              onClick={handleButtonClick}
-              isDisabled={buttonState === CourseDetailBtnStat.LOADING}
+          {/* Right Sticky Sidebar with Price Card */}
+          <Box flex="1" minW={{ base: '100%', md: '340px' }} maxW={{ base: '100%', md: '380px' }}>
+            <Box
+              p={6}
+              bg="white"
+              borderRadius="2xl"
+              borderWidth="1px"
+              borderColor="gray.200"
+              boxShadow="lg"
+              position="sticky"
+              top="100px"
             >
-              {buttonState === CourseDetailBtnStat.LOADING && 'Loading...'}
-              {buttonState === CourseDetailBtnStat.ADD_TO_CART && 'Add to Cart'}
-              {buttonState === CourseDetailBtnStat.IN_CART && 'In Cart'}
-              {buttonState === CourseDetailBtnStat.START_COURSE &&
-                'Start Course'}
-              {buttonState === CourseDetailBtnStat.CONTINUE_COURSE &&
-                'Continue Course'}
-              {buttonState === CourseDetailBtnStat.COMPLETED && 'Completed'}
-            </Button>
+              {/* Prominent Price Display */}
+              <Box mb={6} pb={4} borderBottom="1px solid" borderColor="gray.100">
+                <Text fontSize="xs" color="gray.500" fontWeight="bold" textTransform="uppercase" letterSpacing="wide" mb={1}>
+                  Tuition Fee
+                </Text>
+                <PriceDisplay
+                  priceResponse={courseData?.price}
+                  primaryColor="blue.600"
+                  fontSize="3xl"
+                  fontWeight="extrabold"
+                  showFreeBadge
+                />
+              </Box>
 
-            <Box mt={6}>
-              <Text fontWeight="bold" fontSize="lg" mb={4}>
-                Course details
-              </Text>
-              <Stack spacing={3}>
-                <HStack>
-                  <Icon as={FaClock} color="gray.500" />
-                  <Text>Duration</Text>
-                  <Text ml="auto" fontWeight="bold">
-                    {courseData?.duration} hours
-                  </Text>
-                </HStack>
-                <HStack>
-                  <Icon as={FaBook} color="gray.500" />
-                  <Text>Lectures</Text>
-                  <Text ml="auto" fontWeight="bold">
-                    {courseData?.countSection}
-                  </Text>
-                </HStack>
+              <Flex justify="space-between" mb={4} gap={2}>
+                <Button
+                  flex="1"
+                  variant="outline"
+                  size="sm"
+                  colorScheme={isLiked ? 'red' : 'gray'}
+                  onClick={() => toggleWishlist(courseId, isLiked)}
+                  leftIcon={
+                    <Icon as={FaHeart} color={isLiked ? 'red.500' : 'gray.400'} />
+                  }
+                >
+                  {isLiked ? 'Wishlisted' : 'Wishlist'}
+                </Button>
+                <Button
+                  flex="1"
+                  leftIcon={<IoChatbox />}
+                  variant="outline"
+                  size="sm"
+                  colorScheme="blue"
+                  onClick={() => {
+                    navigate(config.routes.chat, {
+                      state: {
+                        returnUrl: config.routes.course_view_detail.replace(
+                          ':courseId',
+                          courseData?.id,
+                        ),
+                        targetCourse: courseData,
+                      },
+                    });
+                  }}
+                >
+                  Chat
+                </Button>
+              </Flex>
 
-                <HStack>
-                  <Icon as={FaBook} color="gray.500" />
-                  <Text>Level</Text>
-                  <Text ml="auto" fontWeight="bold">
-                    {courseData?.level.name}
-                  </Text>
-                </HStack>
-              </Stack>
-            </Box>
-            <Box mt={6}>
-              <Text fontWeight="bold" fontSize="lg" mb={4}>
-                Related Courses
-              </Text>
-              <CourseRandom
-                courseId={courseId}
-                numberOfCourses={4}
-                type={'TOPIC'}
-              />
+              <Button
+                colorScheme="blue"
+                size="lg"
+                w="100%"
+                borderRadius="xl"
+                fontWeight="bold"
+                onClick={handleButtonClick}
+                isDisabled={buttonState === CourseDetailBtnStat.LOADING}
+                _hover={{ bg: 'blue.600' }}
+              >
+                {buttonState === CourseDetailBtnStat.LOADING && 'Loading...'}
+                {buttonState === CourseDetailBtnStat.ADD_TO_CART && 'Add to Cart'}
+                {buttonState === CourseDetailBtnStat.IN_CART && 'In Cart'}
+                {buttonState === CourseDetailBtnStat.START_COURSE &&
+                  'Start Course'}
+                {buttonState === CourseDetailBtnStat.CONTINUE_COURSE &&
+                  'Continue Course'}
+                {buttonState === CourseDetailBtnStat.COMPLETED && 'Completed'}
+              </Button>
+
+              <Box mt={6} pt={4} borderTop="1px solid" borderColor="gray.100">
+                <Text fontWeight="bold" fontSize="md" mb={4} color="gray.800">
+                  Course Features
+                </Text>
+                <Stack spacing={3} fontSize="sm">
+                  <HStack justify="space-between">
+                    <HStack spacing={2} color="gray.600">
+                      <Icon as={FaClock} color="blue.500" />
+                      <Text>Duration</Text>
+                    </HStack>
+                    <Text fontWeight="bold">
+                      {courseData?.duration ? `${courseData.duration} hours` : 'Self-paced'}
+                    </Text>
+                  </HStack>
+
+                  <HStack justify="space-between">
+                    <HStack spacing={2} color="gray.600">
+                      <Icon as={FaBook} color="blue.500" />
+                      <Text>Lessons</Text>
+                    </HStack>
+                    <Text fontWeight="bold">
+                      {courseData?.countSection || 0}
+                    </Text>
+                  </HStack>
+
+                  <HStack justify="space-between">
+                    <HStack spacing={2} color="gray.600">
+                      <Icon as={FaBook} color="blue.500" />
+                      <Text>Level</Text>
+                    </HStack>
+                    <Text fontWeight="bold">
+                      {courseData?.level?.name || 'All Levels'}
+                    </Text>
+                  </HStack>
+                </Stack>
+              </Box>
+
+              <Box mt={6}>
+                <Text fontWeight="bold" fontSize="md" mb={3} color="gray.800">
+                  Recommended For You
+                </Text>
+                <CourseRandom
+                  courseId={courseId}
+                  numberOfCourses={3}
+                  type={'TOPIC'}
+                />
+              </Box>
             </Box>
           </Box>
         </Flex>

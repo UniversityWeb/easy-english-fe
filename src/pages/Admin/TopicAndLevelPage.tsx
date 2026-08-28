@@ -26,10 +26,10 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import Pagination from '~/components/Student/Search/Page';
-import topicService from '~/services/topicService';
-import levelService from '~/services/levelService';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
+import Pagination from '@/components/organisms/Page';
+import topicService from '@/services/topicService';
+import levelService from '@/services/levelService';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
 
 const TopicAndLevelPage = () => {
   const [topics, setTopics] = useState([]);

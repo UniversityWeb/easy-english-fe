@@ -1,5 +1,5 @@
-import { handleResponse, post, put } from '~/utils/httpRequest';
-import { type IUser, type IPaginatedResponse } from '~/types';
+import { handleResponse, get, post, put } from '@/lib/axios';
+import { type IUser, type IPaginatedResponse } from '@/types';
 
 const SUFFIX_USER_API_URL = '/users';
 
@@ -55,6 +55,22 @@ const updateOwnSettings = async (updateReq: any) => {
   return handleResponse(response, 200);
 };
 
+const pingOnlineStatus = async () => {
+  const path = `${SUFFIX_USER_API_URL}/ping`;
+  const response = await post(path, undefined);
+  return handleResponse(response, 200);
+};
+
+const getUserByUsername = async (username: string): Promise<IUser | null> => {
+  const path = `${SUFFIX_USER_API_URL}/get-by-id/${username}`;
+  try {
+    const response = await get(path);
+    return handleResponse(response, 200);
+  } catch (error) {
+    return null;
+  }
+};
+
 const userService = {
   updateOwnProfile,
   uploadAvatar,
@@ -63,6 +79,8 @@ const userService = {
   deleteUserForAdmin,
   addUserForAdmin,
   updateOwnSettings,
+  pingOnlineStatus,
+  getUserByUsername,
 };
 
 export default userService;

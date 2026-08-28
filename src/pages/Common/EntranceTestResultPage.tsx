@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  Badge,
   Box,
   Button,
   CircularProgress,
@@ -17,22 +18,26 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { FaRedoAlt, FaTimesCircle } from 'react-icons/fa';
+import { FaTimesCircle } from 'react-icons/fa';
 import {
-  HiOutlineCheckCircle,
   HiOutlineClock,
   HiOutlineQuestionMarkCircle,
   HiOutlineTrophy,
 } from 'react-icons/hi2';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import testResultService from '~/services/testResultService';
-import QuestionItem from '~/components/Test/ReadOnlyQuestion/QuestionItem';
-import config from '~/config';
-import NavbarWithBackBtn from '~/components/Navbars/NavbarWithBackBtn';
-import { Badge } from 'lucide-react';
-import courseService from '~/services/courseService';
+import { useNavigate, useParams } from 'react-router-dom';
+import testResultService from '@/services/testResultService';
+import QuestionItem from '@/components/organisms/TestReadOnlyQuestionQuestionItem';
+import config from '@/config';
+import NavbarWithBackBtn from '@/components/organisms/NavbarWithBackBtn';
+import courseService from '@/services/courseService';
 
-const RoadmapStep = ({ course, isActive, isLast }) => {
+const getLevelColorScheme = (levelName?: string) => {
+  if (levelName === 'Beginner') return 'green';
+  if (levelName === 'Intermediate') return 'orange';
+  return 'red';
+};
+
+const RoadmapStep = ({ course, isActive, isLast }: any) => {
   const activeBorderColor = isActive ? 'blue.500' : 'gray.200';
   const bgColor = isActive ? 'blue.50' : 'white';
   const navigate = useNavigate();
@@ -61,16 +66,10 @@ const RoadmapStep = ({ course, isActive, isLast }) => {
         />
         <Box p={4}>
           <Badge
-            colorScheme={
-              course.level.name === 'Beginner'
-                ? 'green'
-                : course.level.name === 'Intermediate'
-                  ? 'orange'
-                  : 'red'
-            }
+            colorScheme={getLevelColorScheme(course.level?.name)}
             mb={2}
           >
-            {course.level.name}
+            {course.level?.name || 'All Levels'}
           </Badge>
           <Heading size="sm" mb={2}>
             {course.title}
@@ -104,8 +103,7 @@ const RoadmapStep = ({ course, isActive, isLast }) => {
 
 const EntranceTestResultPage = () => {
   const { testResultId } = useParams();
-  const { state } = useLocation();
-  const [courses, setCourses] = useState(null);
+  const [courses, setCourses] = useState<any[]>([]);
   const fetchCourses = async () => {
     try {
       const courseRequest = {
@@ -119,14 +117,8 @@ const EntranceTestResultPage = () => {
       };
 
       const response = await courseService.getCourseByFilter(courseRequest);
-      if (response) {
-        const { content } = response;
-
-        const randomCourses = [...content]
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3);
-
-        setCourses(randomCourses);
+      if (response?.content) {
+        setCourses(response.content.slice(0, 3));
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -136,16 +128,12 @@ const EntranceTestResultPage = () => {
   useEffect(() => {
     fetchCourses();
   }, []);
-  console.log('courses', courses);
-  // const returnUrl = state?.returnUrl || config.routes.home[0];
+
   const returnUrl = config.routes.homepage;
-  const navigate = useNavigate();
-  const [testResult, setTestResult] = useState(null);
+  const [testResult, setTestResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  // Thêm vào đầu component
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Fetch test result when the component mounts
   useEffect(() => {
     const fetchTestResult = async () => {
       try {
@@ -178,56 +166,40 @@ const EntranceTestResultPage = () => {
     );
   }
 
-  // Format the date
-  const formatDate = (dateString) => new Date(dateString).toLocaleString();
+  const formatDate = (dateString: string) => new Date(dateString).toLocaleString();
 
-  // Calculate the test duration in minutes and seconds
-  const calculateDuration = (start, end) => {
-    const duration = (new Date(end) - new Date(start)) / 1000; // duration in seconds
-    const hours = Math.floor(duration / 3600); // hours
-    const minutes = Math.floor((duration % 3600) / 60); // minutes
-    const seconds = Math.floor(duration % 60); // seconds
+  const calculateDuration = (start: string, end: string) => {
+    const duration = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor((duration % 3600) / 60);
+    const seconds = Math.floor(duration % 60);
 
-    // Format with leading zeros for single digits
-    const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    return formattedTime;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
   const {
     result,
-    test,
     correctPercent,
-    status,
     startedAt,
     finishedAt,
     userAnswers,
-    courseId,
   } = testResult;
 
-  // Render the answer section for each question
-  const renderAnswerSection = (userAnswer) => {
-    const userAnswers = userAnswer.answers;
+  const renderAnswerSection = (userAnswer: any) => {
+    const answers = userAnswer.answers;
 
     return (
       <QuestionItem
         question={userAnswer?.testQuestion}
-        userAnswers={userAnswers}
+        userAnswers={answers}
       />
     );
   };
-
-  const handleRetake = () => {
-    // Navigate to the retake test page or start a new test
-    navigate(config.routes.take_test(testResult?.testId));
-  };
-
-  const isPassed = correctPercent >= test?.passingGrade;
 
   return (
     <Box>
       <NavbarWithBackBtn returnUrl={returnUrl} backBtnTitle={'Back to home'} />
       <Container maxW="800px" mx="auto" p={5}>
-        {/* Quiz Title */}
         <Heading as="h2" size="lg" mb={4}>
           Title: {testResult?.test?.title}
         </Heading>
@@ -244,7 +216,7 @@ const EntranceTestResultPage = () => {
                 <Text fontWeight="bold" fontSize="xl">
                   {result}
                 </Text>
-                <Text fontSize="xs">of {userAnswers.length}</Text>
+                <Text fontSize="xs">of {userAnswers?.length || 0}</Text>
               </VStack>
             </CircularProgressLabel>
           </CircularProgress>
@@ -258,7 +230,7 @@ const EntranceTestResultPage = () => {
               <Text as="span" fontWeight="bold" color="blue.500">
                 {result}
               </Text>{' '}
-              out of {userAnswers.length}
+              out of {userAnswers?.length || 0}
             </Text>
             <Text color="gray.600" mt={2}>
               Based on your score, here's your recommended learning path:
@@ -266,7 +238,6 @@ const EntranceTestResultPage = () => {
           </Box>
         </VStack>
 
-        {/* Test Details */}
         <VStack spacing={4} align="start" mb={6}>
           <HStack>
             <Icon as={HiOutlineTrophy} color="cyan.600" boxSize={6} />
@@ -296,16 +267,13 @@ const EntranceTestResultPage = () => {
               <RoadmapStep
                 key={course.id}
                 course={course}
-                isActive={
-                  // course.id === activeCourseId || course.id < activeCourseId
-                  true
-                }
+                isActive={true}
                 isLast={index === courses?.length - 1}
               />
             ))}
           </VStack>
         </Box>
-        {/* Divider */}
+
         <Divider mb={6} />
 
         <Heading as="h3" size="md" mb={4}>
@@ -319,7 +287,7 @@ const EntranceTestResultPage = () => {
           leftIcon={
             isExpanded ? <FaTimesCircle /> : <HiOutlineQuestionMarkCircle />
           }
-          colorScheme={isExpanded ? 'blue' : 'blue'}
+          colorScheme="blue"
           variant="outline"
         >
           {isExpanded ? 'Hide Answers' : 'Show Answers'}
@@ -327,7 +295,7 @@ const EntranceTestResultPage = () => {
 
         {isExpanded && (
           <List spacing={4} w="100%">
-            {userAnswers?.map((userAnswer, index) => (
+            {userAnswers?.map((userAnswer: any) => (
               <ListItem
                 key={userAnswer?.id}
                 p={4}

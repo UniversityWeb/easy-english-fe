@@ -15,11 +15,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import authService from '~/services/authService';
-import useCustomToast from '~/hooks/useCustomToast';
-import config from '~/config';
-import { validatePassword } from '~/utils/methods';
-import ValidationErrors from '~/components/ValidationErrors';
+import authService from '@/services/authService';
+import useCustomToast from '@/hooks/useCustomToast';
+import config from '@/config';
+import { validatePassword } from '@/utils/methods';
+import ValidationErrors from '@/components/atoms/ValidationErrors';
 import OTPInput from 'react-otp-input';
 
 const INPUT_TYPES = {
@@ -246,54 +246,56 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <Box
-      maxW="400px"
-      mx="auto"
-      mt="100px"
-      p="6"
-      boxShadow="lg"
-      borderRadius="md"
-      textAlign="center"
-      bg="white"
-    >
-      <HStack mb={4}>
-        <IconButton
-          icon={<ArrowBackIcon />}
-          aria-label="Go back"
-          onClick={() => window.history.back()}
-          variant="ghost"
-        />
-        <Heading size="md">Restore Password</Heading>
-      </HStack>
+    <Box minH="100vh" w="100%" display="flex" alignItems="center" justifyContent="center" py={8}>
+      <Box
+        maxW="400px"
+        w="100%"
+        mx="auto"
+        p="6"
+        boxShadow="lg"
+        borderRadius="md"
+        textAlign="center"
+        bg="white"
+      >
+        <HStack mb={4}>
+          <IconButton
+            icon={<ArrowBackIcon />}
+            aria-label="Go back"
+            onClick={() => window.history.back()}
+            variant="ghost"
+          />
+          <Heading size="md">Restore Password</Heading>
+        </HStack>
 
-      {inputType === INPUT_TYPES.EMAIL ? (
-        <ForgotPasswordForm
-          email={email}
-          setEmail={setEmail}
-          handleResetPassword={handleResetPassword}
-          isLoading={isLoading}
-        />
-      ) : (
-        <PasswordResetForm
-          passwordData={passwordData}
-          setPasswordData={setPasswordData}
-          handlePasswordChange={handlePasswordChange}
-          handleUpdatePassWithOtp={handleResetPassWithOtp}
-          isLoading={isLoading}
-        />
-      )}
+        {inputType === INPUT_TYPES.EMAIL ? (
+          <ForgotPasswordForm
+            email={email}
+            setEmail={setEmail}
+            handleResetPassword={handleResetPassword}
+            isLoading={isLoading}
+          />
+        ) : (
+          <PasswordResetForm
+            passwordData={passwordData}
+            setPasswordData={setPasswordData}
+            handlePasswordChange={handlePasswordChange}
+            handleUpdatePassWithOtp={handleResetPassWithOtp}
+            isLoading={isLoading}
+          />
+        )}
 
-      <Box mt={5}>
-        <ValidationErrors errors={validationErrors} />
-      </Box>
+        <Box mt={5}>
+          <ValidationErrors errors={validationErrors} />
+        </Box>
 
-      <Box mt={6} borderTop="1px solid #eaeaea" pt={4}>
-        <Text>
-          No account?{' '}
-          <Link as={RouterLink} to={config.routes.register} color="blue.500">
-            Register
-          </Link>
-        </Text>
+        <Box mt={6} borderTop="1px solid #eaeaea" pt={4}>
+          <Text>
+            No account?{' '}
+            <Link as={RouterLink} to={config.routes.register} color="blue.500">
+              Register
+            </Link>
+          </Text>
+        </Box>
       </Box>
     </Box>
   );

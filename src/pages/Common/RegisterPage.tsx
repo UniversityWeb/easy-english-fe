@@ -18,26 +18,47 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import config from '~/config';
-import TransientAppLogo from '~/assets/images/TransientAppLogo.svg';
-import AuthService from '~/services/authService';
+import config from '@/config';
+import TransientAppLogo from '@/assets/images/TransientAppLogo.svg';
+import AuthService from '@/services/authService';
 import { useNavigate } from 'react-router-dom';
-import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH } from '~/utils/constants';
-import useCustomToast from '~/hooks/useCustomToast';
+import { MIN_PASSWORD_LENGTH, MIN_USERNAME_LENGTH } from '@/utils/constants';
+import useCustomToast from '@/hooks/useCustomToast';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { successToast, errorToast } = useCustomToast();
   const [showPassword, setShowPassword] = useState(false);
   const [registerRequest, setRegisterRequest] = useState({
-    username: 'john',
-    password: 'P@123456789',
-    fullName: 'john',
-    email: 'john@gmail.com',
-    phoneNumber: '+84972640891',
+    username: '',
+    password: '',
+    fullName: '',
+    email: '',
+    phoneNumber: '',
     gender: 'MALE',
-    dob: '2024-08-05',
+    dob: '',
   });
+
+  const validateDob = (dob: string) => {
+    if (!dob) {
+      errorToast('Date of birth is required.');
+      return false;
+    }
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    if (isNaN(birthDate.getTime())) {
+      errorToast(`Invalid date of birth.`);
+      return false;
+    }
+
+    if (birthDate > today) {
+      errorToast(`Date of birth cannot be in the future.`);
+      return false;
+    }
+
+    return true;
+  };
 
   const validateForm = () => {
     const { username, password, fullName, email, phoneNumber, dob } =
@@ -62,13 +83,13 @@ const RegisterPage = () => {
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (email && !emailRegex.test(email)) {
       errorToast('Invalid email address.');
       return false;
     }
 
-    const phoneRegex = /^\+\d{11,15}$/;
+    const phoneRegex = /^\+\d{10,15}$/;
     if (phoneNumber && !phoneRegex.test(phoneNumber)) {
       errorToast('Invalid phone number.');
       return false;
@@ -77,28 +98,9 @@ const RegisterPage = () => {
     return validateDob(dob);
   };
 
-  const validateDob = (dob) => {
-    const birthDate = new Date(dob);
-    const today = new Date();
-
-    if (!dob || isNaN(birthDate.getTime())) {
-      errorToast(`Invalid date of birth.`);
-      return false;
-    }
-
-    if (birthDate > today) {
-      errorToast(`Date of birth cannot be in the future.`);
-      return false;
-    }
-
-    return true;
-  };
-
   const handleRegister = () => {
-    console.log('handleRegister method onClick');
     if (!validateForm()) return;
 
-    console.log(`RegisterRequest: ${registerRequest}`);
     AuthService.register(registerRequest)
       .then((registerResponse) => {
         if (!registerResponse) {
@@ -109,20 +111,20 @@ const RegisterPage = () => {
         successToast(registerResponse);
         navigate(config.routes.otp_validation, { state: { username: registerRequest.username } });
       })
-      .catch((e) => {
-        errorToast(e?.message)
+      .catch((e: any) => {
+        errorToast(e?.message);
       });
   };
 
-  const handleDateChange = (e) => {
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRegisterRequest((prevState) => ({
       ...prevState,
-      [name]: new Date(value).toISOString(),
+      [name]: value,
     }));
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setRegisterRequest((prevState) => ({
       ...prevState,
@@ -131,7 +133,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <Center>
+    <Center minH="100vh" w="100%" py={8}>
       <VStack spacing={4} align="center">
         <Image boxSize="200px" src={TransientAppLogo} alt="Logo" />
         <Heading size="md">Create an account</Heading>
@@ -174,7 +176,7 @@ const RegisterPage = () => {
                     <Button
                       variant={'ghost'}
                       onClick={() =>
-                        setShowPassword((showPassword) => !showPassword)
+                        setShowPassword((prev) => !prev)
                       }
                     >
                       {showPassword ? (
@@ -217,9 +219,7 @@ const RegisterPage = () => {
                   size="lg"
                   type="date"
                   mr={4}
-                  value={new Date(registerRequest.dob)
-                    .toISOString()
-                    .substr(0, 10)}
+                  value={registerRequest.dob ? registerRequest.dob.substring(0, 10) : ''}
                   onChange={handleDateChange}
                 />
               </FormControl>
@@ -232,7 +232,7 @@ const RegisterPage = () => {
                   value={registerRequest.gender}
                   onChange={handleInputChange}
                 >
-                  <option value="MALE" defaultChecked={true}>
+                  <option value="MALE">
                     Male
                   </option>
                   <option value="FEMALE">Female</option>

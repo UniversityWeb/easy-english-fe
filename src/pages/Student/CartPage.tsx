@@ -12,16 +12,16 @@ import {
   VStack,
   Divider,
 } from '@chakra-ui/react';
-import useCustomToast from '~/hooks/useCustomToast';
-import cartService from '~/services/cartService';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import { formatVNDMoney } from '~/utils/methods';
-import paymentService from '~/services/paymentService';
-import { getUsername } from '~/utils/authUtils';
-import config from '~/config';
-import { PAYMENT_STATUES } from '~/utils/constants';
+import useCustomToast from '@/hooks/useCustomToast';
+import cartService from '@/services/cartService';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import { formatVNDMoney } from '@/utils/methods';
+import paymentService from '@/services/paymentService';
+import { getUsername } from '@/utils/authUtils';
+import config from '@/config';
+import { PAYMENT_STATUES } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
-import bundleService from '~/services/bundleService';
+import bundleService from '@/services/bundleService';
 const isCourseInAnyBundle = (bundles, courseId) => {
   return Object.values(bundles).some((bundle) =>
     bundle.courses.some((bundleCourse) => bundleCourse.course.id === courseId),

@@ -17,12 +17,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { PiPencilSimpleFill } from 'react-icons/pi';
-import RoleBasedPageLayout from '~/components/RoleBasedPageLayout';
-import courseService from '~/services/courseService'; // Import the service
-import Pagination from '~/components/Student/Search/Page';
-import useCustomToast from '~/hooks/useCustomToast';
+import RoleBasedPageLayout from '@/components/organisms/RoleBasedPageLayout';
+import courseService from '@/services/courseService'; // Import the service
+import Pagination from '@/components/organisms/Page';
+import useCustomToast from '@/hooks/useCustomToast';
 import { useNavigate } from 'react-router-dom';
-import config from '~/config';
+import config from '@/config';
 
 const STATUS_OPTIONS = {
   PUBLISHED: 'Published',
